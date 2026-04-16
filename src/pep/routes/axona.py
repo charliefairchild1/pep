@@ -5275,6 +5275,11 @@ document.querySelectorAll('.tab').forEach(tab => {
 });
 
 // ═══════════════════════════════════════════════════════════════════════
+// Theme helper (used by canvases that clear via fillRect)
+// ═══════════════════════════════════════════════════════════════════════
+function themeBg() { return getComputedStyle(document.body).getPropertyValue('--bg').trim() || '#0d0f14'; }
+
+// ═══════════════════════════════════════════════════════════════════════
 // Canvas dropdown (jump to any canvas/sub-section)
 // ═══════════════════════════════════════════════════════════════════════
 function canvasSelect(id) {
