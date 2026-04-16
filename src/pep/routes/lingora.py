@@ -74,6 +74,27 @@ _PAGE = """\
   .hero p { font-size: 12px; color: var(--text); line-height: 1.8; margin-bottom: 8px; }
   .hero .tag { font-size: 10px; color: var(--dim); letter-spacing: 0.2em;
                text-transform: uppercase; margin-bottom: 4px; }
+  /* LAVAS switcher + mobile responsive */
+  .lavas-switch a { color: var(--accent); text-decoration: none; padding: 2px 4px; border-radius: 3px; }
+  .lavas-switch a:hover { background: var(--surface); }
+  .lavas-switch .lavas-current { color: var(--text); font-weight: bold; padding: 2px 4px; opacity: 0.7; }
+  @media (max-width: 700px) {
+    nav { padding: 4px 8px 0 8px; }
+    .nav-row { flex-wrap: wrap; gap: 6px; }
+    .nav-row-top { padding-bottom: 4px; }
+    .brand { font-size: 14px; }
+    .tabs { overflow-x: auto; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; max-width: 100%; }
+    .tabs::-webkit-scrollbar { height: 3px; }
+    .tab { white-space: nowrap; padding: 6px 8px; font-size: 10px; }
+    .nav-btn { padding: 4px 8px; font-size: 10px; }
+    .container { padding: 12px; max-width: 100%; }
+    h2 { font-size: 14px; }
+    h3 { font-size: 12px; }
+    .canvas-box canvas { width: 100% !important; height: auto !important; max-width: 100%; }
+    .info { font-size: 11px; line-height: 1.6; }
+    .lavas-switch { gap: 6px; font-size: 10px; }
+    #pep-link-badge { display: none; }
+  }
 </style>
 </head>
 <body>
@@ -96,8 +117,14 @@ _PAGE = """\
     <button onclick="downloadLingora()" class="nav-btn" title="download the current page as a standalone HTML file">Download</button>
     <button onclick="tourStart()" class="nav-btn" style="border-color:var(--accent2);color:var(--accent2)">Take a Tour</button>
     <button onclick="toggleLight()" id="light-btn" class="nav-btn">Light Mode</button>
-    <a href="/axona" style="font-size:11px;margin-left:6px">Axona &rarr;</a>
-    <a href="/pep" style="font-size:11px;margin-left:6px">&larr; PEP</a>
+    <span class="lavas-switch" style="display:flex;gap:8px;align-items:center;font-size:11px;flex-wrap:wrap;margin-left:6px">
+      <a href="/pep">PEP</a>
+      <a href="/axona">Axona</a>
+      <span class="lavas-current">Lingora</span>
+      <a href="/atria">Atria</a>
+      <a href="/vectora">Vectora</a>
+      <a href="/strata">Strata</a>
+    </span>
   </div>
   <div class="nav-row nav-row-bottom">
     <div class="tabs" id="tabs">

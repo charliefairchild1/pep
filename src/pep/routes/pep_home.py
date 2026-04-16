@@ -78,6 +78,29 @@ _PAGE = """\
   .lavas-card:hover { border-color: var(--accent); text-decoration: none; }
   .lavas-card .name { font-size: 13px; font-weight: bold; color: var(--accent); }
   .lavas-card .desc { font-size: 11px; color: var(--dim); margin-top: 4px; margin-bottom: 0; }
+  /* LAVAS switcher + mobile responsive */
+  .lavas-switch a { color: var(--accent); text-decoration: none; padding: 2px 4px; border-radius: 3px; }
+  .lavas-switch a:hover { background: var(--surface); }
+  .lavas-switch .lavas-current { color: var(--text); font-weight: bold; padding: 2px 4px; opacity: 0.7; }
+  @media (max-width: 700px) {
+    nav { padding: 4px 8px 0 8px; }
+    .nav-row { flex-wrap: wrap; gap: 6px; }
+    .nav-row-top { padding-bottom: 4px; }
+    .brand { font-size: 14px; }
+    .tabs { overflow-x: auto; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; max-width: 100%; }
+    .tabs::-webkit-scrollbar { height: 3px; }
+    .tab { white-space: nowrap; padding: 6px 8px; font-size: 10px; }
+    .nav-btn { padding: 4px 8px; font-size: 10px; }
+    .container { padding: 12px; max-width: 100%; }
+    h1 { font-size: 18px !important; }
+    h2 { font-size: 14px; }
+    h3 { font-size: 12px; }
+    .canvas-box canvas { width: 100% !important; height: auto !important; max-width: 100%; }
+    .info { font-size: 11px; line-height: 1.6; }
+    .hero { padding: 20px 18px; }
+    .lavas-switch { gap: 6px; font-size: 10px; }
+    #pep-link-badge { display: none; }
+  }
 </style>
 </head>
 <body>
@@ -95,10 +118,15 @@ _PAGE = """\
       <option value="">jump to canvas…</option>
     </select>
     <button onclick="toggleLight()" id="light-btn" class="nav-btn">Light Mode</button>
-    <a href="/axona" style="font-size:11px">Axona</a>
-    <a href="/lingora" style="font-size:11px">Lingora</a>
-    <a href="/atria" style="font-size:11px">Atria</a>
-    <a href="/math" style="font-size:11px">Math playground</a>
+    <span class="lavas-switch" style="display:flex;gap:8px;align-items:center;font-size:11px;flex-wrap:wrap">
+      <span class="lavas-current">PEP</span>
+      <a href="/axona">Axona</a>
+      <a href="/lingora">Lingora</a>
+      <a href="/atria">Atria</a>
+      <a href="/vectora">Vectora</a>
+      <a href="/strata">Strata</a>
+      <a href="/math" style="opacity:0.7">Math</a>
+    </span>
   </div>
   <div class="nav-row nav-row-bottom">
     <div class="tabs" id="tabs">
