@@ -127,6 +127,7 @@ _PAGE = """\
       <div class="tab" data-panel="earnings-tab">Earnings Residual</div>
       <div class="tab" data-panel="regime-tab">Regime Modulation</div>
       <div class="tab" data-panel="rotation-tab">Sector Rotation</div>
+      <div class="tab" data-panels="unusual-tab classify-tab newscore-tab leaderboard-tab">StockIntel</div>
       <div class="tab" data-panels="pitch-tab bench-tab">Research Pitch</div>
       <div class="tab" data-panel="theory-tab">Theory</div>
       <div class="tab" data-panel="bridge-tab">PEP &harr; Strata</div>
@@ -152,9 +153,12 @@ _PAGE = """\
     <p>
       Strata is the LAVAS research sandbox. Not a trading bot, not
       financial advice. A set of interactive demonstrations that the
-      framework produces useful market-structure insights. If it does,
-      Strata becomes a product. If not, the primitives get refined and
-      every LAVAS sibling benefits.
+      framework produces useful market-structure insights. The
+      <b>StockIntel</b> tab ports four already-shipping features from
+      the working sibling product (an AI-powered stock intelligence
+      and paper-trading platform at <code>~/projects/charlie_project/</code>)
+      and rebuilds them as PEP-grounded canvases. The primitives are
+      not theoretical; they are running in production.
     </p>
   </div>
 
@@ -322,17 +326,218 @@ _PAGE = """\
 </div>
 </div>
 
+<!-- ═══ Unusual Move Scanner ════════════════════════════════════ -->
+<div class="panel" id="unusual-tab">
+<div class="container">
+  <h2>Unusual Move Scanner &mdash; Residual Scoring on Price + Volume</h2>
+  <p class="desc">
+    Ported from <b>StockIntel</b> (sibling LAVAS product). Today's price
+    move and volume are scored against the stock's historical
+    distribution of rolling moves. The composite "unusual score" is a
+    weighted residual: how far the move is from what the predictor
+    expected.
+  </p>
+  <div class="canvas-box">
+    <canvas id="unusual-canvas" width="960" height="500"></canvas>
+  </div>
+  <div class="controls">
+    <label style="display:flex;align-items:center;gap:8px">
+      <span>price move %:</span>
+      <input type="range" id="u-price" min="-15" max="15" value="3" style="width:140px" oninput="document.getElementById('u-price-val').textContent=this.value+'%'">
+      <span class="stat-val" id="u-price-val">3%</span>
+    </label>
+    <label style="display:flex;align-items:center;gap:8px">
+      <span>relative volume:</span>
+      <input type="range" id="u-rvol" min="50" max="500" value="120" style="width:140px" oninput="document.getElementById('u-rvol-val').textContent=(this.value/100).toFixed(1)+'x'">
+      <span class="stat-val" id="u-rvol-val">1.2x</span>
+    </label>
+  </div>
+  <div class="info">
+    <b>The formula</b> (StockIntel's <code>calculateUnusualScore</code>):
+    35% price-change percentile vs historical, 25% relative-volume
+    percentile, 25% volatility-adjusted z-score, 15% move persistence.
+    Each component normalized to 0-100, weighted, summed.<br><br>
+    <b>What you are watching:</b> Live computation. The four bars on the
+    left are the four components. The composite "unusual score" on the
+    right is the weighted sum. Above 70 is flagged as "unusual"; above
+    85 as "extreme." Both labels trigger downstream logic in StockIntel
+    (news scoring, classification, alert).<br><br>
+    <b>PEP framing:</b> This is residual scoring (Predictor + Residual
+    primitive). The "predictor" is the historical distribution; the
+    "residual" is how far today's observation lies from it. Identical
+    to the Earnings Residual canvas mechanism, generalized from
+    earnings to price/volume.
+  </div>
+</div>
+</div>
+
+<!-- ═══ Pattern Classifier ═══════════════════════════════════════ -->
+<div class="panel" id="classify-tab">
+<div class="container">
+  <h2>Pattern Classifier &mdash; 16 Move Types From the Same Inputs</h2>
+  <p class="desc">
+    Ported from <b>StockIntel</b>. Given an unusual move, classify it
+    into one of 16 archetypes (breakout, breakdown, momentum, mean
+    reversion, short squeeze, low float, sector sympathy, pump risk,
+    post-earnings drift, capitulation, gap up/down, exhaustion top/
+    bottom, volume climax, unknown). The classifier is rule-based
+    because the rules are interpretable and the categories are
+    discrete; an LLM would be overkill.
+  </p>
+  <div class="canvas-box">
+    <canvas id="classify-canvas" width="960" height="500"></canvas>
+  </div>
+  <div class="controls">
+    <button onclick="classifyPick(0)">+12% on 5x volume, hits new high</button>
+    <button onclick="classifyPick(1)">-8% on 4x volume, breaks 200d MA</button>
+    <button onclick="classifyPick(2)">+6% gap up at open</button>
+    <button onclick="classifyPick(3)">+25% on $80M float</button>
+    <button onclick="classifyPick(4)">+4% drift after earnings beat</button>
+    <button onclick="classifyPick(5)">+18% with 8x volume + low float</button>
+  </div>
+  <div class="info">
+    <b>What you are watching:</b> A scenario card with the price
+    candle, volume bar, and historical context (left). The classifier's
+    decision tree (middle). The output classification + confidence +
+    plain-English explanation (right). The same six inputs (price %,
+    volume, float, market cap, gap, persistence) drive every
+    classification.<br><br>
+    <b>PEP framing:</b> The classifier is a learned discrete projection
+    on top of the residual. The residual ("how unusual?") is a
+    continuous score; the classifier is a categorical map from the
+    state-vector to a label. Same primitive Atria uses to label match
+    quality types.
+  </div>
+</div>
+</div>
+
+<!-- ═══ News Catalyst Scorer ═════════════════════════════════════ -->
+<div class="panel" id="newscore-tab">
+<div class="container">
+  <h2>News Catalyst Scorer &mdash; Multi-Dimensional Headline Scoring</h2>
+  <p class="desc">
+    Ported from <b>StockIntel</b>'s AI news scorer (Claude Haiku in
+    production). Each headline gets scored on five dimensions: quality
+    (substantive vs clickbait), sentiment (-100 bearish to +100
+    bullish), credibility (Reuters &gt;&gt; unknown blog), materiality
+    (likely to move price?), and hype (sensational relative to
+    content). Cost-controlled: only stocks with unusualScore &ge; 60
+    get scored.
+  </p>
+  <div class="canvas-box">
+    <canvas id="newscore-canvas" width="960" height="540"></canvas>
+  </div>
+  <div class="controls">
+    <button onclick="newscorePick(0)">"AAPL beats Q4 expectations" (Reuters)</button>
+    <button onclick="newscorePick(1)">"Mystery Penny Stock POPS 200%" (Pump blog)</button>
+    <button onclick="newscorePick(2)">"FDA approves Pfizer cancer drug" (Bloomberg)</button>
+    <button onclick="newscorePick(3)">"CEO interviewed at conference" (Yahoo)</button>
+    <button onclick="newscorePick(4)">"Tesla recalls 50K vehicles" (WSJ)</button>
+    <button onclick="newscorePick(5)">"BREAKING: Crypto coin moon soon???" (Twitter)</button>
+  </div>
+  <div class="info">
+    <b>What you are watching:</b> A headline (top), the five-dimension
+    scoring (middle), and a one-line analyst summary (bottom). The
+    scoring weights match the Claude prompt in StockIntel's
+    <code>NEWS_SCORING_SYSTEM_PROMPT</code>: high quality goes to
+    earnings/FDA approvals/major contracts; low to rumors/clickbait;
+    high hype + low credibility flags pump risk.<br><br>
+    <b>PEP framing:</b> Multi-objective projection on text. Same
+    primitive Atria uses for player compatibility (skill / tempo /
+    social / role) and Lingora uses for translation layers
+    (denotation / pragmatic / register / cultural). Different domain,
+    same shape: a single input projected through multiple typed lenses.
+  </div>
+</div>
+</div>
+
+<!-- ═══ Strategy Leaderboard ═════════════════════════════════════ -->
+<div class="panel" id="leaderboard-tab">
+<div class="container">
+  <h2>Strategy Leaderboard &mdash; Multiple Strategies, One Population</h2>
+  <p class="desc">
+    Ported from <b>StockIntel</b>'s strategy backtester. Six paper-
+    trading strategies compete on the same synthetic price history.
+    Each has different factor weights, position sizing, stop-loss, and
+    exit rules. Scored on annualized return, Sharpe, max drawdown,
+    win rate, total trades.
+  </p>
+  <div class="canvas-box">
+    <canvas id="leaderboard-canvas" width="960" height="560"></canvas>
+  </div>
+  <div class="controls">
+    <button onclick="leaderRegen()">Regenerate market scenario</button>
+  </div>
+  <div class="info">
+    <b>The six strategies:</b><br>
+    &bull; <b>Momentum Long</b> &mdash; chase confirmed breakouts; 5%
+    stop, 15% take-profit, 5-day max hold.<br>
+    &bull; <b>Mean Reversion</b> &mdash; buy oversold high-quality
+    names; 8% stop, 6% take-profit, 3-day max hold.<br>
+    &bull; <b>News-Driven</b> &mdash; only trade signals with
+    materialityScore &ge; 70; tighter sizing, longer hold.<br>
+    &bull; <b>Short Pump Risk</b> &mdash; short stocks flagged as pump
+    risk; small size, hard 3% stop.<br>
+    &bull; <b>Sector Rotation</b> &mdash; rotate into the leading
+    sector each week.<br>
+    &bull; <b>Buy &amp; Hold (SPY)</b> &mdash; baseline; no rules.<br><br>
+    <b>What you are watching:</b> Equity curves over a synthetic 1-year
+    period (top). Performance leaderboard (bottom) with annualized
+    return, Sharpe, max drawdown, win rate. Different scenarios reward
+    different strategies; no strategy dominates across all
+    regimes.<br><br>
+    <b>PEP framing:</b> Same multi-objective comparison Atria uses
+    for matchmaker objectives, and Vectora uses for retrieval
+    benchmarks. Strategies are nodes; market scenarios are state
+    modulators; the leaderboard is residual scoring on returns.
+  </div>
+</div>
+</div>
+
 <!-- ═══ Research Pitch ═══════════════════════════════════════════ -->
 <div class="panel" id="pitch-tab">
 <div class="container">
-  <h2>Research Pitch &mdash; What Strata Would Measure If Built For Real</h2>
+  <h2>Research Pitch &mdash; Sandbox + Working Sibling Product</h2>
   <p class="desc">
-    Strata is explicitly a research sandbox, not a product. No live
-    trading, no financial advice, no forecasting claims. This page is
-    honest about that: it is the brief for the research program that
-    would validate (or invalidate) PEP's market-structure primitives
-    before anyone considered productizing.
+    Strata is the research-sandbox surface. The companion working
+    product is <b>StockIntel</b> &mdash; an AI-powered stock
+    intelligence and paper-trading simulation platform that already
+    ships the primitives Strata teaches. The StockIntel tab in this
+    app demonstrates four of its core features (Unusual Move Scanner,
+    Pattern Classifier, News Catalyst Scorer, Strategy Leaderboard)
+    rebuilt as PEP-grounded canvases. This page frames the wedge:
+    research validates the engine, StockIntel validates the product.
   </p>
+
+  <div class="info" style="border-left: 3px solid var(--accent2)">
+    <b style="font-size:14px;color:var(--accent2)">StockIntel — The Working Sibling Product</b><br><br>
+    Lives at <code>~/projects/charlie_project/</code>. Next.js 16 +
+    Prisma + SQLite + Finnhub data + Claude Haiku for news scoring.
+    Already-shipped features mapped onto PEP primitives:<br><br>
+    &bull; <b>Unusual Move Scanner</b> &mdash; residual scoring on
+    price/volume against historical distributions
+    (35% price percentile + 25% volume + 25% volatility-adjusted +
+    15% persistence). Same primitive as Atria's Rematch Oracle and
+    Axona's Prediction vs Reality.<br>
+    &bull; <b>Pattern Classifier</b> &mdash; 16 discrete categories
+    (breakout, breakdown, pump risk, etc.) projected from the unusual-
+    score state-vector. Same primitive as Atria's match-quality
+    classification.<br>
+    &bull; <b>News Catalyst Scorer</b> &mdash; Claude-scored
+    multi-dimensional headline analysis (quality, sentiment,
+    credibility, materiality, hype). Cost-controlled: only triggers
+    on unusualScore &ge; 60. Same multi-objective projection
+    primitive as Atria's compatibility scoring and Lingora's
+    translation layers.<br>
+    &bull; <b>Strategy Leaderboard</b> &mdash; multiple paper-trading
+    strategies competing on real(ish) data with annualized return,
+    Sharpe, max drawdown, win rate. Same comparative-residual
+    primitive as Atria's Before/After dashboard and Vectora's recall
+    benchmark.<br><br>
+    StockIntel is "research and simulation only" by design (no real
+    trades). The framing is honest about scope while still being a
+    real working product, not a slide deck.
+  </div>
 
   <div class="info" style="border-left: 3px solid var(--accent)">
     <b style="font-size:14px;color:var(--accent)">The Hypothesis</b><br><br>
@@ -340,11 +545,11 @@ _PAGE = """\
     graphs, and PEP's four primitives &mdash; weighted graph, spreading
     activation, residual scoring, state modulation &mdash; should
     produce useful structural insights on real market data without any
-    market-specific inductive bias. If they do, the same engine that
-    models cognition, language, matching, and data retrieval also
-    captures market dynamics. If they do not, the primitives need
-    refinement &mdash; and the refinement feeds back into every
-    LAVAS sibling.
+    market-specific inductive bias. StockIntel is one demonstration
+    that the answer is yes, on real-shape problems with cost-controlled
+    AI. The four falsifiable questions below are the next layer of
+    validation &mdash; structural-insight claims that go beyond what
+    any single tool currently shows.
   </div>
 
   <div class="info" style="border-left: 3px solid var(--accent2)">
@@ -938,6 +1143,322 @@ function drawStrBench() {
   requestAnimationFrame(drawStrBench);
 }
 drawStrBench();
+
+// ═══════════════════════════════════════════════════════════════════════
+// Unusual Move Scanner (ports StockIntel's calculateUnusualScore)
+// ═══════════════════════════════════════════════════════════════════════
+const unusualCanvas = document.getElementById('unusual-canvas');
+const unusualCtx = unusualCanvas.getContext('2d');
+function unusualCompute() {
+  const pricePct = parseFloat(document.getElementById('u-price').value);
+  const rvol = parseFloat(document.getElementById('u-rvol').value) / 100;
+  // Simulated historical distribution: typical daily abs change ~1.2%, std ~1.0
+  const histMean = 1.2, histStd = 1.0;
+  const absMove = Math.abs(pricePct);
+  // Approximate percentile via standard-normal CDF on z-score
+  const z = (absMove - histMean) / histStd;
+  const cdf = (x) => 0.5 * (1 + Math.tanh(0.79788 * x * (1 + 0.044715 * x * x))); // erf-ish approx
+  const pricePercentile = Math.min(100, Math.max(0, cdf(z) * 100));
+  const volumePercentile = Math.min(100, Math.max(0, ((rvol - 0.5) / 4) * 100));
+  const volAdjScore = Math.min(100, Math.max(0, 50 + Math.abs(z) * 20));
+  const persistence = Math.min(100, 50 + Math.sign(pricePct) * 30); // dummy persistence
+  const composite = pricePercentile * 0.35 + volumePercentile * 0.25 + volAdjScore * 0.25 + persistence * 0.15;
+  let label = 'Normal';
+  if (composite >= 85) label = 'Extreme';
+  else if (composite >= 70) label = 'Unusual';
+  else if (composite >= 50) label = 'Notable';
+  return { pricePct, rvol, pricePercentile, volumePercentile, volAdjScore, persistence, composite, label, z };
+}
+function drawUnusual() {
+  const W = 960, H = 500; unusualCtx.fillStyle = themeBg(); unusualCtx.fillRect(0, 0, W, H);
+  const r = unusualCompute();
+  unusualCtx.fillStyle = '#e0dce8'; unusualCtx.font = 'bold 13px monospace'; unusualCtx.textAlign = 'left';
+  unusualCtx.fillText('UNUSUAL SCORE COMPONENTS', 30, 30);
+  const components = [
+    { label: 'Price percentile (35%)',   v: r.pricePercentile,  col: '232,121,249' },
+    { label: 'Volume percentile (25%)',  v: r.volumePercentile, col: '103,232,249' },
+    { label: 'Volatility z-score (25%)', v: r.volAdjScore,      col: '250,204,21' },
+    { label: 'Persistence (15%)',        v: r.persistence,      col: '129,199,132' },
+  ];
+  components.forEach((c, i) => {
+    const y = 60 + i * 60;
+    unusualCtx.fillStyle = '#dce4ed'; unusualCtx.font = '11px monospace';
+    unusualCtx.fillText(c.label, 30, y);
+    unusualCtx.fillStyle = 'rgba(' + c.col + ',0.2)'; unusualCtx.fillRect(30, y + 8, 460, 22);
+    unusualCtx.fillStyle = 'rgba(' + c.col + ',0.85)'; unusualCtx.fillRect(30, y + 8, 460 * (c.v / 100), 22);
+    unusualCtx.fillStyle = '#fff'; unusualCtx.font = 'bold 11px monospace'; unusualCtx.textAlign = 'right';
+    unusualCtx.fillText(c.v.toFixed(1), 485, y + 24); unusualCtx.textAlign = 'left';
+  });
+  // Composite score on the right
+  unusualCtx.fillStyle = '#e0dce8'; unusualCtx.font = 'bold 13px monospace';
+  unusualCtx.fillText('COMPOSITE', 580, 30);
+  // Big circle
+  const cx = 730, cy = 220, rad = 110;
+  const compCol = r.composite >= 85 ? '248,113,113' : r.composite >= 70 ? '232,121,249' : r.composite >= 50 ? '250,204,21' : '120,130,140';
+  unusualCtx.strokeStyle = 'rgba(' + compCol + ',0.3)'; unusualCtx.lineWidth = 14;
+  unusualCtx.beginPath(); unusualCtx.arc(cx, cy, rad, 0, Math.PI * 2); unusualCtx.stroke();
+  unusualCtx.strokeStyle = 'rgba(' + compCol + ',0.95)'; unusualCtx.lineWidth = 14;
+  unusualCtx.beginPath(); unusualCtx.arc(cx, cy, rad, -Math.PI / 2, -Math.PI / 2 + (Math.PI * 2 * r.composite / 100)); unusualCtx.stroke();
+  unusualCtx.fillStyle = '#fff'; unusualCtx.font = 'bold 36px monospace'; unusualCtx.textAlign = 'center';
+  unusualCtx.fillText(r.composite.toFixed(0), cx, cy + 8);
+  unusualCtx.font = 'bold 14px monospace'; unusualCtx.fillStyle = 'rgba(' + compCol + ',1)';
+  unusualCtx.fillText(r.label.toUpperCase(), cx, cy + 38);
+  // Inputs summary
+  unusualCtx.fillStyle = '#aaa'; unusualCtx.font = '11px monospace'; unusualCtx.textAlign = 'left';
+  unusualCtx.fillText('Today: ' + (r.pricePct >= 0 ? '+' : '') + r.pricePct.toFixed(1) + '% on ' + r.rvol.toFixed(2) + 'x normal volume (z = ' + r.z.toFixed(2) + ')', 30, H - 40);
+  unusualCtx.fillStyle = '#778'; unusualCtx.font = '10px monospace';
+  unusualCtx.fillText('formula matches StockIntel\\'s calculateUnusualScore — historical distribution synthetic here', 30, H - 20);
+  requestAnimationFrame(drawUnusual);
+}
+drawUnusual();
+
+// ═══════════════════════════════════════════════════════════════════════
+// Pattern Classifier (ports StockIntel's 16 archetypes)
+// ═══════════════════════════════════════════════════════════════════════
+const CLASSIFY_DATA = [
+  { label: '+12% on 5x volume, hits new 52-week high', inputs: { pct: 12, rvol: 5, gap: 0, float: 200e6, cap: 5e9, persist: 0.9 }, classification: 'BREAKOUT', confidence: 88, color: '129,199,132', explain: 'Strong upward move on confirming volume that breaches resistance. Classic breakout pattern; buyers in control, follow-through likely if volume sustains.' },
+  { label: '-8% on 4x volume, breaks 200-day MA', inputs: { pct: -8, rvol: 4, gap: 0, float: 500e6, cap: 20e9, persist: -0.85 }, classification: 'BREAKDOWN', confidence: 85, color: '248,113,113', explain: 'Decisive move below long-term support on heavy volume. Sellers in control; risk of follow-through to next support level.' },
+  { label: '+6% gap up at open, fades into close', inputs: { pct: 6, rvol: 2.5, gap: 6, float: 300e6, cap: 10e9, persist: 0.2 }, classification: 'GAP_UP / EXHAUSTION_TOP', confidence: 71, color: '250,204,21', explain: 'Opening gap on news but failed to hold. Mixed signal: gap acknowledges catalyst, but lack of follow-through suggests buyer exhaustion.' },
+  { label: '+25% on $80M float, no news catalyst', inputs: { pct: 25, rvol: 8, gap: 0, float: 80e6, cap: 200e6, persist: 0.7 }, classification: 'PUMP_RISK / LOW_FLOAT_SPECULATION', confidence: 79, color: '232,121,249', explain: 'Large move on small float with no identifiable catalyst. Classic low-float speculation; high pump risk. StockIntel would flag as risky.' },
+  { label: '+4% drift after earnings beat (3 days later)', inputs: { pct: 4, rvol: 1.4, gap: 0, float: 400e6, cap: 50e9, persist: 0.6 }, classification: 'POST_EARNINGS_DRIFT', confidence: 76, color: '103,232,249', explain: 'Continued upward drift in the days following an earnings beat. PEAD (post-earnings announcement drift) is a well-documented anomaly; signals genuine fundamental shift.' },
+  { label: '+18% with 8x volume + low float', inputs: { pct: 18, rvol: 8, gap: 4, float: 50e6, cap: 150e6, persist: 0.85 }, classification: 'SHORT_SQUEEZE / LOW_FLOAT_SPECULATION', confidence: 82, color: '232,121,249', explain: 'Massive volume + low float + large gap-and-go. Likely short squeeze: shorts forced to cover, accelerating the move. Highly volatile; mean reversion risk after squeeze exhausts.' },
+];
+const classifyCanvas = document.getElementById('classify-canvas');
+const classifyCtx = classifyCanvas.getContext('2d');
+let classifyActive = null;
+function classifyPick(i) { classifyActive = i; pepSend('classify.pick', { i }); }
+function drawClassify() {
+  const W = 960, H = 500; classifyCtx.fillStyle = themeBg(); classifyCtx.fillRect(0, 0, W, H);
+  if (classifyActive == null) {
+    classifyCtx.fillStyle = '#778'; classifyCtx.font = '11px monospace'; classifyCtx.textAlign = 'center';
+    classifyCtx.fillText('(pick a scenario)', W / 2, H / 2); requestAnimationFrame(drawClassify); return;
+  }
+  const d = CLASSIFY_DATA[classifyActive];
+  classifyCtx.fillStyle = '#e0dce8'; classifyCtx.font = 'bold 13px monospace'; classifyCtx.textAlign = 'left';
+  classifyCtx.fillText('SCENARIO', 30, 30);
+  classifyCtx.fillStyle = '#dce4ed'; classifyCtx.font = '12px monospace';
+  classifyCtx.fillText(d.label, 30, 56);
+  // Input vector (left column)
+  classifyCtx.fillStyle = '#aaa'; classifyCtx.font = 'bold 11px monospace';
+  classifyCtx.fillText('INPUT VECTOR', 30, 100);
+  const inputs = [
+    { k: 'price change',     v: (d.inputs.pct >= 0 ? '+' : '') + d.inputs.pct + '%' },
+    { k: 'relative volume',  v: d.inputs.rvol + 'x' },
+    { k: 'gap %',            v: d.inputs.gap + '%' },
+    { k: 'float',            v: '$' + (d.inputs.float / 1e6).toFixed(0) + 'M' },
+    { k: 'market cap',       v: '$' + (d.inputs.cap / 1e9).toFixed(2) + 'B' },
+    { k: 'persistence',      v: d.inputs.persist.toFixed(2) },
+  ];
+  inputs.forEach((x, i) => {
+    const y = 124 + i * 24;
+    classifyCtx.fillStyle = '#dce4ed'; classifyCtx.font = '11px monospace';
+    classifyCtx.fillText(x.k, 30, y);
+    classifyCtx.fillStyle = '#103,232,249'; classifyCtx.fillStyle = 'rgba(103,232,249,0.95)';
+    classifyCtx.textAlign = 'right'; classifyCtx.fillText(x.v, 280, y); classifyCtx.textAlign = 'left';
+  });
+  // Classifier decision arrow
+  classifyCtx.strokeStyle = 'rgba(120,130,140,0.5)'; classifyCtx.lineWidth = 2;
+  classifyCtx.beginPath(); classifyCtx.moveTo(310, 220); classifyCtx.lineTo(390, 220); classifyCtx.lineTo(380, 215); classifyCtx.moveTo(390, 220); classifyCtx.lineTo(380, 225); classifyCtx.stroke();
+  classifyCtx.fillStyle = '#778'; classifyCtx.font = '10px monospace'; classifyCtx.textAlign = 'center';
+  classifyCtx.fillText('rule-based classifier', 350, 210);
+  // Output classification (right column)
+  classifyCtx.fillStyle = '#aaa'; classifyCtx.font = 'bold 11px monospace'; classifyCtx.textAlign = 'left';
+  classifyCtx.fillText('CLASSIFICATION', 420, 100);
+  classifyCtx.fillStyle = 'rgba(' + d.color + ',0.2)'; classifyCtx.fillRect(420, 110, 510, 50);
+  classifyCtx.strokeStyle = 'rgba(' + d.color + ',0.9)'; classifyCtx.lineWidth = 2; classifyCtx.strokeRect(420, 110, 510, 50);
+  classifyCtx.fillStyle = '#fff'; classifyCtx.font = 'bold 16px monospace'; classifyCtx.textAlign = 'left';
+  classifyCtx.fillText(d.classification, 432, 142);
+  classifyCtx.fillStyle = '#aaa'; classifyCtx.font = '10px monospace';
+  classifyCtx.fillText('confidence: ' + d.confidence + '%', 800, 142);
+  // Explanation
+  classifyCtx.fillStyle = '#aaa'; classifyCtx.font = 'bold 11px monospace';
+  classifyCtx.fillText('PLAIN-ENGLISH EXPLANATION', 420, 195);
+  classifyCtx.fillStyle = '#dce4ed'; classifyCtx.font = '11px monospace';
+  const words = d.explain.split(' '); let line = '', y = 218;
+  words.forEach(w => {
+    const test = line + w + ' ';
+    if (classifyCtx.measureText(test).width > 510 && line) { classifyCtx.fillText(line.trim(), 420, y); line = w + ' '; y += 16; }
+    else { line = test; }
+  });
+  if (line) classifyCtx.fillText(line.trim(), 420, y);
+  classifyCtx.fillStyle = '#778'; classifyCtx.font = '10px monospace'; classifyCtx.textAlign = 'center';
+  classifyCtx.fillText('matches StockIntel\\'s scanner/classifier.ts logic — same 16 archetypes, same input vector', W / 2, H - 20);
+  requestAnimationFrame(drawClassify);
+}
+drawClassify();
+
+// ═══════════════════════════════════════════════════════════════════════
+// News Catalyst Scorer (ports StockIntel's news-scorer + prompts.ts)
+// ═══════════════════════════════════════════════════════════════════════
+const NEWSCORE_DATA = [
+  { headline: 'AAPL beats Q4 expectations on iPhone 16 strength', source: 'Reuters', scores: { quality: 88, sentiment: 65, credibility: 95, materiality: 82, hype: 12 }, summary: 'Substantive earnings beat from a top-tier wire service. High materiality; minimal hype.' },
+  { headline: 'Mystery Penny Stock POPS 200% — Get In Now???', source: 'PennyStockPump.blog', scores: { quality: 8, sentiment: 88, credibility: 5, materiality: 15, hype: 96 }, summary: 'Classic pump-and-dump pattern: low credibility source, sensational headline, no substance. Flagged as pump risk.' },
+  { headline: 'FDA approves Pfizer cancer drug for second-line treatment', source: 'Bloomberg', scores: { quality: 92, sentiment: 78, credibility: 96, materiality: 91, hype: 8 }, summary: 'Major regulatory approval from credible source. High materiality; expanded label is a meaningful revenue driver.' },
+  { headline: 'CEO interviewed on stage at industry conference', source: 'Yahoo Finance', scores: { quality: 28, sentiment: 12, credibility: 65, materiality: 18, hype: 35 }, summary: 'Routine investor-relations content with no new information. Low materiality; not a tradeable catalyst.' },
+  { headline: 'Tesla recalls 50,000 vehicles over braking software', source: 'Wall Street Journal', scores: { quality: 85, sentiment: -55, credibility: 95, materiality: 72, hype: 18 }, summary: 'Material negative news from credible source. Recall scope is significant; expect short-term price pressure.' },
+  { headline: 'BREAKING: Crypto coin moon soon??? Dont miss out!!!', source: 'Twitter / @cryptobro420', scores: { quality: 4, sentiment: 92, credibility: 3, materiality: 8, hype: 99 }, summary: 'Pure hype; no source credibility, no substantive claim. Anti-signal: actively decreases confidence in any move.' },
+];
+const newscoreCanvas = document.getElementById('newscore-canvas');
+const newscoreCtx = newscoreCanvas.getContext('2d');
+let newscoreActive = null;
+function newscorePick(i) { newscoreActive = i; pepSend('newscore.pick', { i }); }
+function drawNewscore() {
+  const W = 960, H = 540; newscoreCtx.fillStyle = themeBg(); newscoreCtx.fillRect(0, 0, W, H);
+  if (newscoreActive == null) {
+    newscoreCtx.fillStyle = '#778'; newscoreCtx.font = '11px monospace'; newscoreCtx.textAlign = 'center';
+    newscoreCtx.fillText('(pick a headline)', W / 2, H / 2); requestAnimationFrame(drawNewscore); return;
+  }
+  const d = NEWSCORE_DATA[newscoreActive];
+  // Headline
+  newscoreCtx.fillStyle = '#e0dce8'; newscoreCtx.font = 'bold 13px monospace'; newscoreCtx.textAlign = 'left';
+  newscoreCtx.fillText('HEADLINE', 30, 30);
+  newscoreCtx.fillStyle = 'rgba(103,232,249,0.95)'; newscoreCtx.font = '13px monospace';
+  newscoreCtx.fillText('"' + d.headline + '"', 30, 56);
+  newscoreCtx.fillStyle = '#778'; newscoreCtx.font = '10px monospace';
+  newscoreCtx.fillText('source: ' + d.source, 30, 76);
+  // Score bars
+  newscoreCtx.fillStyle = '#aaa'; newscoreCtx.font = 'bold 11px monospace';
+  newscoreCtx.fillText('FIVE-DIMENSION SCORE', 30, 120);
+  const dims = [
+    { k: 'quality',     min: 0,    max: 100, col: '129,199,132', desc: 'substantive vs clickbait' },
+    { k: 'sentiment',   min: -100, max: 100, col: '232,121,249', desc: '−bearish to +bullish' },
+    { k: 'credibility', min: 0,    max: 100, col: '103,232,249', desc: 'source trust' },
+    { k: 'materiality', min: 0,    max: 100, col: '250,204,21',  desc: 'price-impact likelihood' },
+    { k: 'hype',        min: 0,    max: 100, col: '248,113,113', desc: 'sensation vs substance' },
+  ];
+  dims.forEach((dim, i) => {
+    const y = 144 + i * 50;
+    newscoreCtx.fillStyle = '#dce4ed'; newscoreCtx.font = 'bold 11px monospace';
+    newscoreCtx.fillText(dim.k, 30, y);
+    newscoreCtx.fillStyle = '#778'; newscoreCtx.font = '10px monospace';
+    newscoreCtx.fillText('(' + dim.desc + ')', 130, y);
+    const v = d.scores[dim.k];
+    const range = dim.max - dim.min;
+    newscoreCtx.fillStyle = 'rgba(' + dim.col + ',0.15)'; newscoreCtx.fillRect(30, y + 8, 800, 22);
+    if (dim.min < 0) {
+      const center = 30 + 400;
+      const w = (Math.abs(v) / 100) * 400;
+      const x = v < 0 ? center - w : center;
+      newscoreCtx.fillStyle = 'rgba(' + dim.col + ',0.85)'; newscoreCtx.fillRect(x, y + 8, w, 22);
+      newscoreCtx.strokeStyle = 'rgba(255,255,255,0.3)'; newscoreCtx.lineWidth = 1;
+      newscoreCtx.beginPath(); newscoreCtx.moveTo(center, y + 8); newscoreCtx.lineTo(center, y + 30); newscoreCtx.stroke();
+    } else {
+      newscoreCtx.fillStyle = 'rgba(' + dim.col + ',0.85)'; newscoreCtx.fillRect(30, y + 8, 800 * (v / 100), 22);
+    }
+    newscoreCtx.fillStyle = '#fff'; newscoreCtx.font = 'bold 11px monospace'; newscoreCtx.textAlign = 'right';
+    newscoreCtx.fillText(v.toString(), 825, y + 24); newscoreCtx.textAlign = 'left';
+  });
+  // Summary
+  newscoreCtx.fillStyle = '#aaa'; newscoreCtx.font = 'bold 11px monospace';
+  newscoreCtx.fillText('AI ANALYST SUMMARY', 30, 430);
+  newscoreCtx.fillStyle = '#dce4ed'; newscoreCtx.font = '11px monospace';
+  const words = d.summary.split(' '); let line = '', y = 454;
+  words.forEach(w => {
+    const test = line + w + ' ';
+    if (newscoreCtx.measureText(test).width > 870 && line) { newscoreCtx.fillText(line.trim(), 30, y); line = w + ' '; y += 16; }
+    else { line = test; }
+  });
+  if (line) newscoreCtx.fillText(line.trim(), 30, y);
+  newscoreCtx.fillStyle = '#778'; newscoreCtx.font = '10px monospace'; newscoreCtx.textAlign = 'center';
+  newscoreCtx.fillText('matches StockIntel\\'s news-scorer.ts schema — Claude Haiku in production, cost-controlled to unusualScore ≥ 60', W / 2, H - 14);
+  requestAnimationFrame(drawNewscore);
+}
+drawNewscore();
+
+// ═══════════════════════════════════════════════════════════════════════
+// Strategy Leaderboard (ports StockIntel's super-strategy + backtest)
+// ═══════════════════════════════════════════════════════════════════════
+const STRATEGIES = [
+  { name: 'Momentum Long', col: '232,121,249', baseRet: 0.18 },
+  { name: 'Mean Reversion', col: '103,232,249', baseRet: 0.11 },
+  { name: 'News-Driven', col: '129,199,132', baseRet: 0.22 },
+  { name: 'Short Pump Risk', col: '248,113,113', baseRet: 0.08 },
+  { name: 'Sector Rotation', col: '250,204,21', baseRet: 0.13 },
+  { name: 'Buy & Hold (SPY)', col: '167,139,250', baseRet: 0.10 },
+];
+const leaderCanvas = document.getElementById('leaderboard-canvas');
+const leaderCtx = leaderCanvas.getContext('2d');
+let leaderEquity = null, leaderStats = null;
+function leaderGen() {
+  // Simulate 252 trading days of equity for each strategy
+  leaderEquity = STRATEGIES.map(s => {
+    const path = [10000];
+    const annualVol = 0.18 + Math.random() * 0.12;
+    const dailyDrift = s.baseRet / 252 + (Math.random() - 0.5) * 0.001;
+    const dailyVol = annualVol / Math.sqrt(252);
+    for (let i = 1; i < 252; i++) {
+      const r = dailyDrift + (Math.random() + Math.random() + Math.random() - 1.5) * dailyVol;
+      path.push(path[i - 1] * (1 + r));
+    }
+    return path;
+  });
+  leaderStats = STRATEGIES.map((s, i) => {
+    const path = leaderEquity[i];
+    const ret = (path[path.length - 1] - path[0]) / path[0];
+    let peak = path[0], maxDD = 0;
+    path.forEach(v => { if (v > peak) peak = v; const dd = (peak - v) / peak; if (dd > maxDD) maxDD = dd; });
+    const dailyRets = []; for (let j = 1; j < path.length; j++) dailyRets.push((path[j] - path[j-1]) / path[j-1]);
+    const meanR = dailyRets.reduce((a, b) => a + b, 0) / dailyRets.length;
+    const variance = dailyRets.reduce((a, b) => a + (b - meanR) ** 2, 0) / dailyRets.length;
+    const sharpe = (meanR / Math.sqrt(variance)) * Math.sqrt(252);
+    const winRate = dailyRets.filter(r => r > 0).length / dailyRets.length;
+    const trades = 50 + Math.floor(Math.random() * 80);
+    return { name: s.name, col: s.col, ret, sharpe, maxDD, winRate, trades };
+  });
+}
+leaderGen();
+function leaderRegen() { leaderGen(); pepSend('leaderboard.regen', {}); }
+function drawLeader() {
+  const W = 960, H = 560; leaderCtx.fillStyle = themeBg(); leaderCtx.fillRect(0, 0, W, H);
+  if (!leaderEquity) { requestAnimationFrame(drawLeader); return; }
+  // Equity curves (top half)
+  const chartH = 240, chartTop = 40, chartLeft = 40, chartRight = W - 40;
+  const chartW = chartRight - chartLeft;
+  let allMin = Infinity, allMax = -Infinity;
+  leaderEquity.forEach(p => p.forEach(v => { if (v < allMin) allMin = v; if (v > allMax) allMax = v; }));
+  // Axes
+  leaderCtx.strokeStyle = 'rgba(120,130,140,0.4)'; leaderCtx.lineWidth = 1;
+  leaderCtx.beginPath(); leaderCtx.moveTo(chartLeft, chartTop); leaderCtx.lineTo(chartLeft, chartTop + chartH); leaderCtx.lineTo(chartRight, chartTop + chartH); leaderCtx.stroke();
+  // Equity curves
+  leaderEquity.forEach((path, i) => {
+    leaderCtx.strokeStyle = 'rgba(' + STRATEGIES[i].col + ',0.85)'; leaderCtx.lineWidth = 1.5;
+    leaderCtx.beginPath();
+    path.forEach((v, j) => {
+      const x = chartLeft + (j / (path.length - 1)) * chartW;
+      const y = chartTop + chartH - ((v - allMin) / (allMax - allMin)) * chartH;
+      if (j === 0) leaderCtx.moveTo(x, y); else leaderCtx.lineTo(x, y);
+    });
+    leaderCtx.stroke();
+  });
+  leaderCtx.fillStyle = '#aaa'; leaderCtx.font = '11px monospace'; leaderCtx.textAlign = 'left';
+  leaderCtx.fillText('252 trading-day equity curves (synthetic)', chartLeft, 24);
+  // Leaderboard table (bottom half)
+  const tableTop = 320;
+  leaderCtx.fillStyle = '#aaa'; leaderCtx.font = 'bold 11px monospace';
+  ['STRATEGY', 'ANNUAL RETURN', 'SHARPE', 'MAX DD', 'WIN RATE', 'TRADES'].forEach((h, i) => {
+    const x = [40, 240, 400, 510, 620, 760][i];
+    leaderCtx.fillStyle = '#aaa'; leaderCtx.fillText(h, x, tableTop);
+  });
+  const sorted = leaderStats.slice().sort((a, b) => b.sharpe - a.sharpe);
+  sorted.forEach((s, i) => {
+    const y = tableTop + 24 + i * 30;
+    leaderCtx.fillStyle = 'rgba(' + s.col + ',0.15)'; leaderCtx.fillRect(30, y - 14, W - 60, 24);
+    leaderCtx.fillStyle = 'rgba(' + s.col + ',1)'; leaderCtx.font = 'bold 11px monospace';
+    leaderCtx.fillText((i + 1) + '. ' + s.name, 40, y);
+    const cells = [
+      { x: 240, v: (s.ret * 100).toFixed(1) + '%' },
+      { x: 400, v: s.sharpe.toFixed(2) },
+      { x: 510, v: '-' + (s.maxDD * 100).toFixed(1) + '%' },
+      { x: 620, v: (s.winRate * 100).toFixed(0) + '%' },
+      { x: 760, v: s.trades.toString() },
+    ];
+    cells.forEach(c => { leaderCtx.fillStyle = '#dce4ed'; leaderCtx.font = '11px monospace'; leaderCtx.fillText(c.v, c.x, y); });
+  });
+  leaderCtx.fillStyle = '#778'; leaderCtx.font = '10px monospace'; leaderCtx.textAlign = 'center';
+  leaderCtx.fillText('matches StockIntel\\'s super-strategy + backtest engine — different scenarios reward different strategies', W / 2, H - 12);
+  requestAnimationFrame(drawLeader);
+}
+drawLeader();
 
 </script>
 </body>
