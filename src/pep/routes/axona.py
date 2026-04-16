@@ -106,6 +106,12 @@ _PAGE = """\
     <button onclick="axonaRandom()" class="nav-btn" title="jump to random canvas">🎲</button>
     <button onclick="axonaBookmark()" class="nav-btn" id="bookmark-btn" title="bookmark current tab">☆</button>
     <button onclick="tourStart()" class="nav-btn" style="border-color:var(--accent2);color:var(--accent2)">Take a Tour</button>
+    <select id="canvas-select" onchange="canvasSelect(this.value)"
+      style="background:var(--surface);color:var(--text);border:1px solid var(--border);
+      border-radius:4px;padding:4px 8px;font-family:inherit;font-size:10px;max-width:220px">
+      <option value="">jump to canvas…</option>
+    </select>
+    <button onclick="downloadAxona()" class="nav-btn">Download</button>
     <button onclick="toggleLight()" id="light-btn" class="nav-btn">Light Mode</button>
     <span class="lavas-switch" style="display:flex;gap:8px;align-items:center;font-size:11px;flex-wrap:wrap;margin-left:6px">
       <a href="/pep">PEP</a>
@@ -135,12 +141,6 @@ _PAGE = """\
       <div class="tab" data-panel="gallery-tab">Gallery</div>
       <div class="tab" data-panel="pep-link-tab">PEP &harr; Axona</div>
     </div>
-    <select id="canvas-select" onchange="canvasSelect(this.value)"
-      style="margin-left:auto;background:var(--surface);color:var(--text);border:1px solid var(--border);
-      border-radius:4px;padding:4px 8px;font-family:inherit;font-size:10px;max-width:220px">
-      <option value="">jump to canvas…</option>
-    </select>
-    <button onclick="downloadAxona()" class="nav-btn">Download</button>
   </div>
 </nav>
 
