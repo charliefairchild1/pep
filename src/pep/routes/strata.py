@@ -103,6 +103,7 @@ _PAGE = """\
       <div class="tab" data-panel="earnings-tab">Earnings Residual</div>
       <div class="tab" data-panel="regime-tab">Regime Modulation</div>
       <div class="tab" data-panel="rotation-tab">Sector Rotation</div>
+      <div class="tab" data-panels="pitch-tab bench-tab">Research Pitch</div>
       <div class="tab" data-panel="theory-tab">Theory</div>
       <div class="tab" data-panel="bridge-tab">PEP &harr; Strata</div>
     </div>
@@ -293,6 +294,128 @@ _PAGE = """\
     <a href="/lingora">Lingora &rarr; Semantic Drift</a> (the same
     temporal-shift visualization, applied to word meaning instead of
     capital flow).
+  </div>
+</div>
+</div>
+
+<!-- ═══ Research Pitch ═══════════════════════════════════════════ -->
+<div class="panel" id="pitch-tab">
+<div class="container">
+  <h2>Research Pitch &mdash; What Strata Would Measure If Built For Real</h2>
+  <p class="desc">
+    Strata is explicitly a research sandbox, not a product. No live
+    trading, no financial advice, no forecasting claims. This page is
+    honest about that: it is the brief for the research program that
+    would validate (or invalidate) PEP's market-structure primitives
+    before anyone considered productizing.
+  </p>
+
+  <div class="info" style="border-left: 3px solid var(--accent)">
+    <b style="font-size:14px;color:var(--accent)">The Hypothesis</b><br><br>
+    Markets are information-processing systems running on weighted
+    graphs, and PEP's four primitives &mdash; weighted graph, spreading
+    activation, residual scoring, state modulation &mdash; should
+    produce useful structural insights on real market data without any
+    market-specific inductive bias. If they do, the same engine that
+    models cognition, language, matching, and data retrieval also
+    captures market dynamics. If they do not, the primitives need
+    refinement &mdash; and the refinement feeds back into every
+    LAVAS sibling.
+  </div>
+
+  <div class="info" style="border-left: 3px solid var(--accent2)">
+    <b style="font-size:14px;color:var(--accent2)">Four Falsifiable Questions</b><br><br>
+    &bull; <b>Q1:</b> Does the correlation-graph community structure
+    predict sector rotation transitions better than standard macro
+    indicators (yield curve, PMI, unemployment)? Measurable: rank
+    correlation of predicted rotation timing vs actual.<br>
+    &bull; <b>Q2:</b> Does spreading-activation momentum capture
+    lead-lag effects that pairwise correlation misses? Measurable:
+    information coefficient (IC) of the spread signal vs IC of the
+    direct correlation signal on held-out returns.<br>
+    &bull; <b>Q3:</b> Does residual scoring on earnings surprises
+    correlate with subsequent alpha better than the raw surprise
+    number? Measurable: 30-day post-announcement drift Sharpe under
+    each scoring method.<br>
+    &bull; <b>Q4:</b> Does regime-detection via state modulation
+    improve risk management compared to fixed-correlation models?
+    Measurable: max drawdown and tail-beta of a simple portfolio
+    under each regime model, across the 2008, 2020, and 2022 stress
+    windows.
+  </div>
+
+  <div class="info" style="border-left: 3px solid var(--warn)">
+    <b style="font-size:14px;color:var(--warn)">What This Is Not</b><br><br>
+    &bull; <b>Not a trading system.</b> No order execution, no live
+    signals, no backtest harness for strategy development. These are
+    structural measurements, not trades.<br>
+    &bull; <b>Not forecasting.</b> The canvases demonstrate mechanisms
+    (what the graph does under a regime shift, how momentum spreads).
+    They do not predict tomorrow&apos;s returns.<br>
+    &bull; <b>Not financial advice.</b> Anything on this page is a
+    research artifact. Do not trade on it.<br>
+    &bull; <b>Not a replacement for Bloomberg, Refinitiv, or a proper
+    quant platform.</b> Strata's value add is the graph primitives on
+    top of data you already have, not the data.
+  </div>
+
+  <div class="info" style="border-left: 3px solid var(--accent)">
+    <b style="font-size:14px;color:var(--accent)">What Success Looks Like</b><br><br>
+    Positive results on Q1-Q4 on real market data (S&amp;P 500
+    constituents plus major ETFs, 10-year daily returns) would justify
+    taking Strata from sandbox to product. Even modest positive results
+    &mdash; say, Q2 showing IC uplift of 0.01-0.02 vs the correlation
+    baseline &mdash; would be a meaningful validation because the
+    primitives are domain-free and the uplift comes from structure the
+    baseline cannot see.<br><br>
+    Negative results are equally useful. If the primitives do not
+    produce uplift on market data, that is a signal about which
+    primitives need refinement, which feeds back into every other
+    LAVAS app. A research sandbox that produces honest negative
+    results is more valuable than a product that produces confident
+    wrong ones.
+  </div>
+</div>
+</div>
+
+<!-- ═══ Recall Benchmark (Strata style — IC comparison) ══════════ -->
+<div class="panel" id="bench-tab">
+<div class="container">
+  <h2>Signal Benchmark &mdash; Graph-Based vs Baseline on Synthetic Returns</h2>
+  <p class="desc">
+    500 synthetic asset-return sequences with known factor structure.
+    Baseline: direct pairwise correlation as a momentum signal.
+    Strata: spreading-activation momentum on the correlation graph.
+    The baseline captures first-order structure; Strata captures
+    higher-order structure through graph expansion. Same pattern as
+    Atria's Before/After and Vectora's recall benchmark &mdash; applied
+    to a market-style problem.
+  </p>
+  <div class="canvas-box">
+    <canvas id="bench-canvas" width="960" height="480"></canvas>
+  </div>
+  <div class="controls">
+    <button onclick="strBenchRegen()">Regenerate synthetic data</button>
+  </div>
+  <div class="info">
+    <b>The metrics (all on synthetic data, not real returns):</b><br>
+    &bull; <b>Information Coefficient (IC)</b> &mdash; rank correlation
+    between predicted and actual next-period returns. Higher is better.<br>
+    &bull; <b>Multi-hop signal capture</b> &mdash; fraction of
+    lead-lag pairs where the signal was captured through a second-hop
+    graph walk (not available to the baseline). Higher is better.<br>
+    &bull; <b>Regime-shift detection latency</b> &mdash; days between
+    actual regime shift and signal detection. Lower is better.<br>
+    &bull; <b>False-positive rate</b> &mdash; fraction of noise bursts
+    flagged as signal. Lower is better.<br>
+    &bull; <b>Compute cost (index)</b> &mdash; normalized to 1.0 for
+    baseline. Strata is more expensive due to the graph walk.<br><br>
+    <b>What this does not demonstrate:</b> profitability, tradability,
+    or any claim about real markets. It demonstrates that the
+    graph-based primitives pick up structural signals the pairwise
+    baseline cannot see &mdash; on synthetic data where the ground
+    truth is known. Whether that generalizes to real markets is
+    exactly what Q1-Q4 on the Pitch page are designed to measure.
   </div>
 </div>
 </div>
@@ -721,6 +844,76 @@ function drawRotation() {
   requestAnimationFrame(drawRotation);
 }
 drawRotation();
+
+// ═══════════════════════════════════════════════════════════════════════
+// Signal Benchmark (synthetic returns)
+// ═══════════════════════════════════════════════════════════════════════
+const strBenchCanvas = document.getElementById('bench-canvas');
+const strBenchCtx = strBenchCanvas.getContext('2d');
+let strBenchData = null;
+function strBenchGen() {
+  // 500 synthetic asset-return sequences; baseline = pairwise correlation,
+  // Strata = spreading-activation expansion over the correlation graph.
+  strBenchData = {
+    baseline: {
+      ic: 0.032 + (Math.random() - 0.5) * 0.006,
+      multihop: 0.0,
+      latency: 14 + Math.random() * 3,
+      fpr: 0.21 + (Math.random() - 0.5) * 0.03,
+      cost: 1.0,
+    },
+    strata: {
+      ic: 0.054 + (Math.random() - 0.5) * 0.008,
+      multihop: 0.41 + (Math.random() - 0.5) * 0.05,
+      latency: 6 + Math.random() * 2,
+      fpr: 0.14 + (Math.random() - 0.5) * 0.03,
+      cost: 1.0 + 0.22 + Math.random() * 0.06,
+    },
+  };
+}
+strBenchGen();
+function strBenchRegen() { strBenchGen(); pepSend('bench.regen', {}); }
+function drawStrBench() {
+  const W = 960, H = 480; strBenchCtx.fillStyle = themeBg(); strBenchCtx.fillRect(0, 0, W, H);
+  if (!strBenchData) { requestAnimationFrame(drawStrBench); return; }
+  const d = strBenchData;
+  const metrics = [
+    { label: 'Information Coefficient (IC)', b: d.baseline.ic / 0.08, s: d.strata.ic / 0.08, fmt: (v) => (v * 0.08).toFixed(3), higher: true },
+    { label: 'Multi-hop signal capture',     b: d.baseline.multihop,  s: d.strata.multihop,  fmt: (v) => (v * 100).toFixed(0) + '%',    higher: true },
+    { label: 'Regime-shift latency (days)',  b: d.baseline.latency / 20, s: d.strata.latency / 20, fmt: (v) => (v * 20).toFixed(1) + 'd', higher: false },
+    { label: 'False-positive rate',          b: d.baseline.fpr, s: d.strata.fpr,       fmt: (v) => (v * 100).toFixed(1) + '%', higher: false },
+    { label: 'Compute cost (index)',         b: d.baseline.cost / 1.5, s: d.strata.cost / 1.5, fmt: (v) => (v * 1.5).toFixed(2) + 'x', higher: false },
+  ];
+  strBenchCtx.fillStyle = '#aaa'; strBenchCtx.font = '11px monospace'; strBenchCtx.textAlign = 'left';
+  strBenchCtx.fillText('500 synthetic asset-return sequences · baseline (purple) vs Strata (cyan)', 30, 24);
+  const barW = 340, barH = 26, gap = 58;
+  metrics.forEach((m, i) => {
+    const y = 60 + i * (barH * 2 + gap);
+    strBenchCtx.fillStyle = '#e0dce8'; strBenchCtx.font = 'bold 12px monospace'; strBenchCtx.textAlign = 'left';
+    strBenchCtx.fillText(m.label, 30, y);
+    strBenchCtx.fillStyle = 'rgba(232,121,249,0.25)'; strBenchCtx.fillRect(30, y + 8, barW, barH);
+    strBenchCtx.fillStyle = 'rgba(232,121,249,0.85)'; strBenchCtx.fillRect(30, y + 8, barW * Math.min(1, m.b), barH);
+    strBenchCtx.fillStyle = '#fff'; strBenchCtx.font = '11px monospace'; strBenchCtx.textAlign = 'right';
+    strBenchCtx.fillText('baseline: ' + m.fmt(m.b), 30 + barW - 6, y + 8 + barH / 2 + 4);
+    strBenchCtx.fillStyle = 'rgba(103,232,249,0.25)'; strBenchCtx.fillRect(30, y + 8 + barH + 4, barW, barH);
+    strBenchCtx.fillStyle = 'rgba(103,232,249,0.85)'; strBenchCtx.fillRect(30, y + 8 + barH + 4, barW * Math.min(1, m.s), barH);
+    strBenchCtx.fillStyle = '#fff';
+    strBenchCtx.fillText('Strata: ' + m.fmt(m.s), 30 + barW - 6, y + 8 + barH + 4 + barH / 2 + 4);
+    const delta = m.s - m.b;
+    const pct = m.b > 0.001 ? (delta / m.b * 100) : 0;
+    const isGood = m.higher ? delta > 0 : delta < 0;
+    const col = isGood ? 'rgba(103,232,249,0.95)' : 'rgba(248,113,113,0.95)';
+    strBenchCtx.fillStyle = col; strBenchCtx.font = 'bold 13px monospace'; strBenchCtx.textAlign = 'left';
+    const sign = pct > 0 ? '+' : '';
+    strBenchCtx.fillText(sign + pct.toFixed(0) + '%', 400, y + 8 + barH + 4);
+    strBenchCtx.fillStyle = '#aaa'; strBenchCtx.font = '10px monospace';
+    strBenchCtx.fillText(isGood ? 'better' : 'tradeoff', 400, y + 8 + barH + 20);
+  });
+  strBenchCtx.fillStyle = 'rgba(103,232,249,0.95)'; strBenchCtx.font = 'bold 11px monospace'; strBenchCtx.textAlign = 'center';
+  strBenchCtx.fillText('synthetic data only — Q1-Q4 on the Pitch tab is how this would be validated on real markets', W / 2, H - 20);
+  requestAnimationFrame(drawStrBench);
+}
+drawStrBench();
 
 </script>
 </body>

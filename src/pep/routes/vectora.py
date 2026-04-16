@@ -97,16 +97,10 @@ _PAGE = """\
   <div class="nav-row nav-row-bottom">
     <div class="tabs" id="tabs">
       <div class="tab active" data-panel="home-tab">Home</div>
-      <div class="tab" data-panel="keyword-tab">Keyword vs Semantic</div>
-      <div class="tab" data-panel="embed-tab">Embedding Space</div>
-      <div class="tab" data-panel="kg-tab">Knowledge Graph</div>
-      <div class="tab" data-panel="anomaly-tab">Anomaly Detection</div>
-      <div class="tab" data-panel="context-tab">Context-Dependent Retrieval</div>
-      <div class="tab" data-panel="rag-tab">RAG Pipeline</div>
-      <div class="tab" data-panel="rerank-tab">Hybrid Reranker</div>
-      <div class="tab" data-panel="multihop-tab">Multi-Hop Retrieval</div>
-      <div class="tab" data-panel="pitch-tab">Pitch</div>
-      <div class="tab" data-panel="bench-tab">Recall Benchmark</div>
+      <div class="tab" data-panels="keyword-tab embed-tab rerank-tab multihop-tab context-tab">Retrieval</div>
+      <div class="tab" data-panels="kg-tab anomaly-tab">Structure</div>
+      <div class="tab" data-panel="rag-tab">Pipeline</div>
+      <div class="tab" data-panels="pitch-tab bench-tab">Product</div>
       <div class="tab" data-panel="theory-tab">Theory</div>
       <div class="tab" data-panel="bridge-tab">PEP &harr; Vectora</div>
     </div>

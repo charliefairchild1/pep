@@ -80,7 +80,7 @@ app.include_router(ui_router)
 
 @app.get("/")
 async def root():
-    return RedirectResponse(url="/ui")
+    return RedirectResponse(url="/pep")
 
 
 @app.get("/health")
