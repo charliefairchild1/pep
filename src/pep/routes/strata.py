@@ -127,7 +127,7 @@ _PAGE = """\
       <div class="tab" data-panel="earnings-tab">Earnings Residual</div>
       <div class="tab" data-panel="regime-tab">Regime Modulation</div>
       <div class="tab" data-panel="rotation-tab">Sector Rotation</div>
-      <div class="tab" data-panels="unusual-tab classify-tab newscore-tab leaderboard-tab">StockIntel</div>
+      <div class="tab" data-panels="unusual-tab classify-tab newscore-tab leaderboard-tab">Equities</div>
       <div class="tab" data-panels="pitch-tab bench-tab">Research Pitch</div>
       <div class="tab" data-panel="theory-tab">Theory</div>
       <div class="tab" data-panel="bridge-tab">PEP &harr; Strata</div>
@@ -151,14 +151,17 @@ _PAGE = """\
       systems built on weighted structure, prediction, and surprise.
     </p>
     <p>
-      Strata is the LAVAS research sandbox. Not a trading bot, not
-      financial advice. A set of interactive demonstrations that the
-      framework produces useful market-structure insights. The
-      <b>StockIntel</b> tab ports four already-shipping features from
-      the working sibling product (an AI-powered stock intelligence
-      and paper-trading platform at <code>~/projects/charlie_project/</code>)
-      and rebuilds them as PEP-grounded canvases. The primitives are
-      not theoretical; they are running in production.
+      Strata is the LAVAS markets platform &mdash; the parent of every
+      vertical market application built on PEP primitives. The
+      <b>Equities</b> tab is Strata's first shipping vertical: an
+      AI-powered stock intelligence and paper-trading layer with a
+      working implementation at
+      <code>~/projects/charlie_project/</code>. Future verticals
+      (crypto, FX, commodities, prediction markets, fixed income)
+      reuse the same four primitives applied to different asset
+      classes. Strata is the engine; each vertical is an instance.
+      Not a trading bot, not financial advice &mdash; research and
+      simulation only.
     </p>
   </div>
 
@@ -331,11 +334,12 @@ _PAGE = """\
 <div class="container">
   <h2>Unusual Move Scanner &mdash; Residual Scoring on Price + Volume</h2>
   <p class="desc">
-    Ported from <b>StockIntel</b> (sibling LAVAS product). Today's price
+    Strata's equities vertical, residual-scoring layer. Today's price
     move and volume are scored against the stock's historical
     distribution of rolling moves. The composite "unusual score" is a
     weighted residual: how far the move is from what the predictor
-    expected.
+    expected. Lives in production at <code>~/projects/charlie_project/</code>;
+    formula reproduced here as a Strata canvas.
   </p>
   <div class="canvas-box">
     <canvas id="unusual-canvas" width="960" height="500"></canvas>
@@ -353,15 +357,16 @@ _PAGE = """\
     </label>
   </div>
   <div class="info">
-    <b>The formula</b> (StockIntel's <code>calculateUnusualScore</code>):
-    35% price-change percentile vs historical, 25% relative-volume
-    percentile, 25% volatility-adjusted z-score, 15% move persistence.
-    Each component normalized to 0-100, weighted, summed.<br><br>
+    <b>The formula</b> (Strata's <code>calculateUnusualScore</code>,
+    deployed in the equities vertical): 35% price-change percentile vs
+    historical, 25% relative-volume percentile, 25% volatility-adjusted
+    z-score, 15% move persistence. Each component normalized to 0-100,
+    weighted, summed.<br><br>
     <b>What you are watching:</b> Live computation. The four bars on the
     left are the four components. The composite "unusual score" on the
     right is the weighted sum. Above 70 is flagged as "unusual"; above
-    85 as "extreme." Both labels trigger downstream logic in StockIntel
-    (news scoring, classification, alert).<br><br>
+    85 as "extreme." Both labels trigger downstream logic in the
+    equities vertical (news scoring, classification, alert).<br><br>
     <b>PEP framing:</b> This is residual scoring (Predictor + Residual
     primitive). The "predictor" is the historical distribution; the
     "residual" is how far today's observation lies from it. Identical
@@ -376,13 +381,13 @@ _PAGE = """\
 <div class="container">
   <h2>Pattern Classifier &mdash; 16 Move Types From the Same Inputs</h2>
   <p class="desc">
-    Ported from <b>StockIntel</b>. Given an unusual move, classify it
-    into one of 16 archetypes (breakout, breakdown, momentum, mean
-    reversion, short squeeze, low float, sector sympathy, pump risk,
-    post-earnings drift, capitulation, gap up/down, exhaustion top/
-    bottom, volume climax, unknown). The classifier is rule-based
-    because the rules are interpretable and the categories are
-    discrete; an LLM would be overkill.
+    Strata's equities vertical, classification layer. Given an unusual
+    move, classify it into one of 16 archetypes (breakout, breakdown,
+    momentum, mean reversion, short squeeze, low float, sector
+    sympathy, pump risk, post-earnings drift, capitulation, gap up/
+    down, exhaustion top/bottom, volume climax, unknown). The classifier
+    is rule-based because the rules are interpretable and the categories
+    are discrete; an LLM would be overkill.
   </p>
   <div class="canvas-box">
     <canvas id="classify-canvas" width="960" height="500"></canvas>
@@ -416,7 +421,7 @@ _PAGE = """\
 <div class="container">
   <h2>News Catalyst Scorer &mdash; Multi-Dimensional Headline Scoring</h2>
   <p class="desc">
-    Ported from <b>StockIntel</b>'s AI news scorer (Claude Haiku in
+    Strata's equities vertical, AI news-scoring layer (Claude Haiku in
     production). Each headline gets scored on five dimensions: quality
     (substantive vs clickbait), sentiment (-100 bearish to +100
     bullish), credibility (Reuters &gt;&gt; unknown blog), materiality
@@ -438,8 +443,8 @@ _PAGE = """\
   <div class="info">
     <b>What you are watching:</b> A headline (top), the five-dimension
     scoring (middle), and a one-line analyst summary (bottom). The
-    scoring weights match the Claude prompt in StockIntel's
-    <code>NEWS_SCORING_SYSTEM_PROMPT</code>: high quality goes to
+    scoring weights match the Claude prompt Strata deploys in the
+    equities vertical (<code>NEWS_SCORING_SYSTEM_PROMPT</code>): high quality goes to
     earnings/FDA approvals/major contracts; low to rumors/clickbait;
     high hype + low credibility flags pump risk.<br><br>
     <b>PEP framing:</b> Multi-objective projection on text. Same
@@ -456,11 +461,11 @@ _PAGE = """\
 <div class="container">
   <h2>Strategy Leaderboard &mdash; Multiple Strategies, One Population</h2>
   <p class="desc">
-    Ported from <b>StockIntel</b>'s strategy backtester. Six paper-
-    trading strategies compete on the same synthetic price history.
-    Each has different factor weights, position sizing, stop-loss, and
-    exit rules. Scored on annualized return, Sharpe, max drawdown,
-    win rate, total trades.
+    Strata's equities vertical, strategy backtester. Six paper-trading
+    strategies compete on the same synthetic price history. Each has
+    different factor weights, position sizing, stop-loss, and exit
+    rules. Scored on annualized return, Sharpe, max drawdown, win rate,
+    total trades.
   </p>
   <div class="canvas-box">
     <canvas id="leaderboard-canvas" width="960" height="560"></canvas>
@@ -497,46 +502,49 @@ _PAGE = """\
 <!-- ═══ Research Pitch ═══════════════════════════════════════════ -->
 <div class="panel" id="pitch-tab">
 <div class="container">
-  <h2>Research Pitch &mdash; Sandbox + Working Sibling Product</h2>
+  <h2>Research Pitch &mdash; Strata Is the Markets-Primitive Platform</h2>
   <p class="desc">
-    Strata is the research-sandbox surface. The companion working
-    product is <b>StockIntel</b> &mdash; an AI-powered stock
-    intelligence and paper-trading simulation platform that already
-    ships the primitives Strata teaches. The StockIntel tab in this
-    app demonstrates four of its core features (Unusual Move Scanner,
-    Pattern Classifier, News Catalyst Scorer, Strategy Leaderboard)
-    rebuilt as PEP-grounded canvases. This page frames the wedge:
-    research validates the engine, StockIntel validates the product.
+    Strata is not a single product. It is the LAVAS markets-primitive
+    platform &mdash; the parent of every vertical market application
+    that runs on PEP primitives. The Equities vertical is the first
+    shipping instance (AI-powered stock intelligence + paper-trading;
+    code at <code>~/projects/charlie_project/</code>). Crypto, FX,
+    commodities, prediction markets, and fixed income are natural
+    additional verticals that reuse the same primitives applied to
+    different asset classes. Research validates the engine; each
+    vertical validates a market.
   </p>
 
   <div class="info" style="border-left: 3px solid var(--accent2)">
-    <b style="font-size:14px;color:var(--accent2)">StockIntel — The Working Sibling Product</b><br><br>
-    Lives at <code>~/projects/charlie_project/</code>. Next.js 16 +
-    Prisma + SQLite + Finnhub data + Claude Haiku for news scoring.
-    Already-shipped features mapped onto PEP primitives:<br><br>
+    <b style="font-size:14px;color:var(--accent2)">Strata's Architecture &mdash; Engine + Verticals</b><br><br>
+    The four PEP primitives compose into a markets-primitive layer
+    that any asset-class vertical can build on. The Equities vertical
+    is the first instance and is already running:<br><br>
     &bull; <b>Unusual Move Scanner</b> &mdash; residual scoring on
-    price/volume against historical distributions
-    (35% price percentile + 25% volume + 25% volatility-adjusted +
-    15% persistence). Same primitive as Atria's Rematch Oracle and
-    Axona's Prediction vs Reality.<br>
-    &bull; <b>Pattern Classifier</b> &mdash; 16 discrete categories
-    (breakout, breakdown, pump risk, etc.) projected from the unusual-
-    score state-vector. Same primitive as Atria's match-quality
-    classification.<br>
+    price/volume against historical distributions (35% price percentile
+    + 25% volume + 25% volatility-adjusted + 15% persistence).
+    Asset-class agnostic; the equities vertical wires it to Finnhub,
+    a crypto vertical would wire it to CoinGecko, an FX vertical to
+    a broker feed.<br>
+    &bull; <b>Pattern Classifier</b> &mdash; 16 discrete archetypes
+    projected from the unusual-score state-vector. The archetypes are
+    domain-specific per vertical (equities has breakouts and gaps;
+    crypto has pump-and-dumps and rug pulls; FX has carry-trade
+    unwinds and intervention spikes); the classifier framework is
+    shared.<br>
     &bull; <b>News Catalyst Scorer</b> &mdash; Claude-scored
     multi-dimensional headline analysis (quality, sentiment,
-    credibility, materiality, hype). Cost-controlled: only triggers
-    on unusualScore &ge; 60. Same multi-objective projection
-    primitive as Atria's compatibility scoring and Lingora's
-    translation layers.<br>
-    &bull; <b>Strategy Leaderboard</b> &mdash; multiple paper-trading
-    strategies competing on real(ish) data with annualized return,
-    Sharpe, max drawdown, win rate. Same comparative-residual
-    primitive as Atria's Before/After dashboard and Vectora's recall
-    benchmark.<br><br>
-    StockIntel is "research and simulation only" by design (no real
-    trades). The framing is honest about scope while still being a
-    real working product, not a slide deck.
+    credibility, materiality, hype). Same Claude prompt across
+    verticals, with vertical-specific source weighting (Reuters for
+    equities, on-chain analytics for crypto, central-bank statements
+    for FX).<br>
+    &bull; <b>Strategy Leaderboard</b> &mdash; paper-trading strategies
+    competing on returns. The strategy framework, position-sizing,
+    drawdown calculations are vertical-agnostic; only the asset
+    universe and execution model differ.<br><br>
+    Every vertical reuses the engine. The cost of adding a new vertical
+    is data-source integration plus vertical-specific archetype
+    definitions, not rebuilding the platform.
   </div>
 
   <div class="info" style="border-left: 3px solid var(--accent)">
@@ -545,11 +553,11 @@ _PAGE = """\
     graphs, and PEP's four primitives &mdash; weighted graph, spreading
     activation, residual scoring, state modulation &mdash; should
     produce useful structural insights on real market data without any
-    market-specific inductive bias. StockIntel is one demonstration
-    that the answer is yes, on real-shape problems with cost-controlled
-    AI. The four falsifiable questions below are the next layer of
+    market-specific inductive bias. The Equities vertical demonstrates
+    this is feasible on real-shape problems with cost-controlled AI.
+    The four falsifiable questions below are the next layer of
     validation &mdash; structural-insight claims that go beyond what
-    any single tool currently shows.
+    any single asset-class vertical currently shows.
   </div>
 
   <div class="info" style="border-left: 3px solid var(--accent2)">
@@ -1145,7 +1153,7 @@ function drawStrBench() {
 drawStrBench();
 
 // ═══════════════════════════════════════════════════════════════════════
-// Unusual Move Scanner (ports StockIntel's calculateUnusualScore)
+// Unusual Move Scanner (Strata equities vertical, source: ~/projects/charlie_project)
 // ═══════════════════════════════════════════════════════════════════════
 const unusualCanvas = document.getElementById('unusual-canvas');
 const unusualCtx = unusualCanvas.getContext('2d');
@@ -1207,19 +1215,19 @@ function drawUnusual() {
   unusualCtx.fillStyle = '#aaa'; unusualCtx.font = '11px monospace'; unusualCtx.textAlign = 'left';
   unusualCtx.fillText('Today: ' + (r.pricePct >= 0 ? '+' : '') + r.pricePct.toFixed(1) + '% on ' + r.rvol.toFixed(2) + 'x normal volume (z = ' + r.z.toFixed(2) + ')', 30, H - 40);
   unusualCtx.fillStyle = '#778'; unusualCtx.font = '10px monospace';
-  unusualCtx.fillText('formula matches StockIntel\\'s calculateUnusualScore — historical distribution synthetic here', 30, H - 20);
+  unusualCtx.fillText('Strata calculateUnusualScore (equities vertical) — historical distribution synthetic here', 30, H - 20);
   requestAnimationFrame(drawUnusual);
 }
 drawUnusual();
 
 // ═══════════════════════════════════════════════════════════════════════
-// Pattern Classifier (ports StockIntel's 16 archetypes)
+// Pattern Classifier (Strata equities vertical, 16 archetypes)
 // ═══════════════════════════════════════════════════════════════════════
 const CLASSIFY_DATA = [
   { label: '+12% on 5x volume, hits new 52-week high', inputs: { pct: 12, rvol: 5, gap: 0, float: 200e6, cap: 5e9, persist: 0.9 }, classification: 'BREAKOUT', confidence: 88, color: '129,199,132', explain: 'Strong upward move on confirming volume that breaches resistance. Classic breakout pattern; buyers in control, follow-through likely if volume sustains.' },
   { label: '-8% on 4x volume, breaks 200-day MA', inputs: { pct: -8, rvol: 4, gap: 0, float: 500e6, cap: 20e9, persist: -0.85 }, classification: 'BREAKDOWN', confidence: 85, color: '248,113,113', explain: 'Decisive move below long-term support on heavy volume. Sellers in control; risk of follow-through to next support level.' },
   { label: '+6% gap up at open, fades into close', inputs: { pct: 6, rvol: 2.5, gap: 6, float: 300e6, cap: 10e9, persist: 0.2 }, classification: 'GAP_UP / EXHAUSTION_TOP', confidence: 71, color: '250,204,21', explain: 'Opening gap on news but failed to hold. Mixed signal: gap acknowledges catalyst, but lack of follow-through suggests buyer exhaustion.' },
-  { label: '+25% on $80M float, no news catalyst', inputs: { pct: 25, rvol: 8, gap: 0, float: 80e6, cap: 200e6, persist: 0.7 }, classification: 'PUMP_RISK / LOW_FLOAT_SPECULATION', confidence: 79, color: '232,121,249', explain: 'Large move on small float with no identifiable catalyst. Classic low-float speculation; high pump risk. StockIntel would flag as risky.' },
+  { label: '+25% on $80M float, no news catalyst', inputs: { pct: 25, rvol: 8, gap: 0, float: 80e6, cap: 200e6, persist: 0.7 }, classification: 'PUMP_RISK / LOW_FLOAT_SPECULATION', confidence: 79, color: '232,121,249', explain: 'Large move on small float with no identifiable catalyst. Classic low-float speculation; high pump risk. Strata flags as risky in the equities vertical.' },
   { label: '+4% drift after earnings beat (3 days later)', inputs: { pct: 4, rvol: 1.4, gap: 0, float: 400e6, cap: 50e9, persist: 0.6 }, classification: 'POST_EARNINGS_DRIFT', confidence: 76, color: '103,232,249', explain: 'Continued upward drift in the days following an earnings beat. PEAD (post-earnings announcement drift) is a well-documented anomaly; signals genuine fundamental shift.' },
   { label: '+18% with 8x volume + low float', inputs: { pct: 18, rvol: 8, gap: 4, float: 50e6, cap: 150e6, persist: 0.85 }, classification: 'SHORT_SQUEEZE / LOW_FLOAT_SPECULATION', confidence: 82, color: '232,121,249', explain: 'Massive volume + low float + large gap-and-go. Likely short squeeze: shorts forced to cover, accelerating the move. Highly volatile; mean reversion risk after squeeze exhausts.' },
 ];
@@ -1282,13 +1290,13 @@ function drawClassify() {
   });
   if (line) classifyCtx.fillText(line.trim(), 420, y);
   classifyCtx.fillStyle = '#778'; classifyCtx.font = '10px monospace'; classifyCtx.textAlign = 'center';
-  classifyCtx.fillText('matches StockIntel\\'s scanner/classifier.ts logic — same 16 archetypes, same input vector', W / 2, H - 20);
+  classifyCtx.fillText('Strata classifier (equities vertical) — 16 archetypes, deterministic input vector', W / 2, H - 20);
   requestAnimationFrame(drawClassify);
 }
 drawClassify();
 
 // ═══════════════════════════════════════════════════════════════════════
-// News Catalyst Scorer (ports StockIntel's news-scorer + prompts.ts)
+// News Catalyst Scorer (Strata equities vertical, Claude-scored)
 // ═══════════════════════════════════════════════════════════════════════
 const NEWSCORE_DATA = [
   { headline: 'AAPL beats Q4 expectations on iPhone 16 strength', source: 'Reuters', scores: { quality: 88, sentiment: 65, credibility: 95, materiality: 82, hype: 12 }, summary: 'Substantive earnings beat from a top-tier wire service. High materiality; minimal hype.' },
@@ -1360,13 +1368,13 @@ function drawNewscore() {
   });
   if (line) newscoreCtx.fillText(line.trim(), 30, y);
   newscoreCtx.fillStyle = '#778'; newscoreCtx.font = '10px monospace'; newscoreCtx.textAlign = 'center';
-  newscoreCtx.fillText('matches StockIntel\\'s news-scorer.ts schema — Claude Haiku in production, cost-controlled to unusualScore ≥ 60', W / 2, H - 14);
+  newscoreCtx.fillText('Strata news scorer (equities vertical) — Claude Haiku, cost-controlled to unusualScore ≥ 60', W / 2, H - 14);
   requestAnimationFrame(drawNewscore);
 }
 drawNewscore();
 
 // ═══════════════════════════════════════════════════════════════════════
-// Strategy Leaderboard (ports StockIntel's super-strategy + backtest)
+// Strategy Leaderboard (Strata equities vertical, paper-trading backtest)
 // ═══════════════════════════════════════════════════════════════════════
 const STRATEGIES = [
   { name: 'Momentum Long', col: '232,121,249', baseRet: 0.18 },
@@ -1455,7 +1463,7 @@ function drawLeader() {
     cells.forEach(c => { leaderCtx.fillStyle = '#dce4ed'; leaderCtx.font = '11px monospace'; leaderCtx.fillText(c.v, c.x, y); });
   });
   leaderCtx.fillStyle = '#778'; leaderCtx.font = '10px monospace'; leaderCtx.textAlign = 'center';
-  leaderCtx.fillText('matches StockIntel\\'s super-strategy + backtest engine — different scenarios reward different strategies', W / 2, H - 12);
+  leaderCtx.fillText('Strata super-strategy + backtest engine — different scenarios reward different strategies', W / 2, H - 12);
   requestAnimationFrame(drawLeader);
 }
 drawLeader();
