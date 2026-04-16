@@ -149,12 +149,15 @@ _PAGE = """\
       query gives different answers when you need different answers.
     </p>
     <p>
-      Vectora is the internal infrastructure layer. The other LAVAS
-      siblings (Axona, Lingora, Atria) will consume it. PvP matchmaking
-      needs to retrieve player profiles. Cognitive modeling needs to
-      retrieve memories. Language processing needs to retrieve word
-      constellations. All of them need the same primitive &mdash;
-      Vectora builds it once.
+      Vectora is the internal infrastructure layer and four LAVAS
+      siblings already consume it in production &mdash; <b>Axona</b>'s
+      memory retrieval, <b>Atria</b>'s player-pool formation,
+      <b>Lingora</b>'s word constellations, and <b>Strata</b>'s
+      correlation-graph momentum all delegate neighborhood queries to
+      the same Vectora engine via HTTP. Each app has a <b>&quot;Live
+      Vectora Retrieval&quot;</b> canvas that calls the real API. See the
+      <a href="/vectora/retrieval">Vectora Retrieval product page</a>
+      for the full rundown and a live playground.
     </p>
   </div>
 

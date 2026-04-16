@@ -53,6 +53,7 @@ def _product_page(
     status_badge: str = "PROPOSED",
     playground_url: str | None = None,
     playground_description: str | None = None,
+    used_by: list[tuple[str, str, str, str]] | None = None,
 ) -> str:
     capability_html = "".join(
         f'<div style="background:{surface_card};border:1px solid {border_color};border-left:3px solid {accent};'
@@ -142,6 +143,31 @@ def _product_page(
     playground_nav_link = (
         f'<a href="{playground_url}">Playground ↗</a>' if playground_url else ""
     )
+    used_by_block = ""
+    if used_by:
+        cards = "".join(
+            f'<a href="{app_url}" style="display:block;background:{surface_card};border:1px solid {border_color};'
+            f'border-left:3px solid {app_color};border-radius:6px;padding:14px 16px;text-decoration:none;transition:border-color 0.15s" '
+            f"onmouseover=\"this.style.borderColor='{app_color}'\" "
+            f"onmouseout=\"this.style.borderColor='{border_color}';this.style.borderLeftColor='{app_color}'\">"
+            f'<div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:4px">'
+            f'<div style="font-size:12px;color:{app_color};font-weight:bold">{app_name}</div>'
+            f'<div style="font-size:9px;color:{dim_color};letter-spacing:0.1em">LIVE ↗</div></div>'
+            f'<div style="font-size:10px;color:{text_color};line-height:1.5">{desc}</div></a>'
+            for app_name, desc, app_url, app_color in used_by
+        )
+        used_by_block = (
+            f'<div style="background:{surface_card};border:1px solid {accent};border-radius:10px;padding:22px 26px;margin-bottom:28px">'
+            f'<div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">'
+            f'<span style="font-size:10px;color:{accent};background:rgba({accent_rgb},0.15);padding:3px 10px;border-radius:10px;letter-spacing:0.15em;font-weight:bold">USED BY · LIVE</span>'
+            f'<span style="font-size:11px;color:{dim_color}">Running in production inside the LAVAS suite</span>'
+            f"</div>"
+            f'<div style="font-size:12px;color:{text_color};line-height:1.7;margin-bottom:16px">'
+            f'{len(used_by)} LAVAS sibling apps already use {title} for their spreading-activation retrieval. Click any card to see the live canvas calling this product&apos;s HTTP API.'
+            f"</div>"
+            f'<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px">{cards}</div>'
+            f"</div>"
+        )
     playground_section = (
         f'<h2 id="playground">Live playground</h2>'
         f'<a href="{playground_url}" style="display:block;background:linear-gradient(135deg,rgba({accent_rgb},0.18) 0%,{surface_card} 100%);'
@@ -245,6 +271,8 @@ def _product_page(
       <button class="cta-secondary" onclick="document.getElementById('integrate').scrollIntoView({{behavior:'smooth'}})">Integration path</button>
     </div>
   </div>
+
+  {used_by_block}
 
   <div class="ps-grid">
     <div class="ps-card" style="border-left:3px solid #f06292">
@@ -933,6 +961,7 @@ async def vectora_retrieval() -> str:
             ("Anomaly surfacing", "Residual scoring on incoming items. New documents that diverge from the existing pattern get flagged automatically — useful for change detection, research, alerting."),
             ("Drop-in API", "REST + Python/JS SDK. Wraps your existing vector DB. Three-line code change to swap top-k for Vectora retrieval. Backwards compatible: top-k mode preserved as a config flag."),
             ("Per-query tunability", "One parameter (decay) tunes how far the graph walk explores. Tight decay = high precision, top-k-like behavior. Loose decay = high recall, full graph reach. Per-query overrides for precision-sensitive vs recall-sensitive use cases."),
+            ("Dogfooded across LAVAS", "Vectora Retrieval is the spreading-activation layer that powers Axona's memory retrieval, Atria's player-pool formation, Lingora's word constellations, and Strata's correlation-graph momentum. Four in-house products running on the same API you'd call. See the 'Used by' block above."),
         ],
         demo_html="""
 <div style="font-size:11px;color:#6a808a;margin-bottom:6px">QUERY</div>
@@ -1061,6 +1090,12 @@ showCode('python');
         status_badge="CORE PRODUCT",
         playground_url="/vectora/playground",
         playground_description="Paste your own documents, run a query, and see top-k vs Vectora retrieval side-by-side. The playground runs the real engine in-process — it is Vectora Retrieval as a working tool, not a mockup. Preloaded sample corpus and suggested queries available for a 30-second tour.",
+        used_by=[
+            ("Axona",   "Memory-trace retrieval. Seeds a memory, Vectora returns its semantic neighborhood.",       "/axona#vec-live-tab",  "#ba68c8"),
+            ("Atria",   "Player-pool formation. Seeds a player, Vectora returns compatible matchmaking candidates.", "/atria#vec-live-tab",  "#5eead4"),
+            ("Lingora", "Word constellation. Seeds a word, Vectora returns its semantic neighborhood.",              "/lingora#vec-live-tab", "#4fc3f7"),
+            ("Strata",  "Correlation-graph momentum spread. Seeds a ticker, Vectora returns the asset neighborhood.", "/strata#vec-live-tab", "#e879f9"),
+        ],
     )
 
 
