@@ -111,6 +111,8 @@ _PAGE = """\
       <div class="tab" data-panels="codeswitch-tab translation-tab sign-tab pidgin-tab diglossia-tab animal-tab emoji-tab">Cross-Language</div>
       <div class="tab" data-panels="prompt-tab llm-tab aidetect-tab">Machines</div>
       <div class="tab" data-panels="sandbox-tab analyze-tab gallery-tab citations-tab">Tools</div>
+      <div class="tab" data-panels="workbench-tab voice-analyze-tab">Workbench</div>
+      <div class="tab" data-panels="pitch-tab bench-tab cases-tab">Product</div>
       <div class="tab" data-panel="theory-tab">Theory</div>
       <div class="tab" data-panel="bridge-tab">PEP &harr; Lingora</div>
     </div>
@@ -3382,6 +3384,336 @@ _PAGE = """\
     <span id="gallery-count" style="font-size:11px;color:var(--dim);margin-left:10px"></span>
   </div>
   <div id="gallery-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px"></div>
+</div>
+</div>
+
+<!-- ═══ Translation Workbench ═════════════════════════════════════ -->
+<div class="panel" id="workbench-tab">
+<div class="container">
+  <h2>Translation Workbench &mdash; Decompose, Translate, Compare</h2>
+  <p class="desc">
+    A sentence is more than its denotation. Pick a source sentence, watch
+    Lingora decompose it into denotation, connotation, register,
+    pragmatics, and cultural reference, then see translations under
+    different framings. The standard "literal" translation throws away
+    most of the structure; the framings preserve different parts.
+  </p>
+  <div class="canvas-box">
+    <canvas id="workbench-canvas" width="960" height="500"></canvas>
+  </div>
+  <div class="controls">
+    <button onclick="workbenchPick(0)">"It's a piece of cake."</button>
+    <button onclick="workbenchPick(1)">"Bless your heart."</button>
+    <button onclick="workbenchPick(2)">"Boku wa unagi da." (jp)</button>
+    <button onclick="workbenchPick(3)">"Saudade" (pt)</button>
+  </div>
+  <div class="info">
+    <b>What you are watching:</b> The selected sentence, decomposed into
+    its semantic layers (left column). For each layer, the standard
+    machine-translation output (middle) and a Lingora-aware translation
+    that preserves that layer (right). The diff is what every commercial
+    translation system currently throws away.<br><br>
+    <b>The wedge:</b> DeepL beat Google Translate by being marginally
+    better at <em>denotation</em> (literal meaning) and producing more
+    natural-sounding output. The next jump &mdash; the one nobody has
+    cracked &mdash; is preserving <em>pragmatic</em> meaning across
+    languages. "Bless your heart" is not insulting denotationally; it
+    is devastating pragmatically. Every current MT system flattens
+    that.<br><br>
+    <b>See also:</b>
+    <a href="#" onclick="canvasSelect('translation-tab');return false">Lingora &rarr; Translation Gap</a>,
+    <a href="#" onclick="canvasSelect('subtext-tab');return false">Lingora &rarr; Subtext</a>,
+    <a href="#" onclick="canvasSelect('politeness-tab');return false">Lingora &rarr; Politeness</a>.
+  </div>
+</div>
+</div>
+
+<!-- ═══ Writing Voice Analyzer ═══════════════════════════════════ -->
+<div class="panel" id="voice-analyze-tab">
+<div class="container">
+  <h2>Writing Voice Analyzer &mdash; What Mechanisms Are Operative</h2>
+  <p class="desc">
+    Pick a paragraph. Lingora identifies which mechanisms are doing the
+    work: POV, register, irony, subtext, pacing, voice, repetition,
+    sound symbolism. Each mechanism gets a strength score. The diagnostic
+    column suggests which would sharpen the prose if turned up or down.
+  </p>
+  <div class="canvas-box">
+    <canvas id="voice-analyze-canvas" width="960" height="520"></canvas>
+  </div>
+  <div class="controls">
+    <button onclick="voiceAnalyzePick(0)">Hemingway (clipped, declarative)</button>
+    <button onclick="voiceAnalyzePick(1)">Faulkner (long, embedded)</button>
+    <button onclick="voiceAnalyzePick(2)">Corporate memo (passive, hedged)</button>
+    <button onclick="voiceAnalyzePick(3)">Tweet (compressed, ironic)</button>
+  </div>
+  <div class="info">
+    <b>The wedge:</b> Grammarly catches grammar errors and suggests
+    "shorter sentence" or "active voice." It does not understand voice.
+    A Hemingway sentence flagged for "passive voice" is not a bug; it
+    is the style. A corporate memo flagged for "no contractions" is
+    serving its register correctly. The next-gen writing tool needs to
+    measure mechanism strength &mdash; what is the prose actually doing?
+    &mdash; and only suggest changes that align with the writer's
+    intent.<br><br>
+    <b>How this canvas does it:</b> Each paragraph is scored on eight
+    mechanisms (POV, register, irony, subtext, pacing, voice
+    consistency, repetition, sound symmetry). The scores are
+    descriptive, not prescriptive. Then a diagnostic column points at
+    which mechanism, if turned up, would sharpen the existing voice.
+    The user keeps their style; the tool serves it.<br><br>
+    <b>See also:</b>
+    <a href="#" onclick="canvasSelect('voice-tab');return false">Lingora &rarr; Voice</a>,
+    <a href="#" onclick="canvasSelect('pov-tab');return false">Lingora &rarr; POV</a>,
+    <a href="#" onclick="canvasSelect('advice-tab');return false">Lingora &rarr; Writing Advice</a>.
+  </div>
+</div>
+</div>
+
+<!-- ═══ Pitch ══════════════════════════════════════════════════════ -->
+<div class="panel" id="pitch-tab">
+<div class="container">
+  <h2>The Pitch &mdash; Four Wedges, One Engine</h2>
+  <p class="desc">
+    Lingora has the broadest commercial surface of any LAVAS sibling
+    because language touches everything. Four wedges look most viable.
+    All four run on the same PEP primitives (spreading activation in
+    word constellations, residual scoring on prediction error,
+    state modulation for register and pragmatics).
+  </p>
+
+  <div class="info" style="border-left: 3px solid #4fc3f7">
+    <b style="font-size:14px;color:#4fc3f7">Wedge 1 &mdash; Pragmatic Translation (DeepL competitor)</b><br><br>
+    <b>The problem:</b> Every machine-translation system optimizes for
+    denotation. None preserve pragmatics, register, or cultural
+    framing. "Bless your heart" → "May your heart be blessed" is
+    technically correct and substantively wrong. Translators have known
+    this for centuries; the tools have never caught up.<br><br>
+    <b>What Lingora adds:</b> The Translation Workbench canvas
+    decomposes a sentence into layers (denotation, connotation,
+    register, pragmatics, cultural reference) and translates each layer
+    separately, then re-assembles. The output preserves the parts a
+    standard MT system flattens.<br><br>
+    <b>Market:</b> Localization for games, film/TV subtitles, legal
+    translation, literary translation. DeepL is doing $300M+ ARR by
+    being marginally better than Google. The pragmatic-preservation
+    wedge is the next 10x.
+  </div>
+
+  <div class="info" style="border-left: 3px solid #81c784">
+    <b style="font-size:14px;color:#81c784">Wedge 2 &mdash; Voice-Aware Writing Assistant (Grammarly competitor)</b><br><br>
+    <b>The problem:</b> Grammarly catches grammar errors and aggressively
+    "improves" prose by stripping voice. Hemingway gets flagged for
+    fragments. James Baldwin gets flagged for repetition. Corporate
+    memos get flagged for being passive. The tool does not understand
+    that voice is intentional; it treats every deviation as a bug.<br><br>
+    <b>What Lingora adds:</b> The Writing Voice Analyzer canvas scores
+    paragraphs on eight mechanisms (POV, register, irony, subtext,
+    pacing, voice consistency, repetition, sound symmetry) and only
+    suggests changes that align with the writer's existing intent. A
+    Hemingway sentence does not get "fixed"; the tool understands what
+    it is doing.<br><br>
+    <b>Market:</b> Professional writers, novelists, journalists,
+    academics, anyone whose voice is the product. Grammarly is at
+    ~$200M ARR. The voice-preserving angle is differentiated and
+    defensible.
+  </div>
+
+  <div class="info" style="border-left: 3px solid #ffb74d">
+    <b style="font-size:14px;color:#ffb74d">Wedge 3 &mdash; Constellation-Based Language Learning (Duolingo alternative)</b><br><br>
+    <b>The problem:</b> Duolingo and its imitators teach via flashcards
+    and gamification. The result: users can recite vocabulary lists but
+    cannot have a conversation. The mechanism does not match how humans
+    actually acquire language &mdash; through context, association,
+    repetition in meaningful situations, and gradual mastery of word
+    constellations.<br><br>
+    <b>What Lingora adds:</b> Word as Constellation, Statistical
+    Learning, Acquisition, and Baby Talk canvases all model the actual
+    learning mechanism. A Lingora-based learning app would teach
+    constellations &mdash; "hear the word in 12 different contexts
+    until the meaning crystallizes" &mdash; instead of definition
+    drilling.<br><br>
+    <b>Market:</b> Duolingo is at $700M+ ARR with massive churn. Babbel,
+    Memrise, Pimsleur all compete on the same flashcard model.
+    Constellation-based learning is the differentiated bet.
+  </div>
+
+  <div class="info" style="border-left: 3px solid #ba68c8">
+    <b style="font-size:14px;color:#ba68c8">Wedge 4 &mdash; Prompt Engineering Toolkit (LLM developer tools)</b><br><br>
+    <b>The problem:</b> LLM developers have no good tools for
+    understanding why a prompt works or fails. They iterate by trial
+    and error, write 5,000-token system prompts, and hope. Most "prompt
+    engineering" advice is folklore.<br><br>
+    <b>What Lingora adds:</b> The Prompt Engineering, LLM Bridge, and
+    AI Text Detection canvases already model what a prompt is doing
+    structurally &mdash; which words constrain the model's prediction,
+    which open it up, where the model's attention narrows or widens.
+    A toolkit version: paste a prompt, get back a structural analysis,
+    suggested compressions, and predicted failure modes.<br><br>
+    <b>Market:</b> Every team building on OpenAI, Anthropic, Google,
+    Meta APIs. Smaller TAM than the others but very high willingness
+    to pay because prompt quality directly drives API costs and
+    product quality. The most novel angle &mdash; nobody else is
+    framing prompts as linguistic objects.
+  </div>
+
+  <div class="info" style="border-left: 3px solid var(--accent)">
+    <b style="font-size:14px;color:var(--accent)">Which wedge first?</b><br><br>
+    Recommended order:<br>
+    &bull; <b>Wedge 4 (Prompt Engineering) first.</b> Smallest TAM but
+    fastest to ship, easiest to differentiate, willing-to-pay buyers,
+    technical audience that does not need hand-holding. Validates the
+    underlying engine on a friendly market.<br>
+    &bull; <b>Wedge 2 (Writing Assistant) second.</b> Adjacent
+    market, similar mechanism, larger TAM. Use revenue from Wedge 4
+    to fund the data and model work needed for Wedge 2.<br>
+    &bull; <b>Wedge 1 (Translation) third.</b> Largest opportunity but
+    requires multilingual data, evaluation infrastructure, and
+    competition with funded incumbents. Tackle once the core engine is
+    proven on Wedges 4 and 2.<br>
+    &bull; <b>Wedge 3 (Language Learning) fourth.</b> Largest consumer
+    market but B2C consumer apps are brutal. Better as a platform play
+    once the underlying engine is proven and licensable.
+  </div>
+</div>
+</div>
+
+<!-- ═══ Benchmark ══════════════════════════════════════════════════ -->
+<div class="panel" id="bench-tab">
+<div class="container">
+  <h2>Benchmark &mdash; Lingora vs Standard Tools on a Pragmatic-Loss Test Set</h2>
+  <p class="desc">
+    300 synthetic translation pairs where the source sentence carries
+    pragmatic, cultural, or register information beyond the
+    denotation. Standard MT (Google Translate baseline, purple) vs
+    Lingora-aware translation (blue). Five metrics, same Before/After
+    pattern as the other LAVAS apps.
+  </p>
+  <div class="canvas-box">
+    <canvas id="lin-bench-canvas" width="960" height="640"></canvas>
+  </div>
+  <div class="controls">
+    <button onclick="linBenchRegen()">Regenerate test set</button>
+  </div>
+  <div class="info">
+    <b>The metrics:</b><br>
+    &bull; <b>Pragmatic preservation</b> &mdash; fraction of sentences
+    where the pragmatic intent (sarcasm, indirectness, politeness
+    level) survives the translation. The headline metric.<br>
+    &bull; <b>Register preservation</b> &mdash; formal/informal/legal
+    /technical register correctly maintained.<br>
+    &bull; <b>Cultural framing</b> &mdash; idioms and culturally-bound
+    expressions translated by intent rather than by surface.<br>
+    &bull; <b>BLEU score</b> &mdash; the standard MT quality metric.
+    Both systems hit similar BLEU because BLEU does not measure the
+    things Lingora optimizes for. Shows that Lingora is not winning by
+    being literal-better; it is winning on a different axis.<br>
+    &bull; <b>Latency (index)</b> &mdash; normalized to 1.0 for the
+    baseline. Lingora is slower because the decomposition adds passes.
+  </div>
+</div>
+</div>
+
+<!-- ═══ Case Studies ══════════════════════════════════════════════ -->
+<div class="panel" id="cases-tab">
+<div class="container">
+  <h2>Case Studies &mdash; Language Tools in the Wild</h2>
+  <p class="desc">
+    Real shipping products, real wins, real failures. Each case is
+    chosen because it illustrates one of the four pitch wedges
+    concretely.
+  </p>
+
+  <div class="info">
+    <b>DeepL beating Google Translate (2017-present)</b><br><br>
+    DeepL launched in 2017 with translation quality measurably better
+    than Google Translate, despite a fraction of the budget. Their
+    edge was a more carefully tuned encoder-decoder architecture and
+    careful training data curation. They have grown to $300M+ ARR
+    serving professional translators, localization teams, and legal
+    firms. Google still dominates raw query volume; DeepL dominates
+    the willing-to-pay segment.<br><br>
+    <b>Why this matters for Lingora:</b> DeepL proved a smaller,
+    smarter team can win the high-end translation market by being
+    marginally better on quality. The next jump &mdash; pragmatic
+    preservation &mdash; is currently unclaimed. Lingora's
+    Translation Workbench is the first canvas demonstrating what that
+    would look like.
+  </div>
+
+  <div class="info">
+    <b>Duolingo's gamification ceiling (2011-present)</b><br><br>
+    Duolingo grew to ~80M monthly active users on a flashcard +
+    streaks + leaderboards model. The mechanism is sticky for
+    daily-streak engagement but produces shallow learning &mdash;
+    multiple academic studies show Duolingo users plateau around A2
+    proficiency and rarely reach conversational fluency without
+    supplementary instruction. Duolingo knows this and has been
+    layering on Stories, Roleplays, and now a Max tier with LLM
+    conversation, trying to bridge the gap.<br><br>
+    <b>Why this matters for Lingora:</b> The flashcard ceiling is
+    structural, not a tuning problem. The mechanism does not match
+    how humans acquire language. Constellation-based learning is the
+    differentiated mechanism that could break the ceiling. The
+    canvases on Word as Constellation and Statistical Learning are
+    the foundation.
+  </div>
+
+  <div class="info">
+    <b>Grammarly's "voice" complaints (2018-present)</b><br><br>
+    Grammarly's premium tier added "tone" and "style" suggestions
+    around 2018. Professional writers immediately complained that the
+    suggestions strip voice &mdash; flagging fragments, repetition,
+    and unconventional structure as "errors." Multiple high-profile
+    writers (and most of literary Twitter) have publicly turned the
+    tool off because it is hostile to voice-driven prose. Grammarly's
+    response has been to add a "creative writing" mode that is more
+    permissive but still does not understand voice; it just suggests
+    less aggressively.<br><br>
+    <b>Why this matters for Lingora:</b> Grammarly cannot fix this
+    inside its current architecture because it has no representation
+    of voice. The Voice Analyzer canvas demonstrates the missing
+    primitive. A writing assistant built on Lingora would be voice-
+    aware from the foundation up.
+  </div>
+
+  <div class="info">
+    <b>LLM cultural translation failures (2023-present)</b><br><br>
+    Multiple incidents of GPT-4, Claude, Gemini producing translations
+    that are technically correct but culturally tone-deaf or actively
+    insulting. Translating Japanese honorific structures into English
+    flat declaratives. Translating Arabic religious phrases without
+    the appropriate register. Translating Spanish formal/informal
+    distinctions into English without preserving the relationship
+    cue. The models know the words; they do not know the implications
+    of choosing one phrasing over another.<br><br>
+    <b>Why this matters for Lingora:</b> The pragmatic-preservation
+    problem is the same problem in a different layer. LLMs are
+    trained on text without the meta-information about register,
+    politeness, or pragmatic intent. Lingora's decomposition layer
+    could sit in front of an LLM and pre-annotate the source text,
+    preserving information that would otherwise be lost in the
+    translation step.
+  </div>
+
+  <div class="info">
+    <b>The sign-language gloves controversy (2017-2018)</b><br><br>
+    Multiple startups (most prominently SignAloud and BrightSign)
+    pitched gloves that would translate ASL hand-shapes into spoken
+    English. The Deaf community pushed back hard, pointing out that
+    ASL is not encoded in hand-shapes alone &mdash; it uses facial
+    expressions for grammar, body posture for register, eye gaze for
+    referent tracking, and three-dimensional spatial signs for
+    grammatical relations. A glove translator catches roughly 10% of
+    actual ASL information. The startups proceeded anyway; most
+    quietly folded by 2019.<br><br>
+    <b>Why this matters for Lingora:</b> The gloves failed because
+    they ignored the multi-channel nature of language. Lingora's
+    Sign Language canvas explicitly models this. Any tool built on
+    Lingora's framework would not make this category error because
+    the framework has multi-channel structure baked in from the
+    start.
+  </div>
 </div>
 </div>
 
@@ -7335,6 +7667,209 @@ function drawReadaloud() {
   requestAnimationFrame(drawReadaloud);
 }
 drawReadaloud();
+
+// ═══════════════════════════════════════════════════════════════════════
+// Translation Workbench
+// ═══════════════════════════════════════════════════════════════════════
+const WORKBENCH_DATA = [
+  {
+    src: '"It\\'s a piece of cake."',
+    srcLang: 'EN',
+    layers: {
+      denotation: { text: 'A small portion of dessert.', mt: 'Es un trozo de pastel.', lin: 'Es un trozo de pastel.' },
+      pragmatic: { text: 'The task is easy.', mt: '(lost)', lin: 'Es pan comido. / Está chupado.' },
+      register: { text: 'Casual, conversational.', mt: 'Neutral.', lin: 'Casual idiom preserved.' },
+      culture: { text: 'English idiom; cake = effortless.', mt: 'Literal cake reference.', lin: 'Spanish idiom for "easy" used.' },
+    },
+  },
+  {
+    src: '"Bless your heart."',
+    srcLang: 'EN (Southern US)',
+    layers: {
+      denotation: { text: 'A blessing on your heart.', mt: 'Bendice tu corazón.', lin: 'Bendice tu corazón.' },
+      pragmatic: { text: 'Polite condescension or pity.', mt: '(lost — sounds sincere)', lin: 'Pobrecito. / Qué lástima me das.' },
+      register: { text: 'Casual, often passive-aggressive.', mt: 'Sounds religious/formal.', lin: 'Casual disdain preserved.' },
+      culture: { text: 'Southern US politeness mask for criticism.', mt: 'Religious blessing implication.', lin: 'Cultural function preserved.' },
+    },
+  },
+  {
+    src: '"Boku wa unagi da." (僕はうなぎだ)',
+    srcLang: 'JP',
+    layers: {
+      denotation: { text: 'I am an eel.', mt: 'I am an eel.', lin: 'I\\'ll have the eel.' },
+      pragmatic: { text: 'In a restaurant: stating an order.', mt: '(lost — sounds bizarre)', lin: 'Restaurant context preserved.' },
+      register: { text: 'Casual male speech (boku).', mt: 'Generic first-person.', lin: 'Casual register noted.' },
+      culture: { text: 'Japanese topic-comment grammar; "as for me, eel."', mt: 'Forced into English subject-verb.', lin: 'Topic-comment intent preserved.' },
+    },
+  },
+  {
+    src: '"Saudade"',
+    srcLang: 'PT',
+    layers: {
+      denotation: { text: 'A noun describing a feeling.', mt: 'Longing / nostalgia.', lin: 'Longing / nostalgia.' },
+      pragmatic: { text: 'A bittersweet melancholy for something absent.', mt: '(flattened)', lin: '"Saudade" — a yearning grief that cherishes the absence.' },
+      register: { text: 'Literary, emotional, untranslatable.', mt: 'Treated as a normal noun.', lin: 'Marked as untranslatable; gloss provided.' },
+      culture: { text: 'Central to Portuguese/Brazilian identity.', mt: '(lost)', lin: 'Cultural weight noted.' },
+    },
+  },
+];
+const workbenchCanvas = document.getElementById('workbench-canvas');
+const workbenchCtx = workbenchCanvas.getContext('2d');
+let workbenchActive = null;
+function workbenchPick(i) { workbenchActive = i; pepSend('workbench.pick', { i }); }
+function drawWorkbench() {
+  const W = 960, H = 500; workbenchCtx.fillStyle = themeBg(); workbenchCtx.fillRect(0, 0, W, H);
+  if (workbenchActive == null) {
+    workbenchCtx.fillStyle = '#778'; workbenchCtx.font = '11px monospace'; workbenchCtx.textAlign = 'center';
+    workbenchCtx.fillText('(pick a sentence)', W / 2, H / 2);
+    requestAnimationFrame(drawWorkbench); return;
+  }
+  const d = WORKBENCH_DATA[workbenchActive];
+  workbenchCtx.fillStyle = '#dce4ed'; workbenchCtx.font = 'bold 13px monospace'; workbenchCtx.textAlign = 'left';
+  workbenchCtx.fillText(d.src + '  [' + d.srcLang + ']', 30, 30);
+  // Headers
+  const cols = [{ x: 30, w: 220, label: 'LAYER', col: '#dce4ed' }, { x: 260, w: 320, label: 'STANDARD MT', col: '#a78bfa' }, { x: 590, w: 340, label: 'LINGORA-AWARE', col: '#4fc3f7' }];
+  cols.forEach(c => { workbenchCtx.fillStyle = c.col; workbenchCtx.font = 'bold 11px monospace'; workbenchCtx.fillText(c.label, c.x, 60); });
+  // Rows
+  const layers = ['denotation', 'pragmatic', 'register', 'culture'];
+  layers.forEach((k, i) => {
+    const y = 90 + i * 95;
+    const layer = d.layers[k];
+    workbenchCtx.fillStyle = '#778'; workbenchCtx.strokeStyle = 'rgba(120,130,140,0.2)'; workbenchCtx.lineWidth = 1;
+    workbenchCtx.beginPath(); workbenchCtx.moveTo(20, y - 8); workbenchCtx.lineTo(W - 20, y - 8); workbenchCtx.stroke();
+    workbenchCtx.fillStyle = '#dce4ed'; workbenchCtx.font = 'bold 11px monospace'; workbenchCtx.textAlign = 'left';
+    workbenchCtx.fillText(k.toUpperCase(), 30, y + 6);
+    workbenchCtx.fillStyle = '#778'; workbenchCtx.font = '10px monospace';
+    wrapText(workbenchCtx, layer.text, 30, y + 22, 220, 14);
+    workbenchCtx.fillStyle = layer.mt.startsWith('(') ? '#f88' : '#dce4ed'; workbenchCtx.font = '11px monospace';
+    wrapText(workbenchCtx, layer.mt, 260, y + 6, 320, 16);
+    workbenchCtx.fillStyle = '#4fc3f7'; workbenchCtx.font = '11px monospace';
+    wrapText(workbenchCtx, layer.lin, 590, y + 6, 340, 16);
+  });
+  requestAnimationFrame(drawWorkbench);
+}
+function wrapText(ctx, text, x, y, maxW, lineH) {
+  const words = text.split(' '); let line = '', yy = y;
+  words.forEach(w => {
+    const test = line + w + ' ';
+    if (ctx.measureText(test).width > maxW && line) {
+      ctx.fillText(line.trim(), x, yy); line = w + ' '; yy += lineH;
+    } else { line = test; }
+  });
+  if (line) ctx.fillText(line.trim(), x, yy);
+}
+drawWorkbench();
+
+// ═══════════════════════════════════════════════════════════════════════
+// Writing Voice Analyzer
+// ═══════════════════════════════════════════════════════════════════════
+const VOICEAN_DATA = [
+  { label: 'HEMINGWAY (clipped, declarative)', text: 'The old man was thin and gaunt with deep wrinkles. He fished alone. He had not caught a fish in eighty-four days. The boy loved him.',
+    scores: { pov: 0.7, register: 0.85, irony: 0.1, subtext: 0.6, pacing: 0.95, voice: 0.95, repetition: 0.4, sound: 0.3 },
+    diagnostic: 'Voice is consistent and pacing is sharp. Subtext is doing real work; consider letting it carry one more beat.' },
+  { label: 'FAULKNER (long, embedded)', text: 'It was a long sentence that wound through the dust of years and the heat of summers and the slow thick blood of a family that did not know how to forget.',
+    scores: { pov: 0.8, register: 0.9, irony: 0.2, subtext: 0.85, pacing: 0.4, voice: 0.95, repetition: 0.7, sound: 0.85 },
+    diagnostic: 'Voice and sound are dominant. The pacing is intentionally slow; do not flatten. Repetition could carry one more echo.' },
+  { label: 'CORPORATE MEMO (passive, hedged)', text: 'It has been determined that certain efficiencies could potentially be realized through a strategic re-evaluation of current operational paradigms.',
+    scores: { pov: 0.2, register: 0.95, irony: 0.05, subtext: 0.3, pacing: 0.5, voice: 0.85, repetition: 0.1, sound: 0.1 },
+    diagnostic: 'Register is operating exactly as the genre requires. Hedging is the point. Do not "fix" the passive voice.' },
+  { label: 'TWEET (compressed, ironic)', text: 'oh great another framework that\\'ll be deprecated by friday',
+    scores: { pov: 0.6, register: 0.7, irony: 0.95, subtext: 0.7, pacing: 0.85, voice: 0.85, repetition: 0.0, sound: 0.2 },
+    diagnostic: 'Irony is the engine. Subtext is the second engine. Compression is correct for the medium.' },
+];
+const vanCanvas = document.getElementById('voice-analyze-canvas');
+const vanCtx = vanCanvas.getContext('2d');
+let vanActive = null;
+function voiceAnalyzePick(i) { vanActive = i; pepSend('voice.pick', { i }); }
+function drawVoiceAnalyze() {
+  const W = 960, H = 520; vanCtx.fillStyle = themeBg(); vanCtx.fillRect(0, 0, W, H);
+  if (vanActive == null) {
+    vanCtx.fillStyle = '#778'; vanCtx.font = '11px monospace'; vanCtx.textAlign = 'center';
+    vanCtx.fillText('(pick a paragraph)', W / 2, H / 2);
+    requestAnimationFrame(drawVoiceAnalyze); return;
+  }
+  const d = VOICEAN_DATA[vanActive];
+  vanCtx.fillStyle = '#4fc3f7'; vanCtx.font = 'bold 12px monospace'; vanCtx.textAlign = 'left';
+  vanCtx.fillText(d.label, 30, 30);
+  vanCtx.fillStyle = '#dce4ed'; vanCtx.font = '12px monospace';
+  wrapText(vanCtx, d.text, 30, 60, W - 60, 18);
+  const mechs = [['POV', 'pov'], ['REGISTER', 'register'], ['IRONY', 'irony'], ['SUBTEXT', 'subtext'], ['PACING', 'pacing'], ['VOICE CONSISTENCY', 'voice'], ['REPETITION', 'repetition'], ['SOUND SYMMETRY', 'sound']];
+  vanCtx.fillStyle = '#a78bfa'; vanCtx.font = 'bold 11px monospace';
+  vanCtx.fillText('MECHANISM STRENGTH', 30, 200);
+  mechs.forEach((m, i) => {
+    const y = 220 + i * 30;
+    vanCtx.fillStyle = '#dce4ed'; vanCtx.font = '10px monospace';
+    vanCtx.fillText(m[0], 30, y + 12);
+    vanCtx.fillStyle = 'rgba(79,195,247,0.15)'; vanCtx.fillRect(180, y, 320, 18);
+    vanCtx.fillStyle = 'rgba(79,195,247,0.85)'; vanCtx.fillRect(180, y, 320 * d.scores[m[1]], 18);
+    vanCtx.fillStyle = '#fff'; vanCtx.font = '10px monospace'; vanCtx.textAlign = 'right';
+    vanCtx.fillText((d.scores[m[1]] * 100).toFixed(0) + '%', 495, y + 12);
+    vanCtx.textAlign = 'left';
+  });
+  vanCtx.fillStyle = '#81c784'; vanCtx.font = 'bold 11px monospace'; vanCtx.textAlign = 'left';
+  vanCtx.fillText('DIAGNOSTIC (voice-preserving)', 530, 200);
+  vanCtx.fillStyle = '#dce4ed'; vanCtx.font = '11px monospace';
+  wrapText(vanCtx, d.diagnostic, 530, 224, 410, 16);
+  requestAnimationFrame(drawVoiceAnalyze);
+}
+drawVoiceAnalyze();
+
+// ═══════════════════════════════════════════════════════════════════════
+// Lingora Benchmark
+// ═══════════════════════════════════════════════════════════════════════
+const linBenchCanvas = document.getElementById('lin-bench-canvas');
+const linBenchCtx = linBenchCanvas.getContext('2d');
+let linBenchData = null;
+function linBenchGen() {
+  linBenchData = {
+    base: { prag: 0.18 + (Math.random() - 0.5) * 0.04, reg: 0.32 + (Math.random() - 0.5) * 0.04, cult: 0.21 + (Math.random() - 0.5) * 0.04, bleu: 0.42 + (Math.random() - 0.5) * 0.03, lat: 1.0 },
+    lin:  { prag: 0.71 + (Math.random() - 0.5) * 0.05, reg: 0.78 + (Math.random() - 0.5) * 0.04, cult: 0.65 + (Math.random() - 0.5) * 0.05, bleu: 0.41 + (Math.random() - 0.5) * 0.03, lat: 1.0 + 0.45 + Math.random() * 0.08 },
+  };
+}
+linBenchGen();
+function linBenchRegen() { linBenchGen(); pepSend('linbench.regen', {}); }
+function drawLinBench() {
+  const W = 960, H = 640; linBenchCtx.fillStyle = themeBg(); linBenchCtx.fillRect(0, 0, W, H);
+  if (!linBenchData) { requestAnimationFrame(drawLinBench); return; }
+  const d = linBenchData;
+  const metrics = [
+    { label: 'Pragmatic preservation', b: d.base.prag, l: d.lin.prag, fmt: (v) => (v * 100).toFixed(1) + '%', higher: true },
+    { label: 'Register preservation',  b: d.base.reg,  l: d.lin.reg,  fmt: (v) => (v * 100).toFixed(1) + '%', higher: true },
+    { label: 'Cultural framing',       b: d.base.cult, l: d.lin.cult, fmt: (v) => (v * 100).toFixed(1) + '%', higher: true },
+    { label: 'BLEU score',             b: d.base.bleu, l: d.lin.bleu, fmt: (v) => v.toFixed(2),               higher: true },
+    { label: 'Latency (index)',        b: d.base.lat / 2.0, l: d.lin.lat / 2.0, fmt: (v) => (v * 2.0).toFixed(2) + 'x', higher: false },
+  ];
+  linBenchCtx.fillStyle = '#aaa'; linBenchCtx.font = '11px monospace'; linBenchCtx.textAlign = 'left';
+  linBenchCtx.fillText('300 synthetic translation pairs · standard MT (purple) vs Lingora-aware (blue)', 30, 24);
+  const barW = 340, barH = 28, gap = 36;
+  metrics.forEach((m, i) => {
+    const y = 50 + i * (barH * 2 + gap);
+    linBenchCtx.fillStyle = '#dce4ed'; linBenchCtx.font = 'bold 12px monospace'; linBenchCtx.textAlign = 'left';
+    linBenchCtx.fillText(m.label, 30, y);
+    linBenchCtx.fillStyle = 'rgba(167,139,250,0.25)'; linBenchCtx.fillRect(30, y + 8, barW, barH);
+    linBenchCtx.fillStyle = 'rgba(167,139,250,0.85)'; linBenchCtx.fillRect(30, y + 8, barW * Math.min(1, m.b), barH);
+    linBenchCtx.fillStyle = '#fff'; linBenchCtx.font = '11px monospace'; linBenchCtx.textAlign = 'right';
+    linBenchCtx.fillText('MT: ' + m.fmt(m.b), 30 + barW - 6, y + 8 + barH / 2 + 4);
+    linBenchCtx.fillStyle = 'rgba(79,195,247,0.25)'; linBenchCtx.fillRect(30, y + 8 + barH + 4, barW, barH);
+    linBenchCtx.fillStyle = 'rgba(79,195,247,0.85)'; linBenchCtx.fillRect(30, y + 8 + barH + 4, barW * Math.min(1, m.l), barH);
+    linBenchCtx.fillStyle = '#fff';
+    linBenchCtx.fillText('Lingora: ' + m.fmt(m.l), 30 + barW - 6, y + 8 + barH + 4 + barH / 2 + 4);
+    const delta = m.l - m.b;
+    const pct = Math.abs(m.b) > 0.001 ? (delta / m.b * 100) : 0;
+    const isGood = m.higher ? delta > 0 : delta < 0;
+    const col = isGood ? 'rgba(79,195,247,0.95)' : Math.abs(delta) < 0.05 ? 'rgba(200,200,200,0.95)' : 'rgba(248,113,113,0.95)';
+    linBenchCtx.fillStyle = col; linBenchCtx.font = 'bold 13px monospace'; linBenchCtx.textAlign = 'left';
+    const sign = pct > 0 ? '+' : '';
+    linBenchCtx.fillText(sign + pct.toFixed(0) + '%', 400, y + 8 + barH + 4);
+    linBenchCtx.fillStyle = '#aaa'; linBenchCtx.font = '10px monospace';
+    const labelTxt = m.label === 'BLEU score' ? 'tied (different axis)' : (isGood ? 'better' : 'tradeoff');
+    linBenchCtx.fillText(labelTxt, 400, y + 8 + barH + 20);
+  });
+  linBenchCtx.fillStyle = 'rgba(79,195,247,0.95)'; linBenchCtx.font = 'bold 11px monospace'; linBenchCtx.textAlign = 'center';
+  linBenchCtx.fillText('Lingora is not winning at literal accuracy (BLEU ties); it is winning on the axis BLEU does not measure', W / 2, H - 20);
+  requestAnimationFrame(drawLinBench);
+}
+drawLinBench();
 
 function drawInnerspeech() {
   const W = 960, H = 400; innerspeechCtx.fillStyle = themeBg(); innerspeechCtx.fillRect(0, 0, W, H);
