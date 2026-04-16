@@ -127,6 +127,7 @@ _PAGE = """\
       <div class="tab" data-panel="rag-tab">Pipeline</div>
       <div class="tab" data-panels="pitch-tab bench-tab">Pitch</div>
       <div class="tab" data-panel="products-tab">Products</div>
+      <div class="tab" onclick="window.location='/vectora/playground'" style="cursor:pointer">Playground ↗</div>
       <div class="tab" data-panel="theory-tab">Theory</div>
       <div class="tab" data-panel="bridge-tab">PEP &harr; Vectora</div>
     </div>
@@ -654,7 +655,7 @@ _PAGE = """\
     than replacing it.
   </p>
 
-  <a href="/vectora/retrieval" style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #38bdf8;border-radius:6px;padding:16px 20px;margin-bottom:12px;text-decoration:none;color:inherit;transition:border-color 0.15s" onmouseover="this.style.borderColor='#38bdf8'" onmouseout="this.style.borderColor='var(--border)'">
+  <a href="/vectora/retrieval" style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #38bdf8;border-radius:6px;padding:16px 20px;margin-bottom:12px;text-decoration:none;color:inherit;transition:border-color 0.15s" onmouseover="this.style.borderColor='#38bdf8'" onmouseout="this.style.borderColor='var(--border)';this.style.borderLeftColor='#38bdf8'">
     <div style="display:flex;justify-content:space-between;align-items:start;gap:10px;margin-bottom:6px">
       <div style="font-size:14px;font-weight:bold;color:#38bdf8">Vectora Retrieval &rarr;</div>
       <span style="font-size:9px;color:#38bdf8;background:rgba(56,189,248,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">CORE PRODUCT · BUILT</span>
@@ -675,9 +676,9 @@ _PAGE = """\
     </div>
   </a>
 
-  <div style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #a3e635;border-radius:6px;padding:16px 20px;margin-bottom:12px">
+  <a href="/vectora/context" style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #a3e635;border-radius:6px;padding:16px 20px;margin-bottom:12px;text-decoration:none;color:inherit;transition:border-color 0.15s" onmouseover="this.style.borderColor='#a3e635'" onmouseout="this.style.borderColor='var(--border)';this.style.borderLeftColor='#a3e635'">
     <div style="display:flex;justify-content:space-between;align-items:start;gap:10px;margin-bottom:6px">
-      <div style="font-size:14px;font-weight:bold;color:#a3e635">Vectora Context</div>
+      <div style="font-size:14px;font-weight:bold;color:#a3e635">Vectora Context &rarr;</div>
       <span style="font-size:9px;color:#a3e635;background:rgba(163,230,53,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">SDK · CONTEXT-AWARE</span>
     </div>
     <div style="font-size:11px;color:var(--text);line-height:1.6;margin-bottom:6px">
@@ -695,12 +696,12 @@ _PAGE = """\
       <b style="color:var(--text)">Differentiator:</b> context as a
       first-class state modulator, not a prompt-stuffing hack.
     </div>
-  </div>
+  </a>
 
-  <div style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #fbbf24;border-radius:6px;padding:16px 20px;margin-bottom:12px">
+  <a href="/vectora/watch" style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #fbbf24;border-radius:6px;padding:16px 20px;margin-bottom:12px;text-decoration:none;color:inherit;transition:border-color 0.15s" onmouseover="this.style.borderColor='#fbbf24'" onmouseout="this.style.borderColor='var(--border)';this.style.borderLeftColor='#fbbf24'">
     <div style="display:flex;justify-content:space-between;align-items:start;gap:10px;margin-bottom:6px">
-      <div style="font-size:14px;font-weight:bold;color:#fbbf24">Vectora Watch</div>
-      <span style="font-size:9px;color:#fbbf24;background:rgba(251,191,36,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">ANOMALY · NOVELTY</span>
+      <div style="font-size:14px;font-weight:bold;color:#fbbf24">Vectora Watch &rarr;</div>
+      <span style="font-size:9px;color:#fbbf24;background:rgba(251,191,36,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">ANOMALY · NOVELTY · BUILT</span>
     </div>
     <div style="font-size:11px;color:var(--text);line-height:1.6;margin-bottom:6px">
       Anomaly and novelty surfacing for streaming data. Residual
@@ -718,12 +719,12 @@ _PAGE = """\
       <b style="color:var(--text)">Same primitive:</b> Strata's
       Unusual Move Scanner is this product applied to equities.
     </div>
-  </div>
+  </a>
 
-  <div style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #c084fc;border-radius:6px;padding:16px 20px;margin-bottom:12px">
+  <a href="/vectora/graph" style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #c084fc;border-radius:6px;padding:16px 20px;margin-bottom:12px;text-decoration:none;color:inherit;transition:border-color 0.15s" onmouseover="this.style.borderColor='#c084fc'" onmouseout="this.style.borderColor='var(--border)';this.style.borderLeftColor='#c084fc'">
     <div style="display:flex;justify-content:space-between;align-items:start;gap:10px;margin-bottom:6px">
-      <div style="font-size:14px;font-weight:bold;color:#c084fc">Vectora Graph</div>
-      <span style="font-size:9px;color:#c084fc;background:rgba(192,132,252,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">KNOWLEDGE GRAPH BUILDER</span>
+      <div style="font-size:14px;font-weight:bold;color:#c084fc">Vectora Graph &rarr;</div>
+      <span style="font-size:9px;color:#c084fc;background:rgba(192,132,252,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">KG BUILDER · BUILT</span>
     </div>
     <div style="font-size:11px;color:var(--text);line-height:1.6;margin-bottom:6px">
       Hybrid knowledge-graph builder. Layers explicit entity-relation
@@ -741,7 +742,7 @@ _PAGE = """\
       <b style="color:var(--text)">Differentiator:</b> single graph,
       typed edges, queryable by either path simultaneously.
     </div>
-  </div>
+  </a>
 
   <h3 style="font-size:13px;color:var(--accent2);margin:24px 0 8px">Why one engine, four products</h3>
   <div class="info">

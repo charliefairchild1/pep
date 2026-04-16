@@ -1041,6 +1041,572 @@ showCode('python');
 
 
 # ═══════════════════════════════════════════════════════════════════════
+# Vectora Context
+# ═══════════════════════════════════════════════════════════════════════
+@router.get("/vectora/context", response_class=HTMLResponse)
+async def vectora_context() -> str:
+    return _product_page(
+        title="Vectora Context",
+        parent_name="Vectora",
+        parent_path="/vectora",
+        accent="#a3e635",
+        accent_rgb="163,230,53",
+        surface_bg="#0c120a",
+        surface_card="#18201a",
+        text_color="#dcedd4",
+        dim_color="#7a8a6a",
+        border_color="#24301f",
+        tagline="Personalization as a state modulator on the retrieval graph.",
+        hero_paragraphs=[
+            "The same query returns the same results no matter who is asking or what they were just looking at. That makes users rephrase queries to carry context the system should already have. Vectora Context turns the user's recent activity into a first-class signal that shifts retrieval on the fly — no prompt stuffing, no query rewriting.",
+            "Built on Vectora's graph retrieval with a state-modulation layer on top. Recent documents, recent clicks, and explicit context hints all contribute. Same engine, same storage; just a runtime modulation of edge weights in the region of the graph the user is currently operating in.",
+        ],
+        problem="Your users type short, ambiguous queries. The retriever has no way to know what &quot;merge&quot; means to this user right now &mdash; git merge? SQL merge? Corporate merger? Every user sees the same flat result set and has to disambiguate by rephrasing. You end up storing more state in the prompt, paying for longer contexts, and still not matching the right user intent.",
+        solution="Track recent activity as a lightweight state vector. Use it as a modulator on the retrieval graph: edges near the user's current context get amplified; edges far from it get damped. The same query returns different, more-relevant results per user per context. No query rewriting, no prompt bloat &mdash; the context is structural, not textual.",
+        how_it_works=[
+            ("Track recent activity", "Record the documents a user recently viewed, searched for, or authored. Sliding window; lightweight (a few dozen document IDs per user). No PII required beyond session ID."),
+            ("Build a context vector", "Reduce recent activity to a single weighted vector in the graph's node space. The vector represents &quot;where the user is currently operating&quot; &mdash; a centroid in content space."),
+            ("Modulate edge weights at query time", "When a retrieval query arrives, boost edges with endpoints near the context vector; damp edges far from it. Same Vectora graph-walk algorithm; modulated weights. Milliseconds of overhead per query."),
+            ("Decay the context", "User activity decays over time (hours to days, configurable). Old context stops influencing retrieval; recent context dominates. Prevents stale context from locking the user into a topic."),
+        ],
+        capabilities=[
+            ("Context-aware retrieval", "Recent activity modulates edge weights. Same query produces different, better-fit results per user per context."),
+            ("Per-session modulation", "Context is session-scoped by default; no cross-session user tracking required. Privacy-first; easy opt-out."),
+            ("Explicit hints", "Users (or your app) can explicitly set context hints (&quot;I'm working on the billing service&quot;) that bias retrieval without appearing in the query text."),
+            ("Decay profiles", "Configurable decay for recent vs ambient context. Short decay for fast task-switching users; long decay for focused research use cases."),
+            ("Cross-user context (optional)", "Aggregated team-level context. What your team has been searching for recently modulates retrieval for everyone on the team — surfaces relevant items without centralized curation."),
+            ("Drop-in on Vectora Retrieval", "Same node set, same edges, same API. Add a context_id parameter to any retrieve() call. No separate infrastructure."),
+        ],
+        demo_html="""
+<div style="font-size:11px;color:#7a8a6a;margin-bottom:6px">QUERY</div>
+<input type="text" id="ctx-query" value="merge" onchange="renderCtx()" style="width:100%;background:#0c120a;color:#dcedd4;border:1px solid #24301f;border-radius:4px;padding:8px;font-family:inherit;font-size:11px;margin-bottom:14px">
+<div style="font-size:11px;color:#7a8a6a;margin-bottom:6px">RECENT ACTIVITY (sets the context)</div>
+<div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+  <button class="cta-secondary" onclick="setCtx('git')" id="ctx-git" style="padding:6px 14px;border-radius:4px;border:1px solid #a3e635;background:#a3e635;color:#0c120a;font-size:11px;cursor:pointer;font-family:inherit;font-weight:bold">Reading git docs</button>
+  <button class="cta-secondary" onclick="setCtx('data')" id="ctx-data" style="padding:6px 14px;border-radius:4px;border:1px solid #24301f;background:transparent;color:#dcedd4;font-size:11px;cursor:pointer;font-family:inherit">Reading SQL / ETL docs</button>
+  <button class="cta-secondary" onclick="setCtx('biz')" id="ctx-biz" style="padding:6px 14px;border-radius:4px;border:1px solid #24301f;background:transparent;color:#dcedd4;font-size:11px;cursor:pointer;font-family:inherit">Reading M&amp;A news</button>
+  <button class="cta-secondary" onclick="setCtx('none')" id="ctx-none" style="padding:6px 14px;border-radius:4px;border:1px solid #24301f;background:transparent;color:#dcedd4;font-size:11px;cursor:pointer;font-family:inherit">No context</button>
+</div>
+<div id="ctx-results" style="background:#0c120a;border:1px solid #24301f;border-radius:4px;padding:14px;font-size:11px;line-height:1.8;min-height:180px"></div>
+        """,
+        demo_script="""
+const CTX_DATA = {
+  git:  { label: 'git / version control', results: ['git merge --no-ff strategies', 'resolving merge conflicts in shared branches', 'merge vs rebase: when to use which', 'pull request merge queue at scale', 'three-way merge algorithm explained'] },
+  data: { label: 'SQL / data pipelines', results: ['MERGE INTO syntax (SQL:2003)', 'merge join performance in Spark', 'CDC merge patterns for data warehousing', 'pandas.merge vs pandas.concat', 'data deduplication after a merge'] },
+  biz:  { label: 'corporate M&A', results: ['failed mergers: a 20-year retrospective', 'merger antitrust review process', 'post-merger integration playbook', 'announcement premium in merger arbitrage', 'cultural integration failures in large mergers'] },
+  none: { label: 'no context set', results: ['git merge --no-ff strategies', 'MERGE INTO syntax (SQL:2003)', 'failed mergers retrospective', 'merge sort algorithm', 'mail merge in Google Docs'] },
+};
+let ctxActive = 'git';
+function setCtx(k) {
+  ctxActive = k;
+  ['git','data','biz','none'].forEach(id => {
+    const btn = document.getElementById('ctx-' + id);
+    if (id === k) { btn.style.background = '#a3e635'; btn.style.color = '#0c120a'; btn.style.borderColor = '#a3e635'; }
+    else { btn.style.background = 'transparent'; btn.style.color = '#dcedd4'; btn.style.borderColor = '#24301f'; }
+  });
+  renderCtx();
+}
+function renderCtx() {
+  const d = CTX_DATA[ctxActive];
+  const q = document.getElementById('ctx-query').value.trim() || 'merge';
+  document.getElementById('ctx-results').innerHTML =
+    '<div style="color:#7a8a6a;margin-bottom:8px">context: <b style="color:#a3e635">' + d.label + '</b>  ·  query: <b style="color:#dcedd4">"' + q + '"</b></div>' +
+    d.results.map((r, i) => '<div style="margin-bottom:4px;color:#dcedd4">' + (i+1) + '. ' + r + '</div>').join('');
+}
+setCtx('git');
+        """,
+        secondary_demo_title="Context decay",
+        secondary_demo_html="""
+<div style="font-size:11px;color:#7a8a6a;margin-bottom:10px">Context signal weakens over time. The slider sets the decay half-life. Short half-lives let users switch tasks without carrying stale context; long half-lives preserve research focus.</div>
+<div style="display:flex;align-items:center;gap:14px;font-size:11px;margin-bottom:14px">
+  <span style="color:#7a8a6a">half-life:</span>
+  <input type="range" id="decay-slider" min="1" max="60" value="10" style="flex:1" oninput="drawDecay()">
+  <span id="decay-label" style="color:#a3e635;font-weight:bold;min-width:60px">10 min</span>
+</div>
+<canvas id="decay-canvas" width="600" height="220" style="width:100%;background:#0c120a;border:1px solid #24301f;border-radius:4px"></canvas>
+        """,
+        secondary_demo_script="""
+function drawDecay() {
+  const halfLife = parseFloat(document.getElementById('decay-slider').value);
+  document.getElementById('decay-label').textContent = halfLife + ' min';
+  const c = document.getElementById('decay-canvas');
+  const ctx = c.getContext('2d');
+  const W = c.width, H = c.height;
+  ctx.fillStyle = '#0c120a'; ctx.fillRect(0, 0, W, H);
+  // axis
+  ctx.strokeStyle = 'rgba(122,138,106,0.3)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(40, 20); ctx.lineTo(40, H - 30); ctx.lineTo(W - 20, H - 30); ctx.stroke();
+  // decay curve: v = 2^(-t/halfLife)
+  ctx.strokeStyle = '#a3e635'; ctx.lineWidth = 2;
+  ctx.beginPath();
+  const maxMin = 120;
+  for (let px = 40; px < W - 20; px++) {
+    const t = ((px - 40) / (W - 60)) * maxMin;
+    const v = Math.pow(2, -t / halfLife);
+    const y = (H - 30) - v * (H - 60);
+    if (px === 40) ctx.moveTo(px, y); else ctx.lineTo(px, y);
+  }
+  ctx.stroke();
+  // labels
+  ctx.fillStyle = '#7a8a6a'; ctx.font = '10px monospace';
+  ctx.fillText('1.0', 12, 25);
+  ctx.fillText('0.0', 12, H - 28);
+  ctx.fillText('0', 38, H - 14);
+  ctx.fillText(maxMin + ' min', W - 60, H - 14);
+  ctx.fillStyle = '#a3e635'; ctx.font = 'bold 11px monospace';
+  ctx.fillText('context weight over time', 50, 40);
+}
+drawDecay();
+        """,
+        use_cases=[
+            ("Enterprise search over Confluence + Slack + Drive",
+             "Employees type short queries that depend on context — which team they're in, which project, which week. Current search treats everyone identically.",
+             "Context tracks recent Slack channels, recently viewed docs, and current working project. Same 'roadmap' query returns different (correct) docs per employee. Search satisfaction jumps."),
+            ("IDE assistant retrieving code examples",
+             "Developer asks 'how do I merge.' Vague by design — the IDE should know what they're merging (git branches vs DataFrames vs Celery queues).",
+             "Recent files open in the IDE become the context. The assistant infers domain and pulls relevant examples without the dev rephrasing. Paste-and-go instead of paste-rephrase-paste."),
+            ("Customer-support agent pulling relevant articles",
+             "Agent is deep in a ticket about billing. Their search should prefer billing-related articles without them typing &quot;billing.&quot; Otherwise they pull top-k generic articles about the user&apos;s other issues.",
+             "Recent ticket + recent customer history = context. Search naturally prefers on-topic articles. Ticket resolution time drops."),
+            ("Research tool for long focused sessions",
+             "Researcher spends 2 hours on a topic. Queries get short and specific. Top-k keeps returning generic tutorials from the whole corpus.",
+             "Long decay half-life preserves research focus for the session. Short queries produce laser-focused results within the researcher&apos;s current topic neighborhood."),
+        ],
+        competitors=[
+            ("Query rewriting / prompt stuffing",
+             "Structural context modulation &mdash; no tokens added to the prompt, no inference cost.",
+             "Adds tokens to every query. Still not session-aware. Latency + cost penalty."),
+            ("Personalization ML layer (recommendation-system style)",
+             "Lightweight, no training loop, no cold-start problem. Integrates with existing Vectora graph.",
+             "Separate ML pipeline with its own training, data warehousing, and infrastructure. Cold-start problem on new users."),
+            ("Session prompts (OpenAI thread memory etc.)",
+             "Works with any LLM and any storage. Context is structural, not textual.",
+             "Locked into specific provider. Prompt memory is expensive and leaky."),
+        ],
+        integration_steps=[
+            ("Install", "Enable Context on your Vectora Retrieval account. Same SDK; add a context_id parameter to each retrieve() call."),
+            ("Record activity", "Call client.record_view(context_id, doc_id) when a user views, clicks, or spends meaningful time on a document. Lightweight; batch up to 100 events/second."),
+            ("Query with context", "Pass context_id=user_session on retrieve(). Results are automatically modulated. No prompt changes."),
+            ("Tune decay", "Configure the decay half-life per use case (fast task-switching vs focused research). Defaults work for most applications."),
+        ],
+        pricing_tiers=[
+            ("Included", "$0 extra", "Context tracking is included with any Cloud or Scale tier of Vectora Retrieval."),
+            ("Enhanced", "+$49 / mo", "Cross-session user tracking, team-level aggregated context, explicit hint API."),
+            ("Enterprise", "Custom", "Dedicated context DB, privacy controls, compliance certifications."),
+        ],
+        faq=[
+            ("Do you store personal data?",
+             "By default, no. Context is a sliding window of document IDs tied to a session ID you provide. We do not store user names, email, or any PII. Enterprise tier supports custom data-handling policies."),
+            ("What happens if a user wants their context cleared?",
+             "DELETE /v1/context/:context_id. Clears all recorded activity for that ID. No retention beyond what your app decides."),
+            ("Does this work on large user bases?",
+             "Yes. Context storage is ~500 bytes per active user. Modulation is an O(seeds × neighbors) overhead per query, bounded by the same parameters that bound the core Vectora retrieval."),
+            ("Can I turn it off per-query?",
+             "Yes. Pass context_id=None on any retrieve() call and you get plain Vectora retrieval, no context."),
+            ("Does Context leak across users?",
+             "No. Contexts are strictly per-context-id. If you use one context_id for a user, they only see their own context. Team-level aggregated context is opt-in and aggregates anonymously."),
+        ],
+        final_cta="Stop making users restate what you should have inferred.",
+        status_badge="CONTEXT-AWARE · SDK",
+    )
+
+
+# ═══════════════════════════════════════════════════════════════════════
+# Vectora Watch
+# ═══════════════════════════════════════════════════════════════════════
+@router.get("/vectora/watch", response_class=HTMLResponse)
+async def vectora_watch() -> str:
+    return _product_page(
+        title="Vectora Watch",
+        parent_name="Vectora",
+        parent_path="/vectora",
+        accent="#fbbf24",
+        accent_rgb="251,191,36",
+        surface_bg="#14100a",
+        surface_card="#1f1a12",
+        text_color="#eee2cb",
+        dim_color="#9a8870",
+        border_color="#2e261a",
+        tagline="Context-sensitive anomaly and novelty surfacing on streaming data.",
+        hero_paragraphs=[
+            "The document that breaks the pattern is the one worth reading. The security event that does not match the existing cluster. The research paper with a structural signature nobody has published before. The change in your corpus that signals something shifted. Vectora Watch surfaces them continuously, context-sensitive to the current shape of your data.",
+            "Built on Vectora's residual-scoring primitive. Incoming items are scored against the existing pattern (your corpus's embedding distribution + graph structure). High residuals get flagged; low residuals get filed quietly. The threshold shifts as your pattern shifts — what was anomalous yesterday can be normal today if the distribution moved.",
+        ],
+        problem="Your monitoring system either drowns you in alerts (fixed-threshold systems that fire on every minor fluctuation) or misses everything (classical outlier detection that can&apos;t adapt to changing distributions). The item that actually matters &mdash; the novel security event, the first hint of a new research direction, the prose that breaks your editorial pattern &mdash; gets lost in the noise floor.",
+        solution="Score each incoming item against the current pattern using residual scoring. The predictor is a running model of what your corpus looks like; the residual is how far the new item lies from it. Context-sensitive: the threshold adapts as the distribution shifts. Alerts fire only when something structurally breaks the pattern &mdash; not on arbitrary thresholds.",
+        how_it_works=[
+            ("Learn the pattern", "As documents flow into your corpus, Watch learns the embedding distribution + graph structure. No training step; model updates continuously as data arrives."),
+            ("Score each new item", "For each incoming item, compute residual = how far it sits from the current pattern. Distance in embedding space + graph connectivity + metadata distribution."),
+            ("Surface the outliers", "Items with high residuals bubble up as anomalies or novelty. The user decides which; Watch provides the signal and the explanation."),
+            ("Adapt to shift", "As the distribution shifts (new topics enter the corpus, old ones fade), the residual scorer adapts. What was anomalous yesterday is normal today if the pattern moved."),
+        ],
+        capabilities=[
+            ("Residual scoring", "Per-item residual score on a 0-100 scale. Based on embedding distance from the corpus centroid plus graph-structural divergence."),
+            ("Context-sensitive threshold", "Adaptive threshold that shifts with the distribution. No manual retuning as the corpus evolves."),
+            ("Novelty vs anomaly routing", "Same residual signal routed into different inboxes: novelty for research/discovery workflows, anomaly for alerting. User decides at configuration time."),
+            ("Explanation per alert", "Every flagged item comes with a structural explanation: which dimensions of the pattern it diverges from, which existing items are most similar."),
+            ("Streaming + batch modes", "Score items as they arrive (low latency) or batch-score a backlog (higher throughput). Same API."),
+            ("Integrates with Retrieval", "Watch-flagged items are automatically weighted in Vectora Retrieval's context modulation. Users searching during an anomaly period see the anomalous items preferentially."),
+        ],
+        demo_html="""
+<div style="font-size:11px;color:#9a8870;margin-bottom:6px">DATA STREAM (click items to inspect residual)</div>
+<div id="watch-stream" style="background:#14100a;border:1px solid #2e261a;border-radius:4px;padding:14px;font-size:11px;line-height:1.9;min-height:180px"></div>
+<div style="margin-top:14px">
+  <button class="cta-secondary" onclick="watchStep()" style="padding:6px 14px;border-radius:4px;border:1px solid #fbbf24;background:#fbbf24;color:#14100a;font-size:11px;cursor:pointer;font-family:inherit;font-weight:bold">Add next item</button>
+  <button class="cta-secondary" onclick="watchReset()" style="padding:6px 14px;border-radius:4px;border:1px solid #2e261a;background:transparent;color:#9a8870;font-size:11px;cursor:pointer;font-family:inherit;margin-left:8px">Reset</button>
+</div>
+        """,
+        demo_script="""
+const WATCH_STREAM = [
+  { t: 'User login from 192.168.1.42 (regular IP)', residual: 12 },
+  { t: 'User login from 192.168.1.43 (regular IP)', residual: 14 },
+  { t: 'User login from 10.0.0.1 (internal)', residual: 22 },
+  { t: 'User login from 203.0.113.99 (new country, unusual time)', residual: 87 },
+  { t: 'User login from 192.168.1.42 (regular IP)', residual: 11 },
+  { t: 'Password reset triggered (expected after anomalous login)', residual: 45 },
+  { t: 'User login from 203.0.113.99 (repeated anomaly)', residual: 68 },
+  { t: 'User login from 192.168.1.42 (back to normal)', residual: 10 },
+  { t: 'Bulk file download: 2.4 GB in 40 seconds (highly unusual)', residual: 94 },
+  { t: 'User login from 192.168.1.42 (regular IP)', residual: 12 },
+];
+let watchIdx = 0;
+function watchStep() {
+  if (watchIdx >= WATCH_STREAM.length) return;
+  const el = document.getElementById('watch-stream');
+  const item = WATCH_STREAM[watchIdx++];
+  const col = item.residual > 70 ? '#f06292' : item.residual > 40 ? '#fbbf24' : '#9a8870';
+  const label = item.residual > 70 ? 'ANOMALY' : item.residual > 40 ? 'NOTABLE' : 'normal';
+  const div = document.createElement('div');
+  div.innerHTML = '<span style="color:#7a6d4c;margin-right:8px">[' + new Date().toLocaleTimeString() + ']</span>' +
+    '<span style="color:#eee2cb">' + item.t + '</span>' +
+    '<span style="color:' + col + ';font-weight:bold;margin-left:10px">residual ' + item.residual + ' · ' + label + '</span>';
+  el.appendChild(div);
+  el.scrollTop = el.scrollHeight;
+}
+function watchReset() {
+  document.getElementById('watch-stream').innerHTML = '';
+  watchIdx = 0;
+}
+watchStep(); watchStep(); watchStep();
+        """,
+        secondary_demo_title="Residual distribution over time",
+        secondary_demo_html="""
+<div style="font-size:11px;color:#9a8870;margin-bottom:10px">Residual scores for 200 recent items. Blue = normal (residual &lt; 40), gold = notable (40-70), pink = anomalous (&gt; 70). The alert threshold is not fixed — it tracks the recent distribution, so the system stays sensitive to genuine divergence as the data drifts.</div>
+<canvas id="watch-dist-canvas" width="600" height="220" style="width:100%;background:#14100a;border:1px solid #2e261a;border-radius:4px"></canvas>
+        """,
+        secondary_demo_script="""
+function drawWatchDist() {
+  const c = document.getElementById('watch-dist-canvas');
+  const ctx = c.getContext('2d');
+  const W = c.width, H = c.height;
+  ctx.fillStyle = '#14100a'; ctx.fillRect(0, 0, W, H);
+  // axes
+  ctx.strokeStyle = 'rgba(122,109,76,0.3)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(30, 20); ctx.lineTo(30, H - 20); ctx.lineTo(W - 10, H - 20); ctx.stroke();
+  // 200 points
+  for (let i = 0; i < 200; i++) {
+    let r;
+    // Most normal, occasional anomalies clustered around index 80 and 150
+    if (Math.abs(i - 80) < 3) r = 70 + Math.random() * 25;
+    else if (Math.abs(i - 150) < 2) r = 85 + Math.random() * 12;
+    else r = Math.random() * 35 + (Math.random() < 0.05 ? 20 : 0);
+    const col = r > 70 ? '240,98,146' : r > 40 ? '251,191,36' : '103,232,249';
+    const x = 30 + (i / 200) * (W - 40);
+    const y = (H - 20) - (r / 100) * (H - 40);
+    ctx.fillStyle = 'rgba(' + col + ',0.7)';
+    ctx.beginPath(); ctx.arc(x, y, 2.5, 0, Math.PI * 2); ctx.fill();
+  }
+  // Threshold line (adaptive — drawn at 50)
+  ctx.strokeStyle = 'rgba(251,191,36,0.5)'; ctx.setLineDash([4,4]); ctx.lineWidth = 1;
+  ctx.beginPath(); const ty = (H - 20) - 0.5 * (H - 40); ctx.moveTo(30, ty); ctx.lineTo(W - 10, ty); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = '#fbbf24'; ctx.font = '10px monospace';
+  ctx.fillText('alert threshold (adaptive)', 36, ty - 4);
+  // Labels
+  ctx.fillStyle = '#9a8870'; ctx.font = '10px monospace';
+  ctx.fillText('100', 8, 24);
+  ctx.fillText('0', 18, H - 18);
+  ctx.fillText('200 items →', W - 80, H - 6);
+}
+drawWatchDist();
+        """,
+        use_cases=[
+            ("Security operations monitoring logins + file access",
+             "Fixed-rule SIEMs fire on every minor login anomaly; analysts alert-fatigue and miss the real signal. Classical outlier detection can't adapt when the user population shifts.",
+             "Watch's residual score adapts to the current distribution. Real anomalies (new country + unusual hour + bulk download) score 90+; minor ones score 20-30. Analysts see the 5 items that matter, not the 500 that don't."),
+            ("Research-literature surveillance for a lab",
+             "Researcher wants to know when papers enter their field that don't look like anything already published. Keyword alerts miss novel work; general alerts drown them.",
+             "Watch sits on arXiv + bioRxiv + field-specific corpora. Papers that are structurally novel (unusual author / institution / topic combination) surface as high-residual items. The lab reads 5 papers a week they would have missed."),
+            ("Content moderation at a platform",
+             "Rule-based moderation misses novel violations; AI moderation hallucinates. The pattern of abuse shifts continuously.",
+             "Watch flags content that structurally breaks the current pattern. Catches new-shape abuse before rules are written. Human moderators review the high-residual queue; Watch learns their dispositions."),
+            ("Change detection in a knowledge base",
+             "Internal docs get updated continuously. Teams need to know when a doc changes in a way that materially shifts policy, not every typo fix.",
+             "Watch scores each revision against the doc's history + adjacent docs. Structural changes (new policy, removed policy, semantic pivot) flag; typo fixes don't."),
+        ],
+        competitors=[
+            ("Fixed-threshold monitoring (Datadog, Splunk, classical SIEM)",
+             "Adaptive threshold. Learns the pattern; alerts only when the pattern is actually broken.",
+             "Static rules and static thresholds. Constant manual tuning. Alert fatigue or missed signal."),
+            ("Classical outlier detection (Isolation Forest, statistical tests)",
+             "Context-sensitive residual on the corpus&apos;s embedding + graph structure, not a fixed model of &quot;normal.&quot;",
+             "Fixed &quot;normal.&quot; Breaks when the distribution shifts. Require constant retraining."),
+            ("LLM-based classifiers",
+             "Structural signal; no per-item LLM call; predictable cost and latency.",
+             "Expensive at scale. Unpredictable failure modes. Hallucinates explanations."),
+        ],
+        integration_steps=[
+            ("Enable Watch", "Toggle on any Vectora Retrieval corpus. No separate infrastructure; uses the same embeddings and graph."),
+            ("Configure routing", "Route high-residual items to: webhook, email, PagerDuty, Slack, or the Watch dashboard. Different thresholds for novelty vs anomaly queues."),
+            ("Tune thresholds", "Default adaptive threshold works for most cases. Tighten for high-priority alerting; loosen for novelty surfacing."),
+            ("Iterate with feedback", "Mark flagged items as &quot;useful&quot; or &quot;noise&quot; in the dashboard. Watch learns from feedback and adjusts the threshold per-source."),
+        ],
+        pricing_tiers=[
+            ("Pro", "+$49 / mo", "Up to 100K items/day, 3 routing targets, 30-day history."),
+            ("Scale", "+$299 / mo", "Unlimited items, unlimited targets, 90-day history, custom feedback loops."),
+            ("Enterprise", "Custom", "On-prem, dedicated inference, SLA, compliance."),
+        ],
+        faq=[
+            ("How long before Watch learns my pattern?",
+             "Watch starts surfacing usable signal after ~1,000 items. For most corpora this is minutes to days. The threshold adapts continuously; there is no fixed training period."),
+            ("What counts as &quot;anomaly&quot; vs &quot;novelty&quot;?",
+             "Identical signal; different downstream routing. A high-residual item in a security corpus is an anomaly (alert the SOC). A high-residual item in a research corpus is novelty (surface to the researcher). You configure which inbox at setup."),
+            ("Can I tune the threshold?",
+             "Yes. Default is adaptive (set to flag ~1% of items). You can set a fixed threshold or a target flag rate. Per-source overrides for different data streams."),
+            ("Does it produce false positives?",
+             "Some — adaptive thresholds are not perfect. Every flag comes with an explanation and a &quot;not useful&quot; feedback button; Watch learns from that. False-positive rate typically drops from 15% at setup to 2-4% after 2 weeks of feedback."),
+            ("Is it real-time?",
+             "Yes. Latency per-item is ~5-15ms after the corpus is warm. For bulk backlog scoring, throughput is ~1000 items/sec per worker."),
+        ],
+        final_cta="Stop drowning in noise. Start reading the signal.",
+        status_badge="ANOMALY · NOVELTY",
+    )
+
+
+# ═══════════════════════════════════════════════════════════════════════
+# Vectora Graph
+# ═══════════════════════════════════════════════════════════════════════
+@router.get("/vectora/graph", response_class=HTMLResponse)
+async def vectora_graph() -> str:
+    return _product_page(
+        title="Vectora Graph",
+        parent_name="Vectora",
+        parent_path="/vectora",
+        accent="#c084fc",
+        accent_rgb="192,132,252",
+        surface_bg="#0f0a14",
+        surface_card="#1b1224",
+        text_color="#e4daf4",
+        dim_color="#8a78a0",
+        border_color="#2a1e38",
+        tagline="Hybrid knowledge graphs on the same storage as your embeddings.",
+        hero_paragraphs=[
+            "Knowledge graphs are precise: &quot;Einstein → born in → Ulm&quot; is a fact. Embedding graphs are broad: any two documents with shared vocabulary are connected. Current systems force you to pick one, or to run two separate infrastructures and reconcile results. Vectora Graph unifies them &mdash; same node set, typed edges for the facts, embedding edges for the coverage.",
+            "Automatic entity and relation extraction from your corpus. Manual edge ingestion for the hand-curated facts. Both edge types merged at query time, weighted per query if needed. Used under the hood by the rest of Vectora; exposed directly for teams that want typed-graph queries.",
+        ],
+        problem="Your data has structure &mdash; people, places, products, relationships &mdash; and you want to query it with that structure. Current options: build a Neo4j alongside your vector DB and sync them manually; use an embedding-only system and lose the structure; or use a Neo4j-only system and lose the semantic coverage. All three are painful.",
+        solution="Unified graph where the same node set carries multiple edge types simultaneously. Embedding edges (automatic, broad coverage). Knowledge-graph edges (automatic extraction or manual ingestion, precise). Co-occurrence / co-citation edges (statistical). All queryable together, all modulable independently. No separate storage, no sync.",
+        how_it_works=[
+            ("Ingest documents", "Same ingestion as Vectora Retrieval. Documents become nodes; embeddings are computed."),
+            ("Extract entities + relations", "Optional NER + relation-extraction pass (LLM-based). Creates typed edges: Einstein → born_in → Ulm."),
+            ("Layer manual edges", "For high-precision facts, ingest (source, relation, target) triples directly. Vectora stores them alongside the extracted edges; you can flag which are authoritative."),
+            ("Query with typed filters", "Retrieval queries can specify edge-type weights: &quot;find me documents connected via born_in or author_of, not just embedding similarity.&quot; Typed and untyped edges queried in one call."),
+        ],
+        capabilities=[
+            ("Automatic entity + relation extraction", "LLM-based NER + relation extraction on ingest. Produces typed edges without manual curation. Configurable per corpus (which entity types to extract, which relations)."),
+            ("Manual edge ingestion", "API for ingesting (source, relation, target, confidence) triples. For teams that have curated facts in another system — import into Vectora Graph and merge with the extracted edges."),
+            ("Hybrid queries", "Filter by edge type at query time: &quot;traverse born_in and author_of, not embedding similarity.&quot; Or weight edge types: 70% typed, 30% embedding."),
+            ("Graph visualization", "Interactive graph explorer in the dashboard. Start from any entity; spread out through typed edges. Same graph-walk primitive, different UI."),
+            ("Edge provenance", "Every edge carries its source (extracted / manual / automatic) and a confidence score. Filter to only high-confidence manual edges for audit-grade queries."),
+            ("Incremental updates", "Add or remove edges without rebuilding the graph. Updates propagate to retrieval in near-real-time."),
+        ],
+        demo_html="""
+<div style="font-size:11px;color:#8a78a0;margin-bottom:6px">PICK A SUBGRAPH</div>
+<div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+  <button class="cta-secondary" onclick="graphPick('einstein')" id="gp-einstein" style="padding:6px 14px;border-radius:4px;border:1px solid #c084fc;background:#c084fc;color:#0f0a14;font-size:11px;cursor:pointer;font-family:inherit;font-weight:bold">Einstein</button>
+  <button class="cta-secondary" onclick="graphPick('python')" id="gp-python" style="padding:6px 14px;border-radius:4px;border:1px solid #2a1e38;background:transparent;color:#e4daf4;font-size:11px;cursor:pointer;font-family:inherit">Python ecosystem</button>
+  <button class="cta-secondary" onclick="graphPick('music')" id="gp-music" style="padding:6px 14px;border-radius:4px;border:1px solid #2a1e38;background:transparent;color:#e4daf4;font-size:11px;cursor:pointer;font-family:inherit">Music genres</button>
+</div>
+<canvas id="graph-canvas" width="600" height="380" style="width:100%;background:#0f0a14;border:1px solid #2a1e38;border-radius:4px"></canvas>
+        """,
+        demo_script="""
+const KG = {
+  einstein: {
+    nodes: [
+      { id: 'einstein', l: 'Einstein', x: 300, y: 190 },
+      { id: 'ulm', l: 'Ulm', x: 140, y: 80 },
+      { id: 'relativity', l: 'Relativity', x: 460, y: 80 },
+      { id: 'photo', l: 'Photoelectric', x: 460, y: 300 },
+      { id: 'nobel', l: 'Nobel', x: 300, y: 340 },
+      { id: 'physics', l: 'Physics', x: 140, y: 300 },
+    ],
+    edges: [
+      { a: 'einstein', b: 'ulm', l: 'born_in' },
+      { a: 'einstein', b: 'relativity', l: 'developed' },
+      { a: 'einstein', b: 'photo', l: 'explained' },
+      { a: 'einstein', b: 'nobel', l: 'won' },
+      { a: 'relativity', b: 'physics', l: 'part_of' },
+      { a: 'photo', b: 'physics', l: 'part_of' },
+    ],
+  },
+  python: {
+    nodes: [
+      { id: 'python', l: 'Python', x: 300, y: 190 },
+      { id: 'fastapi', l: 'FastAPI', x: 140, y: 80 },
+      { id: 'django', l: 'Django', x: 460, y: 80 },
+      { id: 'numpy', l: 'NumPy', x: 140, y: 300 },
+      { id: 'torch', l: 'PyTorch', x: 460, y: 300 },
+      { id: 'pip', l: 'pip', x: 300, y: 340 },
+    ],
+    edges: [
+      { a: 'python', b: 'fastapi', l: 'framework' },
+      { a: 'python', b: 'django', l: 'framework' },
+      { a: 'python', b: 'numpy', l: 'library' },
+      { a: 'python', b: 'torch', l: 'library' },
+      { a: 'python', b: 'pip', l: 'pkg_mgr' },
+      { a: 'numpy', b: 'torch', l: 'depends_on' },
+    ],
+  },
+  music: {
+    nodes: [
+      { id: 'music', l: 'Music', x: 300, y: 80 },
+      { id: 'rock', l: 'Rock', x: 140, y: 190 },
+      { id: 'jazz', l: 'Jazz', x: 460, y: 190 },
+      { id: 'blues', l: 'Blues', x: 300, y: 290 },
+      { id: 'punk', l: 'Punk', x: 60, y: 310 },
+      { id: 'hh', l: 'Hip-Hop', x: 540, y: 310 },
+    ],
+    edges: [
+      { a: 'music', b: 'rock', l: 'genre' },
+      { a: 'music', b: 'jazz', l: 'genre' },
+      { a: 'rock', b: 'blues', l: 'from' },
+      { a: 'jazz', b: 'blues', l: 'from' },
+      { a: 'rock', b: 'punk', l: 'spawned' },
+      { a: 'jazz', b: 'hh', l: 'influenced' },
+    ],
+  },
+};
+let gpActive = 'einstein';
+function graphPick(k) {
+  gpActive = k;
+  ['einstein','python','music'].forEach(id => {
+    const btn = document.getElementById('gp-' + id);
+    if (id === k) { btn.style.background = '#c084fc'; btn.style.color = '#0f0a14'; btn.style.borderColor = '#c084fc'; }
+    else { btn.style.background = 'transparent'; btn.style.color = '#e4daf4'; btn.style.borderColor = '#2a1e38'; }
+  });
+  drawGraph();
+}
+function drawGraph() {
+  const c = document.getElementById('graph-canvas');
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = '#0f0a14'; ctx.fillRect(0, 0, c.width, c.height);
+  const d = KG[gpActive];
+  const nodeMap = {}; d.nodes.forEach(n => nodeMap[n.id] = n);
+  d.edges.forEach(e => {
+    const a = nodeMap[e.a], b = nodeMap[e.b];
+    ctx.strokeStyle = 'rgba(192,132,252,0.5)'; ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+    ctx.fillStyle = '#a3e635'; ctx.font = '10px monospace'; ctx.textAlign='center';
+    ctx.fillText(e.l, (a.x+b.x)/2, (a.y+b.y)/2 - 6);
+  });
+  d.nodes.forEach(n => {
+    ctx.fillStyle = 'rgba(192,132,252,0.5)';
+    ctx.beginPath(); ctx.arc(n.x, n.y, 22, 0, Math.PI*2); ctx.fill();
+    ctx.strokeStyle = 'rgba(192,132,252,0.95)'; ctx.lineWidth = 2; ctx.stroke();
+    ctx.fillStyle = '#fff'; ctx.font='bold 10px monospace'; ctx.textAlign='center';
+    ctx.fillText(n.l, n.x, n.y + 3);
+  });
+}
+drawGraph();
+        """,
+        secondary_demo_title="Extraction output",
+        secondary_demo_html="""
+<div style="font-size:11px;color:#8a78a0;margin-bottom:10px">Sample of what automatic extraction produces on a plain-English paragraph. Entities are highlighted; extracted triples are shown below. Confidence threshold is tunable.</div>
+<div style="background:#0f0a14;border:1px solid #2a1e38;border-radius:4px;padding:14px;margin-bottom:10px;font-size:12px;line-height:1.8">
+  <span style="background:rgba(192,132,252,0.2);color:#c084fc;padding:1px 4px;border-radius:3px">Albert Einstein</span>
+  was born in
+  <span style="background:rgba(192,132,252,0.2);color:#c084fc;padding:1px 4px;border-radius:3px">Ulm</span>
+  in
+  <span style="background:rgba(192,132,252,0.2);color:#c084fc;padding:1px 4px;border-radius:3px">1879</span>.
+  He developed the
+  <span style="background:rgba(192,132,252,0.2);color:#c084fc;padding:1px 4px;border-radius:3px">theory of relativity</span>
+  while working at the
+  <span style="background:rgba(192,132,252,0.2);color:#c084fc;padding:1px 4px;border-radius:3px">Swiss Patent Office</span>
+  and later won the
+  <span style="background:rgba(192,132,252,0.2);color:#c084fc;padding:1px 4px;border-radius:3px">Nobel Prize in Physics</span>
+  in
+  <span style="background:rgba(192,132,252,0.2);color:#c084fc;padding:1px 4px;border-radius:3px">1921</span>
+  for his work on the
+  <span style="background:rgba(192,132,252,0.2);color:#c084fc;padding:1px 4px;border-radius:3px">photoelectric effect</span>.
+</div>
+<div style="font-family:monospace;font-size:10px;color:#a3e635;line-height:1.8;background:#0f0a14;border:1px solid #2a1e38;border-radius:4px;padding:14px">
+  (Albert Einstein) → [born_in] → (Ulm) &nbsp;&nbsp;conf 0.98<br>
+  (Albert Einstein) → [born_in_year] → (1879) &nbsp;&nbsp;conf 0.97<br>
+  (Albert Einstein) → [developed] → (theory of relativity) &nbsp;&nbsp;conf 0.95<br>
+  (Albert Einstein) → [worked_at] → (Swiss Patent Office) &nbsp;&nbsp;conf 0.92<br>
+  (Albert Einstein) → [won] → (Nobel Prize in Physics) &nbsp;&nbsp;conf 0.96<br>
+  (Nobel Prize in Physics) → [awarded_year] → (1921) &nbsp;&nbsp;conf 0.91<br>
+  (Albert Einstein) → [explained] → (photoelectric effect) &nbsp;&nbsp;conf 0.88
+</div>
+        """,
+        secondary_demo_script="",
+        use_cases=[
+            ("Legal tech indexing case law + contracts",
+             "Lawyers need both precise structure (parties to a case, cited statutes) and semantic coverage (cases with similar fact patterns). Current systems force them to run two tools and merge by hand.",
+             "Vectora Graph extracts parties, statutes, and holdings automatically. Manual edges for high-value canonical citations. Hybrid queries: find all cases that cite statute X AND have similar fact patterns to case Y. One query, both dimensions."),
+            ("Research platform integrating literature + author graphs",
+             "PubMed has authors and citations; that's one graph. Embeddings add content similarity; that's another. Current tools like Semantic Scholar do either-or.",
+             "Vectora Graph unifies. Find papers by author-collaboration distance AND content similarity. Surface the under-cited paper that is structurally central to the author network."),
+            ("Enterprise SaaS with Salesforce + support tickets + docs",
+             "Customer entities in Salesforce; interactions in tickets; solutions in docs. All three indexed separately; customer context requires joining by hand.",
+             "Vectora Graph imports the Salesforce relationships as manual edges, extracts customer-ticket relationships from ticket text, embeds docs. Customer-support agents query the unified graph: find all docs mentioned in tickets from enterprise customers in the healthcare vertical."),
+            ("Content-recommendation for a publisher",
+             "Article embeddings give broad coverage. Author/topic/series edges give precise structure. Current rec systems use one or the other.",
+             "Vectora Graph exposes both. Recommender queries: &quot;articles structurally related to what the reader just finished (same author + same series) AND semantically similar.&quot; Precision and coverage in one query."),
+        ],
+        competitors=[
+            ("Neo4j + separate vector DB",
+             "Unified graph, unified storage, unified queries. No sync problem. No dual infrastructure.",
+             "Two separate systems. Manual sync. Dual query path. Merge-at-client."),
+            ("LlamaIndex KnowledgeGraphIndex",
+             "Production-grade graph storage, explicit edge provenance, manual edge ingestion, graph visualization.",
+             "Good for prototyping. Brittle in production. Limited manual-curation workflow."),
+            ("Pure embedding search",
+             "Keeps the coverage; adds the structure. No regression.",
+             "Coverage only. No typed-edge queries. No entity-level filters."),
+            ("Pure knowledge-graph systems (Wikidata, Palantir Gotham)",
+             "Adds embedding coverage on the same node set. Hybrid queries in one call.",
+             "Excellent structure. Weak semantic coverage. Expensive to extend with unstructured content."),
+        ],
+        integration_steps=[
+            ("Enable Graph", "Toggle on any Vectora Retrieval corpus. Extraction starts automatically on new documents."),
+            ("(Optional) Import manual edges", "POST (source_id, relation, target_id, confidence) triples from your curated facts. Merged with extracted edges."),
+            ("(Optional) Configure extraction", "Specify which entity types to extract (Person, Organization, Location, etc.) and which relations matter for your domain."),
+            ("Query with edge filters", "Add edge_types=[list] to any retrieve() call. Or graph.traverse(start_node, max_hops=3, edge_types=[list]) for pure graph queries."),
+        ],
+        pricing_tiers=[
+            ("Pro", "+$99 / mo", "Up to 1M entities, automatic extraction, hybrid queries, graph explorer."),
+            ("Scale", "+$499 / mo", "Unlimited entities, manual-edge bulk ingestion, custom relation schemas, provenance audit."),
+            ("Enterprise", "Custom", "On-prem extraction models, dedicated inference, compliance certifications."),
+        ],
+        faq=[
+            ("Is the extraction LLM-based?",
+             "Yes. GPT-4o or Claude 3.5 by default; you can configure any OpenAI-compatible endpoint including self-hosted. Confidence scores are calibrated on a held-out set."),
+            ("Can I correct bad extractions?",
+             "Yes. Mark any edge as incorrect in the dashboard or via API. Vectora learns the correction and re-extracts similar cases. Corrections are surfaced to your team for review."),
+            ("What about cost?",
+             "Extraction is the expensive step. Pro tier includes 10K documents/mo of extraction; Scale includes 1M; Enterprise is custom. Re-extraction only runs when the document changes or the extraction config changes."),
+            ("Does the manual edge ingest work at scale?",
+             "Yes. Bulk ingest up to 10M edges/sec via the streaming endpoint. The graph data structure is sparse-optimized; adding edges is O(1) per edge."),
+            ("Can I export the graph?",
+             "Yes. GraphQL endpoint for queries; GraphML / Turtle / Neo4j CSV for bulk export. Your data, your format."),
+        ],
+        final_cta="Stop syncing two graphs. Start querying one.",
+        status_badge="KNOWLEDGE GRAPH BUILDER",
+    )
+
+
+# ═══════════════════════════════════════════════════════════════════════
 # Strata Equities
 # ═══════════════════════════════════════════════════════════════════════
 @router.get("/strata/equities", response_class=HTMLResponse)

@@ -763,7 +763,7 @@ _PAGE = """\
     different data source and asset universe.
   </p>
 
-  <a href="/strata/equities" style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #e879f9;border-radius:6px;padding:16px 20px;margin-bottom:12px;text-decoration:none;color:inherit;transition:border-color 0.15s" onmouseover="this.style.borderColor='#e879f9'" onmouseout="this.style.borderColor='var(--border)'">
+  <a href="/strata/equities" style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #e879f9;border-radius:6px;padding:16px 20px;margin-bottom:12px;text-decoration:none;color:inherit;transition:border-color 0.15s" onmouseover="this.style.borderColor='#e879f9'" onmouseout="this.style.borderColor='var(--border)';this.style.borderLeftColor='#e879f9'">
     <div style="display:flex;justify-content:space-between;align-items:start;gap:10px;margin-bottom:6px">
       <div style="font-size:14px;font-weight:bold;color:#e879f9">Strata Equities &rarr;</div>
       <span style="font-size:9px;color:#e879f9;background:rgba(232,121,249,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">SHIPPING · BUILT</span>

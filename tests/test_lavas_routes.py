@@ -119,8 +119,66 @@ PRODUCT_PAGES = [
     ("/atria/match", "Atria Match"),
     ("/axona/edge", "Axona Edge"),
     ("/vectora/retrieval", "Vectora Retrieval"),
+    ("/vectora/context", "Vectora Context"),
+    ("/vectora/watch", "Vectora Watch"),
+    ("/vectora/graph", "Vectora Graph"),
     ("/strata/equities", "Strata Equities"),
 ]
+
+
+def test_vectora_playground_loads(client: TestClient) -> None:
+    resp = client.get("/vectora/playground")
+    assert resp.status_code == 200
+    assert "Vectora Playground" in resp.text
+    assert "Load sample" in resp.text
+
+
+def test_vectora_playground_sample(client: TestClient) -> None:
+    resp = client.get("/vectora/playground/sample")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert "documents" in data
+    assert "suggested_queries" in data
+    assert len(data["documents"]) > 10
+    assert len(data["suggested_queries"]) > 0
+
+
+def test_vectora_playground_retrieval_roundtrip(client: TestClient) -> None:
+    payload = {
+        "documents": [
+            {"id": "a", "text": "redis caching django applications"},
+            {"id": "b", "text": "memory pressure under heavy load"},
+            {"id": "c", "text": "totally unrelated topic about sailing"},
+        ],
+        "query": "caching strategies",
+        "k": 3,
+    }
+    resp = client.post("/vectora/playground/retrieve", json=payload)
+    assert resp.status_code == 200
+    data = resp.json()
+    assert "topk" in data
+    assert "vectora" in data
+    assert "stats" in data
+    assert data["stats"]["nodes"] == 3
+    assert len(data["topk"]) > 0
+
+
+def test_vectora_playground_rejects_too_many_docs(client: TestClient) -> None:
+    payload = {
+        "documents": [{"id": f"d{i}", "text": f"doc {i}"} for i in range(100)],
+        "query": "anything",
+        "k": 3,
+    }
+    resp = client.post("/vectora/playground/retrieve", json=payload)
+    assert resp.status_code == 400
+
+
+def test_vectora_playground_rejects_empty(client: TestClient) -> None:
+    resp = client.post(
+        "/vectora/playground/retrieve",
+        json={"documents": [], "query": "x", "k": 3},
+    )
+    assert resp.status_code == 400
 
 
 @pytest.mark.parametrize("path,title", PRODUCT_PAGES)

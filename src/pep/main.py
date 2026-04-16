@@ -22,6 +22,7 @@ from pep.routes.lingora import router as lingora_router
 from pep.routes.lingora_bridge import router as lingora_bridge_router
 from pep.routes.pep_home import router as pep_home_router
 from pep.routes.product_pages import router as product_pages_router
+from pep.routes.vectora_playground import router as vectora_playground_router
 from pep.routes.strata import router as strata_router
 from pep.routes.strata_bridge import router as strata_bridge_router
 from pep.routes.vectora import router as vectora_router
@@ -73,6 +74,7 @@ app.include_router(atria_router)
 app.include_router(atria_bridge_router)
 app.include_router(pep_home_router)
 app.include_router(product_pages_router)
+app.include_router(vectora_playground_router)
 app.include_router(strata_router)
 app.include_router(strata_bridge_router)
 app.include_router(vectora_router)
