@@ -5271,10 +5271,10 @@ _PAGE = """\
     </div>
   </div>
 
-  <div style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #ffb74d;border-radius:6px;padding:16px 20px;margin-bottom:12px">
+  <a href="/axona/edge" style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #ffb74d;border-radius:6px;padding:16px 20px;margin-bottom:12px;text-decoration:none;color:inherit;transition:border-color 0.15s" onmouseover="this.style.borderColor='#ffb74d'" onmouseout="this.style.borderColor='var(--border)'">
     <div style="display:flex;justify-content:space-between;align-items:start;gap:10px;margin-bottom:6px">
-      <div style="font-size:14px;font-weight:bold;color:#ffb74d">Axona Edge</div>
-      <span style="font-size:9px;color:#ffb74d;background:rgba(255,183,77,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">WEDGE 4 · PERFORMANCE · GTM FIRST</span>
+      <div style="font-size:14px;font-weight:bold;color:#ffb74d">Axona Edge &rarr;</div>
+      <span style="font-size:9px;color:#ffb74d;background:rgba(255,183,77,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">WEDGE 4 · GTM FIRST · BUILT</span>
     </div>
     <div style="font-size:11px;color:var(--text);line-height:1.6;margin-bottom:6px">
       Real-time cognitive state monitoring for high-stakes performers.
@@ -5294,7 +5294,7 @@ _PAGE = """\
       makers, no regulatory burden. Validates the engine on a friendly
       market.
     </div>
-  </div>
+  </a>
 
   <div style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #f06292;border-radius:6px;padding:16px 20px;margin-bottom:12px">
     <div style="display:flex;justify-content:space-between;align-items:start;gap:10px;margin-bottom:6px">

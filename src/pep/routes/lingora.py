@@ -3828,10 +3828,10 @@ _PAGE = """\
     </div>
   </div>
 
-  <div style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #ba68c8;border-radius:6px;padding:16px 20px;margin-bottom:12px">
+  <a href="/lingora/prompt" style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #ba68c8;border-radius:6px;padding:16px 20px;margin-bottom:12px;text-decoration:none;color:inherit;transition:border-color 0.15s" onmouseover="this.style.borderColor='#ba68c8'" onmouseout="this.style.borderColor='var(--border)'">
     <div style="display:flex;justify-content:space-between;align-items:start;gap:10px;margin-bottom:6px">
-      <div style="font-size:14px;font-weight:bold;color:#ba68c8">Lingora Prompt</div>
-      <span style="font-size:9px;color:#ba68c8;background:rgba(186,104,200,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">WEDGE 4 · LLM TOOLING · GTM FIRST</span>
+      <div style="font-size:14px;font-weight:bold;color:#ba68c8">Lingora Prompt &rarr;</div>
+      <span style="font-size:9px;color:#ba68c8;background:rgba(186,104,200,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">WEDGE 4 · GTM FIRST · BUILT</span>
     </div>
     <div style="font-size:11px;color:var(--text);line-height:1.6;margin-bottom:6px">
       Prompt engineering toolkit. Paste a prompt, get back a structural
@@ -3851,7 +3851,7 @@ _PAGE = """\
       Validates the underlying engine on a friendly market before the
       bigger consumer products.
     </div>
-  </div>
+  </a>
 
   <h3 style="font-size:13px;color:var(--accent2);margin:24px 0 8px">Why one engine, four products</h3>
   <div class="info">

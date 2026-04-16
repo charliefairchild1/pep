@@ -654,10 +654,10 @@ _PAGE = """\
     than replacing it.
   </p>
 
-  <div style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #38bdf8;border-radius:6px;padding:16px 20px;margin-bottom:12px">
+  <a href="/vectora/retrieval" style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #38bdf8;border-radius:6px;padding:16px 20px;margin-bottom:12px;text-decoration:none;color:inherit;transition:border-color 0.15s" onmouseover="this.style.borderColor='#38bdf8'" onmouseout="this.style.borderColor='var(--border)'">
     <div style="display:flex;justify-content:space-between;align-items:start;gap:10px;margin-bottom:6px">
-      <div style="font-size:14px;font-weight:bold;color:#38bdf8">Vectora Retrieval API</div>
-      <span style="font-size:9px;color:#38bdf8;background:rgba(56,189,248,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">CORE PRODUCT</span>
+      <div style="font-size:14px;font-weight:bold;color:#38bdf8">Vectora Retrieval &rarr;</div>
+      <span style="font-size:9px;color:#38bdf8;background:rgba(56,189,248,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">CORE PRODUCT · BUILT</span>
     </div>
     <div style="font-size:11px;color:var(--text);line-height:1.6;margin-bottom:6px">
       Drop-in retrieval API that wraps an existing vector DB. Replaces
@@ -673,7 +673,7 @@ _PAGE = """\
       <b style="color:var(--text)">Integration:</b> sits on top of
       Pinecone/Weaviate/pgvector; doesn't replace storage.
     </div>
-  </div>
+  </a>
 
   <div style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #a3e635;border-radius:6px;padding:16px 20px;margin-bottom:12px">
     <div style="display:flex;justify-content:space-between;align-items:start;gap:10px;margin-bottom:6px">

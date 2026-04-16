@@ -114,6 +114,25 @@ def test_vectora_grouped_tabs(client: TestClient) -> None:
     assert 'data-panels="pitch-tab bench-tab"' in body
 
 
+PRODUCT_PAGES = [
+    ("/lingora/prompt", "Lingora Prompt"),
+    ("/atria/match", "Atria Match"),
+    ("/axona/edge", "Axona Edge"),
+    ("/vectora/retrieval", "Vectora Retrieval"),
+    ("/strata/equities", "Strata Equities"),
+]
+
+
+@pytest.mark.parametrize("path,title", PRODUCT_PAGES)
+def test_product_page_loads(client: TestClient, path: str, title: str) -> None:
+    resp = client.get(path)
+    assert resp.status_code == 200
+    assert title in resp.text
+    # Each product page links back to its parent app
+    parent = path.rsplit("/", 1)[0]
+    assert f'href="{parent}"' in resp.text
+
+
 def test_strata_has_pitch_and_bench(client: TestClient) -> None:
     resp = client.get("/strata")
     assert resp.status_code == 200

@@ -763,10 +763,10 @@ _PAGE = """\
     different data source and asset universe.
   </p>
 
-  <div style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #e879f9;border-radius:6px;padding:16px 20px;margin-bottom:12px">
+  <a href="/strata/equities" style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #e879f9;border-radius:6px;padding:16px 20px;margin-bottom:12px;text-decoration:none;color:inherit;transition:border-color 0.15s" onmouseover="this.style.borderColor='#e879f9'" onmouseout="this.style.borderColor='var(--border)'">
     <div style="display:flex;justify-content:space-between;align-items:start;gap:10px;margin-bottom:6px">
-      <div style="font-size:14px;font-weight:bold;color:#e879f9">Strata Equities</div>
-      <span style="font-size:9px;color:#e879f9;background:rgba(232,121,249,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">SHIPPING · FIRST VERTICAL</span>
+      <div style="font-size:14px;font-weight:bold;color:#e879f9">Strata Equities &rarr;</div>
+      <span style="font-size:9px;color:#e879f9;background:rgba(232,121,249,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">SHIPPING · BUILT</span>
     </div>
     <div style="font-size:11px;color:var(--text);line-height:1.6;margin-bottom:6px">
       AI-powered stock intelligence and paper-trading simulation.
@@ -783,7 +783,7 @@ _PAGE = """\
       <b style="color:var(--text)">Status:</b> shipping as research
       and simulation; no live trades.
     </div>
-  </div>
+  </a>
 
   <div style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #fbbf24;border-radius:6px;padding:16px 20px;margin-bottom:12px">
     <div style="display:flex;justify-content:space-between;align-items:start;gap:10px;margin-bottom:6px">
@@ -808,7 +808,7 @@ _PAGE = """\
     </div>
   </div>
 
-  <div style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #103,232,249;border-radius:6px;padding:16px 20px;margin-bottom:12px">
+  <div style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #67e8f9;border-radius:6px;padding:16px 20px;margin-bottom:12px">
     <div style="display:flex;justify-content:space-between;align-items:start;gap:10px;margin-bottom:6px">
       <div style="font-size:14px;font-weight:bold;color:#67e8f9">Strata FX</div>
       <span style="font-size:9px;color:#67e8f9;background:rgba(103,232,249,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">PROPOSED · CURRENCY PAIRS</span>

@@ -1335,10 +1335,10 @@ _PAGE = """\
     primitives.
   </p>
 
-  <div style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #5eead4;border-radius:6px;padding:16px 20px;margin-bottom:12px">
+  <a href="/atria/match" style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #5eead4;border-radius:6px;padding:16px 20px;margin-bottom:12px;text-decoration:none;color:inherit;transition:border-color 0.15s" onmouseover="this.style.borderColor='#5eead4'" onmouseout="this.style.borderColor='var(--border)'">
     <div style="display:flex;justify-content:space-between;align-items:start;gap:10px;margin-bottom:6px">
-      <div style="font-size:14px;font-weight:bold;color:#5eead4">Atria Match</div>
-      <span style="font-size:9px;color:#5eead4;background:rgba(94,234,212,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">FIRST WEDGE · GAME STUDIOS</span>
+      <div style="font-size:14px;font-weight:bold;color:#5eead4">Atria Match &rarr;</div>
+      <span style="font-size:9px;color:#5eead4;background:rgba(94,234,212,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">FIRST WEDGE · BUILT</span>
     </div>
     <div style="font-size:11px;color:var(--text);line-height:1.6;margin-bottom:6px">
       PvP game matchmaking that targets rematch rate instead of
@@ -1358,7 +1358,7 @@ _PAGE = """\
       free and immediate, integration is shadow-mode safe, no
       regulatory burden.
     </div>
-  </div>
+  </a>
 
   <div style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #ec4899;border-radius:6px;padding:16px 20px;margin-bottom:12px">
     <div style="display:flex;justify-content:space-between;align-items:start;gap:10px;margin-bottom:6px">
