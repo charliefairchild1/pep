@@ -152,8 +152,9 @@ _PAGE = """\
       activation, predictors with residual scoring, and state modulators.
       Every LAVAS app is a different configuration of those four primitives
       applied to a different domain. Axona maps them onto cognition. Lingora
-      maps them onto language. Atria maps them onto matching. Vectora and
-      Strata will map them onto data and markets. The engine is the same.
+      maps them onto language. Atria maps them onto matching. Vectora
+      maps them onto data retrieval. Strata maps them onto markets. The
+      engine is the same.
     </p>
     <p>
       This page is PEP's own teaching surface. Each of the four primitives
@@ -539,8 +540,15 @@ _PAGE = """\
     &bull; <b>Atria</b> treats players as nodes, matches as edges, and
     uses spreading activation for pool formation, residual scoring for
     rematch oracle, and state modulation for behavior and confidence.<br>
-    &bull; <b>Vectora and Strata</b> (unbuilt) will use the same
-    primitives for data retrieval and market signals.
+    &bull; <b>Vectora</b> treats documents as nodes and embedding/keyword/
+    knowledge-graph relations as typed edges; spreading activation drives
+    multi-hop retrieval, residual scoring drives anomaly surfacing, and
+    state modulation drives context-aware retrieval.<br>
+    &bull; <b>Strata</b> treats assets as nodes and correlations as edges;
+    spreading activation drives momentum spillover, residual scoring
+    drives unusual-move detection, and state modulation drives regime
+    awareness. The Equities vertical is shipping at
+    <code>~/projects/charlie_project/</code>.
   </div>
   <div class="info">
     <b>The discipline:</b> When building a new LAVAS app, resist the urge
