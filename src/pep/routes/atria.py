@@ -1274,7 +1274,7 @@ _PAGE = """\
     social + role + behavior). Five key metrics side by side.
   </p>
   <div class="canvas-box">
-    <canvas id="dashboard-canvas" width="960" height="520"></canvas>
+    <canvas id="dashboard-canvas" width="960" height="640"></canvas>
   </div>
   <div class="controls">
     <button onclick="dashboardRegen()">Regenerate dataset</button>
@@ -3381,7 +3381,7 @@ function dashboardGen() {
 function dashboardRegen() { dashboardGen(); pepSend('dashboard.regen', {}); }
 dashboardGen();
 function drawDashboard() {
-  const W = 960, H = 520; dashboardCtx.fillStyle = themeBg(); dashboardCtx.fillRect(0, 0, W, H);
+  const W = 960, H = 640; dashboardCtx.fillStyle = themeBg(); dashboardCtx.fillRect(0, 0, W, H);
   if (!dashboardData) { requestAnimationFrame(drawDashboard); return; }
   const d = dashboardData;
   const metrics = [
@@ -3393,9 +3393,9 @@ function drawDashboard() {
   ];
   dashboardCtx.fillStyle = '#aaa'; dashboardCtx.font = '11px monospace'; dashboardCtx.textAlign = 'left';
   dashboardCtx.fillText('1,000 synthetic matches · Elo-only (purple) vs Atria (teal)', 30, 24);
-  const barW = 340, barH = 30, gap = 70;
+  const barW = 340, barH = 28, gap = 36;
   metrics.forEach((m, i) => {
-    const y = 60 + i * (barH * 2 + gap);
+    const y = 50 + i * (barH * 2 + gap);
     // Label
     dashboardCtx.fillStyle = '#e0e0e0'; dashboardCtx.font = 'bold 12px monospace'; dashboardCtx.textAlign = 'left';
     dashboardCtx.fillText(m.label, 30, y);
