@@ -51,6 +51,8 @@ def _product_page(
     faq: list[tuple[str, str]],
     final_cta: str,
     status_badge: str = "PROPOSED",
+    playground_url: str | None = None,
+    playground_description: str | None = None,
 ) -> str:
     capability_html = "".join(
         f'<div style="background:{surface_card};border:1px solid {border_color};border-left:3px solid {accent};'
@@ -137,6 +139,23 @@ def _product_page(
         f'<div class="demo-box">{secondary_demo_html}</div>'
     ) if secondary_demo_html else ""
     secondary_demo_script_block = secondary_demo_script if secondary_demo_script else ""
+    playground_nav_link = (
+        f'<a href="{playground_url}">Playground ↗</a>' if playground_url else ""
+    )
+    playground_section = (
+        f'<h2 id="playground">Live playground</h2>'
+        f'<a href="{playground_url}" style="display:block;background:linear-gradient(135deg,rgba({accent_rgb},0.18) 0%,{surface_card} 100%);'
+        f'border:1px solid {accent};border-radius:10px;padding:26px 30px;margin-bottom:24px;text-decoration:none;transition:transform 0.15s" '
+        f'onmouseover="this.style.transform=\'scale(1.01)\'" onmouseout="this.style.transform=\'scale(1)\'">'
+        f'<div style="display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap">'
+        f'<div style="flex:1;min-width:240px">'
+        f'<div style="font-size:10px;color:{dim_color};letter-spacing:0.2em;margin-bottom:6px">OPEN THE PLAYGROUND →</div>'
+        f'<div style="font-size:18px;color:{accent};font-weight:bold;margin-bottom:6px">Try it on your own data</div>'
+        f'<div style="font-size:12px;color:{text_color};line-height:1.7">{playground_description or ""}</div>'
+        f"</div>"
+        f'<div style="font-size:32px;color:{accent}">▸</div>'
+        f"</div></a>"
+    ) if playground_url else ""
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -206,6 +225,7 @@ def _product_page(
   <span style="font-size:10px;color:{dim_color}">a {parent_name} product</span>
   <div class="nav-links">
     <a href="#demo">Demo</a>
+    {playground_nav_link}
     <a href="#use-cases">Use cases</a>
     <a href="#integrate">Integration</a>
     <a href="#pricing">Pricing</a>
@@ -249,6 +269,8 @@ def _product_page(
   </div>
 
   {secondary_demo_block}
+
+  {playground_section}
 
   <h2 id="use-cases">Use cases</h2>
   {use_cases_html}
@@ -1037,6 +1059,8 @@ showCode('python');
         ],
         final_cta="Stop reranking what you should have retrieved.",
         status_badge="CORE PRODUCT",
+        playground_url="/vectora/playground",
+        playground_description="Paste your own documents, run a query, and see top-k vs Vectora retrieval side-by-side. The playground runs the real engine in-process — it is Vectora Retrieval as a working tool, not a mockup. Preloaded sample corpus and suggested queries available for a 30-second tour.",
     )
 
 

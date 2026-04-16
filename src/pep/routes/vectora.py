@@ -127,7 +127,6 @@ _PAGE = """\
       <div class="tab" data-panel="rag-tab">Pipeline</div>
       <div class="tab" data-panels="pitch-tab bench-tab">Pitch</div>
       <div class="tab" data-panel="products-tab">Products</div>
-      <div class="tab" onclick="window.location='/vectora/playground'" style="cursor:pointer">Playground ↗</div>
       <div class="tab" data-panel="theory-tab">Theory</div>
       <div class="tab" data-panel="bridge-tab">PEP &harr; Vectora</div>
     </div>
