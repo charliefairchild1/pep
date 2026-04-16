@@ -131,6 +131,7 @@ _PAGE = """\
       <div class="tab" data-panel="earnings-tab">Earnings Residual</div>
       <div class="tab" data-panel="regime-tab">Regime Modulation</div>
       <div class="tab" data-panel="rotation-tab">Sector Rotation</div>
+      <div class="tab" data-panel="vec-live-tab">Vectora Live</div>
       <div class="tab" data-panels="unusual-tab classify-tab newscore-tab">Equities</div>
       <div class="tab" data-panels="leaderboard-tab catalog-tab strategy-detail-tab">Strategies</div>
       <div class="tab" data-panels="pitch-tab bench-tab">Pitch</div>
@@ -331,6 +332,54 @@ _PAGE = """\
     <a href="/lingora">Lingora &rarr; Semantic Drift</a> (the same
     temporal-shift visualization, applied to word meaning instead of
     capital flow).
+  </div>
+</div>
+</div>
+
+<!-- ═══ Vectora-Powered Live Retrieval ═══════════════════════════ -->
+<div class="panel" id="vec-live-tab">
+<div class="container">
+  <h2>Live Vectora Retrieval
+    <span style="font-size:10px;color:#a3e635;margin-left:10px;letter-spacing:0.1em">● POWERED BY VECTORA</span>
+  </h2>
+  <p class="desc">
+    This canvas calls the real Vectora engine (<code>pep.vectora</code>)
+    via HTTP. A graph of 20 asset nodes is seeded on the server; picking
+    a ticker runs spreading activation through its correlation
+    neighborhood. Same engine as
+    <a href="/vectora/playground">/vectora/playground</a>.
+  </p>
+  <div class="canvas-box" style="padding:20px">
+    <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:14px">
+      <label style="font-size:11px;color:var(--dim);display:flex;gap:6px;align-items:center;flex:1;min-width:240px">
+        <span>seed ticker:</span>
+        <select id="vec-strata-seed" style="flex:1;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:6px;font-family:inherit;font-size:11px">
+          <option value="">loading…</option>
+        </select>
+      </label>
+      <label style="font-size:11px;color:var(--dim);display:flex;gap:6px;align-items:center">
+        <span>k:</span>
+        <input type="range" id="vec-strata-k" min="3" max="10" value="6" style="width:80px">
+        <span id="vec-strata-k-v" style="color:var(--accent);font-weight:bold;min-width:14px">6</span>
+      </label>
+      <label style="font-size:11px;color:var(--dim);display:flex;gap:6px;align-items:center">
+        <span>decay:</span>
+        <input type="range" id="vec-strata-decay" min="10" max="80" value="35" style="width:80px">
+        <span id="vec-strata-decay-v" style="color:var(--accent);font-weight:bold;min-width:30px">0.35</span>
+      </label>
+      <button onclick="vecStrataQuery()" style="padding:6px 14px;border-radius:4px;border:1px solid var(--accent);background:var(--accent);color:var(--bg);font-size:11px;cursor:pointer;font-family:inherit;font-weight:bold">Query Vectora</button>
+    </div>
+    <div id="vec-strata-results" style="min-height:180px">
+      <div style="color:var(--dim);text-align:center;padding:40px 20px;font-size:11px">pick a ticker and click Query</div>
+    </div>
+    <div id="vec-strata-stats" style="margin-top:10px;font-size:10px;color:var(--dim);text-align:right"></div>
+  </div>
+  <div class="info">
+    <b>Dogfood play.</b> The correlation-graph spreading mechanism Strata
+    uses for momentum spillover is the same primitive Vectora ships as
+    retrieval. Strata's asset graph delegates to Vectora. Every LAVAS app
+    that needs spreading-activation retrieval does the same &mdash; one
+    engine, many products.
   </div>
 </div>
 </div>
@@ -1404,6 +1453,61 @@ function drawStrBench() {
   requestAnimationFrame(drawStrBench);
 }
 drawStrBench();
+
+// ═══════════════════════════════════════════════════════════════════════
+// Vectora-Powered Live Retrieval (dogfood)
+// ═══════════════════════════════════════════════════════════════════════
+async function vecStrataInit() {
+  try {
+    const r = await fetch('/vectora/seeds/strata');
+    const data = await r.json();
+    const sel = document.getElementById('vec-strata-seed');
+    if (!sel) return;
+    sel.innerHTML = data.seeds.map(s => `<option value="${s.id}">${s.id} (${s.metadata.sector || ''}) — ${s.text.split(' ').slice(0, 3).join(' ')}</option>`).join('');
+    const stats = document.getElementById('vec-strata-stats');
+    if (stats) stats.textContent = `seeded graph: ${data.stats.documents} docs · ${data.stats.edges} edges`;
+  } catch (e) { console.warn('vec strata init failed', e); }
+}
+['vec-strata-k', 'vec-strata-decay'].forEach(id => {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.addEventListener('input', (e) => {
+    const v = parseInt(e.target.value);
+    const out = document.getElementById(id + '-v');
+    if (!out) return;
+    out.textContent = id.endsWith('decay') ? (v / 100).toFixed(2) : v;
+  });
+});
+async function vecStrataQuery() {
+  const seed = document.getElementById('vec-strata-seed').value;
+  if (!seed) return;
+  const k = parseInt(document.getElementById('vec-strata-k').value);
+  const decay = parseInt(document.getElementById('vec-strata-decay').value) / 100;
+  const out = document.getElementById('vec-strata-results');
+  out.innerHTML = '<div style="color:var(--dim);text-align:center;padding:40px 20px;font-size:11px">querying Vectora…</div>';
+  try {
+    const r = await fetch(`/vectora/neighbors/strata/${seed}?k=${k}&decay=${decay}`);
+    if (!r.ok) throw new Error('retrieval failed');
+    const data = await r.json();
+    if (!data.hits.length) { out.innerHTML = '<div style="color:var(--dim);text-align:center;padding:40px 20px;font-size:11px">no neighbors</div>'; return; }
+    out.innerHTML = data.hits.map((h, i) => {
+      const hopBadge = h.hop_distance > 0 ? `<span style="background:rgba(232,121,249,0.2);color:var(--accent);padding:1px 6px;border-radius:8px;font-size:9px;margin-left:6px">hop ${h.hop_distance}</span>` : '';
+      const sector = h.metadata.sector ? `<span style="color:var(--dim);margin-left:6px">[${h.metadata.sector}]</span>` : '';
+      return `<div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:4px;padding:10px 14px;margin-bottom:6px">
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <span style="color:var(--accent);font-weight:bold;font-family:monospace">${i+1}. ${h.id}</span>
+          ${sector}
+          <span style="color:var(--dim);margin-left:auto;font-size:10px">score ${h.score.toFixed(3)}${hopBadge}</span>
+        </div>
+        <div style="font-size:10px;color:var(--dim);margin-top:4px;line-height:1.55">${h.text}</div>
+      </div>`;
+    }).join('');
+    pepSend('vectora.query', { seed, k, decay });
+  } catch (e) {
+    out.innerHTML = `<div style="color:#f06292;text-align:center;padding:40px 20px;font-size:11px">Error: ${e.message}</div>`;
+  }
+}
+vecStrataInit();
 
 // ═══════════════════════════════════════════════════════════════════════
 // Unusual Move Scanner (Strata equities vertical, source: ~/projects/charlie_project)

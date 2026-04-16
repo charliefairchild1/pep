@@ -129,7 +129,7 @@ _PAGE = """\
   <div class="nav-row nav-row-bottom">
     <div class="tabs" id="tabs">
       <div class="tab active" data-panel="home-tab">Home</div>
-      <div class="tab" data-panels="word-tab ambig-tab idiom-tab taboo-tab vocab-tab drift-tab onoma-tab metaphor-tab colloc-tab gramm-tab lexgap-tab jargon-tab cognates-tab">Words &amp; Meaning</div>
+      <div class="tab" data-panels="word-tab ambig-tab idiom-tab taboo-tab vocab-tab drift-tab onoma-tab metaphor-tab colloc-tab gramm-tab lexgap-tab jargon-tab cognates-tab vec-live-tab">Words &amp; Meaning</div>
       <div class="tab" data-panels="phono-tab prosody-tab silence-tab soundsym-tab repetition-tab rhyme-tab">Sounds &amp; Rhythm</div>
       <div class="tab" data-panels="sentence-tab grammar-tab listener-tab transfer-tab acquisition-tab babytalk-tab deixis-tab anaphora-tab statistical-tab">Sentences &amp; Learning</div>
       <div class="tab" data-panels="humor-tab voice-tab irony-tab grice-tab conv-tab subtext-tab lying-tab persuasion-tab politeness-tab discourse-tab swearing-tab gesture-tab">Speech Acts</div>
@@ -2990,6 +2990,54 @@ _PAGE = """\
     imagery system are separable components. Some people have both
     loud, some have both quiet, and some have one loud and the other
     quiet.
+  </div>
+</div>
+</div>
+
+<!-- ═══ Vectora-Powered Live Retrieval ═══════════════════════════ -->
+<div class="panel" id="vec-live-tab">
+<div class="container">
+  <h2>Live Vectora Retrieval
+    <span style="font-size:10px;color:#a3e635;margin-left:10px;letter-spacing:0.1em">● POWERED BY VECTORA</span>
+  </h2>
+  <p class="desc">
+    This canvas calls the real Vectora engine (<code>pep.vectora</code>)
+    via HTTP. A graph of 20 word nodes is seeded on the server; picking a
+    word runs spreading activation through its semantic neighborhood.
+    Same engine as <a href="/vectora/playground">/vectora/playground</a>
+    and the <a href="/vectora/retrieval">Vectora Retrieval product</a>.
+  </p>
+  <div class="canvas-box" style="padding:20px">
+    <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:14px">
+      <label style="font-size:11px;color:var(--dim);display:flex;gap:6px;align-items:center;flex:1;min-width:240px">
+        <span>seed word:</span>
+        <select id="vec-lingora-seed" style="flex:1;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:6px;font-family:inherit;font-size:11px">
+          <option value="">loading…</option>
+        </select>
+      </label>
+      <label style="font-size:11px;color:var(--dim);display:flex;gap:6px;align-items:center">
+        <span>k:</span>
+        <input type="range" id="vec-lingora-k" min="3" max="10" value="6" style="width:80px">
+        <span id="vec-lingora-k-v" style="color:var(--accent);font-weight:bold;min-width:14px">6</span>
+      </label>
+      <label style="font-size:11px;color:var(--dim);display:flex;gap:6px;align-items:center">
+        <span>decay:</span>
+        <input type="range" id="vec-lingora-decay" min="10" max="80" value="35" style="width:80px">
+        <span id="vec-lingora-decay-v" style="color:var(--accent);font-weight:bold;min-width:30px">0.35</span>
+      </label>
+      <button onclick="vecLingoraQuery()" style="padding:6px 14px;border-radius:4px;border:1px solid var(--accent);background:var(--accent);color:var(--bg);font-size:11px;cursor:pointer;font-family:inherit;font-weight:bold">Query Vectora</button>
+    </div>
+    <div id="vec-lingora-results" style="min-height:180px">
+      <div style="color:var(--dim);text-align:center;padding:40px 20px;font-size:11px">pick a word and click Query</div>
+    </div>
+    <div id="vec-lingora-stats" style="margin-top:10px;font-size:10px;color:var(--dim);text-align:right"></div>
+  </div>
+  <div class="info">
+    <b>Dogfood play.</b> Lingora's word-constellation mechanism is the
+    same primitive Vectora ships as retrieval. Rather than
+    re-implementing per-app, Lingora delegates neighborhood queries to
+    Vectora. Every LAVAS app that needs spreading-activation retrieval
+    does the same &mdash; one engine, many products.
   </div>
 </div>
 </div>
@@ -7818,6 +7866,59 @@ function drawReadaloud() {
   requestAnimationFrame(drawReadaloud);
 }
 drawReadaloud();
+
+// ═══════════════════════════════════════════════════════════════════════
+// Vectora-Powered Live Retrieval (dogfood)
+// ═══════════════════════════════════════════════════════════════════════
+async function vecLingoraInit() {
+  try {
+    const r = await fetch('/vectora/seeds/lingora');
+    const data = await r.json();
+    const sel = document.getElementById('vec-lingora-seed');
+    if (!sel) return;
+    sel.innerHTML = data.seeds.map(s => `<option value="${s.id}">${s.id} — ${s.text.split(' ').slice(0, 4).join(' ')}</option>`).join('');
+    const stats = document.getElementById('vec-lingora-stats');
+    if (stats) stats.textContent = `seeded graph: ${data.stats.documents} docs · ${data.stats.edges} edges`;
+  } catch (e) { console.warn('vec lingora init failed', e); }
+}
+['vec-lingora-k', 'vec-lingora-decay'].forEach(id => {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.addEventListener('input', (e) => {
+    const v = parseInt(e.target.value);
+    const out = document.getElementById(id + '-v');
+    if (!out) return;
+    out.textContent = id.endsWith('decay') ? (v / 100).toFixed(2) : v;
+  });
+});
+async function vecLingoraQuery() {
+  const seed = document.getElementById('vec-lingora-seed').value;
+  if (!seed) return;
+  const k = parseInt(document.getElementById('vec-lingora-k').value);
+  const decay = parseInt(document.getElementById('vec-lingora-decay').value) / 100;
+  const out = document.getElementById('vec-lingora-results');
+  out.innerHTML = '<div style="color:var(--dim);text-align:center;padding:40px 20px;font-size:11px">querying Vectora…</div>';
+  try {
+    const r = await fetch(`/vectora/neighbors/lingora/${seed}?k=${k}&decay=${decay}`);
+    if (!r.ok) throw new Error('retrieval failed');
+    const data = await r.json();
+    if (!data.hits.length) { out.innerHTML = '<div style="color:var(--dim);text-align:center;padding:40px 20px;font-size:11px">no neighbors</div>'; return; }
+    out.innerHTML = data.hits.map((h, i) => {
+      const hopBadge = h.hop_distance > 0 ? `<span style="background:rgba(124,184,255,0.2);color:var(--accent);padding:1px 6px;border-radius:8px;font-size:9px;margin-left:6px">hop ${h.hop_distance}</span>` : '';
+      return `<div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:4px;padding:10px 14px;margin-bottom:6px">
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <span style="color:var(--accent);font-weight:bold;font-family:monospace">${i+1}. ${h.id}</span>
+          <span style="color:var(--dim);margin-left:auto;font-size:10px">score ${h.score.toFixed(3)}${hopBadge}</span>
+        </div>
+        <div style="font-size:11px;color:var(--text);margin-top:4px;line-height:1.55">${h.text}</div>
+      </div>`;
+    }).join('');
+    pepSend('vectora.query', { seed, k, decay });
+  } catch (e) {
+    out.innerHTML = `<div style="color:#f06292;text-align:center;padding:40px 20px;font-size:11px">Error: ${e.message}</div>`;
+  }
+}
+vecLingoraInit();
 
 // ═══════════════════════════════════════════════════════════════════════
 // Translation Workbench

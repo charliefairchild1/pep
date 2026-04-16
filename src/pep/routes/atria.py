@@ -128,7 +128,7 @@ _PAGE = """\
     <div class="tabs" id="tabs">
       <div class="tab active" data-panel="home-tab">Home</div>
       <div class="tab" data-panels="elo-tab rps-tab residual-tab multi-tab">Thesis</div>
-      <div class="tab" data-panels="pool-tab oracle-tab queue-tab coldstart-tab confidence-tab ladder-tab">Matchmaker</div>
+      <div class="tab" data-panels="pool-tab oracle-tab queue-tab coldstart-tab confidence-tab ladder-tab vec-live-tab">Matchmaker</div>
       <div class="tab" data-panels="behavior-tab smurf-tab toxcascade-tab">Behavior</div>
       <div class="tab" data-panels="party-tab chemistry-tab draft-tab">Groups</div>
       <div class="tab" data-panels="crossgame-tab engagement-tab transparency-tab domain-tab">Beyond</div>
@@ -1123,6 +1123,56 @@ _PAGE = """\
     signals (professional references, past project outcomes). Rematch
     rate becomes "relationship longevity" or "project completion."
     Everything deep stays the same.
+  </div>
+</div>
+</div>
+
+<!-- ═══ Vectora-Powered Live Retrieval ═══════════════════════════ -->
+<div class="panel" id="vec-live-tab">
+<div class="container">
+  <h2>Live Vectora Retrieval
+    <span style="font-size:10px;color:#a3e635;margin-left:10px;letter-spacing:0.1em">● POWERED BY VECTORA</span>
+  </h2>
+  <p class="desc">
+    This canvas does not fake retrieval &mdash; it calls the real Vectora
+    engine (<code>pep.vectora</code>) via HTTP. A graph of 20 player
+    archetypes is seeded on the server; picking a seed runs spreading
+    activation through that graph and returns the neighborhood. Same engine
+    as the <a href="/vectora/playground">/vectora/playground</a> and the
+    <a href="/vectora/retrieval">Vectora Retrieval product</a>.
+  </p>
+  <div class="canvas-box" style="padding:20px">
+    <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:14px">
+      <label style="font-size:11px;color:var(--dim);display:flex;gap:6px;align-items:center;flex:1;min-width:240px">
+        <span>seed:</span>
+        <select id="vec-atria-seed" style="flex:1;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:6px;font-family:inherit;font-size:11px">
+          <option value="">loading…</option>
+        </select>
+      </label>
+      <label style="font-size:11px;color:var(--dim);display:flex;gap:6px;align-items:center">
+        <span>k:</span>
+        <input type="range" id="vec-atria-k" min="3" max="10" value="6" style="width:80px">
+        <span id="vec-atria-k-v" style="color:var(--accent);font-weight:bold;min-width:14px">6</span>
+      </label>
+      <label style="font-size:11px;color:var(--dim);display:flex;gap:6px;align-items:center">
+        <span>decay:</span>
+        <input type="range" id="vec-atria-decay" min="10" max="80" value="35" style="width:80px">
+        <span id="vec-atria-decay-v" style="color:var(--accent);font-weight:bold;min-width:30px">0.35</span>
+      </label>
+      <button onclick="vecAtriaQuery()" style="padding:6px 14px;border-radius:4px;border:1px solid var(--accent);background:var(--accent);color:var(--bg);font-size:11px;cursor:pointer;font-family:inherit;font-weight:bold">Query Vectora</button>
+    </div>
+    <div id="vec-atria-results" style="min-height:180px">
+      <div style="color:var(--dim);text-align:center;padding:40px 20px;font-size:11px">pick a seed and click Query</div>
+    </div>
+    <div id="vec-atria-stats" style="margin-top:10px;font-size:10px;color:var(--dim);text-align:right"></div>
+  </div>
+  <div class="info">
+    <b>Dogfood play.</b> The pool-formation mechanism Atria pitches for
+    game-studio matchmaking is the same primitive Vectora ships as
+    retrieval. Rather than re-implementing per-app, Atria's pool-spreading
+    logic delegates to Vectora. Every LAVAS app that needs
+    spreading-activation retrieval does the same &mdash; one engine,
+    many products.
   </div>
 </div>
 </div>
@@ -3551,6 +3601,62 @@ document.querySelectorAll('.tab').forEach(t => {
     }, 30);
   });
 });
+
+// ═══════════════════════════════════════════════════════════════════════
+// Vectora-Powered Live Retrieval (dogfood)
+// ═══════════════════════════════════════════════════════════════════════
+async function vecAtriaInit() {
+  try {
+    const r = await fetch('/vectora/seeds/atria');
+    const data = await r.json();
+    const sel = document.getElementById('vec-atria-seed');
+    sel.innerHTML = data.seeds.map(s => `<option value="${s.id}">${s.id} — ${s.metadata.label || s.text.slice(0, 40)}</option>`).join('');
+    const stats = document.getElementById('vec-atria-stats');
+    if (stats) stats.textContent = `seeded graph: ${data.stats.documents} docs · ${data.stats.edges} edges`;
+  } catch (e) { console.warn('vec atria init failed', e); }
+}
+['vec-atria-k', 'vec-atria-decay'].forEach(id => {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.addEventListener('input', (e) => {
+    const v = parseInt(e.target.value);
+    const out = document.getElementById(id + '-v');
+    if (!out) return;
+    out.textContent = id.endsWith('decay') ? (v / 100).toFixed(2) : v;
+  });
+});
+async function vecAtriaQuery() {
+  const seed = document.getElementById('vec-atria-seed').value;
+  if (!seed) return;
+  const k = parseInt(document.getElementById('vec-atria-k').value);
+  const decay = parseInt(document.getElementById('vec-atria-decay').value) / 100;
+  const out = document.getElementById('vec-atria-results');
+  out.innerHTML = '<div style="color:var(--dim);text-align:center;padding:40px 20px;font-size:11px">querying Vectora…</div>';
+  try {
+    const r = await fetch(`/vectora/neighbors/atria/${seed}?k=${k}&decay=${decay}`);
+    if (!r.ok) throw new Error('retrieval failed');
+    const data = await r.json();
+    if (!data.hits.length) { out.innerHTML = '<div style="color:var(--dim);text-align:center;padding:40px 20px;font-size:11px">no neighbors</div>'; return; }
+    out.innerHTML = data.hits.map((h, i) => {
+      const hopBadge = h.hop_distance > 0 ? `<span style="background:rgba(94,234,212,0.2);color:var(--accent);padding:1px 6px;border-radius:8px;font-size:9px;margin-left:6px">hop ${h.hop_distance}</span>` : '';
+      const tier = h.metadata.tier ? `<span style="color:var(--dim);margin-left:6px">[${h.metadata.tier}]</span>` : '';
+      const label = h.metadata.label ? `<b style="color:var(--text)">${h.metadata.label}</b>` : '';
+      return `<div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:4px;padding:10px 14px;margin-bottom:6px">
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <span style="color:var(--accent);font-weight:bold;font-family:monospace">${i+1}. ${h.id}</span>
+          ${label}
+          ${tier}
+          <span style="color:var(--dim);margin-left:auto;font-size:10px">score ${h.score.toFixed(3)}${hopBadge}</span>
+        </div>
+        <div style="font-size:10px;color:var(--dim);margin-top:4px;line-height:1.55">${h.text}</div>
+      </div>`;
+    }).join('');
+    pepSend('vectora.query', { seed, k, decay });
+  } catch (e) {
+    out.innerHTML = `<div style="color:#f06292;text-align:center;padding:40px 20px;font-size:11px">Error: ${e.message}</div>`;
+  }
+}
+vecAtriaInit();
 
 // ═══════════════════════════════════════════════════════════════════════
 // Before / After Dashboard

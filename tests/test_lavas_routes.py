@@ -173,6 +173,52 @@ def test_vectora_playground_rejects_too_many_docs(client: TestClient) -> None:
     assert resp.status_code == 400
 
 
+DOGFOOD_APPS = ["atria", "axona", "lingora", "strata"]
+
+
+@pytest.mark.parametrize("app", DOGFOOD_APPS)
+def test_dogfood_seeds_endpoint(client: TestClient, app: str) -> None:
+    resp = client.get(f"/vectora/seeds/{app}")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["app"] == app
+    assert len(data["seeds"]) == 20
+    assert data["stats"]["documents"] == 20
+
+
+@pytest.mark.parametrize("app,seed", [
+    ("atria", "p01"), ("axona", "m03"),
+    ("lingora", "w06"), ("strata", "AAPL"),
+])
+def test_dogfood_neighbors_endpoint(client: TestClient, app: str, seed: str) -> None:
+    resp = client.get(f"/vectora/neighbors/{app}/{seed}?k=5")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert data["powered_by"] == "vectora"
+    assert data["seed"] == seed
+    assert len(data["hits"]) > 0
+    # The seed itself should not appear in the hits
+    assert all(h["id"] != seed for h in data["hits"])
+
+
+def test_dogfood_unknown_app_404(client: TestClient) -> None:
+    assert client.get("/vectora/neighbors/bogus/x").status_code == 404
+    assert client.get("/vectora/seeds/bogus").status_code == 404
+
+
+def test_dogfood_unknown_seed_404(client: TestClient) -> None:
+    assert client.get("/vectora/neighbors/atria/nonexistent-id").status_code == 404
+
+
+def test_dogfood_stats_covers_all_apps(client: TestClient) -> None:
+    resp = client.get("/vectora/dogfood/stats")
+    assert resp.status_code == 200
+    apps = resp.json()["apps"]
+    for app in DOGFOOD_APPS:
+        assert app in apps
+        assert apps[app]["documents"] > 0
+
+
 def test_vectora_playground_rejects_empty(client: TestClient) -> None:
     resp = client.post(
         "/vectora/playground/retrieve",
