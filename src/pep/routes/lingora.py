@@ -3399,7 +3399,7 @@ _PAGE = """\
     most of the structure; the framings preserve different parts.
   </p>
   <div class="canvas-box">
-    <canvas id="workbench-canvas" width="960" height="500"></canvas>
+    <canvas id="workbench-canvas" width="960" height="600"></canvas>
   </div>
   <div class="controls">
     <button onclick="workbenchPick(0)">"It's a piece of cake."</button>
@@ -7674,43 +7674,55 @@ drawReadaloud();
 const WORKBENCH_DATA = [
   {
     src: '"It\\'s a piece of cake."',
-    srcLang: 'EN',
+    srcLang: 'EN → ES',
     layers: {
       denotation: { text: 'A small portion of dessert.', mt: 'Es un trozo de pastel.', lin: 'Es un trozo de pastel.' },
       pragmatic: { text: 'The task is easy.', mt: '(lost)', lin: 'Es pan comido. / Está chupado.' },
       register: { text: 'Casual, conversational.', mt: 'Neutral.', lin: 'Casual idiom preserved.' },
       culture: { text: 'English idiom; cake = effortless.', mt: 'Literal cake reference.', lin: 'Spanish idiom for "easy" used.' },
     },
+    finalMT: 'Es un trozo de pastel.',
+    finalLin: 'Está chupado.',
+    finalNote: 'Casual Spanish idiom for "trivially easy" — preserves pragmatic intent + register, drops the literal cake (which had no cultural function).',
   },
   {
     src: '"Bless your heart."',
-    srcLang: 'EN (Southern US)',
+    srcLang: 'EN (Southern US) → ES',
     layers: {
       denotation: { text: 'A blessing on your heart.', mt: 'Bendice tu corazón.', lin: 'Bendice tu corazón.' },
       pragmatic: { text: 'Polite condescension or pity.', mt: '(lost — sounds sincere)', lin: 'Pobrecito. / Qué lástima me das.' },
       register: { text: 'Casual, often passive-aggressive.', mt: 'Sounds religious/formal.', lin: 'Casual disdain preserved.' },
       culture: { text: 'Southern US politeness mask for criticism.', mt: 'Religious blessing implication.', lin: 'Cultural function preserved.' },
     },
+    finalMT: 'Bendice tu corazón.',
+    finalLin: 'Ay, pobrecito… (con esa sonrisita)',
+    finalNote: 'Pragmatic intent (polite condescension) + register (casual + passive-aggressive) + cultural function (politeness mask) all preserved in one Spanish phrase.',
   },
   {
     src: '"Boku wa unagi da." (僕はうなぎだ)',
-    srcLang: 'JP',
+    srcLang: 'JP → EN',
     layers: {
       denotation: { text: 'I am an eel.', mt: 'I am an eel.', lin: 'I\\'ll have the eel.' },
       pragmatic: { text: 'In a restaurant: stating an order.', mt: '(lost — sounds bizarre)', lin: 'Restaurant context preserved.' },
       register: { text: 'Casual male speech (boku).', mt: 'Generic first-person.', lin: 'Casual register noted.' },
       culture: { text: 'Japanese topic-comment grammar; "as for me, eel."', mt: 'Forced into English subject-verb.', lin: 'Topic-comment intent preserved.' },
     },
+    finalMT: 'I am an eel.',
+    finalLin: 'I\\'ll grab the eel, thanks.',
+    finalNote: 'Restaurant pragmatic + casual male register both surface in the natural English ordering phrase. The Japanese topic-comment becomes English "I\\'ll have…" without forcing the literal subject.',
   },
   {
     src: '"Saudade"',
-    srcLang: 'PT',
+    srcLang: 'PT → EN',
     layers: {
       denotation: { text: 'A noun describing a feeling.', mt: 'Longing / nostalgia.', lin: 'Longing / nostalgia.' },
       pragmatic: { text: 'A bittersweet melancholy for something absent.', mt: '(flattened)', lin: '"Saudade" — a yearning grief that cherishes the absence.' },
       register: { text: 'Literary, emotional, untranslatable.', mt: 'Treated as a normal noun.', lin: 'Marked as untranslatable; gloss provided.' },
       culture: { text: 'Central to Portuguese/Brazilian identity.', mt: '(lost)', lin: 'Cultural weight noted.' },
     },
+    finalMT: 'Longing.',
+    finalLin: 'Saudade [pt.] — the yearning ache for what is absent and beloved.',
+    finalNote: 'The single English word "longing" loses ~70% of the meaning. Lingora keeps the Portuguese word and inlines a gloss that preserves pragmatic + cultural weight.',
   },
 ];
 const workbenchCanvas = document.getElementById('workbench-canvas');
@@ -7718,7 +7730,7 @@ const workbenchCtx = workbenchCanvas.getContext('2d');
 let workbenchActive = null;
 function workbenchPick(i) { workbenchActive = i; pepSend('workbench.pick', { i }); }
 function drawWorkbench() {
-  const W = 960, H = 500; workbenchCtx.fillStyle = themeBg(); workbenchCtx.fillRect(0, 0, W, H);
+  const W = 960, H = 600; workbenchCtx.fillStyle = themeBg(); workbenchCtx.fillRect(0, 0, W, H);
   if (workbenchActive == null) {
     workbenchCtx.fillStyle = '#778'; workbenchCtx.font = '11px monospace'; workbenchCtx.textAlign = 'center';
     workbenchCtx.fillText('(pick a sentence)', W / 2, H / 2);
@@ -7727,15 +7739,13 @@ function drawWorkbench() {
   const d = WORKBENCH_DATA[workbenchActive];
   workbenchCtx.fillStyle = '#dce4ed'; workbenchCtx.font = 'bold 13px monospace'; workbenchCtx.textAlign = 'left';
   workbenchCtx.fillText(d.src + '  [' + d.srcLang + ']', 30, 30);
-  // Headers
   const cols = [{ x: 30, w: 220, label: 'LAYER', col: '#dce4ed' }, { x: 260, w: 320, label: 'STANDARD MT', col: '#a78bfa' }, { x: 590, w: 340, label: 'LINGORA-AWARE', col: '#4fc3f7' }];
   cols.forEach(c => { workbenchCtx.fillStyle = c.col; workbenchCtx.font = 'bold 11px monospace'; workbenchCtx.fillText(c.label, c.x, 60); });
-  // Rows
   const layers = ['denotation', 'pragmatic', 'register', 'culture'];
   layers.forEach((k, i) => {
-    const y = 90 + i * 95;
+    const y = 90 + i * 80;
     const layer = d.layers[k];
-    workbenchCtx.fillStyle = '#778'; workbenchCtx.strokeStyle = 'rgba(120,130,140,0.2)'; workbenchCtx.lineWidth = 1;
+    workbenchCtx.strokeStyle = 'rgba(120,130,140,0.2)'; workbenchCtx.lineWidth = 1;
     workbenchCtx.beginPath(); workbenchCtx.moveTo(20, y - 8); workbenchCtx.lineTo(W - 20, y - 8); workbenchCtx.stroke();
     workbenchCtx.fillStyle = '#dce4ed'; workbenchCtx.font = 'bold 11px monospace'; workbenchCtx.textAlign = 'left';
     workbenchCtx.fillText(k.toUpperCase(), 30, y + 6);
@@ -7746,6 +7756,24 @@ function drawWorkbench() {
     workbenchCtx.fillStyle = '#4fc3f7'; workbenchCtx.font = '11px monospace';
     wrapText(workbenchCtx, layer.lin, 590, y + 6, 340, 16);
   });
+  // ── Final Translation block (all layers combined) ──
+  const fy = 90 + layers.length * 80 + 20;
+  workbenchCtx.fillStyle = 'rgba(129,199,132,0.12)';
+  workbenchCtx.fillRect(20, fy - 22, W - 40, 110);
+  workbenchCtx.strokeStyle = 'rgba(129,199,132,0.7)'; workbenchCtx.lineWidth = 1.5;
+  workbenchCtx.strokeRect(20, fy - 22, W - 40, 110);
+  workbenchCtx.fillStyle = '#81c784'; workbenchCtx.font = 'bold 12px monospace'; workbenchCtx.textAlign = 'left';
+  workbenchCtx.fillText('FINAL TRANSLATION  (all layers combined into one sentence)', 30, fy - 4);
+  workbenchCtx.fillStyle = '#a78bfa'; workbenchCtx.font = 'bold 10px monospace';
+  workbenchCtx.fillText('STANDARD MT', 30, fy + 18);
+  workbenchCtx.fillStyle = '#f88'; workbenchCtx.font = '12px monospace';
+  wrapText(workbenchCtx, d.finalMT, 160, fy + 18, 780, 16);
+  workbenchCtx.fillStyle = '#4fc3f7'; workbenchCtx.font = 'bold 10px monospace';
+  workbenchCtx.fillText('LINGORA', 30, fy + 42);
+  workbenchCtx.fillStyle = '#fff'; workbenchCtx.font = '12px monospace';
+  wrapText(workbenchCtx, d.finalLin, 160, fy + 42, 780, 16);
+  workbenchCtx.fillStyle = '#778'; workbenchCtx.font = '10px monospace';
+  wrapText(workbenchCtx, d.finalNote, 30, fy + 72, W - 60, 13);
   requestAnimationFrame(drawWorkbench);
 }
 function wrapText(ctx, text, x, y, maxW, lineH) {
