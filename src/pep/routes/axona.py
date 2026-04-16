@@ -118,7 +118,8 @@ _PAGE = """\
   </div>
   <div class="nav-row nav-row-bottom">
     <div class="tabs" id="tabs">
-      <div class="tab active" data-panel="state-space">Cognitive State</div>
+      <div class="tab active" data-panel="home-tab">Home</div>
+      <div class="tab" data-panel="state-space">Cognitive State</div>
       <div class="tab" data-panel="mind-tab">How the Mind Works</div>
       <div class="tab" data-panel="influence-tab">What Changes It</div>
       <div class="tab" data-panel="conditions-tab">Conditions</div>
@@ -143,8 +144,75 @@ _PAGE = """\
   </div>
 </nav>
 
+<!-- ═══ Tab 0: Home ════════════════════════════════════════════════ -->
+<div class="panel active" id="home-tab">
+<div class="container">
+  <div style="background: linear-gradient(180deg, var(--surface) 0%, var(--bg) 100%); border: 1px solid var(--border); border-radius: 8px; padding: 28px 32px; margin-bottom: 24px">
+    <div style="font-size:10px;color:var(--dim);letter-spacing:0.2em;text-transform:uppercase;margin-bottom:4px">AXONA</div>
+    <h1 style="font-size:22px;color:var(--accent);margin-bottom:10px;font-weight:bold">Brain &amp; Cognition, As Weighted Graphs</h1>
+    <p style="font-size:12px;color:var(--text);line-height:1.8;margin-bottom:10px">
+      Axona applies PEP to the brain. The cognitive state space, memory
+      dynamics, attention, prediction, sleep, trauma, language perception,
+      and dozens of other phenomena are all configurations of the same
+      four primitives &mdash; weighted graphs, spreading activation,
+      residual scoring, and state modulation. ~60 interactive canvases
+      across cognition, conditions, neural-interface mappings, and
+      applications.
+    </p>
+    <p style="font-size:12px;color:var(--text);line-height:1.8;margin-bottom:0">
+      The largest LAVAS surface and the largest commercial opportunity
+      &mdash; BCI hardware companies need an interpretation layer, mental
+      health needs objective state measurement, education needs encoding-
+      strength signals, and high-stakes performance needs flow detection.
+      The <a href="#" onclick="document.querySelector('[data-panel=pitch-tab]').click();return false" style="color:var(--accent2)">Pitch tab</a>
+      ranks the five wedges and proposes a go-to-market order.
+    </p>
+  </div>
+
+  <h3 style="font-size:13px;color:var(--accent2);margin:20px 0 8px">What is here</h3>
+  <div class="info">
+    &bull; <b>Cognitive State</b> &mdash; the four-axis state space
+    (novelty / coherence / bandwidth / valence) with the genius / chaos
+    / order / stagnation quadrants. Drag through it to see how states
+    map.<br>
+    &bull; <b>How the Mind Works</b> &mdash; memory, attention,
+    prediction, novelty, consolidation, music, humor, metaphor, dozens
+    of cognitive mechanisms each as their own canvas.<br>
+    &bull; <b>What Changes It</b> &mdash; behavior modulators, placebo,
+    bandwidth, pharmacology, social influence, all the levers that move
+    cognition without rewriting the underlying graph.<br>
+    &bull; <b>Conditions</b> &mdash; trauma loops, depression, addiction,
+    grief, schizophrenia, PTSD, learned helplessness. DSM-style sub-
+    section navigation.<br>
+    &bull; <b>Neural Interface</b> &mdash; the BCI translation layer.
+    What an electrode signal becomes when interpreted through the
+    cognitive state space.<br>
+    &bull; <b>Applications</b> &mdash; healthcare, education,
+    performance, BCI hardware, consumer wellness. Who would buy and
+    use Axona.<br>
+    &bull; <b>Composer / Sandbox / Workbench</b> &mdash; build your own
+    scenarios, parameter sweeps, and cognitive-state mappings.<br>
+    &bull; <b>Pitch / Benchmark / Case Studies</b> &mdash; the
+    product-grade view: commercial wedges, synthetic-subject
+    benchmarks, real-world neuroscience cases.<br>
+    &bull; <b>Reference / Gallery</b> &mdash; glossary, citations, and
+    a filterable card view of every canvas with bookmarks.
+  </div>
+
+  <h3 style="font-size:13px;color:var(--accent2);margin:20px 0 8px">Where to start</h3>
+  <div class="info">
+    First time here? Click <b>Take a Tour</b> in the nav for a guided
+    walk through the highlights, or jump to the
+    <a href="#" onclick="document.querySelector('[data-panel=state-space]').click();return false" style="color:var(--accent)">Cognitive State</a>
+    canvas to see PEP's primitives in their most direct form. The 🎲
+    button picks a random canvas; ☆ bookmarks the current tab; the
+    dropdown jumps to any canvas by name.
+  </div>
+</div>
+</div>
+
 <!-- ═══ Tab 1: Cognitive State Space ═══════════════════════════════ -->
-<div class="panel active" id="state-space">
+<div class="panel" id="state-space">
 <div class="container">
   <h2>Cognitive State Space</h2>
   <p class="desc">
