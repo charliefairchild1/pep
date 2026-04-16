@@ -1,0 +1,32 @@
+{
+  "name": "distractor_resistance",
+  "description": "Tests whether the policy resists retrieving semantically similar but irrelevant memories.",
+  "seed_memories": [
+    {"core": "PEP uses spreading activation to find relevant memories. Activation decays over hops.", "tags": ["pep", "activation", "spreading", "memory", "retrieval"]},
+    {"core": "Neural activation in the brain involves sodium and potassium ion channels.", "tags": ["activation", "brain", "neural", "sodium", "biology"]},
+    {"core": "The store uses SQLite for persistence. Memories are JSON-serialized Pydantic models.", "tags": ["store", "sqlite", "pep", "persistence", "json"]},
+    {"core": "A grocery store uses inventory management to track perishable goods.", "tags": ["store", "inventory", "grocery", "management"]},
+    {"core": "Memory drift tracks how a memory changes across reactivation events.", "tags": ["memory", "drift", "reactivation", "pep", "reconsolidation"]},
+    {"core": "Continental drift describes the movement of tectonic plates over geological time.", "tags": ["drift", "tectonic", "geology", "continental"]}
+  ],
+  "tasks": [
+    {
+      "id": "dist_1",
+      "input": "How does spreading activation work in PEP's retrieval?",
+      "expected_memory_ids_contain": ["pep", "activation", "spreading"],
+      "distractor_memory_tags": ["brain", "neural", "sodium"]
+    },
+    {
+      "id": "dist_2",
+      "input": "What database does PEP use for storage?",
+      "expected_memory_ids_contain": ["sqlite", "pep", "persistence"],
+      "distractor_memory_tags": ["grocery", "inventory"]
+    },
+    {
+      "id": "dist_3",
+      "input": "What is memory drift in PEP?",
+      "expected_memory_ids_contain": ["memory", "drift", "pep"],
+      "distractor_memory_tags": ["tectonic", "geology"]
+    }
+  ]
+}

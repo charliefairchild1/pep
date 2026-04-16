@@ -1,0 +1,33 @@
+[project]
+name = "pep"
+version = "0.1.0"
+description = "PEP — Predictive Encoding and Preparation. A predictive overlay that prepares an AI by activating likely-relevant memory, compressing the predictable, and highlighting useful novelty."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.32",
+    "pydantic>=2.9",
+    "click>=8.1",
+    "anthropic>=0.39",
+    "voyageai>=0.3",
+    "httpx>=0.27",
+    "streamlit>=1.56.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.24",
+]
+
+[project.scripts]
+pep = "pep.cli:main"
+
+[build-system]
+requires = ["uv_build>=0.11.5,<0.12.0"]
+build-backend = "uv_build"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"

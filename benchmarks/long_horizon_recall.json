@@ -1,0 +1,20 @@
+{
+  "name": "long_horizon_recall",
+  "description": "Tests whether the policy retrieves information from early turns when asked about it many turns later.",
+  "seed_memories": [],
+  "tasks": [
+    {"id": "lhr_1", "input": "The project name is PEP, which stands for Predictive Encoding and Preparation.", "type": "seed_turn"},
+    {"id": "lhr_2", "input": "PEP has three primitives: prediction, reactivation, and residuals.", "type": "seed_turn"},
+    {"id": "lhr_3", "input": "The theoretical backbone is PTO: Potential Transformation Output.", "type": "seed_turn"},
+    {"id": "lhr_4", "input": "Tell me about something unrelated, like chess openings.", "type": "filler"},
+    {"id": "lhr_5", "input": "What are the best Italian restaurants in the area?", "type": "filler"},
+    {"id": "lhr_6", "input": "How does photosynthesis work in desert plants?", "type": "filler"},
+    {"id": "lhr_7", "input": "Can you explain the difference between TCP and UDP?", "type": "filler"},
+    {"id": "lhr_8", "input": "What are the three primitives of the project I told you about earlier?", "type": "recall_test",
+     "expected_in_context": ["prediction", "reactivation", "residual"]},
+    {"id": "lhr_9", "input": "What does the project's theoretical backbone stand for?", "type": "recall_test",
+     "expected_in_context": ["potential", "transformation"]},
+    {"id": "lhr_10", "input": "What is the full name behind PEP?", "type": "recall_test",
+     "expected_in_context": ["predictive", "encoding", "preparation"]}
+  ]
+}

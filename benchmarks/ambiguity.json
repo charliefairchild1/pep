@@ -1,0 +1,44 @@
+{
+  "name": "ambiguity",
+  "description": "Tests whether the policy retrieves the right sense of an ambiguous term given context.",
+  "seed_memories": [
+    {"core": "Physical power is measured in watts. Power equals work over time.", "tags": ["power", "watts", "energy", "physics"]},
+    {"core": "Physical power can also be expressed as force times velocity.", "tags": ["power", "force", "velocity", "physics"]},
+    {"core": "Political power is the ability to influence others' behavior through authority.", "tags": ["power", "politics", "authority", "influence"]},
+    {"core": "Political power often concentrates in institutions and can be measured by decision-making control.", "tags": ["power", "politics", "institutions", "control"]},
+    {"core": "Memory in computers refers to RAM and storage devices.", "tags": ["memory", "ram", "storage", "computer"]},
+    {"core": "Human memory is reconstructive and changes each time it is recalled.", "tags": ["memory", "brain", "recall", "reconstructive"]},
+    {"core": "State machines are used in computer science to model sequential logic.", "tags": ["state", "machine", "computer", "logic"]},
+    {"core": "A nation-state exercises sovereignty over its territory and citizens.", "tags": ["state", "nation", "sovereignty", "government"]}
+  ],
+  "tasks": [
+    {
+      "id": "amb_1",
+      "input": "How is power measured in a lab?",
+      "expected_sense": "physics",
+      "expected_tags_in_context": ["watts", "energy", "physics"],
+      "distractor_tags": ["politics", "authority"]
+    },
+    {
+      "id": "amb_2",
+      "input": "How does power shift during elections?",
+      "expected_sense": "politics",
+      "expected_tags_in_context": ["politics", "authority", "influence"],
+      "distractor_tags": ["watts", "energy"]
+    },
+    {
+      "id": "amb_3",
+      "input": "How does memory reconstruction affect eyewitness testimony?",
+      "expected_sense": "brain",
+      "expected_tags_in_context": ["brain", "recall", "reconstructive"],
+      "distractor_tags": ["ram", "storage"]
+    },
+    {
+      "id": "amb_4",
+      "input": "What is a finite state machine?",
+      "expected_sense": "computer",
+      "expected_tags_in_context": ["machine", "computer", "logic"],
+      "distractor_tags": ["nation", "sovereignty"]
+    }
+  ]
+}

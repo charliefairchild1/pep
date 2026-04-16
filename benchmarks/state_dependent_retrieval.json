@@ -1,0 +1,81 @@
+{
+  "name": "state_dependent_retrieval",
+  "description": "Tests whether PEP's State Modulator changes which memories activate. Same shared topic, but some memories are state-conditioned to be brighter under high urgency, others under high exploration. Priming turns build state via heuristic word density (urgent! quickly! ASAP! vs explore, imagine, brainstorm). The query turns are identical text — only the state differs.",
+  "seed_memories": [
+    {
+      "id": "mem_urg_a",
+      "core": "Critical incident response: prioritize containment, identify root cause, restore service immediately.",
+      "tags": ["incident", "response", "containment"],
+      "brightness": 0.6,
+      "state_modulation": {"urgency": 5.0}
+    },
+    {
+      "id": "mem_urg_b",
+      "core": "Emergency triage protocol: stop the bleeding, then diagnose, then communicate.",
+      "tags": ["incident", "triage", "emergency"],
+      "brightness": 0.6,
+      "state_modulation": {"urgency": 5.0}
+    },
+    {
+      "id": "mem_urg_c",
+      "core": "When the building is on fire, do not redesign the building. Get out, then plan.",
+      "tags": ["incident", "fire", "priority"],
+      "brightness": 0.6,
+      "state_modulation": {"urgency": 5.0}
+    },
+    {
+      "id": "mem_exp_a",
+      "core": "Incident retrospectives are an opportunity to explore alternative architectures and rethink assumptions.",
+      "tags": ["incident", "retrospective", "exploration"],
+      "brightness": 0.6,
+      "state_modulation": {"exploration": 5.0}
+    },
+    {
+      "id": "mem_exp_b",
+      "core": "After an incident, brainstorm wider design changes that might prevent the whole class of failure.",
+      "tags": ["incident", "brainstorm", "design"],
+      "brightness": 0.6,
+      "state_modulation": {"exploration": 5.0}
+    },
+    {
+      "id": "mem_exp_c",
+      "core": "Imagine the incident from five different stakeholder perspectives. Each one reveals a different lesson.",
+      "tags": ["incident", "imagination", "perspectives"],
+      "brightness": 0.6,
+      "state_modulation": {"exploration": 5.0}
+    }
+  ],
+  "tasks": [
+    {
+      "id": "sd_prime_urgency",
+      "type": "priming",
+      "input": "URGENT! ASAP! There is a critical incident happening right now and I need to act immediately, quickly, no time to think — what do I do?"
+    },
+    {
+      "id": "sd_query_under_urgency",
+      "type": "test",
+      "input": "Tell me about handling an incident.",
+      "expected_state_tag": "urgency",
+      "expected_memory_ids": ["mem_urg_a", "mem_urg_b", "mem_urg_c"],
+      "wrong_memory_ids": ["mem_exp_a", "mem_exp_b", "mem_exp_c"]
+    },
+    {
+      "id": "sd_prime_exploration",
+      "type": "priming",
+      "input": "Let me explore what if we imagine and brainstorm different ways to think about this. I want to consider many possibilities."
+    },
+    {
+      "id": "sd_prime_exploration_2",
+      "type": "priming",
+      "input": "Let me wonder about the bigger picture. Brainstorm with me — what are some imaginative angles we could explore?"
+    },
+    {
+      "id": "sd_query_under_exploration",
+      "type": "test",
+      "input": "Tell me about handling an incident.",
+      "expected_state_tag": "exploration",
+      "expected_memory_ids": ["mem_exp_a", "mem_exp_b", "mem_exp_c"],
+      "wrong_memory_ids": ["mem_urg_a", "mem_urg_b", "mem_urg_c"]
+    }
+  ]
+}
