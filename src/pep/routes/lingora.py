@@ -3748,86 +3748,122 @@ _PAGE = """\
 <!-- ═══ Products ═══════════════════════════════════════════════════ -->
 <div class="panel" id="products-tab">
 <div class="container">
-  <h2>Products &mdash; The LAVAS Suite</h2>
+  <h2>Products &mdash; The Four Lingora Wedges</h2>
   <p class="desc">
-    Lingora is one of five LAVAS apps, all built on PEP (Predictive
-    Encoding and Preparation). Each applies the same four primitives
-    &mdash; weighted graphs, spreading activation, residual scoring,
-    state modulation &mdash; to a different domain. Click any card to
-    open that app in this tab.
+    The four products Lingora would ship, derived directly from the
+    wedges in the Pitch tab. Each is a standalone product with its own
+    target market and competitor; all four run on the same Lingora
+    primitives, so building one accelerates the others. Recommended
+    GTM order is bottom-up: Wedge 4 (smallest TAM, fastest validation)
+    first, then 2, 1, 3.
   </p>
 
-  <a href="/pep" style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #a78bfa;border-radius:6px;padding:14px 18px;margin-bottom:10px;text-decoration:none;transition:border-color 0.15s" onmouseover="this.style.borderColor='#a78bfa'" onmouseout="this.style.borderColor='var(--border)'">
-    <div style="font-size:13px;font-weight:bold;color:#a78bfa">PEP &rarr; /pep</div>
-    <div style="font-size:11px;color:var(--dim);margin-top:4px;line-height:1.5">
-      The engine itself. Four interactive primitive demos (weighted graph,
-      spreading activation, predictor + residual, state modulator), live
-      mesh dashboard polling all five LAVAS siblings, and the theoretical
-      framing every app shares. Start here to understand what every other
-      surface is built on.
+  <div style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #4fc3f7;border-radius:6px;padding:16px 20px;margin-bottom:12px">
+    <div style="display:flex;justify-content:space-between;align-items:start;gap:10px;margin-bottom:6px">
+      <div style="font-size:14px;font-weight:bold;color:#4fc3f7">Lingora Translate</div>
+      <span style="font-size:9px;color:#4fc3f7;background:rgba(79,195,247,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">WEDGE 1 · TRANSLATION</span>
     </div>
-  </a>
-
-  <a href="/axona" style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #ba68c8;border-radius:6px;padding:14px 18px;margin-bottom:10px;text-decoration:none;transition:border-color 0.15s" onmouseover="this.style.borderColor='#ba68c8'" onmouseout="this.style.borderColor='var(--border)'">
-    <div style="font-size:13px;font-weight:bold;color:#ba68c8">Axona &rarr; /axona</div>
-    <div style="font-size:11px;color:var(--dim);margin-top:4px;line-height:1.5">
-      Brain &amp; cognition. The largest LAVAS surface (~60 canvases) and
-      the largest commercial opportunity &mdash; BCI interpretation layer
-      for hardware companies, clinical insight for therapists, education
-      personalization, performance &amp; flow optimization, consumer
-      wellness. Memory dynamics, attention, prediction, sleep, trauma,
-      dozens of cognitive mechanisms.
+    <div style="font-size:11px;color:var(--text);line-height:1.6;margin-bottom:6px">
+      Pragmatic-preserving translation. Decomposes a sentence into
+      denotation / pragmatic / register / cultural layers, translates
+      each, then reassembles. Preserves what DeepL and Google Translate
+      flatten &mdash; sarcasm, indirectness, politeness level, cultural
+      framing.
     </div>
-  </a>
-
-  <a href="/atria" style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #5eead4;border-radius:6px;padding:14px 18px;margin-bottom:10px;text-decoration:none;transition:border-color 0.15s" onmouseover="this.style.borderColor='#5eead4'" onmouseout="this.style.borderColor='var(--border)'">
-    <div style="font-size:13px;font-weight:bold;color:#5eead4">Atria &rarr; /atria</div>
-    <div style="font-size:11px;color:var(--dim);margin-top:4px;line-height:1.5">
-      Matching, compatibility, relational alignment. First commercial
-      wedge: PvP game matchmaking that targets rematch rate instead of
-      win-probability balance. Pitch tab makes the business case
-      directly to game-studio PMs (revenue via enjoyment, not the
-      Activision dark pattern). Before/After dashboard shows the
-      synthetic metrics on 1,000 matches.
+    <div style="font-size:10px;color:var(--dim);line-height:1.5">
+      <b style="color:var(--text)">Competitor:</b> DeepL (~$300M ARR) ·
+      <b style="color:var(--text)">Buyers:</b> localization agencies,
+      film/TV subtitling, legal translation, literary translation ·
+      <b style="color:var(--text)">Differentiator:</b> the Translation
+      Workbench mechanism (see Workbench tab) preserves layers that
+      every current MT system collapses.
     </div>
-  </a>
+  </div>
 
-  <a href="/vectora" style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #38bdf8;border-radius:6px;padding:14px 18px;margin-bottom:10px;text-decoration:none;transition:border-color 0.15s" onmouseover="this.style.borderColor='#38bdf8'" onmouseout="this.style.borderColor='var(--border)'">
-    <div style="font-size:13px;font-weight:bold;color:#38bdf8">Vectora &rarr; /vectora</div>
-    <div style="font-size:11px;color:var(--dim);margin-top:4px;line-height:1.5">
-      Data organization, pattern analysis, intelligent retrieval. The
-      internal infrastructure layer the other LAVAS siblings consume.
-      RAG pipeline, hybrid keyword+semantic reranker, multi-hop graph
-      retrieval, anomaly detection, context-dependent retrieval.
-      Positioned as a layer that sits on top of Pinecone/pgvector
-      rather than replacing them.
+  <div style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #81c784;border-radius:6px;padding:16px 20px;margin-bottom:12px">
+    <div style="display:flex;justify-content:space-between;align-items:start;gap:10px;margin-bottom:6px">
+      <div style="font-size:14px;font-weight:bold;color:#81c784">Lingora Voice</div>
+      <span style="font-size:9px;color:#81c784;background:rgba(129,199,132,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">WEDGE 2 · WRITING</span>
     </div>
-  </a>
-
-  <a href="/strata" style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #e879f9;border-radius:6px;padding:14px 18px;margin-bottom:10px;text-decoration:none;transition:border-color 0.15s" onmouseover="this.style.borderColor='#e879f9'" onmouseout="this.style.borderColor='var(--border)'">
-    <div style="font-size:13px;font-weight:bold;color:#e879f9">Strata &rarr; /strata</div>
-    <div style="font-size:11px;color:var(--dim);margin-top:4px;line-height:1.5">
-      Markets, trading signals, financial decision-making. The parent
-      markets-primitive platform; the Equities vertical is the first
-      shipping instance with 294 paper-trading strategies, an unusual-
-      move scanner, pattern classifier, and Claude-scored news catalyst
-      pipeline. Future verticals: crypto, FX, commodities, prediction
-      markets, fixed income.
+    <div style="font-size:11px;color:var(--text);line-height:1.6;margin-bottom:6px">
+      Voice-aware writing assistant. Scores prose on eight mechanisms
+      (POV, register, irony, subtext, pacing, voice consistency,
+      repetition, sound symmetry). Suggests changes only when they
+      align with the writer's existing intent &mdash; no flagging
+      Hemingway fragments as errors.
     </div>
-  </a>
+    <div style="font-size:10px;color:var(--dim);line-height:1.5">
+      <b style="color:var(--text)">Competitor:</b> Grammarly (~$200M
+      ARR) ·
+      <b style="color:var(--text)">Buyers:</b> professional writers,
+      novelists, journalists, academics, anyone whose voice is the
+      product ·
+      <b style="color:var(--text)">Differentiator:</b> the Voice
+      Analyzer canvas demonstrates the missing primitive Grammarly
+      cannot bolt on.
+    </div>
+  </div>
 
-  <h3 style="font-size:13px;color:var(--accent2);margin:24px 0 8px">Where Lingora fits</h3>
+  <div style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #ffb74d;border-radius:6px;padding:16px 20px;margin-bottom:12px">
+    <div style="display:flex;justify-content:space-between;align-items:start;gap:10px;margin-bottom:6px">
+      <div style="font-size:14px;font-weight:bold;color:#ffb74d">Lingora Learn</div>
+      <span style="font-size:9px;color:#ffb74d;background:rgba(255,183,77,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">WEDGE 3 · LANGUAGE LEARNING</span>
+    </div>
+    <div style="font-size:11px;color:var(--text);line-height:1.6;margin-bottom:6px">
+      Constellation-based language learning. Teaches words via context
+      and association &mdash; "hear the word in 12 different contexts
+      until the meaning crystallizes" &mdash; instead of flashcard
+      drilling. Models acquisition the way humans actually learn
+      languages.
+    </div>
+    <div style="font-size:10px;color:var(--dim);line-height:1.5">
+      <b style="color:var(--text)">Competitor:</b> Duolingo (~$700M ARR,
+      plateaus at A2) ·
+      <b style="color:var(--text)">Buyers:</b> direct-to-consumer
+      learners frustrated with flashcard ceiling, eventually B2B for
+      universities and corporate language training ·
+      <b style="color:var(--text)">Differentiator:</b> Word as
+      Constellation, Statistical Learning, Acquisition canvases model
+      the actual mechanism that flashcards miss.
+    </div>
+  </div>
+
+  <div style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #ba68c8;border-radius:6px;padding:16px 20px;margin-bottom:12px">
+    <div style="display:flex;justify-content:space-between;align-items:start;gap:10px;margin-bottom:6px">
+      <div style="font-size:14px;font-weight:bold;color:#ba68c8">Lingora Prompt</div>
+      <span style="font-size:9px;color:#ba68c8;background:rgba(186,104,200,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">WEDGE 4 · LLM TOOLING · GTM FIRST</span>
+    </div>
+    <div style="font-size:11px;color:var(--text);line-height:1.6;margin-bottom:6px">
+      Prompt engineering toolkit. Paste a prompt, get back a structural
+      analysis: which words constrain the model's prediction, which
+      open it up, where attention narrows or widens, suggested
+      compressions, predicted failure modes. Treats prompts as
+      linguistic objects rather than folk-wisdom incantations.
+    </div>
+    <div style="font-size:10px;color:var(--dim);line-height:1.5">
+      <b style="color:var(--text)">Competitor:</b> nobody is framing
+      prompts as linguistic objects ·
+      <b style="color:var(--text)">Buyers:</b> every team building on
+      OpenAI / Anthropic / Google / Meta APIs ·
+      <b style="color:var(--text)">Why first:</b> smallest TAM but
+      fastest to ship, easiest to differentiate, willing-to-pay
+      buyers, technical audience that does not need hand-holding.
+      Validates the underlying engine on a friendly market before the
+      bigger consumer products.
+    </div>
+  </div>
+
+  <h3 style="font-size:13px;color:var(--accent2);margin:24px 0 8px">Why one engine, four products</h3>
   <div class="info">
-    Lingora applies PEP to language as a cognitive technology. The
-    four pitch wedges (Pragmatic Translation, Voice-Aware Writing,
-    Constellation Language Learning, Prompt Engineering Toolkit) all
-    sit on the same primitives the other apps use. The Translation
-    Workbench is multi-objective projection (same primitive Atria uses
-    for player compatibility and Strata uses for headline scoring).
-    The Voice Analyzer is residual scoring (same primitive Axona uses
-    for prediction error and Vectora uses for anomaly detection).
-    Cross-pollination across apps is intentional &mdash; same engine,
-    different surfaces.
+    All four products run on the same Lingora primitives:
+    constellation-based meaning representation, layer decomposition
+    for translation, mechanism scoring for voice, prediction analysis
+    for prompts. Building one product builds the foundation for the
+    others &mdash; the Translation Workbench's multi-layer scoring is
+    the same shape as the Voice Analyzer's mechanism scoring is the
+    same shape as a prompt's structural analysis. The cost of adding
+    Wedge 2 after Wedge 4 ships is measured in vertical-specific UI,
+    not in re-implementing the engine.
   </div>
 </div>
 </div>

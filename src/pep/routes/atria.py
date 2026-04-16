@@ -133,6 +133,7 @@ _PAGE = """\
       <div class="tab" data-panels="party-tab chemistry-tab draft-tab">Groups</div>
       <div class="tab" data-panels="crossgame-tab engagement-tab transparency-tab domain-tab">Beyond</div>
       <div class="tab" data-panel="pitch-tab">Pitch</div>
+      <div class="tab" data-panel="products-tab">Products</div>
       <div class="tab" data-panel="dashboard-tab">Before / After</div>
       <div class="tab" data-panel="composer-tab">Composer</div>
       <div class="tab" data-panel="cases-tab">Case Studies</div>
@@ -1317,6 +1318,157 @@ _PAGE = """\
     is a dot product per candidate (~0.01ms each). Total added latency
     is under 20ms for a typical queue pop. Your existing system's queue
     timeout dwarfs this.
+  </div>
+</div>
+</div>
+
+<!-- ═══ Products ═══════════════════════════════════════════════════ -->
+<div class="panel" id="products-tab">
+<div class="container">
+  <h2>Products &mdash; What Atria Would Ship</h2>
+  <p class="desc">
+    The products derived from Atria's pitch. PvP matchmaking is the
+    first commercial wedge (game studios, fast feedback loop, cheap
+    rematch label); the cross-domain extensions reuse the same
+    relational-matching engine for radically different markets. All
+    five run on the same compatibility-graph + spreading-activation
+    primitives.
+  </p>
+
+  <div style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #5eead4;border-radius:6px;padding:16px 20px;margin-bottom:12px">
+    <div style="display:flex;justify-content:space-between;align-items:start;gap:10px;margin-bottom:6px">
+      <div style="font-size:14px;font-weight:bold;color:#5eead4">Atria Match</div>
+      <span style="font-size:9px;color:#5eead4;background:rgba(94,234,212,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">FIRST WEDGE · GAME STUDIOS</span>
+    </div>
+    <div style="font-size:11px;color:var(--text);line-height:1.6;margin-bottom:6px">
+      PvP game matchmaking that targets rematch rate instead of
+      win-probability balance. Drops in beneath the studio's existing
+      rating system, replaces pool selection with graph-based
+      spreading activation, scores matches on multi-objective
+      consensus across skill / tempo / social / role / behavior.
+    </div>
+    <div style="font-size:10px;color:var(--dim);line-height:1.5">
+      <b style="color:var(--text)">Buyers:</b> game studios with
+      competitive PvP modes (Riot, Activision, Bungie, Respawn,
+      smaller esports titles) ·
+      <b style="color:var(--text)">Outcomes:</b> +18-25% rematch
+      rate, +12-20% session length, -30-40% toxic-adjacent matches,
+      +5-15% queue time (the known tradeoff) ·
+      <b style="color:var(--text)">Why first:</b> rematch label is
+      free and immediate, integration is shadow-mode safe, no
+      regulatory burden.
+    </div>
+  </div>
+
+  <div style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #ec4899;border-radius:6px;padding:16px 20px;margin-bottom:12px">
+    <div style="display:flex;justify-content:space-between;align-items:start;gap:10px;margin-bottom:6px">
+      <div style="font-size:14px;font-weight:bold;color:#ec4899">Atria Date</div>
+      <span style="font-size:9px;color:#ec4899;background:rgba(236,72,153,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">CROSS-DOMAIN · DATING</span>
+    </div>
+    <div style="font-size:11px;color:var(--text);line-height:1.6;margin-bottom:6px">
+      Dating compatibility scoring built on the same relational-matching
+      engine. Replaces single-axis "attractiveness ranking" with
+      multi-dimensional compatibility (values, communication style,
+      pace, conflict resolution, shared interests, life-stage
+      alignment) and uses spreading activation to surface candidates
+      the user would not have filtered for.
+    </div>
+    <div style="font-size:10px;color:var(--dim);line-height:1.5">
+      <b style="color:var(--text)">Competitor:</b> Hinge, Match,
+      eHarmony ·
+      <b style="color:var(--text)">Differentiator:</b> the second-hop
+      candidate that shares no surface attributes but fits the
+      relational profile is the user's best match; current dating apps
+      cannot find them ·
+      <b style="color:var(--text)">Tradeoff:</b> longer feedback loop
+      than PvP (months, not minutes) — pursue after the matchmaking
+      engine is validated on games.
+    </div>
+  </div>
+
+  <div style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #fbbf24;border-radius:6px;padding:16px 20px;margin-bottom:12px">
+    <div style="display:flex;justify-content:space-between;align-items:start;gap:10px;margin-bottom:6px">
+      <div style="font-size:14px;font-weight:bold;color:#fbbf24">Atria Hire</div>
+      <span style="font-size:9px;color:#fbbf24;background:rgba(251,191,36,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">CROSS-DOMAIN · RECRUITING</span>
+    </div>
+    <div style="font-size:11px;color:var(--text);line-height:1.6;margin-bottom:6px">
+      Candidate-team compatibility scoring for hiring. Beyond
+      keyword-matched resumes: candidate's working style, communication
+      pattern, role preference, and project velocity matched against
+      the specific team's existing composition. Same spreading-
+      activation pool selection that finds non-obvious good matches.
+    </div>
+    <div style="font-size:10px;color:var(--dim);line-height:1.5">
+      <b style="color:var(--text)">Competitor:</b> LinkedIn Recruiter,
+      Greenhouse, Gem ·
+      <b style="color:var(--text)">Differentiator:</b> matches against
+      team composition not just role description; surfaces
+      candidates with non-obvious complementary fit ·
+      <b style="color:var(--text)">Tradeoff:</b> hiring decisions are
+      slow and high-stakes (regulated, biased-against-AI scrutiny).
+      Long sales cycle.
+    </div>
+  </div>
+
+  <div style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #a78bfa;border-radius:6px;padding:16px 20px;margin-bottom:12px">
+    <div style="display:flex;justify-content:space-between;align-items:start;gap:10px;margin-bottom:6px">
+      <div style="font-size:14px;font-weight:bold;color:#a78bfa">Atria Found</div>
+      <span style="font-size:9px;color:#a78bfa;background:rgba(167,139,250,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">CROSS-DOMAIN · COFOUNDERS</span>
+    </div>
+    <div style="font-size:11px;color:var(--text);line-height:1.6;margin-bottom:6px">
+      Cofounder-matching service. Founders are matched on
+      complementary skills (technical / business / design),
+      conflict-resolution style, equity-philosophy alignment, work-
+      pace compatibility, and life-stage stability. Decisions a YC
+      partner makes by intuition, made explicit and queryable.
+    </div>
+    <div style="font-size:10px;color:var(--dim);line-height:1.5">
+      <b style="color:var(--text)">Competitor:</b> CoFoundersLab, YC
+      cofounder matching, ad-hoc Twitter ·
+      <b style="color:var(--text)">Differentiator:</b> structural
+      compatibility analysis on top of skill match. Identifies the
+      pairs most likely to still be talking to each other in 18
+      months ·
+      <b style="color:var(--text)">Tradeoff:</b> tiny TAM but
+      catastrophic value if the match works (or doesn't).
+    </div>
+  </div>
+
+  <div style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #67e8f9;border-radius:6px;padding:16px 20px;margin-bottom:12px">
+    <div style="display:flex;justify-content:space-between;align-items:start;gap:10px;margin-bottom:6px">
+      <div style="font-size:14px;font-weight:bold;color:#67e8f9">Atria Therapy</div>
+      <span style="font-size:9px;color:#67e8f9;background:rgba(103,232,249,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">CROSS-DOMAIN · CLINICAL</span>
+    </div>
+    <div style="font-size:11px;color:var(--text);line-height:1.6;margin-bottom:6px">
+      Patient-therapist matching. The single biggest predictor of
+      therapy outcomes is the quality of the therapeutic alliance,
+      not the modality. Atria's relational-compatibility engine
+      matches patients to therapists on communication style,
+      attachment patterns, value alignment, and modality fit &mdash;
+      not just insurance and zip code.
+    </div>
+    <div style="font-size:10px;color:var(--dim);line-height:1.5">
+      <b style="color:var(--text)">Competitor:</b> BetterHelp, Talkspace
+      (random assignment), Psychology Today directory ·
+      <b style="color:var(--text)">Differentiator:</b> compatibility
+      as the primary match signal, not as an afterthought ·
+      <b style="color:var(--text)">Tradeoff:</b> requires therapist
+      buy-in (data sharing) and clinical validation; long path to
+      market but enormous societal value if it lands.
+    </div>
+  </div>
+
+  <h3 style="font-size:13px;color:var(--accent2);margin:24px 0 8px">Why one engine, five products</h3>
+  <div class="info">
+    All five products run on Atria's relational-compatibility engine:
+    nodes (players, daters, candidates, founders, patients), edges
+    (typed compatibility weights across multiple dimensions),
+    spreading activation (pool formation), and residual scoring
+    (closing the gap between predicted and actual relationship
+    quality). Atria Match validates the engine on the fastest
+    feedback loop (PvP); the other four extend it to slower-loop
+    domains. Same playbook as Strata: parent platform, multiple
+    domain-specific verticals.
   </div>
 </div>
 </div>

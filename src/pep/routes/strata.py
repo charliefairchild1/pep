@@ -133,7 +133,8 @@ _PAGE = """\
       <div class="tab" data-panel="rotation-tab">Sector Rotation</div>
       <div class="tab" data-panels="unusual-tab classify-tab newscore-tab">Equities</div>
       <div class="tab" data-panels="leaderboard-tab catalog-tab strategy-detail-tab">Strategies</div>
-      <div class="tab" data-panels="pitch-tab bench-tab">Research Pitch</div>
+      <div class="tab" data-panels="pitch-tab bench-tab">Pitch</div>
+      <div class="tab" data-panel="products-tab">Products</div>
       <div class="tab" data-panel="theory-tab">Theory</div>
       <div class="tab" data-panel="bridge-tab">PEP &harr; Strata</div>
     </div>
@@ -744,6 +745,167 @@ _PAGE = """\
     baseline cannot see &mdash; on synthetic data where the ground
     truth is known. Whether that generalizes to real markets is
     exactly what Q1-Q4 on the Pitch page are designed to measure.
+  </div>
+</div>
+</div>
+
+<!-- ═══ Products ═══════════════════════════════════════════════════ -->
+<div class="panel" id="products-tab">
+<div class="container">
+  <h2>Products &mdash; Strata's Verticals</h2>
+  <p class="desc">
+    Strata is a parent platform; each asset class is a product
+    vertical. Equities is the first shipping vertical (live at
+    <code>~/projects/charlie_project/</code>). The others are proposed
+    next builds, in order of likely sequencing. Each reuses the same
+    primitives (correlation graph, spreading-activation momentum,
+    residual scoring on surprises, regime modulation) wired to a
+    different data source and asset universe.
+  </p>
+
+  <div style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #e879f9;border-radius:6px;padding:16px 20px;margin-bottom:12px">
+    <div style="display:flex;justify-content:space-between;align-items:start;gap:10px;margin-bottom:6px">
+      <div style="font-size:14px;font-weight:bold;color:#e879f9">Strata Equities</div>
+      <span style="font-size:9px;color:#e879f9;background:rgba(232,121,249,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">SHIPPING · FIRST VERTICAL</span>
+    </div>
+    <div style="font-size:11px;color:var(--text);line-height:1.6;margin-bottom:6px">
+      AI-powered stock intelligence and paper-trading simulation.
+      Unusual-move scanner (35/25/25/15 weighted residual), 16-archetype
+      pattern classifier, Claude-scored news catalysts, 294-strategy
+      paper-trading library with leaderboard. Already live at
+      <code>~/projects/charlie_project/</code> as the production
+      implementation.
+    </div>
+    <div style="font-size:10px;color:var(--dim);line-height:1.5">
+      <b style="color:var(--text)">Data source:</b> Finnhub +
+      Yahoo Finance · <b style="color:var(--text)">Stack:</b> Next.js
+      16 + Prisma + SQLite + Claude Haiku ·
+      <b style="color:var(--text)">Status:</b> shipping as research
+      and simulation; no live trades.
+    </div>
+  </div>
+
+  <div style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #fbbf24;border-radius:6px;padding:16px 20px;margin-bottom:12px">
+    <div style="display:flex;justify-content:space-between;align-items:start;gap:10px;margin-bottom:6px">
+      <div style="font-size:14px;font-weight:bold;color:#fbbf24">Strata Crypto</div>
+      <span style="font-size:9px;color:#fbbf24;background:rgba(251,191,36,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">PROPOSED · CRYPTO</span>
+    </div>
+    <div style="font-size:11px;color:var(--text);line-height:1.6;margin-bottom:6px">
+      Same engine wired to crypto. Pattern archetypes are
+      crypto-specific: pump-and-dump, rug pull, exchange listing
+      effect, halving cycle, NFT-floor breakdown, MEV sandwich
+      detection. News sources weighted toward on-chain analytics
+      (Glassnode, Nansen, Chainalysis) and crypto-native press.
+    </div>
+    <div style="font-size:10px;color:var(--dim);line-height:1.5">
+      <b style="color:var(--text)">Data source:</b> CoinGecko / CoinAPI
+      / on-chain explorers ·
+      <b style="color:var(--text)">Differentiator:</b> the only
+      pump-and-dump detector that flags structural pattern (low float
+      + coordinated wallets) instead of just price spike ·
+      <b style="color:var(--text)">Why next:</b> data is cheap, signal
+      is strong, regulatory framework is permissive for analysis.
+    </div>
+  </div>
+
+  <div style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #103,232,249;border-radius:6px;padding:16px 20px;margin-bottom:12px">
+    <div style="display:flex;justify-content:space-between;align-items:start;gap:10px;margin-bottom:6px">
+      <div style="font-size:14px;font-weight:bold;color:#67e8f9">Strata FX</div>
+      <span style="font-size:9px;color:#67e8f9;background:rgba(103,232,249,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">PROPOSED · CURRENCY PAIRS</span>
+    </div>
+    <div style="font-size:11px;color:var(--text);line-height:1.6;margin-bottom:6px">
+      Foreign-exchange vertical. Pattern archetypes: carry-trade
+      unwind, central-bank intervention spike, risk-off flight to
+      USD/JPY/CHF, peg break, end-of-quarter rebalancing. News
+      weighted toward central-bank statements, BIS releases, macro
+      data calendars.
+    </div>
+    <div style="font-size:10px;color:var(--dim);line-height:1.5">
+      <b style="color:var(--text)">Data source:</b> broker feed,
+      Bloomberg or Polygon ·
+      <b style="color:var(--text)">Buyers:</b> macro hedge funds, FX
+      research desks, multinationals managing currency exposure ·
+      <b style="color:var(--text)">Tradeoff:</b> data is more expensive
+      and the buyer set is smaller and more sophisticated.
+    </div>
+  </div>
+
+  <div style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #fb7185;border-radius:6px;padding:16px 20px;margin-bottom:12px">
+    <div style="display:flex;justify-content:space-between;align-items:start;gap:10px;margin-bottom:6px">
+      <div style="font-size:14px;font-weight:bold;color:#fb7185">Strata Commodities</div>
+      <span style="font-size:9px;color:#fb7185;background:rgba(251,113,133,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">PROPOSED · FUTURES</span>
+    </div>
+    <div style="font-size:11px;color:var(--text);line-height:1.6;margin-bottom:6px">
+      Commodity-futures vertical. Pattern archetypes: weather-driven
+      ag spike, OPEC announcement effect, shipping-route disruption,
+      seasonal contango/backwardation flip, stock-to-flow shift.
+      News weighted toward EIA inventory reports, USDA crop
+      conditions, geopolitical headlines.
+    </div>
+    <div style="font-size:10px;color:var(--dim);line-height:1.5">
+      <b style="color:var(--text)">Data source:</b> CME group +
+      futures broker ·
+      <b style="color:var(--text)">Buyers:</b> commodity trading
+      shops, large agricultural producers, energy firms ·
+      <b style="color:var(--text)">Tradeoff:</b> niche but highly
+      paying buyers; long sales cycle.
+    </div>
+  </div>
+
+  <div style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #a3e635;border-radius:6px;padding:16px 20px;margin-bottom:12px">
+    <div style="display:flex;justify-content:space-between;align-items:start;gap:10px;margin-bottom:6px">
+      <div style="font-size:14px;font-weight:bold;color:#a3e635">Strata Predict</div>
+      <span style="font-size:9px;color:#a3e635;background:rgba(163,230,53,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">PROPOSED · PREDICTION MARKETS</span>
+    </div>
+    <div style="font-size:11px;color:var(--text);line-height:1.6;margin-bottom:6px">
+      Prediction-market vertical (Polymarket, Kalshi, Manifold).
+      Pattern archetypes: news-driven jump, election-poll
+      mean-reversion, late-resolution liquidity collapse, arbitrage
+      opportunities across venues. The cleanest application of
+      residual scoring &mdash; market-implied probability vs the
+      actual outcome distribution is exactly the residual primitive.
+    </div>
+    <div style="font-size:10px;color:var(--dim);line-height:1.5">
+      <b style="color:var(--text)">Data source:</b> Polymarket /
+      Kalshi APIs ·
+      <b style="color:var(--text)">Buyers:</b> active prediction-
+      market traders, research orgs studying market-implied beliefs ·
+      <b style="color:var(--text)">Why interesting:</b> youngest market,
+      cleanest signal, smallest competition.
+    </div>
+  </div>
+
+  <div style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #94a3b8;border-radius:6px;padding:16px 20px;margin-bottom:12px">
+    <div style="display:flex;justify-content:space-between;align-items:start;gap:10px;margin-bottom:6px">
+      <div style="font-size:14px;font-weight:bold;color:#94a3b8">Strata Bonds</div>
+      <span style="font-size:9px;color:#94a3b8;background:rgba(148,163,184,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">PROPOSED · FIXED INCOME</span>
+    </div>
+    <div style="font-size:11px;color:var(--text);line-height:1.6;margin-bottom:6px">
+      Fixed-income vertical. Pattern archetypes: yield-curve
+      inversion, credit-spread blowout, downgrade cascade, repo
+      stress, central-bank pivot. Most institutional buyer base of
+      the verticals; longest sales cycle but most stable customers.
+    </div>
+    <div style="font-size:10px;color:var(--dim);line-height:1.5">
+      <b style="color:var(--text)">Data source:</b> Bloomberg or
+      MarketAxess ·
+      <b style="color:var(--text)">Buyers:</b> credit hedge funds,
+      pension-fund analytics teams, insurance investment offices ·
+      <b style="color:var(--text)">Why last:</b> hardest market to
+      crack from the outside; pursue once Strata is the established
+      cross-asset platform.
+    </div>
+  </div>
+
+  <h3 style="font-size:13px;color:var(--accent2);margin:24px 0 8px">Why one engine, six verticals</h3>
+  <div class="info">
+    The cost of adding a new vertical is data-source integration plus
+    asset-class-specific archetype definitions. The engine
+    (correlation graph, spreading-activation momentum, residual
+    scoring, regime modulation, multi-strategy backtester) is
+    shared. Equities validates the playbook; each subsequent vertical
+    is an instance of the same pattern. No vertical requires
+    rebuilding the platform.
   </div>
 </div>
 </div>

@@ -137,6 +137,7 @@ _PAGE = """\
       <div class="tab" data-panel="sandbox-tab">Sandbox</div>
       <div class="tab" data-panel="workbench-tab">Workbench</div>
       <div class="tab" data-panel="pitch-tab">Pitch</div>
+      <div class="tab" data-panel="products-tab">Products</div>
       <div class="tab" data-panel="bench-tab">Benchmark</div>
       <div class="tab" data-panel="gallery-tab">Gallery</div>
       <div class="tab" data-panel="pep-link-tab">PEP &harr; Axona</div>
@@ -5184,6 +5185,151 @@ _PAGE = """\
     &bull; <b>Wedge 5 last (Consumer Wellness).</b> Best as a
     platform/licensing play to existing consumer brands, not a
     direct B2C build. Save for after $50M+ ARR from the B2B wedges.
+  </div>
+</div>
+</div>
+
+<!-- ═══ Tab: Products ═════════════════════════════════════════════ -->
+<div class="panel" id="products-tab">
+<div class="container">
+  <h2>Products &mdash; The Five Axona Wedges</h2>
+  <p class="desc">
+    The five products Axona would ship, derived directly from the
+    wedges in the Pitch tab. All run on the same cognitive state space
+    + interpretation primitives. Recommended GTM order: Wedge 4
+    (Performance) first for fastest validation, then Clinical, then
+    Education, then BCI, then Consumer Wellness as a platform-licensing
+    play.
+  </p>
+
+  <div style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #ba68c8;border-radius:6px;padding:16px 20px;margin-bottom:12px">
+    <div style="display:flex;justify-content:space-between;align-items:start;gap:10px;margin-bottom:6px">
+      <div style="font-size:14px;font-weight:bold;color:#ba68c8">Axona BCI SDK</div>
+      <span style="font-size:9px;color:#ba68c8;background:rgba(186,104,200,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">WEDGE 1 · BCI HARDWARE</span>
+    </div>
+    <div style="font-size:11px;color:var(--text);line-height:1.6;margin-bottom:6px">
+      Brain-computer interface interpretation SDK. BCI hardware
+      (Neuralink, Synchron, Blackrock, Precision) ships excellent
+      electrodes and zero software for converting raw signals into
+      meaningful cognitive constructs. Axona's state-space model is
+      that layer. SDK ships as Python/C++ for hardware integration.
+    </div>
+    <div style="font-size:10px;color:var(--dim);line-height:1.5">
+      <b style="color:var(--text)">Buyers:</b> Neuralink ($5B+),
+      Synchron ($1B+), Blackrock Neurotech, Precision Neuroscience,
+      non-invasive EEG/fNIRS startups ·
+      <b style="color:var(--text)">Why fourth:</b> highest TAM but
+      longest sales cycle (regulated medical hardware) and most
+      defensible. Pursue once cognitive models are battle-tested on
+      Wedges 2-3 and BCI hardware market matures (~2027-2030).
+    </div>
+  </div>
+
+  <div style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #4fc3f7;border-radius:6px;padding:16px 20px;margin-bottom:12px">
+    <div style="display:flex;justify-content:space-between;align-items:start;gap:10px;margin-bottom:6px">
+      <div style="font-size:14px;font-weight:bold;color:#4fc3f7">Axona Clinic</div>
+      <span style="font-size:9px;color:#4fc3f7;background:rgba(79,195,247,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">WEDGE 2 · CLINICAL · GTM SECOND</span>
+    </div>
+    <div style="font-size:11px;color:var(--text);line-height:1.6;margin-bottom:6px">
+      Clinical insight platform for therapists and psychiatrists. Maps
+      session transcripts (or audio with consent) to cognitive state
+      coordinates in real time. Track belief adoption, emotional
+      encoding, trauma weight reduction across sessions. Flag
+      re-traumatization risk. The Workbench canvas is the prototype.
+    </div>
+    <div style="font-size:10px;color:var(--dim);line-height:1.5">
+      <b style="color:var(--text)">Buyers:</b> 700K+ US licensed
+      mental-health professionals; insurance-aligned group practices ·
+      <b style="color:var(--text)">Comparable:</b> SimplePractice
+      (~$200M ARR for scheduling+billing on the same buyers); insight
+      tooling is the unaddressed next layer ·
+      <b style="color:var(--text)">Why second:</b> known regulatory
+      path (HIPAA + clinical decision-support, not medical device).
+    </div>
+  </div>
+
+  <div style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #81c784;border-radius:6px;padding:16px 20px;margin-bottom:12px">
+    <div style="display:flex;justify-content:space-between;align-items:start;gap:10px;margin-bottom:6px">
+      <div style="font-size:14px;font-weight:bold;color:#81c784">Axona Learn</div>
+      <span style="font-size:9px;color:#81c784;background:rgba(129,199,132,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">WEDGE 3 · EDUCATION</span>
+    </div>
+    <div style="font-size:11px;color:var(--text);line-height:1.6;margin-bottom:6px">
+      Education personalization layer that measures encoding strength
+      (deep integration vs surface pattern-matching), tunes spaced
+      repetition to per-student forgetting curves, and treats ADHD /
+      dyslexia / autism as architecture differences instead of deficits
+      to remediate.
+    </div>
+    <div style="font-size:10px;color:var(--dim);line-height:1.5">
+      <b style="color:var(--text)">Buyers:</b> K-12 districts,
+      universities, corporate training, language-learning apps ·
+      <b style="color:var(--text)">Differentiator:</b> encoding-
+      strength signal vs answer-correctness; the gap that separates
+      tested-and-forgotten from learned-and-integrated ·
+      <b style="color:var(--text)">Why third:</b> encoding signal
+      transfers cleanly once clinically validated on Wedge 2.
+    </div>
+  </div>
+
+  <div style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #ffb74d;border-radius:6px;padding:16px 20px;margin-bottom:12px">
+    <div style="display:flex;justify-content:space-between;align-items:start;gap:10px;margin-bottom:6px">
+      <div style="font-size:14px;font-weight:bold;color:#ffb74d">Axona Edge</div>
+      <span style="font-size:9px;color:#ffb74d;background:rgba(255,183,77,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">WEDGE 4 · PERFORMANCE · GTM FIRST</span>
+    </div>
+    <div style="font-size:11px;color:var(--text);line-height:1.6;margin-bottom:6px">
+      Real-time cognitive state monitoring for high-stakes performers.
+      Flow detection, bandwidth monitoring, tilt detection,
+      pre-event readiness assessment, fatigue alerts before errors
+      happen. Already one of the more developed canvas families
+      (Flow State, Hyperfocus, Bandwidth, Inattentional Blindness).
+    </div>
+    <div style="font-size:10px;color:var(--dim);line-height:1.5">
+      <b style="color:var(--text)">Buyers:</b> professional sports
+      teams, surgical departments, military, aviation, top esports orgs ·
+      <b style="color:var(--text)">Pricing logic:</b> a single
+      prevented surgical error or aviation incident pays for years of
+      subscription ·
+      <b style="color:var(--text)">Why first:</b> smallest TAM but
+      fastest revenue path, willing-to-pay buyers, technical decision-
+      makers, no regulatory burden. Validates the engine on a friendly
+      market.
+    </div>
+  </div>
+
+  <div style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #f06292;border-radius:6px;padding:16px 20px;margin-bottom:12px">
+    <div style="display:flex;justify-content:space-between;align-items:start;gap:10px;margin-bottom:6px">
+      <div style="font-size:14px;font-weight:bold;color:#f06292">Axona Wellness</div>
+      <span style="font-size:9px;color:#f06292;background:rgba(240,98,146,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">WEDGE 5 · CONSUMER · LAST</span>
+    </div>
+    <div style="font-size:11px;color:var(--text);line-height:1.6;margin-bottom:6px">
+      Real cognitive state measurement for consumer apps. Calm,
+      Headspace, Whoop, Oura measure proxies (HRV, time-in-meditation,
+      sleep duration); none of those are cognitive state. Axona
+      measures actual bandwidth recovery, noise reduction, coherence
+      improvement, consolidation quality.
+    </div>
+    <div style="font-size:10px;color:var(--dim);line-height:1.5">
+      <b style="color:var(--text)">Comparable:</b> Calm and Headspace
+      ($2B+ each) but brutally competitive direct B2C ·
+      <b style="color:var(--text)">Better as:</b> platform-licensing
+      to existing consumer brands rather than a direct build ·
+      <b style="color:var(--text)">Why last:</b> save until $50M+ ARR
+      from B2B wedges proves the engine and gives leverage on
+      licensing terms.
+    </div>
+  </div>
+
+  <h3 style="font-size:13px;color:var(--accent2);margin:24px 0 8px">Why one engine, five products</h3>
+  <div class="info">
+    All five products are interpretations of the same cognitive state
+    space (novelty, coherence, bandwidth, valence) applied to different
+    data sources and decision contexts. BCI uses electrode signals;
+    Clinic uses session transcripts; Learn uses learning interactions;
+    Edge uses physiological + behavioral telemetry; Wellness uses
+    consumer-grade biometrics. The engine is shared; the cost of adding
+    a vertical is data integration plus domain-specific UI, not
+    rebuilding the cognitive model. Same parent-platform / vertical-
+    instance pattern as Strata's equities + crypto + FX trajectory.
   </div>
 </div>
 </div>

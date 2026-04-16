@@ -125,7 +125,8 @@ _PAGE = """\
       <div class="tab" data-panels="keyword-tab embed-tab rerank-tab multihop-tab context-tab">Retrieval</div>
       <div class="tab" data-panels="kg-tab anomaly-tab">Structure</div>
       <div class="tab" data-panel="rag-tab">Pipeline</div>
-      <div class="tab" data-panels="pitch-tab bench-tab">Product</div>
+      <div class="tab" data-panels="pitch-tab bench-tab">Pitch</div>
+      <div class="tab" data-panel="products-tab">Products</div>
       <div class="tab" data-panel="theory-tab">Theory</div>
       <div class="tab" data-panel="bridge-tab">PEP &harr; Vectora</div>
     </div>
@@ -637,6 +638,121 @@ _PAGE = """\
     &bull; <b>Latency (index)</b> &mdash; normalized to 1.0 for top-k.
     Vectora's graph walk adds a small constant per query. Tunable via
     the hop depth.
+  </div>
+</div>
+</div>
+
+<!-- ═══ Products ═══════════════════════════════════════════════════ -->
+<div class="panel" id="products-tab">
+<div class="container">
+  <h2>Products &mdash; Vectora's Retrieval Surface</h2>
+  <p class="desc">
+    Vectora ships as a layered retrieval system rather than a single
+    product. Four products carved out of the same engine, each
+    addressing a distinct buyer and use case. All sit on top of an
+    existing vector DB (Pinecone, Weaviate, Qdrant, pgvector) rather
+    than replacing it.
+  </p>
+
+  <div style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #38bdf8;border-radius:6px;padding:16px 20px;margin-bottom:12px">
+    <div style="display:flex;justify-content:space-between;align-items:start;gap:10px;margin-bottom:6px">
+      <div style="font-size:14px;font-weight:bold;color:#38bdf8">Vectora Retrieval API</div>
+      <span style="font-size:9px;color:#38bdf8;background:rgba(56,189,248,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">CORE PRODUCT</span>
+    </div>
+    <div style="font-size:11px;color:var(--text);line-height:1.6;margin-bottom:6px">
+      Drop-in retrieval API that wraps an existing vector DB. Replaces
+      top-k nearest neighbors with graph-based spreading activation,
+      surfacing second-hop results that vector search misses. Hybrid
+      keyword + semantic + knowledge-graph edges merged and re-ranked.
+    </div>
+    <div style="font-size:10px;color:var(--dim);line-height:1.5">
+      <b style="color:var(--text)">Buyers:</b> RAG-pipeline teams,
+      enterprise search, knowledge-management products ·
+      <b style="color:var(--text)">Differentiator:</b> the second-hop
+      result that answers the question the user could not have asked ·
+      <b style="color:var(--text)">Integration:</b> sits on top of
+      Pinecone/Weaviate/pgvector; doesn't replace storage.
+    </div>
+  </div>
+
+  <div style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #a3e635;border-radius:6px;padding:16px 20px;margin-bottom:12px">
+    <div style="display:flex;justify-content:space-between;align-items:start;gap:10px;margin-bottom:6px">
+      <div style="font-size:14px;font-weight:bold;color:#a3e635">Vectora Context</div>
+      <span style="font-size:9px;color:#a3e635;background:rgba(163,230,53,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">SDK · CONTEXT-AWARE</span>
+    </div>
+    <div style="font-size:11px;color:var(--text);line-height:1.6;margin-bottom:6px">
+      Context-aware personalization layer for LLM apps. Recent user
+      activity becomes a state modulator on the retrieval graph;
+      identical queries return different results depending on what the
+      user was just looking at. Eliminates the "rephrase to add
+      context" tax users currently pay.
+    </div>
+    <div style="font-size:10px;color:var(--dim);line-height:1.5">
+      <b style="color:var(--text)">Buyers:</b> consumer LLM products
+      (chat assistants, search), agent platforms, IDE assistants ·
+      <b style="color:var(--text)">Comparable:</b> Cursor's project-
+      context retrieval, but generalized and pluggable ·
+      <b style="color:var(--text)">Differentiator:</b> context as a
+      first-class state modulator, not a prompt-stuffing hack.
+    </div>
+  </div>
+
+  <div style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #fbbf24;border-radius:6px;padding:16px 20px;margin-bottom:12px">
+    <div style="display:flex;justify-content:space-between;align-items:start;gap:10px;margin-bottom:6px">
+      <div style="font-size:14px;font-weight:bold;color:#fbbf24">Vectora Watch</div>
+      <span style="font-size:9px;color:#fbbf24;background:rgba(251,191,36,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">ANOMALY · NOVELTY</span>
+    </div>
+    <div style="font-size:11px;color:var(--text);line-height:1.6;margin-bottom:6px">
+      Anomaly and novelty surfacing for streaming data. Residual
+      scoring on incoming items against the existing pattern; flags
+      items that diverge as either anomalies (alerting) or genuine
+      novelty (research / discovery). Context-sensitive: what is
+      anomalous shifts as the data shifts.
+    </div>
+    <div style="font-size:10px;color:var(--dim);line-height:1.5">
+      <b style="color:var(--text)">Buyers:</b> security/observability
+      teams, research orgs scanning literature, content-moderation
+      teams, change-detection use cases ·
+      <b style="color:var(--text)">Differentiator:</b> context-sensitive
+      threshold instead of fixed-rule outlier detection ·
+      <b style="color:var(--text)">Same primitive:</b> Strata's
+      Unusual Move Scanner is this product applied to equities.
+    </div>
+  </div>
+
+  <div style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #c084fc;border-radius:6px;padding:16px 20px;margin-bottom:12px">
+    <div style="display:flex;justify-content:space-between;align-items:start;gap:10px;margin-bottom:6px">
+      <div style="font-size:14px;font-weight:bold;color:#c084fc">Vectora Graph</div>
+      <span style="font-size:9px;color:#c084fc;background:rgba(192,132,252,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">KNOWLEDGE GRAPH BUILDER</span>
+    </div>
+    <div style="font-size:11px;color:var(--text);line-height:1.6;margin-bottom:6px">
+      Hybrid knowledge-graph builder. Layers explicit entity-relation
+      structure on top of embedding-derived similarity edges. Same
+      node set, two edge types: precise structure from extraction,
+      broad coverage from embeddings. The Knowledge Graph canvas is
+      the prototype.
+    </div>
+    <div style="font-size:10px;color:var(--dim);line-height:1.5">
+      <b style="color:var(--text)">Buyers:</b> enterprises with
+      structured + unstructured data overlap (legal, healthcare,
+      research) ·
+      <b style="color:var(--text)">Comparable:</b> Neo4j + LlamaIndex
+      separately; Vectora unifies them ·
+      <b style="color:var(--text)">Differentiator:</b> single graph,
+      typed edges, queryable by either path simultaneously.
+    </div>
+  </div>
+
+  <h3 style="font-size:13px;color:var(--accent2);margin:24px 0 8px">Why one engine, four products</h3>
+  <div class="info">
+    All four sit on the same Vectora primitives: nodes (documents,
+    entities, items), typed edges (semantic similarity, knowledge
+    relations, co-occurrence, context), spreading activation
+    (retrieval), residual scoring (novelty/anomaly), state modulation
+    (context). Each product surfaces a different combination of those
+    primitives. The Retrieval API is the foundation; the others are
+    specializations layered on top. Building Vectora Retrieval first
+    builds the substrate for all the others.
   </div>
 </div>
 </div>
