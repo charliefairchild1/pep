@@ -409,25 +409,39 @@ _PAGE = """\
         <div><span style="color:var(--accent)">Axona</span>: <b id="mesh-count-axona">—</b> events</div>
         <div><span style="color:var(--accent)">Lingora</span>: <b id="mesh-count-lingora">—</b> events</div>
         <div><span style="color:var(--accent)">Atria</span>: <b id="mesh-count-atria">—</b> events</div>
+        <div><span style="color:var(--accent)">Vectora</span>: <b id="mesh-count-vectora">—</b> events</div>
+        <div><span style="color:var(--accent)">Strata</span>: <b id="mesh-count-strata">—</b> events</div>
       </div>
     </div>
   </div>
-  <div style="display:flex;gap:16px">
-    <div class="canvas-box" style="padding:16px;flex:1">
+  <div style="display:flex;gap:12px;flex-wrap:wrap">
+    <div class="canvas-box" style="padding:14px;flex:1;min-width:280px">
       <div style="font-family:monospace;font-size:11px;color:var(--accent);margin-bottom:8px">&gt; Axona events</div>
-      <div id="mesh-log-axona" style="font-family:monospace;font-size:11px;line-height:1.7;max-height:320px;overflow-y:auto;color:var(--text)">
+      <div id="mesh-log-axona" style="font-family:monospace;font-size:11px;line-height:1.7;max-height:240px;overflow-y:auto;color:var(--text)">
         <span style="color:var(--dim)">polling…</span>
       </div>
     </div>
-    <div class="canvas-box" style="padding:16px;flex:1">
+    <div class="canvas-box" style="padding:14px;flex:1;min-width:280px">
       <div style="font-family:monospace;font-size:11px;color:var(--accent2);margin-bottom:8px">&gt; Lingora events</div>
-      <div id="mesh-log-lingora" style="font-family:monospace;font-size:11px;line-height:1.7;max-height:320px;overflow-y:auto;color:var(--text)">
+      <div id="mesh-log-lingora" style="font-family:monospace;font-size:11px;line-height:1.7;max-height:240px;overflow-y:auto;color:var(--text)">
         <span style="color:var(--dim)">polling…</span>
       </div>
     </div>
-    <div class="canvas-box" style="padding:16px;flex:1">
+    <div class="canvas-box" style="padding:14px;flex:1;min-width:280px">
       <div style="font-family:monospace;font-size:11px;color:var(--warn);margin-bottom:8px">&gt; Atria events</div>
-      <div id="mesh-log-atria" style="font-family:monospace;font-size:11px;line-height:1.7;max-height:320px;overflow-y:auto;color:var(--text)">
+      <div id="mesh-log-atria" style="font-family:monospace;font-size:11px;line-height:1.7;max-height:240px;overflow-y:auto;color:var(--text)">
+        <span style="color:var(--dim)">polling…</span>
+      </div>
+    </div>
+    <div class="canvas-box" style="padding:14px;flex:1;min-width:280px">
+      <div style="font-family:monospace;font-size:11px;color:#38bdf8;margin-bottom:8px">&gt; Vectora events</div>
+      <div id="mesh-log-vectora" style="font-family:monospace;font-size:11px;line-height:1.7;max-height:240px;overflow-y:auto;color:var(--text)">
+        <span style="color:var(--dim)">polling…</span>
+      </div>
+    </div>
+    <div class="canvas-box" style="padding:14px;flex:1;min-width:280px">
+      <div style="font-family:monospace;font-size:11px;color:#e879f9;margin-bottom:8px">&gt; Strata events</div>
+      <div id="mesh-log-strata" style="font-family:monospace;font-size:11px;line-height:1.7;max-height:240px;overflow-y:auto;color:var(--text)">
         <span style="color:var(--dim)">polling…</span>
       </div>
     </div>
@@ -438,7 +452,7 @@ _PAGE = """\
     event-post endpoint where the sibling's canvases POST typed events; an
     events-read endpoint that returns the ring buffer; and a pep-state
     endpoint that returns PEP's live introspection plus cross-reads of the
-    other siblings' buffers. This page polls all three siblings in
+    other siblings' buffers. This page polls all five LAVAS siblings in
     parallel and displays the combined picture.<br><br>
     The mesh is what makes the LAVAS suite feel like one system. Every
     sibling can see what every other sibling is doing in real time, and
@@ -933,17 +947,20 @@ function meshRender(items, elId, colorVar) {
 }
 async function meshPoll() {
   try {
-    const [axState, axEvents, lgEvents, atEvents] = await Promise.all([
-      fetch('/axona/pep-state'),
+    // Use /strata/pep-state as the canonical source since it cross-reads every sibling.
+    const [stState, axEvents, lgEvents, atEvents, vcEvents, stEvents] = await Promise.all([
+      fetch('/strata/pep-state'),
       fetch('/axona/events?limit=40'),
       fetch('/lingora/events?limit=40'),
       fetch('/atria/events?limit=40'),
+      fetch('/vectora/events?limit=40'),
+      fetch('/strata/events?limit=40'),
     ]);
-    if (axState.ok) {
-      const s = await axState.json();
+    if (stState.ok) {
+      const s = await stState.json();
       const lbl = document.getElementById('pep-link-label');
       const dot = document.getElementById('pep-link-dot');
-      if (lbl) lbl.textContent = 'mesh: ' + (s.llm || '—') + ' · A' + (s.axona_events || 0) + ' · L' + (s.lingora_events || 0) + ' · T' + (s.atria_events || 0);
+      if (lbl) lbl.textContent = 'mesh: ' + (s.llm || '—') + ' · A' + (s.axona_events || 0) + ' · L' + (s.lingora_events || 0) + ' · T' + (s.atria_events || 0) + ' · V' + (s.vectora_events || 0) + ' · S' + (s.strata_events || 0);
       if (dot) dot.style.background = 'var(--accent2)';
       const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
       set('mesh-llm', s.llm || '—');
@@ -953,10 +970,14 @@ async function meshPoll() {
       set('mesh-count-axona', s.axona_events || 0);
       set('mesh-count-lingora', s.lingora_events || 0);
       set('mesh-count-atria', s.atria_events || 0);
+      set('mesh-count-vectora', s.vectora_events || 0);
+      set('mesh-count-strata', s.strata_events || 0);
     }
     if (axEvents.ok) meshRender((await axEvents.json()).items || [], 'mesh-log-axona', 'var(--accent)');
     if (lgEvents.ok) meshRender((await lgEvents.json()).items || [], 'mesh-log-lingora', 'var(--accent2)');
     if (atEvents.ok) meshRender((await atEvents.json()).items || [], 'mesh-log-atria', 'var(--warn)');
+    if (vcEvents.ok) meshRender((await vcEvents.json()).items || [], 'mesh-log-vectora', '#38bdf8');
+    if (stEvents.ok) meshRender((await stEvents.json()).items || [], 'mesh-log-strata', '#e879f9');
   } catch (err) {
     const lbl = document.getElementById('pep-link-label');
     const dot = document.getElementById('pep-link-dot');

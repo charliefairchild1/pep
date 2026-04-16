@@ -100,6 +100,7 @@ _PAGE = """\
       <div class="tab" data-panel="cases-tab">Case Studies</div>
       <div class="tab" data-panel="composer-tab">Composer</div>
       <div class="tab" data-panel="sandbox-tab">Sandbox</div>
+      <div class="tab" data-panel="gallery-tab">Gallery</div>
       <div class="tab" data-panel="pep-link-tab">PEP &harr; Axona</div>
     </div>
     <select id="canvas-select" onchange="canvasSelect(this.value)"
@@ -4906,6 +4907,31 @@ _PAGE = """\
     (two tightly-connected clusters with sparse bridges), a prediction chain
     (nodes in a line), or anything else. The same handful of rules produce every
     cognitive phenomenon in the app.
+  </div>
+</div>
+</div>
+
+<!-- ═══ Tab: Gallery ══════════════════════════════════════════════ -->
+<div class="panel" id="gallery-tab">
+<div class="container">
+  <h2>Canvas Gallery</h2>
+  <p class="desc">
+    Every canvas in Axona, grouped by tab. Bookmarked canvases float to
+    the top. Click any card to jump directly to that sub-section.
+    Use the filter to narrow down.
+  </p>
+  <div class="controls" style="padding:0 0 12px 0">
+    <input type="text" id="gallery-filter" placeholder="filter canvases…" oninput="galleryRender()"
+      style="background:var(--surface);color:var(--text);border:1px solid var(--border);
+      border-radius:4px;padding:6px 10px;font-family:inherit;font-size:11px;min-width:240px">
+    <button onclick="galleryClearFilter()">clear</button>
+    <span style="margin-left:auto;color:var(--dim)">
+      bookmarked: <b id="gallery-bm-count" style="color:var(--accent)">0</b>
+      &nbsp; total: <b id="gallery-total" style="color:var(--accent)">—</b>
+    </span>
+  </div>
+  <div id="gallery-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px">
+    <span style="color:var(--dim)">building…</span>
   </div>
 </div>
 </div>
@@ -10375,9 +10401,83 @@ document.querySelectorAll('.tab').forEach(t => {
       const active = document.querySelector('.panel.active');
       const btn = document.getElementById('bookmark-btn');
       if (active && btn) btn.textContent = axonaBookmarks().includes(active.id) ? '★' : '☆';
+      if (active && active.id === 'gallery-tab') galleryRender();
     }, 30);
   });
 });
+
+// ═══════════════════════════════════════════════════════════════════════
+// Gallery
+// ═══════════════════════════════════════════════════════════════════════
+function galleryCollectItems() {
+  // Build a list of {id, title, tabLabel, panelId, bookmarked}
+  const out = [];
+  const tabs = Array.from(document.querySelectorAll('.tab'));
+  const skipPanelIds = new Set(['gallery-tab', 'pep-link-tab', 'reference-tab', 'applications-tab']);
+  const bmks = new Set(axonaBookmarks());
+  tabs.forEach(tab => {
+    const pid = tab.dataset.panel;
+    if (!pid || skipPanelIds.has(pid)) return;
+    const panel = document.getElementById(pid);
+    if (!panel) return;
+    const tabLabel = tab.textContent.trim();
+    const h3s = Array.from(panel.querySelectorAll('h3'));
+    if (h3s.length > 1) {
+      h3s.forEach((h3, idx) => {
+        if (!h3.id) h3.id = pid + '-sub-' + idx;
+        let title = h3.textContent.trim();
+        const dashIdx = title.indexOf('—');
+        if (dashIdx > 0) title = title.slice(0, dashIdx).trim();
+        out.push({ id: h3.id, title, tabLabel, panelId: pid, bookmarked: bmks.has(h3.id) });
+      });
+    } else {
+      const h2 = panel.querySelector('h2');
+      let title = h2 ? h2.textContent.trim() : pid;
+      const dashIdx = title.indexOf('—');
+      if (dashIdx > 0) title = title.slice(0, dashIdx).trim();
+      out.push({ id: pid, title, tabLabel, panelId: pid, bookmarked: bmks.has(pid) });
+    }
+  });
+  return out;
+}
+function galleryClearFilter() {
+  const inp = document.getElementById('gallery-filter');
+  if (inp) { inp.value = ''; galleryRender(); }
+}
+function galleryRender() {
+  const grid = document.getElementById('gallery-grid');
+  if (!grid) return;
+  const items = galleryCollectItems();
+  const q = (document.getElementById('gallery-filter')?.value || '').toLowerCase().trim();
+  const filtered = q ? items.filter(it => (it.title + ' ' + it.tabLabel).toLowerCase().includes(q)) : items;
+  // Sort: bookmarked first, then by tab, then by title
+  filtered.sort((a, b) => {
+    if (a.bookmarked !== b.bookmarked) return a.bookmarked ? -1 : 1;
+    if (a.tabLabel !== b.tabLabel) return a.tabLabel.localeCompare(b.tabLabel);
+    return a.title.localeCompare(b.title);
+  });
+  const totalEl = document.getElementById('gallery-total');
+  const bmEl = document.getElementById('gallery-bm-count');
+  if (totalEl) totalEl.textContent = items.length;
+  if (bmEl) bmEl.textContent = items.filter(i => i.bookmarked).length;
+  if (!filtered.length) {
+    grid.innerHTML = '<span style="color:var(--dim)">no matches</span>';
+    return;
+  }
+  grid.innerHTML = filtered.map(it => {
+    const star = it.bookmarked ? '★ ' : '';
+    return '<div onclick="galleryJump(\\'' + it.id + '\\')" ' +
+      'style="background:var(--surface);border:1px solid ' + (it.bookmarked ? 'var(--accent)' : 'var(--border)') + ';' +
+      'border-radius:6px;padding:12px 14px;cursor:pointer;transition:border-color 0.15s" ' +
+      'onmouseover="this.style.borderColor=\\'var(--accent)\\'" ' +
+      'onmouseout="this.style.borderColor=\\'' + (it.bookmarked ? 'var(--accent)' : 'var(--border)') + '\\'">' +
+      '<div style="font-size:9px;color:var(--dim);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:4px">' + it.tabLabel + '</div>' +
+      '<div style="font-size:12px;color:var(--text);font-weight:bold">' + star + it.title + '</div>' +
+      '</div>';
+  }).join('');
+}
+function galleryJump(id) { canvasSelect(id); }
+setTimeout(() => { if (document.querySelector('.panel.active')?.id === 'gallery-tab') galleryRender(); }, 120);
 
 (function installGlossary() {
   const terms = {

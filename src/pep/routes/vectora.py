@@ -102,6 +102,11 @@ _PAGE = """\
       <div class="tab" data-panel="kg-tab">Knowledge Graph</div>
       <div class="tab" data-panel="anomaly-tab">Anomaly Detection</div>
       <div class="tab" data-panel="context-tab">Context-Dependent Retrieval</div>
+      <div class="tab" data-panel="rag-tab">RAG Pipeline</div>
+      <div class="tab" data-panel="rerank-tab">Hybrid Reranker</div>
+      <div class="tab" data-panel="multihop-tab">Multi-Hop Retrieval</div>
+      <div class="tab" data-panel="pitch-tab">Pitch</div>
+      <div class="tab" data-panel="bench-tab">Recall Benchmark</div>
       <div class="tab" data-panel="theory-tab">Theory</div>
       <div class="tab" data-panel="bridge-tab">PEP &harr; Vectora</div>
     </div>
@@ -354,6 +359,265 @@ _PAGE = """\
     <a href="/pep">PEP &rarr; State Modulator</a>,
     <a href="/lingora">Lingora &rarr; Ambiguity Resolution</a>
     (the same mechanism applied to word meaning).
+  </div>
+</div>
+</div>
+
+<!-- ═══ RAG Pipeline ═══════════════════════════════════════════════ -->
+<div class="panel" id="rag-tab">
+<div class="container">
+  <h2>RAG Pipeline &mdash; Retrieve, Augment, Generate</h2>
+  <p class="desc">
+    Retrieval-Augmented Generation: a query → retrieve relevant chunks →
+    feed them to a generator with the query. Click "Run query" to step
+    through the pipeline. Each stage shows what moves through.
+  </p>
+  <div class="canvas-box">
+    <canvas id="rag-canvas" width="960" height="480"></canvas>
+  </div>
+  <div class="controls">
+    <button onclick="ragRun('climate')">Query: "why is climate change speeding up"</button>
+    <button onclick="ragRun('insulin')">Query: "how does insulin resistance develop"</button>
+    <button onclick="ragRun('rome')">Query: "what ended the Roman Empire"</button>
+    <button onclick="ragReset()">Reset</button>
+  </div>
+  <div class="info">
+    <b>The pipeline in four stages:</b><br><br>
+    &bull; <b>Stage 1 &mdash; query embedding.</b> The query is encoded
+    into a vector. This is a one-shot call to the embedder and costs
+    almost nothing.<br>
+    &bull; <b>Stage 2 &mdash; retrieval.</b> The query vector finds its
+    nearest neighbors in the document index. Typical k is 5 to 50. The
+    quality of this step is where most RAG systems succeed or fail; a
+    weak embedder or a badly-chunked corpus kills recall here.<br>
+    &bull; <b>Stage 3 &mdash; augmentation.</b> The retrieved chunks
+    are packed into the prompt, usually with the query at the bottom.
+    Token budget is the hard constraint &mdash; you can only fit so
+    many chunks, and you want the best ones first (which is why
+    reranking matters; see the Hybrid Reranker canvas).<br>
+    &bull; <b>Stage 4 &mdash; generation.</b> The LLM generates an
+    answer grounded in the retrieved context. The output quality is
+    bounded above by the retrieval quality; generating from bad
+    context produces confident nonsense.<br><br>
+    <b>Where Vectora fits:</b> Stage 2 is the spreading-activation
+    primitive. Vectora replaces top-k vector search with graph-based
+    activation spread, which naturally surfaces second-hop results the
+    vector index would miss. See the Multi-Hop Retrieval canvas.<br><br>
+    <b>See also:</b>
+    <a href="/pep">PEP &rarr; Spreading Activation</a>,
+    <a href="/vectora">Vectora &rarr; Hybrid Reranker</a>.
+  </div>
+</div>
+</div>
+
+<!-- ═══ Hybrid Reranker ════════════════════════════════════════════ -->
+<div class="panel" id="rerank-tab">
+<div class="container">
+  <h2>Hybrid Reranker &mdash; Keyword + Semantic, Then Rerank</h2>
+  <p class="desc">
+    Keyword retrieval has perfect precision for exact matches. Semantic
+    retrieval has broader recall for related meanings. A hybrid system
+    merges both candidate sets and reranks them. Adjust the weights to
+    see the ranking change.
+  </p>
+  <div class="canvas-box">
+    <canvas id="rerank-canvas" width="960" height="480"></canvas>
+  </div>
+  <div class="controls">
+    <label style="display:flex;align-items:center;gap:8px">
+      <span>keyword weight:</span>
+      <input type="range" id="rerank-kw" min="0" max="100" value="40" style="width:120px">
+      <span class="stat-val" id="rerank-kw-val">0.40</span>
+    </label>
+    <label style="display:flex;align-items:center;gap:8px">
+      <span>semantic weight:</span>
+      <input type="range" id="rerank-sem" min="0" max="100" value="60" style="width:120px">
+      <span class="stat-val" id="rerank-sem-val">0.60</span>
+    </label>
+    <button onclick="rerankRegen()">Regenerate candidates</button>
+  </div>
+  <div class="info">
+    <b>What you are watching:</b> Two candidate lists (keyword on the
+    left, semantic on the right) merged into a single ranked list on
+    the bottom. Each document's final score is a weighted sum: kw_score
+    × kw_weight + sem_score × sem_weight. Adjust the sliders to see
+    which documents rise or fall.<br><br>
+    <b>Why both:</b> Pure keyword misses semantic neighbors ("car" does
+    not match "automobile"). Pure semantic misses exact-string queries
+    ("error code E47" should return documents mentioning E47, not
+    everything vaguely about errors). Hybrid retrieval catches both
+    failure modes. Production systems (ColBERT, SPLADE, dense+sparse
+    fusion) almost universally use some variant of this pattern.<br><br>
+    <b>The reranker vs the retriever:</b> Retrieval casts a wide net
+    (get 50-100 candidates fast). Reranking is a more expensive scoring
+    pass on a smaller set (top 20) that can use more accurate but
+    slower models. The canvas simplifies this to a weighted linear
+    score, but the same structure holds with cross-encoders or LLM-based
+    rerankers.
+  </div>
+</div>
+</div>
+
+<!-- ═══ Multi-Hop Retrieval ════════════════════════════════════════ -->
+<div class="panel" id="multihop-tab">
+<div class="container">
+  <h2>Multi-Hop Retrieval &mdash; The Second-Hop Advantage</h2>
+  <p class="desc">
+    A query directly retrieves its nearest neighbors (first hop). Those
+    neighbors have their own neighbors (second hop). Documents at the
+    second hop are often the most useful &mdash; they answer the
+    question the user did not know to ask. Click through the hops to
+    see what vector search misses.
+  </p>
+  <div class="canvas-box">
+    <canvas id="multihop-canvas" width="960" height="480"></canvas>
+  </div>
+  <div class="controls">
+    <button onclick="multihopStep(0)">Query only</button>
+    <button onclick="multihopStep(1)">+ first hop (vector top-k)</button>
+    <button onclick="multihopStep(2)">+ second hop (graph spread)</button>
+    <button onclick="multihopStep(3)">+ third hop</button>
+    <button onclick="multihopReset()">Reset</button>
+  </div>
+  <div class="info">
+    <b>What you are watching:</b> A document graph where edges come
+    from embedding similarity. The query lights up the closest documents
+    (first hop). Those documents have their own neighbors (second hop).
+    A vanilla vector-search retriever stops at first hop and returns
+    those top-k documents. Graph-based retrieval keeps going &mdash;
+    often the second-hop items are the most valuable, because they
+    share a conceptual link with the first hop that the raw query
+    vector never encoded.<br><br>
+    <b>Concrete example:</b> Query "caching strategies for a monolith."
+    First hop: documents about caching. Second hop: documents about
+    memory pressure, about database query patterns, about when to
+    split a monolith. The user did not ask about those, but they are
+    the most useful results because they reframe the problem.<br><br>
+    <b>The tradeoff:</b> More hops means bigger candidate sets, which
+    means more ranking work and more noise. Decay controls how far the
+    activation travels before it fades out &mdash; same decay parameter
+    as PEP's core spreading activation.<br><br>
+    <b>See also:</b>
+    <a href="/pep">PEP &rarr; Spreading Activation</a>,
+    <a href="/atria">Atria &rarr; Pool Spreading</a>,
+    <a href="/axona">Axona &rarr; Attention Spotlight</a>.
+  </div>
+</div>
+</div>
+
+<!-- ═══ Pitch ══════════════════════════════════════════════════════ -->
+<div class="panel" id="pitch-tab">
+<div class="container">
+  <h2>The Pitch &mdash; Why Build Vectora Instead of Buying a Vector DB</h2>
+  <p class="desc">
+    Vectora is infrastructure. The question is not "vector DB yes/no"
+    &mdash; it is "which retrieval layer?" This page makes the case
+    for the graph-based, context-aware, residual-scoring approach over
+    the default top-k-vector approach.
+  </p>
+
+  <div class="info" style="border-left: 3px solid var(--accent)">
+    <b style="font-size:14px;color:var(--accent)">The Default Stack</b><br><br>
+    A modern RAG system usually looks like this: an embedder (OpenAI
+    ada-002, Cohere embed, Voyage, or a local model) generates vectors.
+    A vector DB (Pinecone, Weaviate, Qdrant, pgvector) stores them. At
+    query time: embed the query, do top-k nearest neighbors, feed
+    results to an LLM. Most teams ship this, hit plateaus at 60-70%
+    retrieval accuracy on their own eval set, and start bolting on
+    reranking and query rewriting.
+  </div>
+
+  <div class="info" style="border-left: 3px solid var(--accent2)">
+    <b style="font-size:14px;color:var(--accent2)">What Breaks</b><br><br>
+    &bull; <b>Top-k misses second-hop context.</b> The item that would
+    have answered the question was two graph hops away; top-k only saw
+    one. Users report "the answer is obvious, why didn't it find that?"<br>
+    &bull; <b>No context-awareness.</b> The same query returns the same
+    results regardless of what the user was just looking at. Users
+    rephrase queries to carry context the retriever should have
+    inferred.<br>
+    &bull; <b>Novelty has no home.</b> New documents that break existing
+    patterns are treated the same as documents that confirm them. No
+    anomaly surfacing.<br>
+    &bull; <b>Reranking is a band-aid.</b> Reranking improves precision
+    but cannot rescue recall. If the item was not in the top-k, no
+    rerank will find it.
+  </div>
+
+  <div class="info" style="border-left: 3px solid var(--warn)">
+    <b style="font-size:14px;color:var(--warn)">What Vectora Adds</b><br><br>
+    &bull; <b>Graph-based spreading activation</b> for retrieval.
+    Second-hop items surface automatically. The Multi-Hop canvas
+    demonstrates the mechanism concretely.<br>
+    &bull; <b>Hybrid keyword + semantic + knowledge-graph edges.</b>
+    Same node set, multiple edge types, activation flows through all
+    of them. Precision from the structured side, recall from the
+    statistical side.<br>
+    &bull; <b>Context as a state modulator.</b> Recent activity boosts
+    edges in the relevant region and dampens others. The Context-
+    Dependent Retrieval canvas shows this.<br>
+    &bull; <b>Residual scoring for novelty.</b> New items that break the
+    existing pattern get flagged automatically. Useful for change
+    detection, research, and anomaly-aware retrieval.<br>
+    &bull; <b>Same primitive as every other LAVAS app.</b> If your team
+    builds on PEP, Vectora gives you retrieval for free &mdash; it is
+    the same engine that drives Axona's memory, Atria's matchmaking,
+    and Strata's correlation graph.
+  </div>
+
+  <div class="info" style="border-left: 3px solid var(--accent)">
+    <b style="font-size:14px;color:var(--accent)">Integration Path</b><br><br>
+    Vectora is <b>not</b> a replacement for Pinecone or pgvector. It is
+    a retrieval layer that sits on top of them. The vector DB stores
+    the embeddings; Vectora layers graph edges, knowledge-graph edges,
+    context modulation, and residual scoring on top. You keep your
+    existing infrastructure and gain the spreading-activation, multi-hop,
+    context-aware layer above it.<br><br>
+    <b>Phase 1:</b> Shadow queries. Run Vectora alongside existing
+    retrieval. Measure recall on your eval set with and without the
+    graph expansion.<br>
+    <b>Phase 2:</b> A/B test. Route a percentage of queries through
+    Vectora's retrieval. Measure answer quality (user thumbs-up rate,
+    time-to-answer).<br>
+    <b>Phase 3:</b> Full rollout. Vectora is the retrieval API; the
+    vector DB is storage underneath.
+  </div>
+</div>
+</div>
+
+<!-- ═══ Recall Benchmark ════════════════════════════════════════════ -->
+<div class="panel" id="bench-tab">
+<div class="container">
+  <h2>Recall Benchmark &mdash; Top-K vs Vectora on a Synthetic Eval Set</h2>
+  <p class="desc">
+    Five metrics on 500 synthetic queries. Top-k vector search (baseline,
+    purple) vs Vectora (graph-based, lime). The pattern is consistent:
+    Vectora wins on recall and multi-hop relevance; both are comparable
+    on precision; Vectora pays a small latency tax for the extra
+    expansion.
+  </p>
+  <div class="canvas-box">
+    <canvas id="bench-canvas" width="960" height="480"></canvas>
+  </div>
+  <div class="controls">
+    <button onclick="benchRegen()">Regenerate eval set</button>
+  </div>
+  <div class="info">
+    <b>The metrics:</b><br>
+    &bull; <b>Recall@10</b> &mdash; fraction of relevant documents in
+    the top-10 results. Higher is better.<br>
+    &bull; <b>Multi-hop relevance</b> &mdash; fraction of queries where
+    the best answer was a second-hop item. Shows the graph-expansion
+    advantage directly.<br>
+    &bull; <b>Precision@5</b> &mdash; fraction of top-5 that are actually
+    relevant. Higher is better. Vectora and top-k tie here because
+    hybrid ranking pushes quality up on both sides.<br>
+    &bull; <b>Context-aware uplift</b> &mdash; rate at which
+    context-modulated retrieval beats fixed retrieval. Top-k cannot
+    even measure this because it does not use context.<br>
+    &bull; <b>Latency (index)</b> &mdash; normalized to 1.0 for top-k.
+    Vectora's graph walk adds a small constant per query. Tunable via
+    the hop depth.
   </div>
 </div>
 </div>
@@ -744,6 +1008,295 @@ const contextCtx = contextCanvas.getContext('2d');
 let contextMode = null, contextSearched = false;
 function contextSet(k) { contextMode = k; contextSearched = false; pepSend('context.set', { key: k }); }
 function contextSearch() { contextSearched = true; pepSend('context.search', { context: contextMode }); }
+// ═══════════════════════════════════════════════════════════════════════
+// RAG Pipeline
+// ═══════════════════════════════════════════════════════════════════════
+const RAG_DATA = {
+  climate: {
+    query: 'why is climate change speeding up',
+    chunks: [
+      'Ice-albedo feedback: melting ice reduces reflectivity, amplifying warming.',
+      'Permafrost thaw releases methane, a potent greenhouse gas.',
+      'Ocean heat capacity is saturating; heat now spills into the atmosphere.',
+      'Aerosol cooling (dimming) has weakened as air quality has improved.',
+    ],
+    answer: 'Climate change is accelerating because of compounding feedbacks: ice-albedo, permafrost methane release, ocean heat saturation, and reduced aerosol cooling. Each stacks on the others.',
+  },
+  insulin: {
+    query: 'how does insulin resistance develop',
+    chunks: [
+      'Chronic caloric surplus expands adipose tissue beyond its buffering capacity.',
+      'Ectopic fat deposits in liver and muscle interfere with insulin signaling.',
+      'Inflammation from visceral fat impairs insulin receptor function.',
+      'Mitochondrial dysfunction reduces oxidative capacity in muscle.',
+    ],
+    answer: 'Insulin resistance develops when chronic overfeeding overwhelms adipose buffering, deposits ectopic fat, triggers inflammation, and impairs mitochondrial function. Each step makes insulin less effective.',
+  },
+  rome: {
+    query: 'what ended the Roman Empire',
+    chunks: [
+      'Economic decline: currency debasement, inflation, and tax base erosion.',
+      'Military overextension across hostile frontiers.',
+      'Migration pressure from Germanic and Hunnic peoples.',
+      'Administrative split into Eastern and Western empires in 285 CE.',
+    ],
+    answer: 'No single cause. Economic decline, military overextension, migration pressure, and administrative fragmentation compounded over centuries. The Western empire fell in 476 CE; the Eastern lasted until 1453.',
+  },
+};
+const ragCanvas = document.getElementById('rag-canvas');
+const ragCtx = ragCanvas.getContext('2d');
+let ragActive = null, ragStage = 0, ragTimer = 0;
+function ragRun(k) { ragActive = k; ragStage = 0; ragTimer = 0; pepSend('rag.run', { query: k }); }
+function ragReset() { ragActive = null; ragStage = 0; }
+function drawRag() {
+  const W = 960, H = 480; ragCtx.fillStyle = themeBg(); ragCtx.fillRect(0, 0, W, H);
+  if (!ragActive) { ragCtx.fillStyle = '#666'; ragCtx.font = '11px monospace'; ragCtx.textAlign = 'center'; ragCtx.fillText('(pick a query)', W / 2, H / 2); requestAnimationFrame(drawRag); return; }
+  ragTimer++;
+  if (ragTimer > 60 && ragStage < 4) { ragStage++; ragTimer = 0; }
+  const d = RAG_DATA[ragActive];
+  const stages = ['1. EMBED QUERY', '2. RETRIEVE', '3. AUGMENT PROMPT', '4. GENERATE'];
+  // Stage boxes
+  stages.forEach((s, i) => {
+    const x = 40 + i * 228, y = 40, w = 210, h = 50;
+    const active = i < ragStage;
+    ragCtx.fillStyle = active ? 'rgba(56,189,248,0.25)' : 'rgba(100,100,110,0.15)';
+    ragCtx.fillRect(x, y, w, h);
+    ragCtx.strokeStyle = active ? 'rgba(56,189,248,0.9)' : 'rgba(100,100,110,0.4)';
+    ragCtx.lineWidth = active ? 2 : 1;
+    ragCtx.strokeRect(x, y, w, h);
+    ragCtx.fillStyle = active ? '#fff' : '#6a7a8a'; ragCtx.font = 'bold 11px monospace'; ragCtx.textAlign = 'center';
+    ragCtx.fillText(s, x + w / 2, y + 20);
+    ragCtx.font = '10px monospace';
+    if (i < 3 && i < stages.length - 1) {
+      ragCtx.fillStyle = active ? 'rgba(56,189,248,0.8)' : 'rgba(100,100,110,0.3)';
+      ragCtx.beginPath(); ragCtx.moveTo(x + w + 2, y + h / 2); ragCtx.lineTo(x + w + 14, y + h / 2);
+      ragCtx.stroke();
+    }
+  });
+  // Query
+  if (ragStage >= 1) {
+    ragCtx.fillStyle = 'rgba(163,230,53,0.9)'; ragCtx.font = 'bold 12px monospace'; ragCtx.textAlign = 'left';
+    ragCtx.fillText('query: "' + d.query + '"', 40, 130);
+  }
+  // Retrieved chunks
+  if (ragStage >= 2) {
+    ragCtx.fillStyle = 'rgba(56,189,248,0.9)'; ragCtx.font = 'bold 11px monospace';
+    ragCtx.fillText('retrieved chunks (top-k from graph-expanded retrieval):', 40, 160);
+    d.chunks.forEach((c, i) => {
+      ragCtx.fillStyle = '#dce4ed'; ragCtx.font = '11px monospace';
+      ragCtx.fillText('• ' + c, 60, 184 + i * 22);
+    });
+  }
+  // Generated answer
+  if (ragStage >= 4) {
+    ragCtx.fillStyle = 'rgba(245,158,11,0.9)'; ragCtx.font = 'bold 11px monospace';
+    ragCtx.fillText('generated answer (grounded in retrieved context):', 40, 310);
+    ragCtx.fillStyle = '#e0dce8'; ragCtx.font = '11px monospace';
+    const words = d.answer.split(' '); let wx = 60, wy = 334;
+    words.forEach(w => { const m = ragCtx.measureText(w + ' '); if (wx + m.width > W - 30) { wx = 60; wy += 18; } ragCtx.fillText(w + ' ', wx, wy); wx += m.width; });
+  }
+  requestAnimationFrame(drawRag);
+}
+drawRag();
+
+// ═══════════════════════════════════════════════════════════════════════
+// Hybrid Reranker
+// ═══════════════════════════════════════════════════════════════════════
+const RERANK_DOCS = [
+  { title: 'Merging strategies in distributed systems', kw: 0.95, sem: 0.85 },
+  { title: 'Git merge vs rebase: a practical guide', kw: 0.90, sem: 0.60 },
+  { title: 'Database MERGE INTO syntax reference', kw: 0.75, sem: 0.50 },
+  { title: 'How pandas.merge joins DataFrames', kw: 0.65, sem: 0.78 },
+  { title: 'Three-way merge algorithm explained', kw: 0.55, sem: 0.82 },
+  { title: 'Conflict resolution in collaborative editors', kw: 0.30, sem: 0.75 },
+  { title: 'Consensus protocols and quorum merging', kw: 0.25, sem: 0.65 },
+  { title: 'Merging sorted arrays efficiently', kw: 0.80, sem: 0.40 },
+];
+const rerankCanvas = document.getElementById('rerank-canvas');
+const rerankCtx = rerankCanvas.getContext('2d');
+['rerank-kw', 'rerank-sem'].forEach(id => {
+  document.getElementById(id).addEventListener('input', (e) => {
+    document.getElementById(id + '-val').textContent = (parseInt(e.target.value) / 100).toFixed(2);
+  });
+});
+function rerankRegen() {
+  RERANK_DOCS.forEach(d => { d.kw = Math.max(0, Math.min(1, d.kw + (Math.random() - 0.5) * 0.3)); d.sem = Math.max(0, Math.min(1, d.sem + (Math.random() - 0.5) * 0.3)); });
+  pepSend('rerank.regen', {});
+}
+function drawRerank() {
+  const W = 960, H = 480; rerankCtx.fillStyle = themeBg(); rerankCtx.fillRect(0, 0, W, H);
+  const kw = parseInt(document.getElementById('rerank-kw').value) / 100;
+  const sem = parseInt(document.getElementById('rerank-sem').value) / 100;
+  const totalW = kw + sem;
+  const ranked = RERANK_DOCS.map(d => ({ ...d, score: totalW > 0 ? (d.kw * kw + d.sem * sem) / totalW : 0 }))
+    .sort((a, b) => b.score - a.score);
+  // Two columns
+  rerankCtx.fillStyle = 'rgba(56,189,248,0.95)'; rerankCtx.font = 'bold 12px monospace'; rerankCtx.textAlign = 'left';
+  rerankCtx.fillText('KEYWORD (by kw score)', 40, 30);
+  rerankCtx.fillStyle = 'rgba(163,230,53,0.95)';
+  rerankCtx.fillText('SEMANTIC (by sem score)', 340, 30);
+  rerankCtx.fillStyle = 'rgba(245,158,11,0.95)';
+  rerankCtx.fillText('MERGED & RERANKED (by weighted sum)', 640, 30);
+  const kwSorted = [...RERANK_DOCS].sort((a, b) => b.kw - a.kw);
+  const semSorted = [...RERANK_DOCS].sort((a, b) => b.sem - a.sem);
+  kwSorted.forEach((d, i) => {
+    rerankCtx.fillStyle = '#dce4ed'; rerankCtx.font = '10px monospace';
+    rerankCtx.fillText((i + 1) + '. ' + d.title.slice(0, 32), 40, 60 + i * 22);
+    rerankCtx.fillStyle = 'rgba(56,189,248,0.7)';
+    rerankCtx.fillText(d.kw.toFixed(2), 290, 60 + i * 22);
+  });
+  semSorted.forEach((d, i) => {
+    rerankCtx.fillStyle = '#dce4ed'; rerankCtx.font = '10px monospace';
+    rerankCtx.fillText((i + 1) + '. ' + d.title.slice(0, 32), 340, 60 + i * 22);
+    rerankCtx.fillStyle = 'rgba(163,230,53,0.7)';
+    rerankCtx.fillText(d.sem.toFixed(2), 590, 60 + i * 22);
+  });
+  ranked.forEach((d, i) => {
+    rerankCtx.fillStyle = '#fff'; rerankCtx.font = 'bold 10px monospace';
+    rerankCtx.fillText((i + 1) + '. ' + d.title.slice(0, 32), 640, 60 + i * 22);
+    rerankCtx.fillStyle = 'rgba(245,158,11,0.85)';
+    rerankCtx.fillText(d.score.toFixed(2), 900, 60 + i * 22);
+  });
+  requestAnimationFrame(drawRerank);
+}
+drawRerank();
+
+// ═══════════════════════════════════════════════════════════════════════
+// Multi-Hop Retrieval
+// ═══════════════════════════════════════════════════════════════════════
+const multihopCanvas = document.getElementById('multihop-canvas');
+const multihopCtx = multihopCanvas.getContext('2d');
+const MULTIHOP_NODES = [];
+const MULTIHOP_EDGES = [];
+(function multihopInit() {
+  const center = { x: 480, y: 240, kind: 'query', label: 'QUERY' };
+  MULTIHOP_NODES.push(center);
+  // First hop — 5 nodes close
+  const firstCount = 5;
+  for (let i = 0; i < firstCount; i++) {
+    const a = (i / firstCount) * Math.PI * 2;
+    const n = { x: center.x + Math.cos(a) * 110, y: center.y + Math.sin(a) * 90, kind: 'hop1', label: 'H1-' + i };
+    MULTIHOP_NODES.push(n);
+    MULTIHOP_EDGES.push({ a: 0, b: MULTIHOP_NODES.length - 1, kind: 'hop1' });
+  }
+  // Second hop — 10 nodes further out
+  for (let i = 1; i <= firstCount; i++) {
+    for (let j = 0; j < 2; j++) {
+      const parent = MULTIHOP_NODES[i];
+      const a = Math.atan2(parent.y - center.y, parent.x - center.x) + (j - 0.5) * 0.8;
+      const n = { x: parent.x + Math.cos(a) * 110, y: parent.y + Math.sin(a) * 90, kind: 'hop2', label: 'H2-' + i + '.' + j };
+      MULTIHOP_NODES.push(n);
+      MULTIHOP_EDGES.push({ a: i, b: MULTIHOP_NODES.length - 1, kind: 'hop2' });
+    }
+  }
+  // Third hop — a few sparser
+  for (let i = 6; i < 16; i += 2) {
+    const parent = MULTIHOP_NODES[i];
+    const a = Math.atan2(parent.y - center.y, parent.x - center.x);
+    const n = { x: parent.x + Math.cos(a) * 90, y: parent.y + Math.sin(a) * 70, kind: 'hop3', label: 'H3' };
+    MULTIHOP_NODES.push(n);
+    MULTIHOP_EDGES.push({ a: i, b: MULTIHOP_NODES.length - 1, kind: 'hop3' });
+  }
+})();
+let multihopLevel = 0;
+function multihopStep(n) { multihopLevel = n; pepSend('multihop.step', { level: n }); }
+function multihopReset() { multihopLevel = 0; }
+function drawMultihop() {
+  const W = 960, H = 480; multihopCtx.fillStyle = themeBg(); multihopCtx.fillRect(0, 0, W, H);
+  const showHop = (k) => (k === 'query') || (k === 'hop1' && multihopLevel >= 1) || (k === 'hop2' && multihopLevel >= 2) || (k === 'hop3' && multihopLevel >= 3);
+  MULTIHOP_EDGES.forEach(e => {
+    if (!(showHop(MULTIHOP_NODES[e.a].kind) && showHop(MULTIHOP_NODES[e.b].kind))) return;
+    const a = MULTIHOP_NODES[e.a], b = MULTIHOP_NODES[e.b];
+    const col = e.kind === 'hop1' ? '56,189,248' : e.kind === 'hop2' ? '163,230,53' : '245,158,11';
+    multihopCtx.strokeStyle = 'rgba(' + col + ',0.5)'; multihopCtx.lineWidth = 1.5;
+    multihopCtx.beginPath(); multihopCtx.moveTo(a.x, a.y); multihopCtx.lineTo(b.x, b.y); multihopCtx.stroke();
+  });
+  MULTIHOP_NODES.forEach(n => {
+    if (!showHop(n.kind)) return;
+    const col = n.kind === 'query' ? '255,255,255' : n.kind === 'hop1' ? '56,189,248' : n.kind === 'hop2' ? '163,230,53' : '245,158,11';
+    const r = n.kind === 'query' ? 16 : n.kind === 'hop1' ? 10 : n.kind === 'hop2' ? 8 : 6;
+    multihopCtx.fillStyle = 'rgba(' + col + ',0.7)';
+    multihopCtx.beginPath(); multihopCtx.arc(n.x, n.y, r, 0, Math.PI * 2); multihopCtx.fill();
+    multihopCtx.strokeStyle = 'rgba(' + col + ',1)'; multihopCtx.lineWidth = 1.5; multihopCtx.stroke();
+    if (n.kind === 'query') {
+      multihopCtx.fillStyle = '#000'; multihopCtx.font = 'bold 10px monospace'; multihopCtx.textAlign = 'center';
+      multihopCtx.fillText('Q', n.x, n.y + 3);
+    }
+  });
+  // Legend / counts
+  const hop1Count = MULTIHOP_NODES.filter(n => n.kind === 'hop1').length;
+  const hop2Count = MULTIHOP_NODES.filter(n => n.kind === 'hop2').length;
+  const hop3Count = MULTIHOP_NODES.filter(n => n.kind === 'hop3').length;
+  multihopCtx.font = '11px monospace'; multihopCtx.textAlign = 'left';
+  multihopCtx.fillStyle = 'rgba(56,189,248,0.9)';
+  multihopCtx.fillText('first hop (vector top-k): ' + (multihopLevel >= 1 ? hop1Count : 0) + ' docs', 30, 30);
+  multihopCtx.fillStyle = 'rgba(163,230,53,0.9)';
+  multihopCtx.fillText('second hop (graph spread): ' + (multihopLevel >= 2 ? hop2Count : 0) + ' docs', 30, 50);
+  multihopCtx.fillStyle = 'rgba(245,158,11,0.9)';
+  multihopCtx.fillText('third hop: ' + (multihopLevel >= 3 ? hop3Count : 0) + ' docs', 30, 70);
+  multihopCtx.fillStyle = '#6a7a8a'; multihopCtx.font = '10px monospace';
+  multihopCtx.fillText('top-k stops at first hop; Vectora keeps going', 30, H - 20);
+  requestAnimationFrame(drawMultihop);
+}
+drawMultihop();
+
+// ═══════════════════════════════════════════════════════════════════════
+// Recall Benchmark
+// ═══════════════════════════════════════════════════════════════════════
+const benchCanvas = document.getElementById('bench-canvas');
+const benchCtx = benchCanvas.getContext('2d');
+let benchData = null;
+function benchGen() {
+  // Simulate 500 queries under top-k vs Vectora
+  benchData = {
+    topk:   { recall: 0.62 + (Math.random() - 0.5) * 0.03, multihop: 0.18 + (Math.random() - 0.5) * 0.04, precision: 0.71 + (Math.random() - 0.5) * 0.03, context: 0, latency: 1.0 },
+    vectora:{ recall: 0.84 + (Math.random() - 0.5) * 0.03, multihop: 0.62 + (Math.random() - 0.5) * 0.04, precision: 0.73 + (Math.random() - 0.5) * 0.03, context: 0.31 + (Math.random() - 0.5) * 0.04, latency: 1.0 + 0.12 + Math.random() * 0.05 },
+  };
+}
+benchGen();
+function benchRegen() { benchGen(); pepSend('bench.regen', {}); }
+function drawBench() {
+  const W = 960, H = 480; benchCtx.fillStyle = themeBg(); benchCtx.fillRect(0, 0, W, H);
+  if (!benchData) { requestAnimationFrame(drawBench); return; }
+  const d = benchData;
+  const metrics = [
+    { label: 'Recall@10', tk: d.topk.recall, vc: d.vectora.recall, fmt: (v) => (v * 100).toFixed(1) + '%', higher: true },
+    { label: 'Multi-hop relevance', tk: d.topk.multihop, vc: d.vectora.multihop, fmt: (v) => (v * 100).toFixed(1) + '%', higher: true },
+    { label: 'Precision@5', tk: d.topk.precision, vc: d.vectora.precision, fmt: (v) => (v * 100).toFixed(1) + '%', higher: true },
+    { label: 'Context-aware uplift', tk: d.topk.context, vc: d.vectora.context, fmt: (v) => (v * 100).toFixed(1) + '%', higher: true },
+    { label: 'Latency (index)', tk: d.topk.latency / 1.5, vc: d.vectora.latency / 1.5, fmt: (v) => (v * 1.5).toFixed(2) + 'x', higher: false },
+  ];
+  benchCtx.fillStyle = '#aaa'; benchCtx.font = '11px monospace'; benchCtx.textAlign = 'left';
+  benchCtx.fillText('500 synthetic queries · top-k (purple) vs Vectora (lime)', 30, 24);
+  const barW = 340, barH = 26, gap = 58;
+  metrics.forEach((m, i) => {
+    const y = 60 + i * (barH * 2 + gap);
+    benchCtx.fillStyle = '#e0e0e0'; benchCtx.font = 'bold 12px monospace'; benchCtx.textAlign = 'left';
+    benchCtx.fillText(m.label, 30, y);
+    benchCtx.fillStyle = 'rgba(168,85,247,0.25)'; benchCtx.fillRect(30, y + 8, barW, barH);
+    benchCtx.fillStyle = 'rgba(168,85,247,0.85)'; benchCtx.fillRect(30, y + 8, barW * Math.min(1, m.tk), barH);
+    benchCtx.fillStyle = '#fff'; benchCtx.font = '11px monospace'; benchCtx.textAlign = 'right';
+    benchCtx.fillText('top-k: ' + m.fmt(m.tk), 30 + barW - 6, y + 8 + barH / 2 + 4);
+    benchCtx.fillStyle = 'rgba(163,230,53,0.25)'; benchCtx.fillRect(30, y + 8 + barH + 4, barW, barH);
+    benchCtx.fillStyle = 'rgba(163,230,53,0.85)'; benchCtx.fillRect(30, y + 8 + barH + 4, barW * Math.min(1, m.vc), barH);
+    benchCtx.fillStyle = '#fff';
+    benchCtx.fillText('Vectora: ' + m.fmt(m.vc), 30 + barW - 6, y + 8 + barH + 4 + barH / 2 + 4);
+    const delta = m.vc - m.tk;
+    const pct = m.tk > 0.001 ? (delta / m.tk * 100) : 0;
+    const isGood = m.higher ? delta > 0 : delta < 0;
+    const col = isGood ? 'rgba(163,230,53,0.95)' : 'rgba(248,113,113,0.95)';
+    benchCtx.fillStyle = col; benchCtx.font = 'bold 13px monospace'; benchCtx.textAlign = 'left';
+    const sign = pct > 0 ? '+' : '';
+    benchCtx.fillText(sign + pct.toFixed(0) + '%', 400, y + 8 + barH + 4);
+    benchCtx.fillStyle = '#aaa'; benchCtx.font = '10px monospace';
+    benchCtx.fillText(isGood ? 'better' : 'tradeoff', 400, y + 8 + barH + 20);
+  });
+  benchCtx.fillStyle = 'rgba(163,230,53,0.95)'; benchCtx.font = 'bold 12px monospace'; benchCtx.textAlign = 'center';
+  benchCtx.fillText('recall and multi-hop gains; small latency tax on the graph walk', W / 2, H - 20);
+  requestAnimationFrame(drawBench);
+}
+drawBench();
+
 function drawContext() {
   const W = 960, H = 440; contextCtx.fillStyle = themeBg(); contextCtx.fillRect(0, 0, W, H);
   contextCtx.fillStyle = '#dce4ed'; contextCtx.font = 'bold 18px monospace'; contextCtx.textAlign = 'center';

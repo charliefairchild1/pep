@@ -25,12 +25,20 @@ primitives.
 
 ## Live surfaces
 - **`/pep`** — PEP's own teaching page. Hero, four primitive demos, live mesh
-  dashboard, theory, and cross-links to the LAVAS siblings. Route at
-  `pep/src/pep/routes/pep_home.py`.
-- **`/math`** — the math playground. Legacy; some early demos.
+  dashboard (polls all five LAVAS siblings), theory, and cross-links.
+  Route at `pep/src/pep/routes/pep_home.py`.
+- **`/math`** — the math playground. Legacy; early demos.
 - **`/axona`** — Axona's ~60 canvases applying PEP to cognition.
 - **`/lingora`** — Lingora's ~70 canvases applying PEP to language.
-- **`/atria`** — Atria's ~20 canvases applying PEP to matching.
+- **`/atria`** — Atria's ~20 canvases applying PEP to matching (plus Pitch,
+  Before/After Dashboard, Composer, Case Studies tabs).
+- **`/vectora`** — Vectora's canvases applying PEP to data organization and
+  retrieval (keyword vs semantic, embedding spaces, knowledge graphs,
+  anomaly detection, context-dependent retrieval, RAG pipeline, hybrid
+  reranker, multi-hop retrieval, pitch, recall benchmark).
+- **`/strata`** — Strata's canvases applying PEP to markets (correlation
+  graph, momentum spread, earnings residual, regime modulation, sector
+  rotation).
 - **`/chat`**, **`/ui`**, **`/openai/*`** — the conversational and API surfaces.
 
 ## The mesh
@@ -52,15 +60,22 @@ from the others. The `/pep` home page shows the full mesh in one dashboard.
 
 ## The LAVAS siblings
 All five LAVAS sibling projects live as directories under `~/projects/`:
-- `axona/` — brain and cognition. Already built: full interactive app.
-- `lingora/` — language as a cognitive technology. Already built.
-- `atria/` — matching, compatibility, relational alignment. Already built.
-- `vectora/` — data organization, pattern analysis. Not yet scaffolded.
-- `strata/` — markets, trading, financial decision-making. Not yet scaffolded.
+- `axona/` — brain and cognition. Full interactive app (~60 canvases).
+- `lingora/` — language as a cognitive technology. Full interactive app
+  (~70 canvases).
+- `atria/` — matching, compatibility, relational alignment. Full
+  interactive app plus Pitch, Before/After Dashboard, Composer, and Case
+  Studies tabs targeting game-studio integration.
+- `vectora/` — data organization, pattern analysis, intelligent retrieval.
+  Scaffolded with depth: RAG pipeline, hybrid reranker, multi-hop
+  retrieval, pitch, recall benchmark.
+- `strata/` — markets, trading, financial decision-making. Research
+  sandbox with correlation/momentum/residual/regime/rotation canvases.
 
 Each sibling's live UI is served by PEP's FastAPI server at its route
-(`/axona`, `/lingora`, `/atria`). The package at `~/projects/<name>/` holds
-the theory doc, CLAUDE.md, and scaffold. The real code lives in PEP's routes.
+(`/axona`, `/lingora`, `/atria`, `/vectora`, `/strata`). The package at
+`~/projects/<name>/` holds the theory doc, CLAUDE.md, and scaffold. The
+real code lives in PEP's routes.
 
 ## Development notes
 - Server run: `cd ~/projects/pep && uv run pep serve --reload`
