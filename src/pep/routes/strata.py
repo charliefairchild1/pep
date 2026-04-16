@@ -72,6 +72,10 @@ _PAGE = """\
   .hero .tag { font-size: 10px; color: var(--dim); letter-spacing: 0.2em;
                text-transform: uppercase; margin-bottom: 4px; }
   /* LAVAS switcher + mobile responsive */
+  .cat-btn { padding: 3px 9px; border-radius: 12px; border: 1px solid var(--border);
+             background: var(--surface); color: var(--dim); font-size: 10px; cursor: pointer; font-family: inherit; }
+  .cat-btn:hover { color: var(--text); border-color: var(--accent); }
+  .cat-btn.cat-active { background: var(--accent); color: var(--bg); border-color: var(--accent); }
   .lavas-switch a { color: var(--accent); text-decoration: none; padding: 2px 4px; border-radius: 3px; }
   .lavas-switch a:hover { background: var(--surface); }
   .lavas-switch .lavas-current { color: var(--text); font-weight: bold; padding: 2px 4px; opacity: 0.7; }
@@ -127,7 +131,8 @@ _PAGE = """\
       <div class="tab" data-panel="earnings-tab">Earnings Residual</div>
       <div class="tab" data-panel="regime-tab">Regime Modulation</div>
       <div class="tab" data-panel="rotation-tab">Sector Rotation</div>
-      <div class="tab" data-panels="unusual-tab classify-tab newscore-tab leaderboard-tab">Equities</div>
+      <div class="tab" data-panels="unusual-tab classify-tab newscore-tab">Equities</div>
+      <div class="tab" data-panels="leaderboard-tab catalog-tab strategy-detail-tab">Strategies</div>
       <div class="tab" data-panels="pitch-tab bench-tab">Research Pitch</div>
       <div class="tab" data-panel="theory-tab">Theory</div>
       <div class="tab" data-panel="bridge-tab">PEP &harr; Strata</div>
@@ -495,6 +500,92 @@ _PAGE = """\
     for matchmaker objectives, and Vectora uses for retrieval
     benchmarks. Strategies are nodes; market scenarios are state
     modulators; the leaderboard is residual scoring on returns.
+  </div>
+</div>
+</div>
+
+<!-- ═══ Strategy Catalog ═══════════════════════════════════════ -->
+<div class="panel" id="catalog-tab">
+<div class="container">
+  <h2>Strategy Catalog &mdash; All <span id="cat-count">294</span> Equities Strategies</h2>
+  <p class="desc">
+    Strata's equities vertical ships with 294 paper-trading strategies
+    spanning every major sector, direction, and style. Pure-momentum
+    breakouts to contrarian dip-buyers to hedged sector rotations.
+    Filter by sector or direction; click any card to open it in
+    Strategy Detail.
+  </p>
+  <div class="controls" style="flex-wrap:wrap;gap:6px">
+    <span style="color:var(--dim)">sector:</span>
+    <button onclick="catalogFilter('sector','all')" id="cf-all" class="cat-btn cat-active">all</button>
+    <button onclick="catalogFilter('sector','Tech')" class="cat-btn">Tech</button>
+    <button onclick="catalogFilter('sector','Healthcare')" class="cat-btn">Healthcare</button>
+    <button onclick="catalogFilter('sector','Financial')" class="cat-btn">Financial</button>
+    <button onclick="catalogFilter('sector','Energy')" class="cat-btn">Energy</button>
+    <button onclick="catalogFilter('sector','Industrial')" class="cat-btn">Industrial</button>
+    <button onclick="catalogFilter('sector','Consumer')" class="cat-btn">Consumer</button>
+    <button onclick="catalogFilter('sector','Staples')" class="cat-btn">Staples</button>
+    <button onclick="catalogFilter('sector','Utilities')" class="cat-btn">Utilities</button>
+    <button onclick="catalogFilter('sector','RealEstate')" class="cat-btn">Real Estate</button>
+    <button onclick="catalogFilter('sector','Materials')" class="cat-btn">Materials</button>
+    <button onclick="catalogFilter('sector','Communication')" class="cat-btn">Comm</button>
+    <button onclick="catalogFilter('sector','Mixed')" class="cat-btn">Cross-sector</button>
+  </div>
+  <div class="controls" style="padding-top:0;flex-wrap:wrap;gap:6px">
+    <span style="color:var(--dim)">direction:</span>
+    <button onclick="catalogFilter('dir','all')" class="cat-btn cat-active" id="cf-dir-all">all</button>
+    <button onclick="catalogFilter('dir','long')" class="cat-btn">long</button>
+    <button onclick="catalogFilter('dir','short')" class="cat-btn">short</button>
+    <button onclick="catalogFilter('dir','contrarian_long')" class="cat-btn">contrarian long</button>
+    <button onclick="catalogFilter('dir','contrarian_short')" class="cat-btn">contrarian short</button>
+    <button onclick="catalogFilter('dir','gap_long')" class="cat-btn">gap long</button>
+    <input type="text" id="cat-search" placeholder="search…" oninput="catalogRender()"
+      style="background:var(--surface);color:var(--text);border:1px solid var(--border);
+      border-radius:4px;padding:4px 8px;font-family:inherit;font-size:11px;margin-left:auto;width:160px">
+    <span style="color:var(--dim);font-size:10px">showing <b id="cat-shown" style="color:var(--accent)">—</b> / <b id="cat-total" style="color:var(--accent)">—</b></span>
+  </div>
+  <div id="catalog-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:8px;margin-top:10px">
+    <span style="color:var(--dim)">building catalog…</span>
+  </div>
+</div>
+</div>
+
+<!-- ═══ Strategy Detail ════════════════════════════════════════ -->
+<div class="panel" id="strategy-detail-tab">
+<div class="container">
+  <h2>Strategy Detail &mdash; <span id="sd-name">(pick one from the catalog)</span></h2>
+  <p class="desc">
+    Pick a strategy from the Catalog or use the dropdown to inspect any
+    of the 294. Shows factor weights, direction, description, expected
+    behavior under different market regimes, and which scanner output
+    would trigger an entry.
+  </p>
+  <div class="controls">
+    <select id="sd-select" onchange="strategyDetailPick(this.value)"
+      style="background:var(--surface);color:var(--text);border:1px solid var(--border);
+      border-radius:4px;padding:6px 10px;font-family:inherit;font-size:11px;min-width:300px">
+      <option value="">— choose a strategy —</option>
+    </select>
+  </div>
+  <div class="canvas-box">
+    <canvas id="sd-canvas" width="960" height="560"></canvas>
+  </div>
+  <div class="info">
+    <b>What you are watching:</b> The picked strategy's factor weights
+    as horizontal bars (left), its declared direction and risk
+    parameters (middle), and a "would it trigger?" check against three
+    sample setups (right). Factor weights typically include
+    relativeVolume, unusualScore, gapPct, sectorMomentum, hypeRisk,
+    and priceLevel52w &mdash; the same factors the Unusual Move
+    Scanner produces. Strategies are how Strata's equities vertical
+    converts scanner output into entry decisions.<br><br>
+    <b>The composition:</b> Each strategy is a weighted dot product of
+    factor scores plus filters (market cap, float, price thresholds)
+    plus position-management rules (stop loss %, take profit %, max
+    hold days, max positions, position size %). Same shape across all
+    294. The variation is in the weights and thresholds, not the
+    structure &mdash; which is why adding new strategies is cheap and
+    why a portfolio of strategies makes sense.
   </div>
 </div>
 </div>
@@ -1467,6 +1558,240 @@ function drawLeader() {
   requestAnimationFrame(drawLeader);
 }
 drawLeader();
+
+// ═══════════════════════════════════════════════════════════════════════
+// Strategy Catalog + Detail (Strata equities vertical, 294 strategies)
+// Source: ~/projects/charlie_project/prisma/seed.ts
+// ═══════════════════════════════════════════════════════════════════════
+const STRATEGIES_FULL = [{n:"Tech Momentum",d:"Volume-confirmed tech momentum",dir:"long",s:"Tech"},{n:"Tech Scalper",d:"Ultra-short 1-2 day tech trades on volume spikes",dir:"long",s:"Tech"},{n:"Tech Swing",d:"Multi-day tech trend riding",dir:"long",s:"Tech"},{n:"Tech Breakout",d:"Extreme volume breakouts in tech",dir:"long",s:"Tech"},{n:"Tech Aggressive Momentum",d:"Wide stops, big position sizes for tech momentum",dir:"long",s:"Tech"},{n:"Tech Conservative",d:"Large-cap tech only with tight risk",dir:"long",s:"Tech"},{n:"Tech News Alpha",d:"News-driven tech plays — earnings, product launches",dir:"long",s:"Tech"},{n:"Tech Dip Buyer",d:"Buys tech dips — overreactions in quality names",dir:"contrarian_long",s:"Tech"},{n:"Tech Volatility Play",d:"Rides extreme volatility in mid-cap tech using gap and sector momentum",dir:"contrarian_long",s:"Tech"},{n:"Tech Trend Follower",d:"Extended tech trend following using 52w level and sector momentum",dir:"long",s:"Tech"},{n:"Semiconductor Focus",d:"Chip stocks momentum — cyclical with high beta",dir:"long",s:"Tech"},{n:"Cybersecurity Alpha",d:"Security sector plays — news-driven catalysts",dir:"long",s:"Tech"},{n:"Cloud & SaaS Growth",d:"Cloud/SaaS momentum — subscription model growth plays",dir:"long",s:"Tech"},{n:"Tech Multi-Factor",d:"Balanced multi-factor tech using all available signals",dir:"long",s:"Tech"},{n:"Tech Small Cap Spec",d:"Small-cap tech speculation — high risk, high reward",dir:"long",s:"Tech"},{n:"Tech Short Scalp",d:"Quick tech shorts — fades overextended rallies",dir:"contrarian_short",s:"Tech"},{n:"Tech Short Swing",d:"Multi-day tech shorts on overextended names",dir:"contrarian_short",s:"Tech"},{n:"Tech Aggressive Short",d:"Aggressive tech shorts with wider stops",dir:"contrarian_short",s:"Tech"},{n:"Healthcare Catalyst",d:"News-driven — FDA approvals and trial results",dir:"long",s:"Healthcare"},{n:"Biotech Speculative",d:"High-risk biotech — binary events, big moves",dir:"long",s:"Healthcare"},{n:"Healthcare Momentum",d:"Volume-confirmed healthcare momentum",dir:"long",s:"Healthcare"},{n:"Healthcare Dip Buyer",d:"Buys healthcare dips — overreactions to trial data",dir:"contrarian_long",s:"Healthcare"},{n:"Healthcare Conservative",d:"Large-cap healthcare — steady earners, low hype",dir:"long",s:"Healthcare"},{n:"Healthcare Scalper",d:"Ultra-short healthcare trades on big volume days",dir:"long",s:"Healthcare"},{n:"Healthcare Breakout",d:"Healthcare stocks breaking out with extreme volume",dir:"long",s:"Healthcare"},{n:"Pharma Big Cap",d:"Big pharma plays — slow and steady with news catalysts",dir:"long",s:"Healthcare"},{n:"Biotech Aggressive",d:"Maximum risk biotech — wide stops, big upside targets",dir:"long",s:"Healthcare"},{n:"Healthcare Trend Follower",d:"Extended healthcare trend following",dir:"long",s:"Healthcare"},{n:"Medtech Growth",d:"Medical devices and medtech growth plays",dir:"long",s:"Healthcare"},{n:"Healthcare Multi-Factor",d:"Balanced multi-factor healthcare using all signals",dir:"long",s:"Healthcare"},{n:"Healthcare Volatility",d:"High-volatility healthcare plays",dir:"contrarian_long",s:"Healthcare"},{n:"Healthcare Short",d:"Shorts overextended healthcare — fades hype biotech",dir:"contrarian_short",s:"Healthcare"},{n:"Biotech Short Scalp",d:"Quick biotech shorts on hype spikes",dir:"contrarian_short",s:"Healthcare"},{n:"Healthcare Short Swing",d:"Multi-day healthcare shorts",dir:"contrarian_short",s:"Healthcare"},{n:"Pharma Short",d:"Shorts overvalued pharma on bearish catalysts",dir:"contrarian_short",s:"Healthcare"},{n:"Healthcare Aggressive Short",d:"Aggressive healthcare shorts with wide stops",dir:"contrarian_short",s:"Healthcare"},{n:"Financial Steady",d:"Conservative financials — banks move on macro",dir:"long",s:"Financial"},{n:"Fintech Momentum",d:"Aggressive fintech momentum — COIN, HOOD type",dir:"long",s:"Financial"},{n:"Financial Breakout",d:"Financials breaking out with volume",dir:"long",s:"Financial"},{n:"Financial Swing",d:"Longer financial sector — macro cycles play out slowly",dir:"long",s:"Financial"},{n:"Financial Dip Buyer",d:"Buys financials on macro overreactions",dir:"contrarian_long",s:"Financial"},{n:"Financial Scalper",d:"Quick financial trades on volume spikes",dir:"long",s:"Financial"},{n:"Bank Earnings Play",d:"Banks around earnings — post-announcement drift",dir:"long",s:"Financial"},{n:"Insurance Value",d:"Insurance sector value plays — rate cycle driven",dir:"long",s:"Financial"},{n:"Financial Aggressive",d:"Aggressive financial momentum — wide stops",dir:"long",s:"Financial"},{n:"Financial Trend Follower",d:"Extended financial trend following",dir:"long",s:"Financial"},{n:"Regional Banks",d:"Regional bank plays — rate sensitivity",dir:"long",s:"Financial"},{n:"Financial Multi-Factor",d:"Balanced multi-factor financial using all signals",dir:"long",s:"Financial"},{n:"Payments Momentum",d:"Payment processor momentum plays",dir:"long",s:"Financial"},{n:"Financial Short",d:"Shorts overextended financial stocks",dir:"contrarian_short",s:"Financial"},{n:"Fintech Short",d:"Shorts overextended fintech — high beta reversals",dir:"contrarian_short",s:"Financial"},{n:"Financial Short Swing",d:"Multi-day financial shorts",dir:"contrarian_short",s:"Financial"},{n:"Bank Short Scalp",d:"Quick bank shorts on overreaction spikes",dir:"contrarian_short",s:"Financial"},{n:"Financial Aggressive Short",d:"Aggressive financial shorts with wide stops",dir:"contrarian_short",s:"Financial"},{n:"Energy Cyclical",d:"Rides commodity-driven energy cycles",dir:"long",s:"Energy"},{n:"Energy Momentum",d:"Short-hold energy momentum — commodity spikes",dir:"long",s:"Energy"},{n:"Energy Swing",d:"Patient energy swing — multi-week commodity cycles",dir:"long",s:"Energy"},{n:"Energy Dip Buyer",d:"Buys energy dips — commodity pullback opportunities",dir:"contrarian_long",s:"Energy"},{n:"Energy Breakout",d:"Extreme volume energy breakouts",dir:"long",s:"Energy"},{n:"Energy Scalper",d:"Quick energy trades on volume spikes",dir:"long",s:"Energy"},{n:"Oil Majors",d:"Large-cap oil plays — macro-driven with volume",dir:"long",s:"Energy"},{n:"Energy Aggressive",d:"Aggressive energy momentum — wide stops",dir:"long",s:"Energy"},{n:"E&P Focus",d:"Exploration & production company momentum",dir:"long",s:"Energy"},{n:"Midstream Value",d:"Midstream/pipeline value plays — yield driven",dir:"contrarian_long",s:"Energy"},{n:"Energy Trend Follower",d:"Extended energy trend following",dir:"long",s:"Energy"},{n:"Energy Multi-Factor",d:"Balanced multi-factor energy approach",dir:"long",s:"Energy"},{n:"Clean Energy Growth",d:"Clean energy and renewables momentum",dir:"long",s:"Energy"},{n:"Energy Short",d:"Shorts overextended energy spikes — commodity reversal",dir:"contrarian_short",s:"Energy"},{n:"Energy Short Scalp",d:"Quick energy shorts on spike days",dir:"contrarian_short",s:"Energy"},{n:"Energy Short Swing",d:"Multi-day energy shorts on macro reversals",dir:"contrarian_short",s:"Energy"},{n:"Oil Short Aggressive",d:"Aggressive oil shorts with wide stops",dir:"contrarian_short",s:"Energy"},{n:"Energy Conservative Short",d:"Conservative energy shorts — tight risk",dir:"contrarian_short",s:"Energy"},{n:"Industrial Value",d:"Institutional volume in large-cap industrials",dir:"long",s:"Industrial"},{n:"Industrial Momentum",d:"Short-hold industrial momentum",dir:"long",s:"Industrial"},{n:"Industrial Swing",d:"Patient industrial trades — infrastructure spending",dir:"long",s:"Industrial"},{n:"Industrial Dip Buyer",d:"Buys industrial dips — overreactions revert",dir:"contrarian_long",s:"Industrial"},{n:"Defense & Aerospace",d:"Defense plays — government spending cycles",dir:"long",s:"Industrial"},{n:"Industrial Scalper",d:"Quick industrial trades on volume spikes",dir:"long",s:"Industrial"},{n:"Industrial Breakout",d:"Industrial breakouts with extreme volume",dir:"long",s:"Industrial"},{n:"Industrial Aggressive",d:"Aggressive industrial momentum — wide stops",dir:"long",s:"Industrial"},{n:"Transport & Logistics",d:"Shipping, trucking, airlines momentum",dir:"long",s:"Industrial"},{n:"Building & Construction",d:"Building products and construction equipment",dir:"long",s:"Industrial"},{n:"Industrial Trend Follower",d:"Extended industrial trend following",dir:"long",s:"Industrial"},{n:"Industrial Multi-Factor",d:"Balanced multi-factor industrial approach",dir:"long",s:"Industrial"},{n:"Industrial Conservative",d:"Conservative large-cap industrials only",dir:"long",s:"Industrial"},{n:"Industrial Short",d:"Shorts overextended industrial stocks",dir:"contrarian_short",s:"Industrial"},{n:"Industrial Short Scalp",d:"Quick industrial shorts on spike days",dir:"contrarian_short",s:"Industrial"},{n:"Industrial Short Swing",d:"Multi-day industrial shorts",dir:"contrarian_short",s:"Industrial"},{n:"Defense Short",d:"Shorts overvalued defense stocks on sentiment shifts",dir:"contrarian_short",s:"Industrial"},{n:"Industrial Aggressive Short",d:"Aggressive industrial shorts with wide stops",dir:"contrarian_short",s:"Industrial"},{n:"Consumer Sentiment",d:"Retail sentiment-driven consumer plays with hype",dir:"long",s:"Consumer"},{n:"Consumer Momentum",d:"Consumer discretionary momentum — retail trends",dir:"long",s:"Consumer"},{n:"Consumer Swing",d:"Longer consumer plays — earnings and seasonal trends",dir:"long",s:"Consumer"},{n:"Consumer Dip Buyer",d:"Buys consumer brand dips — strong brands recover",dir:"contrarian_long",s:"Consumer"},{n:"Consumer Breakout",d:"Heavy volume consumer breakouts",dir:"long",s:"Consumer"},{n:"Consumer Scalper",d:"Quick consumer trades on volume days",dir:"long",s:"Consumer"},{n:"Retail Momentum",d:"Retail sector momentum — seasonal shopping trends",dir:"long",s:"Consumer"},{n:"Homebuilders",d:"Homebuilder plays — rate and housing cycle driven",dir:"long",s:"Consumer"},{n:"Travel & Leisure",d:"Travel and leisure momentum plays",dir:"long",s:"Consumer"},{n:"EV & Auto",d:"Electric vehicle and auto sector plays",dir:"long",s:"Consumer"},{n:"Consumer Aggressive",d:"Aggressive consumer momentum — wide stops",dir:"long",s:"Consumer"},{n:"Consumer Trend Follower",d:"Extended consumer trend following",dir:"long",s:"Consumer"},{n:"Consumer Multi-Factor",d:"Balanced multi-factor consumer approach",dir:"long",s:"Consumer"},{n:"Consumer Short",d:"Shorts overextended consumer — sentiment reversals",dir:"contrarian_short",s:"Consumer"},{n:"Consumer Short Scalp",d:"Quick consumer shorts on hype spikes",dir:"contrarian_short",s:"Consumer"},{n:"Consumer Short Swing",d:"Multi-day consumer shorts",dir:"contrarian_short",s:"Consumer"},{n:"EV Short",d:"Shorts overextended EV and hype auto names",dir:"contrarian_short",s:"Consumer"},{n:"Consumer Aggressive Short",d:"Aggressive consumer shorts with wide stops",dir:"contrarian_short",s:"Consumer"},{n:"Staples Steady",d:"Conservative staples — defensive, low vol",dir:"long",s:"Staples"},{n:"Staples Breakout",d:"Staples breakout — rare but powerful",dir:"long",s:"Staples"},{n:"Staples Momentum",d:"Short-hold staples momentum — sector rotation",dir:"long",s:"Staples"},{n:"Staples Dip Buyer",d:"Buys staples dips — defensive names bounce back",dir:"contrarian_long",s:"Staples"},{n:"Staples Scalper",d:"Quick staples trades on unusual days",dir:"long",s:"Staples"},{n:"Staples Swing",d:"Multi-week staples holds — rotation and macro",dir:"long",s:"Staples"},{n:"Food & Beverage",d:"Food and beverage sector value plays",dir:"long",s:"Staples"},{n:"Staples Aggressive",d:"Aggressive staples momentum — wider stops",dir:"long",s:"Staples"},{n:"Staples Trend Follower",d:"Extended staples trend following",dir:"long",s:"Staples"},{n:"Staples Multi-Factor",d:"Balanced multi-factor staples approach",dir:"long",s:"Staples"},{n:"Discount Retail",d:"Discount retail and dollar store plays",dir:"long",s:"Consumer"},{n:"Staples Short",d:"Shorts overextended staples — rare but profitable",dir:"contrarian_short",s:"Staples"},{n:"Staples Short Scalp",d:"Quick staples shorts on overreactions",dir:"contrarian_short",s:"Staples"},{n:"Staples Short Swing",d:"Multi-day staples shorts",dir:"contrarian_short",s:"Staples"},{n:"Staples Aggressive Short",d:"Aggressive staples shorts with wide stops",dir:"contrarian_short",s:"Staples"},{n:"Staples Conservative Short",d:"Conservative staples shorts — tight risk",dir:"contrarian_short",s:"Staples"},{n:"Comms & Media",d:"Streaming, ad revenue, subscriber metrics driven",dir:"long",s:"Communication"},{n:"Comms Momentum",d:"Short-hold media/comms momentum",dir:"long",s:"Communication"},{n:"Comms Swing",d:"Longer media holds — narrative-driven multi-week",dir:"long",s:"Communication"},{n:"Comms Dip Buyer",d:"Buys comms dips — subscriber fears create buying ops",dir:"contrarian_long",s:"Communication"},{n:"Comms Scalper",d:"Quick comms trades on volume spikes",dir:"long",s:"Communication"},{n:"Comms Breakout",d:"Communication services breakouts",dir:"long",s:"Communication"},{n:"Streaming Wars",d:"Streaming platform plays — subscriber growth bets",dir:"long",s:"Tech"},{n:"Gaming & Esports",d:"Video game and esports momentum",dir:"long",s:"Tech"},{n:"Comms Aggressive",d:"Aggressive comms momentum — wide stops",dir:"long",s:"Communication"},{n:"Comms Trend Follower",d:"Extended comms trend following",dir:"long",s:"Communication"},{n:"Comms Multi-Factor",d:"Balanced multi-factor comms approach",dir:"long",s:"Communication"},{n:"Comms Short",d:"Shorts overextended media — sentiment shifts fast",dir:"contrarian_short",s:"Communication"},{n:"Comms Short Scalp",d:"Quick comms shorts on hype spikes",dir:"contrarian_short",s:"Communication"},{n:"Comms Short Swing",d:"Multi-day comms shorts",dir:"contrarian_short",s:"Communication"},{n:"Comms Aggressive Short",d:"Aggressive comms shorts with wide stops",dir:"contrarian_short",s:"Communication"},{n:"Comms Conservative Short",d:"Conservative comms shorts — tight risk",dir:"contrarian_short",s:"Communication"},{n:"Materials & Mining",d:"Cyclical materials — volume signals cycle turns",dir:"long",s:"Materials"},{n:"Materials Momentum",d:"Short-hold materials momentum",dir:"long",s:"Materials"},{n:"Materials Swing",d:"Patient materials — commodity cycles take time",dir:"long",s:"Materials"},{n:"Materials Dip Buyer",d:"Buys materials dips — commodity bear overreactions",dir:"contrarian_long",s:"Materials"},{n:"Materials Scalper",d:"Quick materials trades on volume days",dir:"long",s:"Materials"},{n:"Materials Breakout",d:"Materials stocks breaking out on volume",dir:"long",s:"Materials"},{n:"Gold & Silver",d:"Precious metals mining plays",dir:"long",s:"Materials"},{n:"Chemicals Value",d:"Chemical sector value — cyclical with macro sensitivity",dir:"long",s:"Materials"},{n:"Materials Aggressive",d:"Aggressive materials momentum — wide stops",dir:"long",s:"Materials"},{n:"Materials Trend Follower",d:"Extended materials trend following",dir:"long",s:"Materials"},{n:"Materials Multi-Factor",d:"Balanced multi-factor materials approach",dir:"long",s:"Materials"},{n:"Materials Short",d:"Shorts overextended commodity stocks",dir:"contrarian_short",s:"Materials"},{n:"Materials Short Scalp",d:"Quick materials shorts on spike days",dir:"contrarian_short",s:"Materials"},{n:"Materials Short Swing",d:"Multi-day materials shorts on cycle peaks",dir:"contrarian_short",s:"Materials"},{n:"Materials Aggressive Short",d:"Aggressive materials shorts with wide stops",dir:"contrarian_short",s:"Materials"},{n:"Mining Short",d:"Shorts overvalued miners at commodity peaks",dir:"contrarian_short",s:"Materials"},{n:"Utilities Income",d:"Yield plays on unusual pullbacks",dir:"contrarian_long",s:"Utilities"},{n:"Utilities Momentum",d:"Rare sector rotation into utilities",dir:"long",s:"Utilities"},{n:"Utilities Swing",d:"Patient utility trades — rate cycle multi-week",dir:"long",s:"Utilities"},{n:"Utilities Breakout",d:"Utilities breaking out — nuclear/clean energy",dir:"long",s:"Utilities"},{n:"Utilities Scalper",d:"Quick utility trades on unusual volume days",dir:"long",s:"Utilities"},{n:"Nuclear & Clean Energy",d:"Nuclear and clean energy utility plays",dir:"long",s:"Energy"},{n:"Utilities Conservative",d:"Conservative utility value — dividend safety",dir:"long",s:"Utilities"},{n:"Utilities Aggressive",d:"Aggressive utility momentum — wide stops",dir:"long",s:"Utilities"},{n:"Utilities Trend Follower",d:"Extended utility trend following",dir:"long",s:"Utilities"},{n:"Utilities Multi-Factor",d:"Balanced multi-factor utility approach",dir:"long",s:"Utilities"},{n:"Utilities Dip Buyer",d:"Buys utility dips — rate overreactions",dir:"contrarian_long",s:"Utilities"},{n:"Utilities Short",d:"Shorts overextended utility rallies",dir:"contrarian_short",s:"Utilities"},{n:"Utilities Short Scalp",d:"Quick utility shorts on overextension",dir:"contrarian_short",s:"Utilities"},{n:"Utilities Short Swing",d:"Multi-day utility shorts",dir:"contrarian_short",s:"Utilities"},{n:"Utilities Aggressive Short",d:"Aggressive utility shorts with wide stops",dir:"contrarian_short",s:"Utilities"},{n:"Utilities Conservative Short",d:"Conservative utility shorts — tight risk",dir:"contrarian_short",s:"Utilities"},{n:"REIT Value",d:"REIT dip buying — rate overreactions create opportunity",dir:"contrarian_long",s:"RealEstate"},{n:"REIT Momentum",d:"REIT momentum — sector rotation into real estate",dir:"long",s:"RealEstate"},{n:"REIT Swing",d:"Longer REIT holds — rate cycle multi-week trends",dir:"long",s:"RealEstate"},{n:"REIT Breakout",d:"REIT breakout — data center and infrastructure growth",dir:"long",s:"RealEstate"},{n:"REIT Scalper",d:"Quick REIT trades on unusual volume days",dir:"long",s:"RealEstate"},{n:"Data Center REITs",d:"Data center REIT plays — AI infrastructure growth",dir:"long",s:"Tech"},{n:"REIT Conservative",d:"Conservative REIT value — large cap, dividend safety",dir:"long",s:"RealEstate"},{n:"REIT Aggressive",d:"Aggressive REIT momentum — wide stops",dir:"long",s:"RealEstate"},{n:"REIT Trend Follower",d:"Extended REIT trend following",dir:"long",s:"RealEstate"},{n:"REIT Multi-Factor",d:"Balanced multi-factor REIT approach",dir:"long",s:"RealEstate"},{n:"REIT Dip Buyer",d:"Buys REIT dips — rate fears always overshoot",dir:"contrarian_long",s:"RealEstate"},{n:"REIT Short",d:"Shorts overextended REITs — rate spike reversals",dir:"contrarian_short",s:"RealEstate"},{n:"REIT Short Scalp",d:"Quick REIT shorts on overextension",dir:"contrarian_short",s:"RealEstate"},{n:"REIT Short Swing",d:"Multi-day REIT shorts on rate moves",dir:"contrarian_short",s:"RealEstate"},{n:"REIT Aggressive Short",d:"Aggressive REIT shorts with wide stops",dir:"contrarian_short",s:"RealEstate"},{n:"REIT Conservative Short",d:"Conservative REIT shorts — tight risk",dir:"contrarian_short",s:"RealEstate"},{n:"Tech Mean Reversion",d:"Buys tech stocks after sharp drops — bets on overreaction bounce",dir:"contrarian_long",s:"Tech"},{n:"Healthcare Mean Reversion",d:"Buys healthcare drops — overreaction to trial/FDA news",dir:"contrarian_long",s:"Healthcare"},{n:"Financials Mean Reversion",d:"Buys financial sector dips — rate shock reversals",dir:"contrarian_long",s:"Financial"},{n:"Energy Mean Reversion",d:"Buys energy drops — commodity overreaction plays",dir:"contrarian_long",s:"Energy"},{n:"Consumer Mean Reversion",d:"Buys consumer discretionary dips — sentiment overreaction",dir:"contrarian_long",s:"Consumer"},{n:"Industrials Mean Reversion",d:"Buys industrial sector drops — cyclical bounce plays",dir:"contrarian_long",s:"Industrial"},{n:"Materials Mean Reversion",d:"Buys materials dips — commodity cycle reversals",dir:"contrarian_long",s:"Materials"},{n:"Comm Services Mean Reversion",d:"Buys comms drops — ad revenue overreaction bounce",dir:"contrarian_long",s:"Communication"},{n:"Utilities Mean Reversion",d:"Buys utilities drops — defensive sector bounce",dir:"contrarian_long",s:"Utilities"},{n:"REIT Mean Reversion",d:"Buys REIT drops — rate shock overreaction",dir:"contrarian_long",s:"RealEstate"},{n:"Staples Mean Reversion",d:"Buys consumer staples drops — safe haven bounce",dir:"contrarian_long",s:"Staples"},{n:"Broad Mean Reversion",d:"Cross-sector mean reversion — buys the biggest drops",dir:"contrarian_long",s:"Mixed"},{n:"Aggressive Mean Reversion",d:"Wide stops mean reversion — rides bigger bounces",dir:"contrarian_long",s:"Mixed"},{n:"Conservative Mean Reversion",d:"Tight stops mean reversion — quick bounces only",dir:"contrarian_long",s:"Mixed"},{n:"Volume Climax Reversal",d:"Buys extreme volume selloffs — capitulation bottom fishing",dir:"contrarian_long",s:"Mixed"},{n:"Gap Up Continuation",d:"Buys gap-up stocks expecting follow-through momentum",dir:"gap_long",s:"Mixed"},{n:"Gap Fill Buyer",d:"Buys gap-down stocks expecting the gap to fill",dir:"contrarian_long",s:"Mixed"},{n:"Tech Gap Continuation",d:"Tech-specific gap-up momentum plays",dir:"gap_long",s:"Tech"},{n:"Tech Gap Fill",d:"Buys tech gap-downs — overreaction to pre-market news",dir:"contrarian_long",s:"Tech"},{n:"Healthcare Gap Fill",d:"Buys healthcare gap-downs — FDA/trial overreaction",dir:"contrarian_long",s:"Healthcare"},{n:"Energy Gap Continuation",d:"Energy gap-up plays on commodity news",dir:"gap_long",s:"Energy"},{n:"Financials Gap Fill",d:"Buys financial gap-downs — rate decision overreaction",dir:"contrarian_long",s:"Financial"},{n:"Large Gap Reversal",d:"Buys stocks after 5%+ gap downs — extreme overreaction",dir:"contrarian_long",s:"Mixed"},{n:"Gap Scalper",d:"Ultra-short gap trades — in and out same day or next",dir:"gap_long",s:"Mixed"},{n:"Gap & Go Momentum",d:"Rides gap-up stocks with strong volume confirmation",dir:"gap_long",s:"Mixed"},{n:"Sector Rotation Alpha",d:"Rotates into strongest sector — momentum-driven allocation",dir:"long",s:"Mixed"},{n:"Sector Rotation Conservative",d:"Sector rotation with tight risk and large-cap bias",dir:"long",s:"Mixed"},{n:"Sector Rotation Aggressive",d:"Aggressive sector rotation — wide stops, big targets",dir:"long",s:"Mixed"},{n:"Defensive Rotation",d:"Rotates into defensive sectors when momentum is weak",dir:"long",s:"Mixed"},{n:"Cyclical Rotation",d:"Rotates into cyclical sectors during expansions",dir:"long",s:"Mixed"},{n:"Growth Rotation",d:"Rotates into growth sectors — tech, healthcare, comm services",dir:"long",s:"Mixed"},{n:"Value Rotation",d:"Rotates into value sectors — financials, energy, industrials",dir:"long",s:"Mixed"},{n:"Momentum Sector Swing",d:"Swing trades in the hottest sector of the week",dir:"long",s:"Mixed"},{n:"Sector Breakout Hunter",d:"Buys breakouts in sectors showing broad strength",dir:"long",s:"Mixed"},{n:"Sector Momentum Scalper",d:"Quick sector-momentum trades — 1-3 day holds",dir:"gap_long",s:"Mixed"},{n:"Broad Sector Trend",d:"Long-term sector rotation — rides multi-week sector trends",dir:"long",s:"Mixed"},{n:"Tech Downtrend Rider",d:"Shorts tech stocks in sustained downtrends — rides bearish momentum",dir:"short",s:"Tech"},{n:"Energy Bear",d:"Shorts energy stocks trending down — follows sector weakness",dir:"short",s:"Energy"},{n:"Healthcare Breakdown",d:"Shorts healthcare stocks breaking key support levels",dir:"short",s:"Healthcare"},{n:"Financial Sector Bear",d:"Shorts financials in downtrends — follows credit weakness",dir:"short",s:"Financial"},{n:"Consumer Discretionary Short",d:"Shorts consumer discretionary in spending downturns",dir:"short",s:"Consumer"},{n:"Industrial Weakness",d:"Shorts industrials showing sustained weakness",dir:"short",s:"Industrial"},{n:"Materials Downtrend",d:"Shorts materials stocks in commodity downturns",dir:"short",s:"Materials"},{n:"Broad Market Bear",d:"Shorts stocks across all sectors in sustained downtrends",dir:"short",s:"Mixed"},{n:"52-Week Low Breakdown",d:"Shorts stocks making new 52-week lows with high volume",dir:"short",s:"Mixed"},{n:"Slow Bleed Short",d:"Shorts stocks in slow persistent decline — low volatility downtrend",dir:"short",s:"Mixed"},{n:"Breakdown Scalper",d:"Quick short trades on technical breakdowns — 1-3 day holds",dir:"short",s:"Mixed"},{n:"Comm Services Bear",d:"Shorts communication services stocks in downtrends",dir:"short",s:"Communication"},{n:"Real Estate Downturn",d:"Shorts real estate stocks in rate-hike driven downtrends",dir:"short",s:"RealEstate"},{n:"Utilities Decline",d:"Shorts utilities in rising-rate environments",dir:"short",s:"Utilities"},{n:"Consumer Staples Short",d:"Shorts staples when defensive rotation reverses",dir:"short",s:"Consumer"},{n:"High Volume Selloff",d:"Shorts stocks with heavy selling pressure — volume spike breakdowns",dir:"short",s:"Mixed"},{n:"Multi-Sector Bear Swing",d:"Swing short across weakest sectors — 1-2 week holds",dir:"short",s:"Mixed"},{n:"Small Cap Short",d:"Shorts small caps with weak fundamentals in downtrends",dir:"short",s:"Mixed"},{n:"Large Cap Decline",d:"Shorts large caps in confirmed downtrends — lower volatility shorts",dir:"short",s:"Mixed"},{n:"Sector Rotation Short",d:"Shorts sectors losing relative strength — follows rotation away",dir:"short",s:"Mixed"},{n:"Hype Fader",d:"Shorts hyped-up stocks that spiked — bets on mean reversion down",dir:"contrarian_short",s:"Mixed"},{n:"Tech Rally Fader",d:"Shorts overextended tech rallies — fades the hype",dir:"contrarian_short",s:"Tech"},{n:"Biotech Rally Fader",d:"Shorts overextended biotech spikes — trial hype fade",dir:"contrarian_short",s:"Healthcare"},{n:"Small Cap Fader",d:"Shorts overextended small-cap spikes — pump and dump targets",dir:"contrarian_short",s:"Mixed"},{n:"Exhaustion Top Fader",d:"Shorts stocks showing intraday exhaustion — reversal pattern",dir:"contrarian_short",s:"Mixed"},{n:"Gap Up Fader",d:"Shorts gap-up stocks expecting the gap to fill down",dir:"contrarian_short",s:"Mixed"},{n:"Energy Rally Fader",d:"Shorts overextended energy rallies — commodity overbought",dir:"contrarian_short",s:"Energy"},{n:"Consumer Hype Fader",d:"Shorts consumer discretionary hype — retail/meme stock fades",dir:"contrarian_short",s:"Consumer"},{n:"Broad Rally Fader",d:"Cross-sector rally fade — shorts the most overextended",dir:"contrarian_short",s:"Mixed"},{n:"Aggressive Rally Fader",d:"Aggressive contrarian shorts — wide stops, big targets",dir:"contrarian_short",s:"Mixed"},{n:"Conservative Rally Fader",d:"Tight-risk rally fades — confirmed exhaustion only",dir:"contrarian_short",s:"Mixed"},{n:"Squeeze Fader",d:"Shorts stocks after short squeeze peaks — fading the blow-off top",dir:"contrarian_short",s:"Mixed"},{n:"Financials Rally Fader",d:"Shorts overextended financial sector rallies",dir:"contrarian_short",s:"Financial"},{n:"Comm Services Fader",d:"Shorts comms hype spikes — social media/streaming fades",dir:"contrarian_short",s:"Communication"},{n:"Volume Climax Fader",d:"Shorts after extreme volume spikes — blow-off top pattern",dir:"contrarian_short",s:"Mixed"},{n:"Swing Mean Reversion",d:"Longer-hold mean reversion — 10-15 day recovery plays",dir:"contrarian_long",s:"Mixed"},{n:"Deep Value Reversal",d:"Large-cap 52w low buys — deep value with extreme volume",dir:"contrarian_long",s:"Mixed"},{n:"Sector Capitulation Buyer",d:"Buys when whole sector is dumping — broad capitulation",dir:"contrarian_long",s:"Mixed"},{n:"Energy Gap Fill",d:"Energy gap-down fill — commodity overreaction gaps",dir:"contrarian_long",s:"Energy"},{n:"Consumer Gap Fill",d:"Consumer discretionary gap-down fill — sentiment overreaction",dir:"contrarian_long",s:"Consumer"},{n:"Industrials Gap Fill",d:"Industrials gap-down fill — cyclical overreaction",dir:"contrarian_long",s:"Industrial"},{n:"Materials Gap Fill",d:"Materials gap-down fill — commodity price overreaction",dir:"contrarian_long",s:"Materials"},{n:"Comm Services Gap Fill",d:"Comms gap-down fill — ad revenue overreaction gaps",dir:"contrarian_long",s:"Communication"},{n:"Utilities Gap Fill",d:"Utilities gap-down fill — defensive sector overreaction",dir:"contrarian_long",s:"Utilities"},{n:"REIT Gap Fill",d:"REIT gap-down fill — rate shock gap reversals",dir:"contrarian_long",s:"RealEstate"},{n:"Staples Gap Fill",d:"Consumer staples gap-down fill — safe haven gap reversal",dir:"contrarian_long",s:"Staples"},{n:"Small Cap Mean Reversion",d:"Small-cap dip buying — low market cap overreactions",dir:"contrarian_long",s:"Mixed"},{n:"Large Cap Mean Reversion",d:"$10B+ conservative dip buying — blue chip bounces",dir:"contrarian_long",s:"Mixed"},{n:"High Volume Dip Buyer",d:"Requires 3x+ volume — only buys on extreme selling pressure",dir:"contrarian_long",s:"Mixed"},{n:"Exhaustion Bottom Scalper",d:"Ultra-short 1-2 day holds on exhaustion bottom signals",dir:"contrarian_long",s:"Mixed"},{n:"Broad Gap Fill",d:"Cross-sector moderate gap-down fill — diversified gap plays",dir:"contrarian_long",s:"Mixed"},{n:"Aggressive Gap Fill",d:"Wide stops gap fill — rides full gap closure",dir:"contrarian_long",s:"Mixed"},{n:"Conservative Gap Fill",d:"Tight stops gap fill — 1-day, large-cap only",dir:"contrarian_long",s:"Mixed"},{n:"Industrials Rally Fader",d:"Shorts overextended industrial sector rallies",dir:"contrarian_short",s:"Industrial"},{n:"Materials Rally Fader",d:"Shorts materials sector spikes — commodity overbought fades",dir:"contrarian_short",s:"Materials"},{n:"Utilities Rally Fader",d:"Shorts utility sector spikes — defensive overbought fade",dir:"contrarian_short",s:"Utilities"},{n:"REIT Rally Fader",d:"Shorts overextended REIT rallies — rate play fades",dir:"contrarian_short",s:"RealEstate"},{n:"Staples Rally Fader",d:"Shorts consumer staples spikes — safe haven overbought",dir:"contrarian_short",s:"Staples"},{n:"Healthcare Rally Fader",d:"Shorts broader healthcare spikes — not just biotech",dir:"contrarian_short",s:"Healthcare"},{n:"Large Cap Rally Fader",d:"Fades $10B+ overextensions — blue chip blow-off tops",dir:"contrarian_short",s:"Mixed"},{n:"Parabolic Fader",d:"Shorts 10%+ single-day moves — parabolic blow-off",dir:"contrarian_short",s:"Mixed"},{n:"Gap Up Scalper",d:"1-day gap-up fade — ultra-short fade and close",dir:"contrarian_short",s:"Mixed"},{n:"Sector Hype Fader",d:"Shorts sector-wide hype — when a whole sector gets too hot",dir:"contrarian_short",s:"Mixed"},{n:"Low Float Fader",d:"Shorts low-float pump targets — high risk, high reward fades",dir:"contrarian_short",s:"Mixed"},{n:"Earnings Hype Fader",d:"Fades post-earnings gap-up hype — buy the rumor sell the news",dir:"contrarian_short",s:"Mixed"},{n:"Swing Rally Fader",d:"7-10 day holds fading multi-day rallies that lose steam",dir:"contrarian_short",s:"Mixed"},{n:"Aggressive Gap Fader",d:"Wide stops gap-up fade — lets trades breathe",dir:"contrarian_short",s:"Mixed"},{n:"Conservative Gap Fader",d:"Tight-risk gap-up fade — confirmed exhaustion signals only",dir:"contrarian_short",s:"Mixed"},{n:"Broad Exhaustion Fader",d:"Cross-sector exhaustion-top fades — diversified",dir:"contrarian_short",s:"Mixed"},{n:"Multi-Day Exhaustion Fader",d:"Shorts stocks with weakening volume after consecutive up days",dir:"contrarian_short",s:"Mixed"}];
+
+// Color per direction
+const DIR_COLORS = { long: '129,199,132', short: '248,113,113', contrarian_long: '103,232,249', contrarian_short: '232,121,249', gap_long: '250,204,21' };
+const DIR_LABELS = { long: 'long', short: 'short', contrarian_long: 'contra-long', contrarian_short: 'contra-short', gap_long: 'gap-long' };
+const SECTOR_COLOR_BY_KEY = { Tech: '232,121,249', Healthcare: '129,199,132', Financial: '103,232,249', Energy: '250,204,21', Industrial: '186,104,200', Consumer: '249,168,212', Staples: '255,183,77', Utilities: '79,195,247', RealEstate: '167,139,250', Materials: '141,110,99', Communication: '244,143,177', Mixed: '158,158,158' };
+
+let catFilter = { sector: 'all', dir: 'all' };
+
+function catalogFilter(kind, value) {
+  catFilter[kind] = value;
+  // Update active button styling
+  const prefix = kind === 'sector' ? 'cf-' : 'cf-dir-';
+  // Find and update sibling buttons in the same controls block
+  document.querySelectorAll('.cat-btn').forEach(b => {
+    const text = b.textContent.trim();
+    const isActive = (kind === 'sector' && (text === value || (value === 'all' && b.id === 'cf-all'))) ||
+                     (kind === 'dir' && (text === value || (value === 'all' && b.id === 'cf-dir-all')));
+  });
+  // Cleaner: just toggle by inspecting onclick attr
+  document.querySelectorAll('.cat-btn').forEach(b => {
+    const oc = b.getAttribute('onclick') || '';
+    const matches = oc.includes("'" + kind + "','" + value + "'");
+    const isOtherKind = !oc.includes("'" + kind + "',");
+    if (isOtherKind) return;
+    b.classList.toggle('cat-active', matches);
+  });
+  catalogRender();
+  pepSend('catalog.filter', { kind, value });
+}
+
+function catalogRender() {
+  const grid = document.getElementById('catalog-grid');
+  if (!grid) return;
+  const q = (document.getElementById('cat-search')?.value || '').toLowerCase().trim();
+  const filtered = STRATEGIES_FULL.filter(st => {
+    if (catFilter.sector !== 'all' && st.s !== catFilter.sector) return false;
+    if (catFilter.dir !== 'all' && st.dir !== catFilter.dir) return false;
+    if (q && !(st.n + ' ' + st.d).toLowerCase().includes(q)) return false;
+    return true;
+  });
+  document.getElementById('cat-count').textContent = STRATEGIES_FULL.length;
+  document.getElementById('cat-shown').textContent = filtered.length;
+  document.getElementById('cat-total').textContent = STRATEGIES_FULL.length;
+  if (!filtered.length) { grid.innerHTML = '<span style="color:var(--dim)">no matches</span>'; return; }
+  grid.innerHTML = filtered.map((st, i) => {
+    const dirCol = DIR_COLORS[st.dir] || '180,180,180';
+    const secCol = SECTOR_COLOR_BY_KEY[st.s] || '160,160,160';
+    const escapedName = st.n.replace(/'/g, "\\\\'").replace(/"/g, '&quot;');
+    return '<div onclick="strategyDetailFromCard(\\'' + escapedName + '\\')" ' +
+      'style="background:var(--surface);border:1px solid var(--border);border-left:3px solid rgb(' + dirCol + ');' +
+      'border-radius:6px;padding:10px 12px;cursor:pointer;transition:border-color 0.15s" ' +
+      'onmouseover="this.style.borderColor=\\'rgb(' + dirCol + ')\\'" ' +
+      'onmouseout="this.style.borderColor=\\'var(--border)\\'">' +
+      '<div style="display:flex;justify-content:space-between;align-items:start;gap:8px">' +
+        '<div style="font-size:12px;color:var(--text);font-weight:bold">' + st.n + '</div>' +
+        '<span style="font-size:9px;color:rgb(' + secCol + ');background:rgba(' + secCol + ',0.15);padding:1px 6px;border-radius:8px;white-space:nowrap">' + st.s + '</span>' +
+      '</div>' +
+      '<div style="font-size:10px;color:var(--dim);margin-top:4px;line-height:1.4">' + st.d + '</div>' +
+      '<div style="font-size:9px;color:rgb(' + dirCol + ');margin-top:6px;letter-spacing:0.05em">' + (DIR_LABELS[st.dir] || st.dir) + '</div>' +
+      '</div>';
+  }).join('');
+}
+
+// Populate the strategy detail dropdown with all 294 strategies
+function populateStrategyDropdown() {
+  const sel = document.getElementById('sd-select');
+  if (!sel) return;
+  // Group by sector
+  const bySector = {};
+  STRATEGIES_FULL.forEach(st => { (bySector[st.s] = bySector[st.s] || []).push(st); });
+  Object.keys(bySector).sort().forEach(sec => {
+    const og = document.createElement('optgroup');
+    og.label = sec + ' (' + bySector[sec].length + ')';
+    bySector[sec].forEach(st => {
+      const o = document.createElement('option');
+      o.value = st.n;
+      o.textContent = st.n + ' [' + (DIR_LABELS[st.dir] || st.dir) + ']';
+      og.appendChild(o);
+    });
+    sel.appendChild(og);
+  });
+}
+
+function strategyDetailFromCard(name) {
+  // Activate the strategy-detail panel and set the dropdown
+  const tab = findTabForPanel('strategy-detail-tab');
+  if (tab) tab.click();
+  setTimeout(() => {
+    const sel = document.getElementById('sd-select');
+    if (sel) { sel.value = name; strategyDetailPick(name); }
+    const el = document.getElementById('strategy-detail-tab');
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 80);
+}
+
+// Derive plausible factor weights from strategy name + direction
+function deriveStrategyFactors(st) {
+  const name = st.n.toLowerCase();
+  const factors = { relativeVolume: 0.15, unusualScore: 0.15, gapPct: 0.1, sectorMomentum: 0.15, hypeRisk: 0.1, priceLevel52w: 0.15 };
+  if (name.includes('breakout') || name.includes('momentum')) { factors.relativeVolume = 0.30; factors.unusualScore = 0.30; factors.priceLevel52w = 0.25; }
+  if (name.includes('scalper')) { factors.relativeVolume = 0.40; factors.unusualScore = 0.30; factors.gapPct = 0.20; }
+  if (name.includes('swing') || name.includes('trend')) { factors.priceLevel52w = 0.35; factors.sectorMomentum = 0.30; factors.unusualScore = 0.20; }
+  if (name.includes('dip') || name.includes('mean reversion') || name.includes('gap fill') || name.includes('capitulation')) { factors.unusualScore = 0.30; factors.relativeVolume = 0.25; factors.priceLevel52w = 0.25; factors.hypeRisk = 0.05; }
+  if (name.includes('gap') && (st.dir === 'gap_long' || name.includes('continuation') || name.includes('go'))) { factors.gapPct = 0.35; factors.relativeVolume = 0.25; factors.unusualScore = 0.20; }
+  if (st.dir === 'short' || st.dir === 'contrarian_short') { factors.hypeRisk = 0.30; factors.priceLevel52w = 0.25; factors.unusualScore = 0.20; factors.relativeVolume = 0.15; factors.sectorMomentum = 0.10; }
+  if (name.includes('news') || name.includes('catalyst') || name.includes('earnings')) { factors.unusualScore = 0.30; factors.hypeRisk = 0.05; }
+  if (name.includes('multi-factor')) { Object.keys(factors).forEach(k => factors[k] = 1 / 6); }
+  // Normalize
+  const sum = Object.values(factors).reduce((a, b) => a + b, 0);
+  Object.keys(factors).forEach(k => factors[k] /= sum);
+  return factors;
+}
+
+function deriveStrategyParams(st) {
+  const name = st.n.toLowerCase();
+  let stop = 5, takeProfit = 12, maxHold = 5, posSize = 20;
+  if (name.includes('aggressive')) { stop = 8; takeProfit = 20; }
+  if (name.includes('conservative')) { stop = 3; takeProfit = 8; }
+  if (name.includes('scalper')) { stop = 3; takeProfit = 5; maxHold = 2; posSize = 15; }
+  if (name.includes('swing') || name.includes('trend follower')) { stop = 6; takeProfit = 18; maxHold = 14; posSize = 18; }
+  if (st.dir === 'short' || st.dir === 'contrarian_short') { stop = stop - 1; takeProfit = takeProfit - 2; }
+  if (name.includes('speculative') || name.includes('biotech')) { stop = 12; takeProfit = 30; posSize = 10; }
+  return { stop, takeProfit, maxHold, posSize };
+}
+
+const sdCanvas = document.getElementById('sd-canvas');
+const sdCtx = sdCanvas.getContext('2d');
+let sdActive = null;
+function strategyDetailPick(name) {
+  sdActive = STRATEGIES_FULL.find(s => s.n === name) || null;
+  const nameSpan = document.getElementById('sd-name');
+  if (nameSpan) nameSpan.textContent = sdActive ? sdActive.n : '(pick one from the catalog)';
+  pepSend('strategy.detail', { name });
+}
+
+function drawSd() {
+  const W = 960, H = 560; sdCtx.fillStyle = themeBg(); sdCtx.fillRect(0, 0, W, H);
+  if (!sdActive) {
+    sdCtx.fillStyle = '#778'; sdCtx.font = '11px monospace'; sdCtx.textAlign = 'center';
+    sdCtx.fillText('(pick a strategy from the dropdown or the Catalog)', W / 2, H / 2);
+    requestAnimationFrame(drawSd); return;
+  }
+  const st = sdActive;
+  const dirCol = DIR_COLORS[st.dir] || '180,180,180';
+  const secCol = SECTOR_COLOR_BY_KEY[st.s] || '160,160,160';
+  // Header
+  sdCtx.fillStyle = '#dce4ed'; sdCtx.font = 'bold 16px monospace'; sdCtx.textAlign = 'left';
+  sdCtx.fillText(st.n, 30, 32);
+  sdCtx.fillStyle = 'rgb(' + secCol + ')'; sdCtx.font = '11px monospace';
+  sdCtx.fillText(st.s + ' · ' + (DIR_LABELS[st.dir] || st.dir), 30, 52);
+  sdCtx.fillStyle = '#aab'; sdCtx.font = '11px monospace';
+  // Wrap description
+  const words = st.d.split(' '); let line = '', y = 78;
+  words.forEach(w => {
+    const test = line + w + ' ';
+    if (sdCtx.measureText(test).width > W - 60 && line) { sdCtx.fillText(line.trim(), 30, y); line = w + ' '; y += 14; }
+    else { line = test; }
+  });
+  if (line) sdCtx.fillText(line.trim(), 30, y);
+  // Three columns
+  const colY = 130;
+  // Col 1: factor weights
+  const factors = deriveStrategyFactors(st);
+  sdCtx.fillStyle = '#dce4ed'; sdCtx.font = 'bold 11px monospace';
+  sdCtx.fillText('FACTOR WEIGHTS', 30, colY);
+  Object.entries(factors).forEach(([k, v], i) => {
+    const fy = colY + 24 + i * 28;
+    sdCtx.fillStyle = '#aab'; sdCtx.font = '10px monospace';
+    sdCtx.fillText(k, 30, fy);
+    sdCtx.fillStyle = 'rgba(' + dirCol + ',0.2)'; sdCtx.fillRect(30, fy + 6, 240, 14);
+    sdCtx.fillStyle = 'rgba(' + dirCol + ',0.85)'; sdCtx.fillRect(30, fy + 6, 240 * v, 14);
+    sdCtx.fillStyle = '#fff'; sdCtx.font = '10px monospace'; sdCtx.textAlign = 'right';
+    sdCtx.fillText((v * 100).toFixed(0) + '%', 268, fy + 18);
+    sdCtx.textAlign = 'left';
+  });
+  // Col 2: risk parameters
+  const params = deriveStrategyParams(st);
+  sdCtx.fillStyle = '#dce4ed'; sdCtx.font = 'bold 11px monospace';
+  sdCtx.fillText('RISK PARAMETERS', 350, colY);
+  const paramList = [
+    ['stop loss',   params.stop + '%'],
+    ['take profit', params.takeProfit + '%'],
+    ['max hold',    params.maxHold + ' days'],
+    ['position size', params.posSize + '% of equity'],
+    ['direction',   DIR_LABELS[st.dir] || st.dir],
+    ['sector',      st.s],
+  ];
+  paramList.forEach(([k, v], i) => {
+    const py = colY + 28 + i * 26;
+    sdCtx.fillStyle = '#aab'; sdCtx.font = '10px monospace'; sdCtx.fillText(k, 350, py);
+    sdCtx.fillStyle = '#fff'; sdCtx.font = 'bold 10px monospace'; sdCtx.textAlign = 'right'; sdCtx.fillText(v, 600, py); sdCtx.textAlign = 'left';
+  });
+  // Col 3: would it trigger on these setups?
+  sdCtx.fillStyle = '#dce4ed'; sdCtx.font = 'bold 11px monospace';
+  sdCtx.fillText('WOULD TRIGGER?', 640, colY);
+  const setups = [
+    { label: '+8% on 3x volume, sector strong', score: 82 },
+    { label: '−6% gap down, low volume', score: 35 },
+    { label: 'Quiet drift +1%, normal volume', score: 12 },
+  ];
+  setups.forEach((setup, i) => {
+    const sy = colY + 32 + i * 80;
+    sdCtx.fillStyle = '#aab'; sdCtx.font = '10px monospace';
+    sdCtx.fillText(setup.label, 640, sy);
+    // Determine if this setup matches the strategy direction
+    const triggers = (
+      (st.dir === 'long' && setup.score > 60) ||
+      (st.dir === 'short' && setup.label.includes('gap down')) ||
+      (st.dir === 'contrarian_long' && setup.label.includes('gap down')) ||
+      (st.dir === 'contrarian_short' && setup.score > 70) ||
+      (st.dir === 'gap_long' && setup.label.includes('gap down') === false && setup.score > 60)
+    );
+    const triggerCol = triggers ? '129,199,132' : '120,130,140';
+    const triggerLabel = triggers ? '✓ ENTRY' : '✗ skip';
+    sdCtx.fillStyle = 'rgba(' + triggerCol + ',0.2)'; sdCtx.fillRect(640, sy + 8, 280, 22);
+    sdCtx.fillStyle = 'rgb(' + triggerCol + ')'; sdCtx.font = 'bold 11px monospace';
+    sdCtx.fillText(triggerLabel, 650, sy + 24);
+    sdCtx.fillStyle = '#778'; sdCtx.font = '9px monospace';
+    sdCtx.fillText('signal score: ' + setup.score, 740, sy + 24);
+  });
+  // Footer
+  sdCtx.fillStyle = '#778'; sdCtx.font = '10px monospace'; sdCtx.textAlign = 'center';
+  sdCtx.fillText('factor weights and parameters derived from name+direction; production values live in the Strategy table at ~/projects/charlie_project', W / 2, H - 14);
+  requestAnimationFrame(drawSd);
+}
+drawSd();
+
+setTimeout(() => { catalogRender(); populateStrategyDropdown(); }, 80);
 
 </script>
 </body>
