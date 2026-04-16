@@ -1241,6 +1241,37 @@ _PAGE = """\
     urgency up and get a smaller (but still positive) rematch gain.
   </div>
 
+  <div class="info" style="border-left: 3px solid var(--accent)">
+    <b style="font-size:14px;color:var(--accent)">The Business Case &mdash; Why Those Metrics Mean Revenue</b><br><br>
+    The metrics above are not abstract quality numbers. They convert
+    directly to dollars through the standard free-to-play monetization
+    loop:<br><br>
+    <b>Players who enjoy the match</b> &rarr; <b>queue again</b>
+    (rematch rate up) &rarr; <b>play longer sessions</b> (session
+    length up) &rarr; <b>more exposure to the in-game store, battle
+    pass progression, and cosmetic drops</b> &rarr; <b>higher conversion
+    and higher per-session spend</b> &rarr; <b>higher LTV</b>.<br><br>
+    Activision tried to engineer this loop the wrong way. Their 2017
+    matchmaking patent explicitly proposed pairing players with
+    higher-skilled opponents using popular cosmetics, on the theory
+    that losing to a player wearing a $20 skin would drive the loser
+    to buy the same skin. That is engagement matchmaking as a
+    <em>dark pattern</em>: the system is hostile to the player and
+    extracts revenue through frustration. It works for a quarter or
+    two until churn catches up.<br><br>
+    Atria gets the same revenue outcome through the opposite mechanism:
+    make the match genuinely good, players enjoy the game more, they
+    play more, and the monetization loop runs as a <em>side effect of
+    enjoyment</em> rather than as the primary lever. Same end-state
+    metrics. Sustainable, because it does not depend on annoying the
+    player into a purchase. See the Engagement vs Fair canvas in the
+    Beyond tab for the three-way comparison, and the Case Studies tab
+    for the Activision patent in detail.<br><br>
+    <b>The pitch in one sentence:</b> Atria is the way to capture the
+    revenue Activision was after, without the part that gets you bad
+    press and a class-action lawsuit.
+  </div>
+
   <div class="info" style="border-left: 3px solid var(--accent2)">
     <b style="font-size:14px;color:var(--accent2)">Integration Path</b><br><br>
     <b>Phase 1 (shadow mode, 2 weeks):</b> Run Atria alongside the
