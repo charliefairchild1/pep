@@ -139,7 +139,8 @@ _PAGE = """\
       <div class="tab" data-panels="prompt-tab llm-tab aidetect-tab">Machines</div>
       <div class="tab" data-panels="sandbox-tab analyze-tab gallery-tab citations-tab">Tools</div>
       <div class="tab" data-panels="workbench-tab voice-analyze-tab">Workbench</div>
-      <div class="tab" data-panels="pitch-tab bench-tab cases-tab">Product</div>
+      <div class="tab" data-panels="pitch-tab bench-tab cases-tab">Pitch</div>
+      <div class="tab" data-panel="products-tab">Products</div>
       <div class="tab" data-panel="theory-tab">Theory</div>
       <div class="tab" data-panel="bridge-tab">PEP &harr; Lingora</div>
     </div>
@@ -3740,6 +3741,93 @@ _PAGE = """\
     Lingora's framework would not make this category error because
     the framework has multi-channel structure baked in from the
     start.
+  </div>
+</div>
+</div>
+
+<!-- ═══ Products ═══════════════════════════════════════════════════ -->
+<div class="panel" id="products-tab">
+<div class="container">
+  <h2>Products &mdash; The LAVAS Suite</h2>
+  <p class="desc">
+    Lingora is one of five LAVAS apps, all built on PEP (Predictive
+    Encoding and Preparation). Each applies the same four primitives
+    &mdash; weighted graphs, spreading activation, residual scoring,
+    state modulation &mdash; to a different domain. Click any card to
+    open that app in this tab.
+  </p>
+
+  <a href="/pep" style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #a78bfa;border-radius:6px;padding:14px 18px;margin-bottom:10px;text-decoration:none;transition:border-color 0.15s" onmouseover="this.style.borderColor='#a78bfa'" onmouseout="this.style.borderColor='var(--border)'">
+    <div style="font-size:13px;font-weight:bold;color:#a78bfa">PEP &rarr; /pep</div>
+    <div style="font-size:11px;color:var(--dim);margin-top:4px;line-height:1.5">
+      The engine itself. Four interactive primitive demos (weighted graph,
+      spreading activation, predictor + residual, state modulator), live
+      mesh dashboard polling all five LAVAS siblings, and the theoretical
+      framing every app shares. Start here to understand what every other
+      surface is built on.
+    </div>
+  </a>
+
+  <a href="/axona" style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #ba68c8;border-radius:6px;padding:14px 18px;margin-bottom:10px;text-decoration:none;transition:border-color 0.15s" onmouseover="this.style.borderColor='#ba68c8'" onmouseout="this.style.borderColor='var(--border)'">
+    <div style="font-size:13px;font-weight:bold;color:#ba68c8">Axona &rarr; /axona</div>
+    <div style="font-size:11px;color:var(--dim);margin-top:4px;line-height:1.5">
+      Brain &amp; cognition. The largest LAVAS surface (~60 canvases) and
+      the largest commercial opportunity &mdash; BCI interpretation layer
+      for hardware companies, clinical insight for therapists, education
+      personalization, performance &amp; flow optimization, consumer
+      wellness. Memory dynamics, attention, prediction, sleep, trauma,
+      dozens of cognitive mechanisms.
+    </div>
+  </a>
+
+  <a href="/atria" style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #5eead4;border-radius:6px;padding:14px 18px;margin-bottom:10px;text-decoration:none;transition:border-color 0.15s" onmouseover="this.style.borderColor='#5eead4'" onmouseout="this.style.borderColor='var(--border)'">
+    <div style="font-size:13px;font-weight:bold;color:#5eead4">Atria &rarr; /atria</div>
+    <div style="font-size:11px;color:var(--dim);margin-top:4px;line-height:1.5">
+      Matching, compatibility, relational alignment. First commercial
+      wedge: PvP game matchmaking that targets rematch rate instead of
+      win-probability balance. Pitch tab makes the business case
+      directly to game-studio PMs (revenue via enjoyment, not the
+      Activision dark pattern). Before/After dashboard shows the
+      synthetic metrics on 1,000 matches.
+    </div>
+  </a>
+
+  <a href="/vectora" style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #38bdf8;border-radius:6px;padding:14px 18px;margin-bottom:10px;text-decoration:none;transition:border-color 0.15s" onmouseover="this.style.borderColor='#38bdf8'" onmouseout="this.style.borderColor='var(--border)'">
+    <div style="font-size:13px;font-weight:bold;color:#38bdf8">Vectora &rarr; /vectora</div>
+    <div style="font-size:11px;color:var(--dim);margin-top:4px;line-height:1.5">
+      Data organization, pattern analysis, intelligent retrieval. The
+      internal infrastructure layer the other LAVAS siblings consume.
+      RAG pipeline, hybrid keyword+semantic reranker, multi-hop graph
+      retrieval, anomaly detection, context-dependent retrieval.
+      Positioned as a layer that sits on top of Pinecone/pgvector
+      rather than replacing them.
+    </div>
+  </a>
+
+  <a href="/strata" style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #e879f9;border-radius:6px;padding:14px 18px;margin-bottom:10px;text-decoration:none;transition:border-color 0.15s" onmouseover="this.style.borderColor='#e879f9'" onmouseout="this.style.borderColor='var(--border)'">
+    <div style="font-size:13px;font-weight:bold;color:#e879f9">Strata &rarr; /strata</div>
+    <div style="font-size:11px;color:var(--dim);margin-top:4px;line-height:1.5">
+      Markets, trading signals, financial decision-making. The parent
+      markets-primitive platform; the Equities vertical is the first
+      shipping instance with 294 paper-trading strategies, an unusual-
+      move scanner, pattern classifier, and Claude-scored news catalyst
+      pipeline. Future verticals: crypto, FX, commodities, prediction
+      markets, fixed income.
+    </div>
+  </a>
+
+  <h3 style="font-size:13px;color:var(--accent2);margin:24px 0 8px">Where Lingora fits</h3>
+  <div class="info">
+    Lingora applies PEP to language as a cognitive technology. The
+    four pitch wedges (Pragmatic Translation, Voice-Aware Writing,
+    Constellation Language Learning, Prompt Engineering Toolkit) all
+    sit on the same primitives the other apps use. The Translation
+    Workbench is multi-objective projection (same primitive Atria uses
+    for player compatibility and Strata uses for headline scoring).
+    The Voice Analyzer is residual scoring (same primitive Axona uses
+    for prediction error and Vectora uses for anomaly detection).
+    Cross-pollination across apps is intentional &mdash; same engine,
+    different surfaces.
   </div>
 </div>
 </div>
