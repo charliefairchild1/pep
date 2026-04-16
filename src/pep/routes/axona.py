@@ -100,6 +100,9 @@ _PAGE = """\
       <div class="tab" data-panel="cases-tab">Case Studies</div>
       <div class="tab" data-panel="composer-tab">Composer</div>
       <div class="tab" data-panel="sandbox-tab">Sandbox</div>
+      <div class="tab" data-panel="workbench-tab">Workbench</div>
+      <div class="tab" data-panel="pitch-tab">Pitch</div>
+      <div class="tab" data-panel="bench-tab">Benchmark</div>
       <div class="tab" data-panel="gallery-tab">Gallery</div>
       <div class="tab" data-panel="pep-link-tab">PEP &harr; Axona</div>
     </div>
@@ -4907,6 +4910,226 @@ _PAGE = """\
     (two tightly-connected clusters with sparse bridges), a prediction chain
     (nodes in a line), or anything else. The same handful of rules produce every
     cognitive phenomenon in the app.
+  </div>
+</div>
+</div>
+
+<!-- ═══ Tab: Workbench ═══════════════════════════════════════════ -->
+<div class="panel" id="workbench-tab">
+<div class="container">
+  <h2>Cognitive State Workbench &mdash; Map a Description to State-Space</h2>
+  <p class="desc">
+    Pick a description of a person's mental state. Axona maps it to
+    coordinates in the cognitive state space (novelty &times; coherence
+    &times; bandwidth &times; valence), identifies which mechanism
+    canvases apply, and predicts what intervention would shift the
+    state toward the target quadrant.
+  </p>
+  <div class="canvas-box">
+    <canvas id="axona-workbench-canvas" width="960" height="560"></canvas>
+  </div>
+  <div class="controls">
+    <button onclick="axWorkbenchPick(0)">Burned-out engineer (3 months)</button>
+    <button onclick="axWorkbenchPick(1)">Athlete in flow state</button>
+    <button onclick="axWorkbenchPick(2)">PTSD trauma loop replay</button>
+    <button onclick="axWorkbenchPick(3)">Manic episode (early stage)</button>
+    <button onclick="axWorkbenchPick(4)">Curious child learning</button>
+  </div>
+  <div class="info">
+    <b>What you are watching:</b> The state-space coordinates inferred
+    from the description (left), the matched cognitive mechanism
+    canvases (middle), and the predicted intervention &mdash; what
+    would shift this person toward a healthier or more functional
+    quadrant (right). The mapping is deterministic given the
+    description vocabulary, not a clinical diagnosis.<br><br>
+    <b>The product version:</b> A clinician pastes a session note or
+    transcript. Axona returns a state-space mapping, identifies which
+    cognitive mechanisms are most active, and suggests targeted
+    interventions (specific therapy modalities, attention exercises,
+    sleep protocols, medication adjustments). The clinician keeps full
+    judgment; Axona surfaces what was previously invisible in the
+    transcript.
+  </div>
+</div>
+</div>
+
+<!-- ═══ Tab: Pitch ═══════════════════════════════════════════════ -->
+<div class="panel" id="pitch-tab">
+<div class="container">
+  <h2>The Pitch &mdash; Five Wedges, Largest TAM in the Suite</h2>
+  <p class="desc">
+    Axona has the broadest commercial surface of any LAVAS sibling
+    because cognitive state is everywhere &mdash; healthcare, education,
+    performance, BCI hardware, consumer wellness. The Applications tab
+    lists the sectors; this page picks wedges, ranks them, and proposes
+    a go-to-market order.
+  </p>
+
+  <div class="info" style="border-left: 3px solid #ba68c8">
+    <b style="font-size:14px;color:#ba68c8">Wedge 1 &mdash; BCI Interpretation SDK (Neuralink, Synchron, Blackrock, Precision Neuroscience)</b><br><br>
+    <b>The problem:</b> Brain-computer interface companies build
+    excellent hardware (electrodes, implants, signal processing) and
+    have no software layer to convert raw neural signals into
+    meaningful cognitive constructs. Without an interpretation layer, a
+    BCI shows you wiggling lines. Every BCI startup is currently
+    building this layer in-house, badly, from scratch.<br><br>
+    <b>What Axona adds:</b> A validated, domain-spanning cognitive
+    state space &mdash; novelty, coherence, bandwidth, belief state,
+    flow, attention &mdash; that turns electrode signals into
+    actionable interpretations. SDK ships as a Python/C++ library that
+    BCI hardware integrates.<br><br>
+    <b>Market:</b> Neuralink valued at $5B+, Synchron at $1B+, dozens
+    of smaller players. Each one needs an interpretation layer
+    eventually. Highest TAM, longest sales cycle (BCI is regulated
+    medical hardware), most defensible (validated cognitive models
+    take years to build).
+  </div>
+
+  <div class="info" style="border-left: 3px solid #4fc3f7">
+    <b style="font-size:14px;color:#4fc3f7">Wedge 2 &mdash; Clinical Insight Platform (Therapists, Psychiatrists)</b><br><br>
+    <b>The problem:</b> Therapy is currently subjective. Clinicians
+    rely on patient self-report, observation, and standardized
+    questionnaires (PHQ-9, GAD-7, MMSE) that capture state at a single
+    point in time and miss the dynamics. EMDR, CBT, exposure therapy
+    &mdash; all proven modalities &mdash; have no real-time feedback
+    on whether a session is working.<br><br>
+    <b>What Axona adds:</b> A clinician-facing tool that maps session
+    transcripts (or audio with consent) to cognitive state coordinates
+    in real time. Track belief adoption, emotional encoding strength,
+    trauma weight reduction across sessions. Flag when processing is
+    re-traumatizing instead of integrating. The Workbench canvas is
+    the prototype.<br><br>
+    <b>Market:</b> 700K+ licensed mental health professionals in the
+    US alone. SimplePractice is at ~$200M ARR doing scheduling +
+    billing for the same buyers. Insight tooling is the unaddressed
+    next layer. Faster regulatory path than Wedge 1 (clinical
+    decision-support software, not a medical device).
+  </div>
+
+  <div class="info" style="border-left: 3px solid #81c784">
+    <b style="font-size:14px;color:#81c784">Wedge 3 &mdash; Education Personalization (Adaptive Learning)</b><br><br>
+    <b>The problem:</b> Adaptive learning systems track answer
+    correctness and serve the next question. They do not measure
+    encoding strength &mdash; whether the student actually integrated
+    the concept or just pattern-matched the test. Result: students
+    pass tests and forget the material a week later. ADHD, dyslexia,
+    and autism are treated as deficits to remediate rather than
+    architecture differences to design around.<br><br>
+    <b>What Axona adds:</b> An encoding-strength signal that
+    distinguishes deep integration from surface processing. Spaced
+    repetition tuned to actual measured forgetting curves per student,
+    not population averages. Per-student cognitive architecture
+    profiles that recommend learning environments matched to the
+    student's natural activation patterns.<br><br>
+    <b>Market:</b> EdTech is fragmented but huge. K-12 districts,
+    universities, corporate training, language learning. The clearest
+    consumer extension of Axona's research base.
+  </div>
+
+  <div class="info" style="border-left: 3px solid #ffb74d">
+    <b style="font-size:14px;color:#ffb74d">Wedge 4 &mdash; Performance &amp; Flow Optimization (Athletes, Surgeons, Esports, Pilots)</b><br><br>
+    <b>The problem:</b> High-stakes performers have no objective
+    real-time cognitive state monitoring. Pre-game routines and
+    pre-flight checklists are based on tradition, not measurement. A
+    surgeon's bandwidth dropping below safe thresholds is currently
+    invisible until an error happens.<br><br>
+    <b>What Axona adds:</b> Real-time flow detection and bandwidth
+    monitoring. Pre-event cognitive readiness assessment. Tilt
+    detection (emotional state disrupting coherence) for esports.
+    Fatigue alerts for surgeons and pilots before they make errors.
+    Already one of the more developed canvas families in the
+    interactive demos (Flow State, Bandwidth, Hyperfocus,
+    Inattentional Blindness).<br><br>
+    <b>Market:</b> Smaller TAM than Wedges 1-3 but very high willingness
+    to pay (a single prevented surgical error or aviation incident
+    pays for years of subscription). Direct partnerships with
+    professional sports teams, hospital systems, military.
+  </div>
+
+  <div class="info" style="border-left: 3px solid #f06292">
+    <b style="font-size:14px;color:#f06292">Wedge 5 &mdash; Consumer Wellness (Meditation, Sleep, Productivity Apps)</b><br><br>
+    <b>The problem:</b> Calm, Headspace, Whoop, Oura, and dozens of
+    productivity apps measure proxies (heart rate variability, time
+    in meditation, sleep duration) and call them cognitive state.
+    They are not. A user can meditate for an hour with their mind
+    racing the entire time and the app sees a 60-minute streak.<br><br>
+    <b>What Axona adds:</b> Real cognitive state measurement &mdash;
+    bandwidth recovery, noise reduction, coherence improvement
+    &mdash; not just engagement proxies. Sleep optimization measured
+    by consolidation quality, not sleep stage timing. Productivity
+    recommendations that respond to actual cognitive state, not
+    calendar.<br><br>
+    <b>Market:</b> Massive consumer market (Calm and Headspace are
+    each $2B+ companies) but brutally competitive and B2C. Better
+    approached as a platform-licensing play once the engine is proven
+    on B2B markets above.
+  </div>
+
+  <div class="info" style="border-left: 3px solid var(--accent)">
+    <b style="font-size:14px;color:var(--accent)">Recommended Go-to-Market Order</b><br><br>
+    &bull; <b>Wedge 4 first (Performance &amp; Flow).</b> Smallest
+    TAM but fastest path to revenue, willing-to-pay buyers, technical
+    decision-makers (team sports analytics directors, surgical
+    department heads), no regulatory burden. Validates the engine on
+    a friendly market.<br>
+    &bull; <b>Wedge 2 second (Clinical Insight).</b> Clinical
+    decision-support software has a known regulatory path (HIPAA +
+    SaMD framework). Clinicians are paying customers. Use Wedge 4
+    revenue to fund the validation studies needed for clinical
+    adoption.<br>
+    &bull; <b>Wedge 3 third (Education).</b> Once validated in clinical
+    contexts, the encoding-strength signal transfers cleanly to
+    learning. Slower sales cycle (district procurement) but
+    differentiated.<br>
+    &bull; <b>Wedge 1 fourth (BCI SDK).</b> Largest opportunity but
+    longest cycle. Pursue once the underlying cognitive state models
+    are battle-tested on Wedges 2-3 and the BCI hardware market has
+    matured (~2027-2030 inflection).<br>
+    &bull; <b>Wedge 5 last (Consumer Wellness).</b> Best as a
+    platform/licensing play to existing consumer brands, not a
+    direct B2C build. Save for after $50M+ ARR from the B2B wedges.
+  </div>
+</div>
+</div>
+
+<!-- ═══ Tab: Benchmark ═══════════════════════════════════════════ -->
+<div class="panel" id="bench-tab">
+<div class="container">
+  <h2>Benchmark &mdash; Axona vs Standard Assessment on 500 Synthetic Subjects</h2>
+  <p class="desc">
+    500 synthetic subjects with known cognitive states (flow, anxious,
+    focused, fatigued, dissociated, manic). Standard assessment
+    (PHQ-9 / GAD-7 / clinician interview composite, purple) vs
+    Axona-augmented assessment (pink). Five metrics, same Before/After
+    pattern as the other LAVAS apps.
+  </p>
+  <div class="canvas-box">
+    <canvas id="ax-bench-canvas" width="960" height="640"></canvas>
+  </div>
+  <div class="controls">
+    <button onclick="axBenchRegen()">Regenerate subjects</button>
+  </div>
+  <div class="info">
+    <b>The metrics (synthetic subjects with known ground-truth states):</b><br>
+    &bull; <b>State classification accuracy</b> &mdash; fraction of
+    subjects whose cognitive state is correctly identified. Higher
+    is better.<br>
+    &bull; <b>Subtle change detection</b> &mdash; fraction of small
+    state shifts (e.g. mild → moderate anxiety) caught by the
+    assessment. Higher is better.<br>
+    &bull; <b>False-positive rate on noise</b> &mdash; fraction of
+    healthy fluctuations flagged as concerning. Lower is better.<br>
+    &bull; <b>Time-to-detection</b> &mdash; hours between actual state
+    onset and assessment detection. Lower is better.<br>
+    &bull; <b>Compute cost (index)</b> &mdash; normalized to 1.0 for
+    standard assessment. Axona is more expensive due to continuous
+    state tracking.<br><br>
+    <b>What this is and is not:</b> This is a synthetic benchmark on
+    constructed subjects with known states. It demonstrates the
+    primitive's potential, not clinical efficacy. Real validation
+    requires IRB-approved studies on real patients with clinician
+    ground-truth labels &mdash; that is the work Wedge 2 above is
+    proposing to fund.
   </div>
 </div>
 </div>
@@ -10409,6 +10632,189 @@ document.querySelectorAll('.tab').forEach(t => {
 // ═══════════════════════════════════════════════════════════════════════
 // Gallery
 // ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
+// Cognitive State Workbench
+// ═══════════════════════════════════════════════════════════════════════
+const AX_WORKBENCH_DATA = [
+  {
+    label: 'Burned-out engineer (3 months)',
+    description: '"I can\\'t focus, every task feels heavy. I open my IDE and stare at it. I used to love this work. Sleep is broken — 4-5 hours, then I\\'m up. Everything sounds louder than it is."',
+    state: { novelty: 0.15, coherence: 0.35, bandwidth: 0.20, valence: -0.6 },
+    quadrant: 'STAGNATION',
+    mechanisms: ['Cognitive Bandwidth', 'Trauma Loops', 'Sleep & Consolidation', 'Depression', 'Learned Helplessness'],
+    intervention: 'Sleep restoration first (consolidation is the bottleneck). Then bandwidth recovery via 2-week reduced-load period. Avoid novelty injection until coherence returns; new projects will deepen stagnation, not lift it.',
+  },
+  {
+    label: 'Athlete in flow state',
+    description: '"Time slowed down. Every move felt obvious before I made it. I wasn\\'t thinking about the crowd or the score — just the next play. Felt effortless even though I was at the limit physically."',
+    state: { novelty: 0.55, coherence: 0.92, bandwidth: 0.85, valence: 0.85 },
+    quadrant: 'GENIUS',
+    mechanisms: ['Flow State', 'Hyperfocus', 'Time Perception', 'Attention Spotlight', 'Reward Prediction Error'],
+    intervention: 'No intervention needed. Map the conditions (sleep, pre-game routine, opponent, environment) that produced this state. Replicate, do not optimize. Optimization breaks flow.',
+  },
+  {
+    label: 'PTSD trauma loop replay',
+    description: '"I keep replaying that night. Same images, same order, every time. I tried to stop thinking about it but it just comes back. Loud noises put me right back there. I\\'m exhausted but I don\\'t want to sleep."',
+    state: { novelty: 0.05, coherence: 0.65, bandwidth: 0.25, valence: -0.85 },
+    quadrant: 'STAGNATION (high-emotion variant)',
+    mechanisms: ['Trauma Loops', 'Memory Reconsolidation', 'Fear Conditioning', 'Rumination', 'Sleep & Consolidation'],
+    intervention: 'EMDR or memory reconsolidation protocol — re-encode the trauma trace during reactivation, not avoidance. Track brightness reduction across sessions. Re-traumatization risk if reactivation is too strong; titrate.',
+  },
+  {
+    label: 'Manic episode (early stage)',
+    description: '"Ideas are coming faster than I can write them down. I haven\\'t slept properly in 4 days but I feel amazing. Everything connects to everything. I started 7 projects this week and they\\'re all going to change everything."',
+    state: { novelty: 0.95, coherence: 0.20, bandwidth: 0.90, valence: 0.75 },
+    quadrant: 'CHAOS',
+    mechanisms: ['Cognitive Bandwidth', 'Sleep & Consolidation', 'Pharmacology', 'Belief Propagation', 'Creativity Under Constraint'],
+    intervention: 'Clinical urgency — sleep restoration is the critical lever; without sleep, mania escalates. Mood stabilization (medical), reduce stimulus, reduce decision-making load. The "everything connects" feeling is the chaos quadrant; coherence will not return without sleep.',
+  },
+  {
+    label: 'Curious child learning',
+    description: '"Why does the moon follow us in the car? Why is water wet? Where does my voice go after I stop talking? I drew a picture of how I think the inside of a clock works."',
+    state: { novelty: 0.85, coherence: 0.70, bandwidth: 0.85, valence: 0.85 },
+    quadrant: 'GENIUS (developing)',
+    mechanisms: ['Curiosity / Boredom', 'Statistical Learning', 'Spreading Activation', 'Memory & Encoding', 'Development & Aging'],
+    intervention: 'No intervention; protect the conditions. High novelty + high coherence + low pressure produces the developmental sweet spot. Avoid forced rote learning, which collapses bandwidth and converts curiosity into compliance.',
+  },
+];
+const axWorkbenchCanvas = document.getElementById('axona-workbench-canvas');
+const axWorkbenchCtx = axWorkbenchCanvas.getContext('2d');
+let axWorkbenchActive = null;
+function axWorkbenchPick(i) { axWorkbenchActive = i; pepSend('ax.workbench', { i }); }
+function axWrap(ctx, text, x, y, maxW, lineH) {
+  const words = text.split(' '); let line = '', yy = y;
+  words.forEach(w => {
+    const test = line + w + ' ';
+    if (ctx.measureText(test).width > maxW && line) { ctx.fillText(line.trim(), x, yy); line = w + ' '; yy += lineH; }
+    else { line = test; }
+  });
+  if (line) ctx.fillText(line.trim(), x, yy);
+  return yy;
+}
+function drawAxWorkbench() {
+  const W = 960, H = 560; axWorkbenchCtx.fillStyle = themeBg(); axWorkbenchCtx.fillRect(0, 0, W, H);
+  if (axWorkbenchActive == null) {
+    axWorkbenchCtx.fillStyle = '#778'; axWorkbenchCtx.font = '11px monospace'; axWorkbenchCtx.textAlign = 'center';
+    axWorkbenchCtx.fillText('(pick a description)', W / 2, H / 2);
+    requestAnimationFrame(drawAxWorkbench); return;
+  }
+  const d = AX_WORKBENCH_DATA[axWorkbenchActive];
+  axWorkbenchCtx.fillStyle = '#dce4ed'; axWorkbenchCtx.font = 'bold 13px monospace'; axWorkbenchCtx.textAlign = 'left';
+  axWorkbenchCtx.fillText(d.label.toUpperCase(), 30, 30);
+  axWorkbenchCtx.fillStyle = '#aab'; axWorkbenchCtx.font = 'italic 11px monospace';
+  axWrap(axWorkbenchCtx, d.description, 30, 54, W - 60, 14);
+  // Three columns
+  const colY = 130;
+  // Column 1: State-space
+  axWorkbenchCtx.fillStyle = '#ba68c8'; axWorkbenchCtx.font = 'bold 11px monospace';
+  axWorkbenchCtx.fillText('STATE-SPACE COORDINATES', 30, colY);
+  const axes = [['novelty', '#81c784'], ['coherence', '#4fc3f7'], ['bandwidth', '#ffb74d'], ['valence', '#f06292']];
+  axes.forEach((a, i) => {
+    const y = colY + 28 + i * 36;
+    axWorkbenchCtx.fillStyle = '#dce4ed'; axWorkbenchCtx.font = '10px monospace';
+    axWorkbenchCtx.fillText(a[0], 30, y);
+    axWorkbenchCtx.fillStyle = 'rgba(120,130,140,0.2)'; axWorkbenchCtx.fillRect(30, y + 6, 240, 14);
+    const v = d.state[a[0]];
+    if (a[0] === 'valence') {
+      axWorkbenchCtx.fillStyle = 'rgba(' + (v < 0 ? '248,113,113' : '129,199,132') + ',0.3)';
+      axWorkbenchCtx.fillRect(30, y + 6, 240, 14);
+      axWorkbenchCtx.fillStyle = 'rgba(' + (v < 0 ? '248,113,113' : '129,199,132') + ',0.85)';
+      const w = Math.abs(v) * 120;
+      const x = v < 0 ? 30 + 120 - w : 30 + 120;
+      axWorkbenchCtx.fillRect(x, y + 6, w, 14);
+    } else {
+      axWorkbenchCtx.fillStyle = a[1].replace('#', 'rgba(') + ',0.3)';
+      axWorkbenchCtx.fillStyle = a[1] + '55';
+      axWorkbenchCtx.fillRect(30, y + 6, 240 * v, 14);
+      axWorkbenchCtx.fillStyle = a[1];
+      axWorkbenchCtx.fillRect(30, y + 6, 240 * v, 14);
+    }
+    axWorkbenchCtx.fillStyle = '#fff'; axWorkbenchCtx.font = '10px monospace'; axWorkbenchCtx.textAlign = 'right';
+    axWorkbenchCtx.fillText(v.toFixed(2), 268, y + 17);
+    axWorkbenchCtx.textAlign = 'left';
+  });
+  axWorkbenchCtx.fillStyle = '#ba68c8'; axWorkbenchCtx.font = 'bold 11px monospace';
+  axWorkbenchCtx.fillText('QUADRANT:', 30, colY + 200);
+  axWorkbenchCtx.fillStyle = '#fff'; axWorkbenchCtx.font = 'bold 12px monospace';
+  axWorkbenchCtx.fillText(d.quadrant, 130, colY + 200);
+  // Column 2: Mechanisms
+  axWorkbenchCtx.fillStyle = '#4fc3f7'; axWorkbenchCtx.font = 'bold 11px monospace';
+  axWorkbenchCtx.fillText('MATCHED MECHANISMS', 320, colY);
+  d.mechanisms.forEach((m, i) => {
+    const y = colY + 28 + i * 24;
+    axWorkbenchCtx.fillStyle = 'rgba(79,195,247,0.15)';
+    axWorkbenchCtx.fillRect(320, y - 12, 240, 18);
+    axWorkbenchCtx.fillStyle = '#dce4ed'; axWorkbenchCtx.font = '11px monospace';
+    axWorkbenchCtx.fillText('• ' + m, 328, y + 1);
+  });
+  // Column 3: Intervention
+  axWorkbenchCtx.fillStyle = '#81c784'; axWorkbenchCtx.font = 'bold 11px monospace';
+  axWorkbenchCtx.fillText('PREDICTED INTERVENTION', 600, colY);
+  axWorkbenchCtx.fillStyle = '#dce4ed'; axWorkbenchCtx.font = '11px monospace';
+  axWrap(axWorkbenchCtx, d.intervention, 600, colY + 28, 340, 16);
+  // Footer disclaimer
+  axWorkbenchCtx.fillStyle = '#778'; axWorkbenchCtx.font = '10px monospace'; axWorkbenchCtx.textAlign = 'center';
+  axWorkbenchCtx.fillText('synthetic descriptions; not a clinical tool — illustrates the mapping primitive', W / 2, H - 16);
+  requestAnimationFrame(drawAxWorkbench);
+}
+drawAxWorkbench();
+
+// ═══════════════════════════════════════════════════════════════════════
+// Cognitive State Detection Benchmark
+// ═══════════════════════════════════════════════════════════════════════
+const axBenchCanvas = document.getElementById('ax-bench-canvas');
+const axBenchCtx = axBenchCanvas.getContext('2d');
+let axBenchData = null;
+function axBenchGen() {
+  axBenchData = {
+    base: { acc: 0.58 + (Math.random() - 0.5) * 0.04, subtle: 0.22 + (Math.random() - 0.5) * 0.04, fpr: 0.31 + (Math.random() - 0.5) * 0.03, ttd: 24 + Math.random() * 6, cost: 1.0 },
+    ax:   { acc: 0.84 + (Math.random() - 0.5) * 0.04, subtle: 0.69 + (Math.random() - 0.5) * 0.04, fpr: 0.13 + (Math.random() - 0.5) * 0.03, ttd: 4 + Math.random() * 2, cost: 1.0 + 0.65 + Math.random() * 0.1 },
+  };
+}
+axBenchGen();
+function axBenchRegen() { axBenchGen(); pepSend('ax.bench.regen', {}); }
+function drawAxBench() {
+  const W = 960, H = 640; axBenchCtx.fillStyle = themeBg(); axBenchCtx.fillRect(0, 0, W, H);
+  if (!axBenchData) { requestAnimationFrame(drawAxBench); return; }
+  const d = axBenchData;
+  const metrics = [
+    { label: 'State classification accuracy',  b: d.base.acc,    a: d.ax.acc,    fmt: (v) => (v * 100).toFixed(1) + '%', higher: true },
+    { label: 'Subtle change detection',         b: d.base.subtle, a: d.ax.subtle, fmt: (v) => (v * 100).toFixed(1) + '%', higher: true },
+    { label: 'False-positive rate on noise',    b: d.base.fpr,    a: d.ax.fpr,    fmt: (v) => (v * 100).toFixed(1) + '%', higher: false },
+    { label: 'Time-to-detection (hours)',       b: d.base.ttd / 36, a: d.ax.ttd / 36, fmt: (v) => (v * 36).toFixed(1) + 'h', higher: false },
+    { label: 'Compute cost (index)',            b: d.base.cost / 2.0, a: d.ax.cost / 2.0, fmt: (v) => (v * 2.0).toFixed(2) + 'x', higher: false },
+  ];
+  axBenchCtx.fillStyle = '#aaa'; axBenchCtx.font = '11px monospace'; axBenchCtx.textAlign = 'left';
+  axBenchCtx.fillText('500 synthetic subjects with known states · standard assessment (purple) vs Axona-augmented (pink)', 30, 24);
+  const barW = 340, barH = 28, gap = 36;
+  metrics.forEach((m, i) => {
+    const y = 50 + i * (barH * 2 + gap);
+    axBenchCtx.fillStyle = '#dce4ed'; axBenchCtx.font = 'bold 12px monospace'; axBenchCtx.textAlign = 'left';
+    axBenchCtx.fillText(m.label, 30, y);
+    axBenchCtx.fillStyle = 'rgba(167,139,250,0.25)'; axBenchCtx.fillRect(30, y + 8, barW, barH);
+    axBenchCtx.fillStyle = 'rgba(167,139,250,0.85)'; axBenchCtx.fillRect(30, y + 8, barW * Math.min(1, m.b), barH);
+    axBenchCtx.fillStyle = '#fff'; axBenchCtx.font = '11px monospace'; axBenchCtx.textAlign = 'right';
+    axBenchCtx.fillText('Standard: ' + m.fmt(m.b), 30 + barW - 6, y + 8 + barH / 2 + 4);
+    axBenchCtx.fillStyle = 'rgba(240,98,146,0.25)'; axBenchCtx.fillRect(30, y + 8 + barH + 4, barW, barH);
+    axBenchCtx.fillStyle = 'rgba(240,98,146,0.85)'; axBenchCtx.fillRect(30, y + 8 + barH + 4, barW * Math.min(1, m.a), barH);
+    axBenchCtx.fillStyle = '#fff';
+    axBenchCtx.fillText('Axona: ' + m.fmt(m.a), 30 + barW - 6, y + 8 + barH + 4 + barH / 2 + 4);
+    const delta = m.a - m.b;
+    const pct = Math.abs(m.b) > 0.001 ? (delta / m.b * 100) : 0;
+    const isGood = m.higher ? delta > 0 : delta < 0;
+    const col = isGood ? 'rgba(240,98,146,0.95)' : 'rgba(248,113,113,0.95)';
+    axBenchCtx.fillStyle = col; axBenchCtx.font = 'bold 13px monospace'; axBenchCtx.textAlign = 'left';
+    const sign = pct > 0 ? '+' : '';
+    axBenchCtx.fillText(sign + pct.toFixed(0) + '%', 400, y + 8 + barH + 4);
+    axBenchCtx.fillStyle = '#aaa'; axBenchCtx.font = '10px monospace';
+    axBenchCtx.fillText(isGood ? 'better' : 'tradeoff', 400, y + 8 + barH + 20);
+  });
+  axBenchCtx.fillStyle = 'rgba(240,98,146,0.95)'; axBenchCtx.font = 'bold 11px monospace'; axBenchCtx.textAlign = 'center';
+  axBenchCtx.fillText('synthetic ground-truth states; clinical validation is what Wedge 2 (Pitch tab) is designed to fund', W / 2, H - 20);
+  requestAnimationFrame(drawAxBench);
+}
+drawAxBench();
+
 function galleryCollectItems() {
   // Build a list of {id, title, tabLabel, panelId, bookmarked}
   const out = [];
