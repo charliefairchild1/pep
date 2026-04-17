@@ -1330,6 +1330,49 @@ _PAGE = """\
     decision-making.&quot; Easier said than done, because the modulator
     also suppresses the meta-awareness that would notice it.
   </div>
+
+  <div class="info" style="border-left: 3px solid #ffb74d">
+    <b style="color:#ffb74d">This is not just sex &mdash; every powerful drive does the same thing</b><br><br>
+    Sexual arousal is the most dramatic example, but the mechanism is
+    universal. <em>Any sufficiently powerful drive state</em> acts as a
+    state modulator that suppresses the frontal cortex, narrows
+    bandwidth, collapses the prediction window, and rewrites edge
+    weights toward the drive object:<br><br>
+    &bull; <b>Extreme hunger.</b> A starving person will eat things they
+    would never eat at baseline. They will steal food. They will break
+    social norms. The hunger modulator has suppressed the frontal cortex
+    (consequence evaluation) and amplified reward pathways (food = only
+    goal). After eating, the same &quot;clarity&quot; hits &mdash;
+    &quot;I can&apos;t believe I did that&quot; &mdash; because the
+    frontal cortex is back online and re-evaluating.<br><br>
+    &bull; <b>Addiction craving.</b> The addict in withdrawal has a
+    drive modulator running at maximum. Bandwidth narrowed to one goal
+    (the substance). Frontal cortex suppressed (risks dismissed).
+    Prediction window collapsed to &quot;right now.&quot; Decisions
+    made during craving are re-evaluated with horror during
+    sobriety &mdash; same mechanism as post-nut clarity, same
+    contrast effect.<br><br>
+    &bull; <b>Fear / survival threat.</b> A person in mortal danger
+    will do things they would never do at baseline &mdash; extreme
+    violence, abandoning others, feats of strength. The threat
+    modulator suppresses everything except escape pathways. After the
+    threat passes, &quot;I can&apos;t believe I did that&quot; &mdash;
+    same mechanism, same clarity.<br><br>
+    &bull; <b>Rage.</b> Intense anger is a drive state that narrows
+    bandwidth to the target of the anger and suppresses consequence
+    evaluation. People say things in rage they &quot;didn&apos;t
+    mean&quot; &mdash; they meant them under the rage modulator&apos;s
+    edge weights, not under baseline edge weights. The regret afterward
+    is the contrast between modulated and unmodulated evaluation.<br><br>
+    <b>The general principle:</b> any state modulator powerful enough
+    to suppress the frontal cortex produces the same pattern &mdash;
+    irrational behavior during the drive, followed by clarity and often
+    regret when the drive resolves and the frontal cortex restores.
+    The &quot;irrationality&quot; is not a failure of reasoning. It is
+    reasoning under a different set of edge weights. The person IS
+    being rational &mdash; for the landscape the modulator created.
+    They just would not have chosen that landscape voluntarily.
+  </div>
   </div>
 
   <div class="sub-section">
