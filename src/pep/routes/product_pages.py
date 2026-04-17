@@ -970,13 +970,129 @@ updateAtriaTune();
         final_cta="Stop tuning Elo. Start optimizing for rematch.",
         status_badge="FIRST WEDGE · GAME STUDIOS · LIVE ENGINE",
         playground_url="/atria/match/playground",
-        playground_description="Configure a seed player, generate a random pool, and watch Atria and Elo rank it side by side. The playground runs the real Atria Match engine (multi-objective scoring across 7 dimensions + rematch probability + explainability). Run the built-in 500-pair eval to see live AUC numbers — Atria vs Elo on labeled synthetic matches.",
+        playground_description="Configure a seed player, generate a random pool, and watch Atria and Elo rank it side by side.",
         used_by=[
             ("Atria Date", "Dating compatibility across values, attachment, conflict, interests.", "/atria/date/playground", "#ec4899"),
             ("Atria Hire", "Candidate-team fit across skills, culture, communication, pace.", "/atria/hire/playground", "#fbbf24"),
             ("Atria Found", "Cofounder compatibility across skills, conflict, equity, vision.", "/atria/found/playground", "#a78bfa"),
             ("Atria Therapy", "Patient-therapist matching across communication, attachment, modality.", "/atria/therapy/playground", "#67e8f9"),
         ],
+    )
+
+
+# ═══════════════════════════════════════════════════════════════════════
+# Axona product pages (BCI, Clinic, Learn, Wellness) — concise versions
+# Edge already has a full product page above.
+# ═══════════════════════════════════════════════════════════════════════
+@router.get("/axona/bci", response_class=HTMLResponse)
+async def axona_bci() -> str:
+    return _product_page(
+        title="Axona BCI SDK", parent_name="Axona", parent_path="/axona",
+        accent="#ba68c8", accent_rgb="186,104,200",
+        surface_bg="#0d0a14", surface_card="#1a1322", text_color="#e8dee8", dim_color="#8a7a8e", border_color="#2c2236",
+        tagline="Turn electrode signals into cognitive state. The interpretation layer BCI hardware needs.",
+        hero_paragraphs=[
+            "BCI hardware companies build excellent electrodes and have no software layer to interpret what the signals mean. Axona BCI SDK maps raw EEG-style features (power-band ratios, coherence metrics, event-related potentials) into the four-axis cognitive state space with per-user calibration.",
+        ],
+        problem="A BCI gives you wiggling lines. Without an interpretation layer, those lines mean nothing actionable.",
+        solution="A calibrated mapping from electrode features to cognitive state (novelty, coherence, bandwidth, valence). Personalized per user during a 1-week calibration. Ships as a Python/C++ SDK.",
+        how_it_works=[("Extract features", "Power-band ratios, frontal coherence, asymmetry, P300 amplitude."), ("Calibrate", "1-week per-user baseline; personalized weights."), ("Map", "Weighted combination → state-space coordinates."), ("Alert", "Real-time alerts when state crosses thresholds.")],
+        capabilities=[("Theta/alpha mapping", "Drowsiness vs alertness."), ("Beta/gamma mapping", "Focus and complex processing."), ("Frontal coherence", "Integration of thinking."), ("Asymmetry → valence", "Approach vs withdrawal emotional direction."), ("P300 → novelty", "Surprise response amplitude."), ("Per-user calibration", "No population averages.")],
+        demo_html='<div style="font-size:11px;color:#8a7a8e">Open the playground for interactive signal adjustment:</div><a href="/axona/bci/playground" style="display:block;padding:14px;background:rgba(186,104,200,0.1);border:1px solid #ba68c8;border-radius:6px;color:#ba68c8;text-align:center;font-weight:bold;margin-top:10px;text-decoration:none">Open BCI Playground →</a>',
+        demo_script="", secondary_demo_title="", secondary_demo_html="", secondary_demo_script="",
+        use_cases=[("Neuralink integration", "Raw electrode data → cognitive state for adaptive UI.", "SDK interprets signals in real-time; UI adapts to flow/fatigue/tilt."), ("EEG headband app", "Consumer-grade EEG → meditation quality measurement.", "Measures actual coherence recovery, not just time-in-session.")],
+        competitors=[("Raw signal processing", "Adds the cognitive interpretation layer.", "Shows wiggling lines without meaning.")],
+        integration_steps=[("pip install axona-bci", ""), ("Calibrate", "1-week baseline."), ("Stream signals", "Real-time state mapping."), ("Act on alerts", "Threshold-based notifications.")],
+        pricing_tiers=[("Research", "$499 / mo", "1 device, Python SDK, basic calibration."), ("Clinical", "$2K / mo", "Multi-device, C++ SDK, custom calibration protocols."), ("Enterprise", "Custom", "Hardware partnership, on-device inference, regulatory support.")],
+        faq=[("Does it work without calibration?", "Population defaults get ~70% accuracy. Calibration gets >90%.")],
+        final_cta="Stop showing wiggling lines. Start showing cognitive state.",
+        status_badge="WEDGE 1 · BCI · LIVE ENGINE",
+        playground_url="/axona/bci/playground",
+        playground_description="Adjust electrode feature sliders, see real-time cognitive state mapping with alerts.",
+    )
+
+
+@router.get("/axona/clinic", response_class=HTMLResponse)
+async def axona_clinic() -> str:
+    return _product_page(
+        title="Axona Clinic", parent_name="Axona", parent_path="/axona",
+        accent="#4fc3f7", accent_rgb="79,195,247",
+        surface_bg="#0a1014", surface_card="#141d24", text_color="#dcecec", dim_color="#6b8088", border_color="#1f2c34",
+        tagline="Session transcripts → cognitive state. See what was previously invisible.",
+        hero_paragraphs=[
+            "Therapists rely on self-report and observation. Axona Clinic maps session notes to the four-axis cognitive state space using keyword detection, tracking belief adoption, emotional encoding, and bandwidth changes across sessions.",
+        ],
+        problem="Therapy is subjective. No objective measurement of whether a session is working or re-traumatizing.",
+        solution="Keyword-based cognitive state inference from session notes. Track novelty (breakthroughs), coherence (integration), bandwidth (capacity), valence (emotional direction) across sessions.",
+        how_it_works=[("Paste session note", ""), ("Keyword detection", "Patterns for novelty, coherence, bandwidth, valence."), ("State mapping", "Four-axis coordinates with quadrant and risk."), ("Alerts", "Flags crisis states, tilt, re-traumatization risk.")],
+        capabilities=[("Novelty detection", "Insight, breakthrough, realization, new perspective."), ("Coherence detection", "Makes sense, connected, integrated, clarity."), ("Bandwidth detection", "Energized, depleted, exhausted, overwhelmed."), ("Valence detection", "Hopeful, anxious, angry, afraid, suicidal."), ("Crisis flagging", "Automatic alerts on crisis-level keywords."), ("Session-over-session tracking", "Trends across multiple sessions.")],
+        demo_html='<a href="/axona/clinic/playground" style="display:block;padding:14px;background:rgba(79,195,247,0.1);border:1px solid #4fc3f7;border-radius:6px;color:#4fc3f7;text-align:center;font-weight:bold;margin-top:10px;text-decoration:none">Open Clinic Playground →</a>',
+        demo_script="", secondary_demo_title="", secondary_demo_html="", secondary_demo_script="",
+        use_cases=[("Therapist tracking progress", "Paste session notes weekly; see state trajectory.", "Novelty + coherence trending up = integration happening."), ("Supervisor oversight", "Flag sessions where bandwidth crashes or crisis keywords appear.", "Automatic triage for supervisory review.")],
+        competitors=[("Clinical questionnaires (PHQ-9)", "Real-time, session-level, no survey burden.", "Point-in-time, self-report, misses session dynamics.")],
+        integration_steps=[("Paste or upload", "Session notes in plain text."), ("Review state", "Four-axis mapping with alerts."), ("Track trends", "Session-over-session state trajectory.")],
+        pricing_tiers=[("Solo", "$49 / mo", "1 clinician, unlimited sessions."), ("Practice", "$199 / mo", "Up to 10 clinicians, supervisor dashboard."), ("Enterprise", "Custom", "EHR integration, HIPAA BAA, custom keyword libraries.")],
+        faq=[("Is this HIPAA-compliant?", "The engine processes text in-process; no data leaves the server. Enterprise tier includes BAA.")],
+        final_cta="See what your sessions are actually doing.",
+        status_badge="WEDGE 2 · CLINICAL · LIVE ENGINE",
+        playground_url="/axona/clinic/playground",
+        playground_description="Paste a session note or pick a sample (progress, crisis, plateau, integration, tilt). See keyword-detected cognitive state.",
+    )
+
+
+@router.get("/axona/learn", response_class=HTMLResponse)
+async def axona_learn_page() -> str:
+    return _product_page(
+        title="Axona Learn", parent_name="Axona", parent_path="/axona",
+        accent="#81c784", accent_rgb="129,199,132",
+        surface_bg="#0a0e16", surface_card="#161c28", text_color="#e0e6ed", dim_color="#7a8492", border_color="#2a3140",
+        tagline="Measure encoding strength, not test scores. Know if they actually learned it.",
+        hero_paragraphs=[
+            "Adaptive learning systems track answer correctness. They don't measure whether the student integrated the concept or just pattern-matched the test. Axona Learn uses the haze primitive to track encoding strength over time, distinguishing surface learning from deep integration.",
+        ],
+        problem="Students pass tests and forget the material a week later. The system can't tell the difference between memorized and understood.",
+        solution="Track encoding strength per concept using opacity-based decay. Study events boost opacity; test passes reinforce; test fails trigger re-learning. Application in new contexts is the deepest reinforcement.",
+        how_it_works=[("Study", "Boost opacity with diminishing returns."), ("Test", "Pass extends half-life; fail shortens it."), ("Apply", "Using concept in new context = deepest encoding."), ("Review", "Weakest concepts surfaced automatically.")],
+        capabilities=[("Per-concept opacity", "Individual decay curves, not population averages."), ("Four depth levels", "Unseen → surface → integrated → deep."), ("Application tracking", "Using knowledge in new contexts is measured separately from recall."), ("Personalized review schedule", "Based on actual measured decay, not fixed intervals."), ("Weakest-first review", "Always study what you're about to forget."), ("Topic-level analytics", "Which subjects are sticking? Which are fading?")],
+        demo_html='<a href="/axona/learn/playground" style="display:block;padding:14px;background:rgba(129,199,132,0.1);border:1px solid #81c784;border-radius:6px;color:#81c784;text-align:center;font-weight:bold;margin-top:10px;text-decoration:none">Open Learn Playground →</a>',
+        demo_script="", secondary_demo_title="", secondary_demo_html="", secondary_demo_script="",
+        use_cases=[("University course", "Track which students actually integrated the material vs memorized for the exam.", "Encoding depth by concept shows who understood vs who crammed."), ("Corporate training", "Measure retention after compliance training.", "If concepts are fading within 2 weeks, the training didn't stick.")],
+        competitors=[("LMS platforms", "Measures encoding strength, not just completion.", "Tracks course completion and test scores. Can't detect surface learning.")],
+        integration_steps=[("Define concepts", "Import from your curriculum."), ("Track events", "Study, test, application events via API."), ("Review analytics", "Per-concept and per-student depth reports.")],
+        pricing_tiers=[("Free", "$0 / mo", "50 concepts, basic tracking."), ("Educator", "$29 / mo", "Unlimited concepts, class analytics."), ("Institution", "Custom", "LMS integration, bulk licensing.")],
+        faq=[("How is this different from spaced repetition?", "Same decay model, but also tracks APPLICATION — using knowledge in new contexts. That's what separates 'can recall' from 'actually understands.'")],
+        final_cta="Stop measuring test scores. Start measuring understanding.",
+        status_badge="WEDGE 3 · EDUCATION · LIVE ENGINE",
+        playground_url="/axona/learn/playground",
+        playground_description="10 concepts from Biology/Math/Physics/Economics/Statistics. Study, test, apply — watch encoding depth change with each event.",
+    )
+
+
+@router.get("/axona/wellness", response_class=HTMLResponse)
+async def axona_wellness() -> str:
+    return _product_page(
+        title="Axona Wellness", parent_name="Axona", parent_path="/axona",
+        accent="#f06292", accent_rgb="240,98,146",
+        surface_bg="#0d0a14", surface_card="#1a1322", text_color="#e8dee8", dim_color="#8a7a8e", border_color="#2c2236",
+        tagline="Real cognitive state from consumer biometrics. Not just another HRV app.",
+        hero_paragraphs=[
+            "Calm, Headspace, Whoop, and Oura measure proxies (HRV, sleep duration, recovery score). None measure cognitive state. Axona Wellness maps consumer-grade biometrics to actual bandwidth, coherence, novelty, and valence — so you know whether your meditation worked, not just whether you sat still.",
+        ],
+        problem="You meditate for 30 minutes. Your app says '30 min streak.' Your mind was racing the entire time. The app has no model for cognitive state — only engagement time.",
+        solution="Map HRV, sleep quality, activity, stress, screen time, and caffeine to the cognitive state space. Tell the user their actual bandwidth, not a proxy.",
+        how_it_works=[("Input biometrics", "HRV, resting HR, sleep, activity, stress, screen time, caffeine."), ("Map to state", "Weighted combination → bandwidth, coherence, novelty, valence."), ("Alert", "Low bandwidth = rest. High stress + low sleep = critical."), ("Track trends", "Daily state trajectory over weeks.")],
+        capabilities=[("HRV → bandwidth", "High HRV = calm + available bandwidth."), ("Sleep → coherence", "Good sleep = better integration."), ("Activity boost", "Exercise temporarily boosts bandwidth."), ("Stress penalty", "Each stress event reduces bandwidth + valence."), ("Screen fatigue", "Extended screen time degrades bandwidth."), ("Caffeine model", "Boosts novelty-seeking but doesn't restore bandwidth.")],
+        demo_html='<a href="/axona/wellness/playground" style="display:block;padding:14px;background:rgba(240,98,146,0.1);border:1px solid #f06292;border-radius:6px;color:#f06292;text-align:center;font-weight:bold;margin-top:10px;text-decoration:none">Open Wellness Playground →</a>',
+        demo_script="", secondary_demo_title="", secondary_demo_html="", secondary_demo_script="",
+        use_cases=[("Meditation app", "Measure cognitive state before + after session. Show actual bandwidth recovery.", "Users see whether the meditation worked, not just whether they did it."), ("Sleep optimizer", "Score consolidation quality from sleep + next-day cognitive state.", "7h of good sleep > 9h of poor sleep — the state mapping shows why.")],
+        competitors=[("Whoop / Oura", "Maps to cognitive state, not just recovery score.", "Measures physiological proxies. Useful inputs but not cognitive state.")],
+        integration_steps=[("Connect wearable", "Pull HRV + sleep from Apple Watch / Whoop / Oura."), ("Add self-report", "Stress events, screen time, caffeine."), ("View state", "Daily cognitive state with alerts."), ("Track", "Weekly trends in bandwidth + valence.")],
+        pricing_tiers=[("Free", "$0 / mo", "Basic state mapping, no trends."), ("Pro", "$9 / mo", "Trends, alerts, wearable integration."), ("Platform", "Custom", "White-label for wellness app builders.")],
+        faq=[("How accurate without EEG?", "Multi-input fusion (HRV + sleep + behavioral) gets ~0.75 correlation with EEG-validated bandwidth. Useful for daily guidance; not clinical-grade.")],
+        final_cta="Stop measuring proxies. Start measuring cognitive state.",
+        status_badge="WEDGE 5 · CONSUMER · LIVE ENGINE",
+        playground_url="/axona/wellness/playground",
+        playground_description="Adjust biometric sliders (HRV, sleep, activity, stress, screen time, caffeine). See real-time cognitive state mapping.",
     )
 
 

@@ -5524,10 +5524,10 @@ _PAGE = """\
     play.
   </p>
 
-  <div style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #ba68c8;border-radius:6px;padding:16px 20px;margin-bottom:12px">
+  <a href="/axona/bci" style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #ba68c8;border-radius:6px;padding:16px 20px;margin-bottom:12px;text-decoration:none;color:inherit;transition:border-color 0.15s" onmouseover="this.style.borderColor='#ba68c8'" onmouseout="this.style.borderColor='var(--border)';this.style.borderLeftColor='#ba68c8'">
     <div style="display:flex;justify-content:space-between;align-items:start;gap:10px;margin-bottom:6px">
-      <div style="font-size:14px;font-weight:bold;color:#ba68c8">Axona BCI SDK</div>
-      <span style="font-size:9px;color:#ba68c8;background:rgba(186,104,200,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">WEDGE 1 · BCI HARDWARE</span>
+      <div style="font-size:14px;font-weight:bold;color:#ba68c8">Axona BCI SDK →</div>
+      <span style="font-size:9px;color:#ba68c8;background:rgba(186,104,200,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">WEDGE 1 · BUILT</span>
     </div>
     <div style="font-size:11px;color:var(--text);line-height:1.6;margin-bottom:6px">
       Brain-computer interface interpretation SDK. BCI hardware
@@ -5545,12 +5545,12 @@ _PAGE = """\
       defensible. Pursue once cognitive models are battle-tested on
       Wedges 2-3 and BCI hardware market matures (~2027-2030).
     </div>
-  </div>
+  </a>
 
-  <div style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #4fc3f7;border-radius:6px;padding:16px 20px;margin-bottom:12px">
+  <a href="/axona/clinic" style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #4fc3f7;border-radius:6px;padding:16px 20px;margin-bottom:12px;text-decoration:none;color:inherit;transition:border-color 0.15s" onmouseover="this.style.borderColor='#4fc3f7'" onmouseout="this.style.borderColor='var(--border)';this.style.borderLeftColor='#4fc3f7'">
     <div style="display:flex;justify-content:space-between;align-items:start;gap:10px;margin-bottom:6px">
-      <div style="font-size:14px;font-weight:bold;color:#4fc3f7">Axona Clinic</div>
-      <span style="font-size:9px;color:#4fc3f7;background:rgba(79,195,247,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">WEDGE 2 · CLINICAL · GTM SECOND</span>
+      <div style="font-size:14px;font-weight:bold;color:#4fc3f7">Axona Clinic →</div>
+      <span style="font-size:9px;color:#4fc3f7;background:rgba(79,195,247,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">WEDGE 2 · BUILT</span>
     </div>
     <div style="font-size:11px;color:var(--text);line-height:1.6;margin-bottom:6px">
       Clinical insight platform for therapists and psychiatrists. Maps
@@ -5568,12 +5568,12 @@ _PAGE = """\
       <b style="color:var(--text)">Why second:</b> known regulatory
       path (HIPAA + clinical decision-support, not medical device).
     </div>
-  </div>
+  </a>
 
-  <div style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #81c784;border-radius:6px;padding:16px 20px;margin-bottom:12px">
+  <a href="/axona/learn" style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #81c784;border-radius:6px;padding:16px 20px;margin-bottom:12px;text-decoration:none;color:inherit;transition:border-color 0.15s" onmouseover="this.style.borderColor='#81c784'" onmouseout="this.style.borderColor='var(--border)';this.style.borderLeftColor='#81c784'">
     <div style="display:flex;justify-content:space-between;align-items:start;gap:10px;margin-bottom:6px">
-      <div style="font-size:14px;font-weight:bold;color:#81c784">Axona Learn</div>
-      <span style="font-size:9px;color:#81c784;background:rgba(129,199,132,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">WEDGE 3 · EDUCATION</span>
+      <div style="font-size:14px;font-weight:bold;color:#81c784">Axona Learn →</div>
+      <span style="font-size:9px;color:#81c784;background:rgba(129,199,132,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">WEDGE 3 · BUILT</span>
     </div>
     <div style="font-size:11px;color:var(--text);line-height:1.6;margin-bottom:6px">
       Education personalization layer that measures encoding strength
@@ -5591,7 +5591,7 @@ _PAGE = """\
       <b style="color:var(--text)">Why third:</b> encoding signal
       transfers cleanly once clinically validated on Wedge 2.
     </div>
-  </div>
+  </a>
 
   <a href="/axona/edge" style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #ffb74d;border-radius:6px;padding:16px 20px;margin-bottom:12px;text-decoration:none;color:inherit;transition:border-color 0.15s" onmouseover="this.style.borderColor='#ffb74d'" onmouseout="this.style.borderColor='var(--border)';this.style.borderLeftColor='#ffb74d'">
     <div style="display:flex;justify-content:space-between;align-items:start;gap:10px;margin-bottom:6px">
@@ -5618,10 +5618,10 @@ _PAGE = """\
     </div>
   </a>
 
-  <div style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #f06292;border-radius:6px;padding:16px 20px;margin-bottom:12px">
+  <a href="/axona/wellness" style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #f06292;border-radius:6px;padding:16px 20px;margin-bottom:12px;text-decoration:none;color:inherit;transition:border-color 0.15s" onmouseover="this.style.borderColor='#f06292'" onmouseout="this.style.borderColor='var(--border)';this.style.borderLeftColor='#f06292'">
     <div style="display:flex;justify-content:space-between;align-items:start;gap:10px;margin-bottom:6px">
-      <div style="font-size:14px;font-weight:bold;color:#f06292">Axona Wellness</div>
-      <span style="font-size:9px;color:#f06292;background:rgba(240,98,146,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">WEDGE 5 · CONSUMER · LAST</span>
+      <div style="font-size:14px;font-weight:bold;color:#f06292">Axona Wellness →</div>
+      <span style="font-size:9px;color:#f06292;background:rgba(240,98,146,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">WEDGE 5 · BUILT</span>
     </div>
     <div style="font-size:11px;color:var(--text);line-height:1.6;margin-bottom:6px">
       Real cognitive state measurement for consumer apps. Calm,
@@ -5639,7 +5639,7 @@ _PAGE = """\
       from B2B wedges proves the engine and gives leverage on
       licensing terms.
     </div>
-  </div>
+  </a>
 
   <h3 style="font-size:13px;color:var(--accent2);margin:24px 0 8px">Why one engine, five products</h3>
   <div class="info">
