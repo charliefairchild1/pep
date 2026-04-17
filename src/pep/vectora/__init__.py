@@ -13,18 +13,31 @@ Public API:
     results = r.retrieve("query text", k=10, decay=0.4)
 """
 
+from .context import ContextConfig, ContextEvent, ContextTracker
 from .document import Document
 from .embeddings import LocalEmbedder, EmbedderProtocol
 from .graph import DocumentGraph, Edge
+from .kg import EdgeProvenance, TraversalResult, TypedEdge, VectoraKG
 from .retrieval import VectoraRetriever, RetrievalResult, RetrievalMode
+from .watch import VectoraWatch, WatchConfig, WatchResult
 
 __all__ = [
+    "ContextConfig",
+    "ContextEvent",
+    "ContextTracker",
     "Document",
     "DocumentGraph",
     "Edge",
+    "EdgeProvenance",
     "EmbedderProtocol",
     "LocalEmbedder",
     "RetrievalMode",
     "RetrievalResult",
+    "TraversalResult",
+    "TypedEdge",
+    "VectoraKG",
     "VectoraRetriever",
+    "VectoraWatch",
+    "WatchConfig",
+    "WatchResult",
 ]

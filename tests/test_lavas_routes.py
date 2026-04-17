@@ -210,6 +210,63 @@ def test_dogfood_unknown_seed_404(client: TestClient) -> None:
     assert client.get("/vectora/neighbors/atria/nonexistent-id").status_code == 404
 
 
+@pytest.mark.parametrize("path", [
+    "/vectora/context-playground",
+    "/vectora/watch-playground",
+    "/vectora/graph-playground",
+])
+def test_product_playground_pages_load(client: TestClient, path: str) -> None:
+    resp = client.get(path)
+    assert resp.status_code == 200
+    assert "Vectora" in resp.text
+
+
+def test_context_playground_record_and_retrieve(client: TestClient) -> None:
+    rec = client.post(
+        "/vectora/context-playground/record",
+        json={"session_id": "t-ctx", "doc_id": "cache-1"},
+    )
+    assert rec.status_code == 200
+    retrieved = client.post(
+        "/vectora/context-playground/retrieve",
+        json={"session_id": "t-ctx", "query": "caching", "k": 5},
+    )
+    assert retrieved.status_code == 200
+    data = retrieved.json()
+    assert "plain" in data and "contextual" in data
+    assert len(data["recent_views"]) >= 1
+
+
+def test_watch_playground_score(client: TestClient) -> None:
+    resp = client.post(
+        "/vectora/watch-playground/score",
+        json={"text": "redis caching strategies for django"},
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert 0 <= data["residual"] <= 100
+    assert data["label"] in ("normal", "notable", "unusual", "extreme")
+
+
+def test_kg_playground_triple_and_traverse(client: TestClient) -> None:
+    add = client.post(
+        "/vectora/graph-playground/triple",
+        json={"source": "embed-1", "relation": "related_to", "target": "embed-4"},
+    )
+    assert add.status_code == 200
+    viz = client.get("/vectora/graph-playground/viz")
+    assert viz.status_code == 200
+    assert viz.json()["stats"]["typed_edges"] >= 1
+    trav = client.post(
+        "/vectora/graph-playground/traverse",
+        json={"start": "cache-1", "max_hops": 2},
+    )
+    assert trav.status_code == 200
+    results = trav.json()["results"]
+    # cache-1 has seeded edges so some results expected
+    assert len(results) > 0
+
+
 def test_dogfood_stats_covers_all_apps(client: TestClient) -> None:
     resp = client.get("/vectora/dogfood/stats")
     assert resp.status_code == 200

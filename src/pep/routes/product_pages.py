@@ -1267,6 +1267,8 @@ drawDecay();
         ],
         final_cta="Stop making users restate what you should have inferred.",
         status_badge="CONTEXT-AWARE · SDK",
+        playground_url="/vectora/context-playground",
+        playground_description="Simulate a browsing session: click documents in the sample corpus to 'view' them, then run the same query with and without the context. See how results shift when the session's recent activity is taken into account.",
     )
 
 
@@ -1439,6 +1441,8 @@ drawWatchDist();
         ],
         final_cta="Stop drowning in noise. Start reading the signal.",
         status_badge="ANOMALY · NOVELTY",
+        playground_url="/vectora/watch-playground",
+        playground_description="Submit items one at a time and see the residual score per item. Pre-loaded sample items let you compare 'normal' content vs genuine anomalies. Each score is broken down into its three components: distance from centroid, neighbor weakness, and novelty vs recent history.",
     )
 
 
@@ -1662,6 +1666,8 @@ drawGraph();
         ],
         final_cta="Stop syncing two graphs. Start querying one.",
         status_badge="KNOWLEDGE GRAPH BUILDER",
+        playground_url="/vectora/graph-playground",
+        playground_description="Build your own typed-edge knowledge graph on the sample corpus. Add triples (source → relation → target), traverse with hop limits, visualize the result. Every operation hits the real Vectora KG engine.",
     )
 
 
