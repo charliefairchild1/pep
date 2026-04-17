@@ -1461,7 +1461,7 @@ _PAGE = """\
     </div>
   </a>
 
-  <a href="/atria/date/playground" style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #ec4899;border-radius:6px;padding:16px 20px;margin-bottom:12px;text-decoration:none;color:inherit;transition:border-color 0.15s" onmouseover="this.style.borderColor='#ec4899'" onmouseout="this.style.borderColor='var(--border)';this.style.borderLeftColor='#ec4899'">
+  <a href="/atria/date" style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #ec4899;border-radius:6px;padding:16px 20px;margin-bottom:12px;text-decoration:none;color:inherit;transition:border-color 0.15s" onmouseover="this.style.borderColor='#ec4899'" onmouseout="this.style.borderColor='var(--border)';this.style.borderLeftColor='#ec4899'">
     <div style="display:flex;justify-content:space-between;align-items:start;gap:10px;margin-bottom:6px">
       <div style="font-size:14px;font-weight:bold;color:#ec4899">Atria Date &rarr;</div>
       <span style="font-size:9px;color:#ec4899;background:rgba(236,72,153,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">CROSS-DOMAIN · BUILT</span>
@@ -1487,7 +1487,7 @@ _PAGE = """\
     </div>
   </a>
 
-  <a href="/atria/hire/playground" style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #fbbf24;border-radius:6px;padding:16px 20px;margin-bottom:12px;text-decoration:none;color:inherit;transition:border-color 0.15s" onmouseover="this.style.borderColor='#fbbf24'" onmouseout="this.style.borderColor='var(--border)';this.style.borderLeftColor='#fbbf24'">
+  <a href="/atria/hire" style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #fbbf24;border-radius:6px;padding:16px 20px;margin-bottom:12px;text-decoration:none;color:inherit;transition:border-color 0.15s" onmouseover="this.style.borderColor='#fbbf24'" onmouseout="this.style.borderColor='var(--border)';this.style.borderLeftColor='#fbbf24'">
     <div style="display:flex;justify-content:space-between;align-items:start;gap:10px;margin-bottom:6px">
       <div style="font-size:14px;font-weight:bold;color:#fbbf24">Atria Hire &rarr;</div>
       <span style="font-size:9px;color:#fbbf24;background:rgba(251,191,36,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">CROSS-DOMAIN · BUILT</span>
@@ -1511,7 +1511,7 @@ _PAGE = """\
     </div>
   </a>
 
-  <a href="/atria/found/playground" style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #a78bfa;border-radius:6px;padding:16px 20px;margin-bottom:12px;text-decoration:none;color:inherit;transition:border-color 0.15s" onmouseover="this.style.borderColor='#a78bfa'" onmouseout="this.style.borderColor='var(--border)';this.style.borderLeftColor='#a78bfa'">
+  <a href="/atria/found" style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #a78bfa;border-radius:6px;padding:16px 20px;margin-bottom:12px;text-decoration:none;color:inherit;transition:border-color 0.15s" onmouseover="this.style.borderColor='#a78bfa'" onmouseout="this.style.borderColor='var(--border)';this.style.borderLeftColor='#a78bfa'">
     <div style="display:flex;justify-content:space-between;align-items:start;gap:10px;margin-bottom:6px">
       <div style="font-size:14px;font-weight:bold;color:#a78bfa">Atria Found &rarr;</div>
       <span style="font-size:9px;color:#a78bfa;background:rgba(167,139,250,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">CROSS-DOMAIN · BUILT</span>
@@ -1535,7 +1535,7 @@ _PAGE = """\
     </div>
   </a>
 
-  <a href="/atria/therapy/playground" style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #67e8f9;border-radius:6px;padding:16px 20px;margin-bottom:12px;text-decoration:none;color:inherit;transition:border-color 0.15s" onmouseover="this.style.borderColor='#67e8f9'" onmouseout="this.style.borderColor='var(--border)';this.style.borderLeftColor='#67e8f9'">
+  <a href="/atria/therapy" style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #67e8f9;border-radius:6px;padding:16px 20px;margin-bottom:12px;text-decoration:none;color:inherit;transition:border-color 0.15s" onmouseover="this.style.borderColor='#67e8f9'" onmouseout="this.style.borderColor='var(--border)';this.style.borderLeftColor='#67e8f9'">
     <div style="display:flex;justify-content:space-between;align-items:start;gap:10px;margin-bottom:6px">
       <div style="font-size:14px;font-weight:bold;color:#67e8f9">Atria Therapy &rarr;</div>
       <span style="font-size:9px;color:#67e8f9;background:rgba(103,232,249,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">CROSS-DOMAIN · BUILT</span>

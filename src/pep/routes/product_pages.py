@@ -738,6 +738,383 @@ updateAtriaTune();
 
 
 # ═══════════════════════════════════════════════════════════════════════
+# Atria Date
+# ═══════════════════════════════════════════════════════════════════════
+@router.get("/atria/date", response_class=HTMLResponse)
+async def atria_date() -> str:
+    return _product_page(
+        title="Atria Date",
+        parent_name="Atria",
+        parent_path="/atria",
+        accent="#ec4899",
+        accent_rgb="236,72,153",
+        surface_bg="#100a10",
+        surface_card="#1c1220",
+        text_color="#eddce8",
+        dim_color="#8a6a80",
+        border_color="#2e1a2a",
+        tagline="Compatibility is relational, not ordinal. Stop ranking; start matching.",
+        hero_paragraphs=[
+            "Dating apps rank you on a single attractiveness axis and show you what the ranking says. You swipe through hundreds of profiles and match with people who look right but feel wrong — because the app never measured what makes a relationship work. Communication warmth, attachment style, conflict resolution, shared values, life-stage alignment — none of that is in the algorithm.",
+            "Atria Date replaces the ranking with a multi-dimensional compatibility graph. Same engine Atria Match uses for PvP matchmaking, applied to the relational structure that predicts whether two people will still be talking in six months.",
+        ],
+        problem="You match with someone attractive on paper. The first three dates are fine. By week six it's obvious: you communicate differently, you handle conflict differently, you want different things from the relationship. The app that introduced you had no model for any of this — it matched on photos and a bio.",
+        solution="Score compatibility across six dimensions that actually predict relationship quality: values alignment, communication warmth, attachment style compatibility, conflict resolution fit, shared interests, and life-stage alignment. Surface candidates the user would never have filtered for — because the best match is often two hops away in the compatibility graph.",
+        how_it_works=[
+            ("Profile dimensions", "Each user fills in values, warmth, attachment style, conflict approach, interests, and life stage. No personality quiz — direct self-report on the dimensions that matter."),
+            ("Pairwise scoring", "Every candidate pair is scored across all six dimensions. Each dimension is a pure function with known empirical correlates (attachment theory, Gottman conflict research)."),
+            ("Weighted ranking", "Configurable weights per user: some care most about values alignment; others about shared interests. The matcher respects the user's priority structure."),
+            ("Second-hop surfacing", "Spreading activation on the compatibility graph surfaces candidates the user didn't know to search for — because similarity to a similar-to-you profile is often the best match."),
+        ],
+        capabilities=[
+            ("Values alignment (Jaccard)", "Overlap of stated values — family, adventure, career, independence, community, creativity. Jaccard similarity: more overlap = higher score."),
+            ("Communication warmth", "0 = reserved → 1 = very warm. Close warmth levels feel natural; large gaps feel either overwhelming or cold."),
+            ("Attachment compatibility", "Secure (0.5) pairs well with everything. Avoidant + anxious is the hardest pairing. The scorer handles the full 4-style matrix."),
+            ("Conflict resolution fit", "Empirical table: compromise + compromise = best; confronting + avoidant = worst. Based on Gottman's conflict-style research."),
+            ("Shared interests", "Overlap of interest tags. Minimum 1 shared interest for the score to exceed baseline; 3+ shared interests approaches maximum."),
+            ("Life-stage alignment", "Student / early-career / established / retired. Adjacent stages are compatible; 2+ stage gaps cause friction."),
+        ],
+        demo_html="""<div style="font-size:11px;color:#8a6a80;margin-bottom:10px">Pick a seed profile, see ranked matches with per-dimension breakdowns.</div>
+<div style="display:flex;gap:8px;align-items:center;margin-bottom:14px">
+  <select id="date-seed" style="background:#100a10;color:#eddce8;border:1px solid #2e1a2a;border-radius:4px;padding:8px;font-family:inherit;font-size:11px;min-width:280px"><option>loading…</option></select>
+  <button onclick="dateRank()" style="padding:8px 14px;border-radius:4px;border:1px solid #ec4899;background:#ec4899;color:#100a10;font-size:11px;cursor:pointer;font-family:inherit;font-weight:bold">Rank</button>
+</div>
+<div id="date-results" style="min-height:200px"><div style="color:#8a6a80;text-align:center;padding:40px;font-size:11px">Click Rank to see matches.</div></div>""",
+        demo_script="""
+async function dateInit() {
+  const r = await fetch('/atria/date-api/seeds');
+  const data = await r.json();
+  const sel = document.getElementById('date-seed');
+  sel.innerHTML = data.seeds.map(s => `<option value="${s.id}">${s.id} — ${s.label}</option>`).join('');
+}
+async function dateRank() {
+  const seed = document.getElementById('date-seed').value;
+  const r = await fetch(`/atria/date-api/rank/${seed}?k=8`);
+  const data = await r.json();
+  const out = document.getElementById('date-results');
+  out.innerHTML = data.results.map((r, i) => {
+    const dims = Object.entries(r.dim_scores).map(([k, v]) => `<b>${k}</b> ${v.toFixed(2)}`).join(' · ');
+    const label = r.metadata?.label ? ` — ${r.metadata.label}` : '';
+    return `<div style="background:#1c1220;border:1px solid #2e1a2a;border-left:3px solid #ec4899;border-radius:4px;padding:12px 16px;margin-bottom:8px"><div style="display:flex;justify-content:space-between"><div><span style="color:#8a6a80">${i+1}.</span> <b style="color:#ec4899">${r.id}</b>${label}</div><div style="color:#ec4899;font-weight:bold">${(r.overall * 100).toFixed(0)}% · re-engage ${(r.reengagement_prob * 100).toFixed(0)}%</div></div><div style="font-size:10px;color:#8a6a80;margin-top:6px">${dims}</div><div style="font-size:10px;color:#8a6a80;margin-top:4px">strongest: <b style="color:#a3e635">${r.strongest}</b> · weakest: <b style="color:#fbbf24">${r.weakest}</b></div></div>`;
+  }).join('');
+}
+dateInit();
+""",
+        secondary_demo_title="",
+        secondary_demo_html="",
+        secondary_demo_script="",
+        use_cases=[
+            ("Late-20s professional tired of swiping", "Has been on Hinge for 18 months. Matches look good on paper; conversations fizzle after the third date. No way to filter for communication style or attachment compatibility.", "Atria Date surfaces a match she would have swiped left on (different photos, different aesthetic) but who scores 0.92 on values + warmth + attachment. They're still together at month six."),
+            ("Divorced parent re-entering dating", "Needs a partner who understands life-stage constraints (kids, schedule). Standard apps penalize schedule inflexibility in the ranking. No way to express 'I need someone patient and stable, not exciting.'", "Life-stage + stability dimensions surface patient, established-stage matches. The 'exciting' candidates that standard apps push rank lower because the matcher knows excitement ≠ compatibility."),
+            ("Avoidant-attachment user who keeps choosing anxious partners", "The pattern repeats: intense start, anxious-avoidant spiral, painful end. The user can't see the pattern in the app's ranking.", "Attachment scorer flags the avoidant-anxious pairing structurally. Suggests secure-attachment candidates instead; explains why in the breakdown."),
+        ],
+        competitors=[
+            ("Hinge / Bumble / Tinder", "Multi-dimensional compatibility instead of attractiveness ranking. Scores on the factors that predict relationship survival.", "Photo-first. Single-axis ranking. Optimized for swipe volume, not match quality."),
+            ("eHarmony", "Modern UX + real-time compatibility scoring. No 200-question quiz — direct dimension inputs.", "Validated compatibility model but aging UX. Long quiz fatigue. Same model for everyone."),
+            ("AI matchmaking startups", "Deterministic, auditable scoring. No black-box ML. Users see exactly why a match was suggested.", "Black-box recommendations. Can't explain why. Users can't adjust weights."),
+        ],
+        integration_steps=[
+            ("Onboarding", "User fills 6 dimension inputs (2 minutes). No personality quiz — direct self-report."),
+            ("Browse matches", "Ranked by multi-dimensional compatibility with full breakdown visible per match."),
+            ("Adjust weights", "User slides dimension weights to emphasize what matters most to them. Results re-rank instantly."),
+            ("Connect", "Standard messaging. Atria tracks re-engagement to calibrate the matcher over time."),
+        ],
+        pricing_tiers=[
+            ("Free", "$0 / mo", "5 matches/day, basic dimension breakdown, no weight customization."),
+            ("Plus", "$19 / mo", "Unlimited matches, full breakdown, custom weights, attachment-style insights."),
+            ("Premium", "$39 / mo", "Everything in Plus + second-hop discovery, compatibility reports, therapist-informed insights."),
+        ],
+        faq=[
+            ("How is this different from eHarmony's compatibility model?", "eHarmony uses a single fixed model for everyone and a 200-question quiz. Atria Date uses 6 direct inputs and lets you weight the dimensions yourself. Different users care about different things; the matcher respects that."),
+            ("Do I need to know my attachment style?", "You can pick from a simple description (secure/anxious/avoidant) or take a 4-question self-assessment. No clinical knowledge required; the descriptions are plain-English."),
+            ("What if I don't want to share my conflict style?", "Every dimension is optional. Missing dimensions get a neutral 0.5 score. More dimensions = better matching, but the system works with partial profiles."),
+            ("Can it handle LGBTQ+ matching?", "Yes. The dimensions are identity-agnostic — they score compatibility on relational factors, not gender/orientation. Any user can match with any other user."),
+        ],
+        final_cta="Stop swiping on appearance. Start matching on compatibility.",
+        status_badge="CROSS-DOMAIN · DATING · LIVE ENGINE",
+        playground_url="/atria/date/playground",
+        playground_description="Pick a profile, see ranked matches with per-dimension breakdowns across values, warmth, attachment, conflict, interests, and life stage.",
+    )
+
+
+# ═══════════════════════════════════════════════════════════════════════
+# Atria Hire
+# ═══════════════════════════════════════════════════════════════════════
+@router.get("/atria/hire", response_class=HTMLResponse)
+async def atria_hire() -> str:
+    return _product_page(
+        title="Atria Hire",
+        parent_name="Atria",
+        parent_path="/atria",
+        accent="#fbbf24",
+        accent_rgb="251,191,36",
+        surface_bg="#14100a",
+        surface_card="#1f1a12",
+        text_color="#eee2cb",
+        dim_color="#9a8870",
+        border_color="#2e261a",
+        tagline="Match candidates to the team, not to the job description.",
+        hero_paragraphs=[
+            "Recruiters match resumes to job descriptions — keyword overlap on skills, years of experience, credentials. The team that actually has to work with this person cares about something different: does this candidate fill the skill gap we have, match our communication style, align with our culture, and fit the pace we work at?",
+            "Atria Hire scores candidates against the actual team composition, not a generic job description. Same multi-dimensional matcher used in PvP matchmaking, applied to the hiring gap.",
+        ],
+        problem="You hire a senior engineer with perfect credentials. Three months later the team is frustrated — the engineer works at a different pace, communicates differently, and clashes on culture. The resume matched the description. The person didn't match the team.",
+        solution="Score each candidate against the team's current composition: what skills are missing, what the culture actually is (not what the careers page says), how the team communicates and paces. Surface candidates who fill the gap, not just candidates who look good on paper.",
+        how_it_works=[
+            ("Define the team", "Skills present, skills needed, culture tags, average communication style, work pace, team size. Built from the team's actual behavior, not an HR form."),
+            ("Score candidates", "Each candidate scored on skill-gap filling, culture fit, communication match, pace alignment, growth trajectory, and seniority fit — all against the specific team."),
+            ("Rank by gap-closing", "Candidates who fill the most important gaps rank highest. A candidate with the #1 needed skill + culture match outranks a stronger-on-paper candidate who duplicates existing skills."),
+            ("Explain the ranking", "Every score is broken down by dimension. Hiring managers see exactly why one candidate was ranked above another — no black box."),
+        ],
+        capabilities=[
+            ("Skill-gap filling", "Scores how many of the team's needed skills the candidate brings. Filling a gap counts more than adding a skill the team already has."),
+            ("Culture fit", "Overlap between team culture tags and candidate preferences. Remote-first + office-first = friction. Flat + hierarchical = friction."),
+            ("Communication match", "Async vs sync preference alignment. A sync-heavy communicator on an async-heavy team creates constant interrupts."),
+            ("Pace alignment", "Steady vs sprint-oriented. Pace mismatches cause frustration on both sides."),
+            ("Growth trajectory", "High-growth candidates in small teams = great. Maintenance-oriented candidates in growing teams = okay. Mismatches surface."),
+            ("Seniority fit", "Does the seniority level make sense for the team's current size and needs?"),
+        ],
+        demo_html="""<div style="font-size:11px;color:#9a8870;margin-bottom:10px">Fixed team: ML startup (needs ML + data-eng + security). 8 candidates ranked by gap-filling.</div>
+<button onclick="hireRank()" style="padding:8px 14px;border-radius:4px;border:1px solid #fbbf24;background:#fbbf24;color:#14100a;font-size:11px;cursor:pointer;font-family:inherit;font-weight:bold;margin-bottom:14px">Rank all candidates</button>
+<div id="hire-results" style="min-height:200px"><div style="color:#9a8870;text-align:center;padding:40px;font-size:11px">Click Rank to see results.</div></div>""",
+        demo_script="""
+async function hireRank() {
+  const r = await fetch('/atria/hire-api/rank-all?k=8');
+  const data = await r.json();
+  const out = document.getElementById('hire-results');
+  out.innerHTML = `<div style="font-size:11px;color:#9a8870;margin-bottom:10px">Team needs: <b style="color:#fbbf24">${data.team.skills_needed.join(', ')}</b></div>` +
+    data.results.map((r, i) => {
+      const dims = Object.entries(r.dim_scores).map(([k, v]) => `<b>${k}</b> ${v.toFixed(2)}`).join(' · ');
+      const label = r.metadata?.label ? ` — ${r.metadata.label}` : '';
+      return `<div style="background:#1f1a12;border:1px solid #2e261a;border-left:3px solid #fbbf24;border-radius:4px;padding:12px 16px;margin-bottom:8px"><div style="display:flex;justify-content:space-between"><div><span style="color:#9a8870">${i+1}.</span> <b style="color:#fbbf24">${r.id}</b>${label}</div><div style="color:#fbbf24;font-weight:bold">${(r.overall * 100).toFixed(0)}%</div></div><div style="font-size:10px;color:#9a8870;margin-top:6px">${dims}</div><div style="font-size:10px;color:#9a8870;margin-top:4px">strongest: <b style="color:#a3e635">${r.strongest}</b> · weakest: <b style="color:#f06292">${r.weakest}</b></div></div>`;
+    }).join('');
+}
+""",
+        secondary_demo_title="",
+        secondary_demo_html="",
+        secondary_demo_script="",
+        use_cases=[
+            ("Startup hiring its first ML engineer", "Team has Python + React + DevOps covered. Needs ML expertise. Culture is remote-first, async-heavy, flat. Three candidates on the shortlist.", "Atria Hire ranks the ML engineer with remote-first + async culture match above the better-credentialed one who prefers office + hierarchical. The culture-clash candidate would have been a costly mis-hire."),
+            ("Growing team that keeps hiring duplicates", "Every new hire is another generalist because recruiters match on job-description keywords. Team keeps getting wider but not deeper.", "Skill-gap dimension explicitly deprioritizes candidates who duplicate existing skills. The next hire fills an actual gap instead of overlapping."),
+            ("Diversity-focused hiring that still wants culture fit", "HR wants demographic diversity; the team wants someone who fits. Current process treats these as conflicting goals.", "Culture fit is measured on communication style and work norms, not on background. Diverse candidates who match on those dimensions rank high. Culture fit without cultural homogeneity."),
+        ],
+        competitors=[
+            ("LinkedIn Recruiter / Greenhouse / Lever", "Matches against the team, not the job description. Surfaces non-obvious candidates who fill gaps.", "Keyword matching on resumes. No team-composition awareness. Ranks by credential similarity."),
+            ("AI resume screeners", "Deterministic, explainable scoring. No black-box bias risk.", "Opaque ML models trained on historical hires (which encode historical bias)."),
+            ("Internal referrals", "Systematic gap analysis + the reach of a referral network combined.", "High signal, low reach. Only finds candidates in existing employees' networks."),
+        ],
+        integration_steps=[
+            ("Define your team", "Import from your HRIS or fill in skills/culture/communication manually. 5 minutes."),
+            ("Upload candidate profiles", "CSV import or ATS integration. Skills, culture preferences, communication style."),
+            ("Review ranked results", "Candidates ranked by team-gap-filling with full dimension breakdown."),
+            ("Iterate", "Adjust weights (e.g., prioritize culture over skill for this role). Results re-rank live."),
+        ],
+        pricing_tiers=[
+            ("Starter", "$199 / mo", "Up to 3 open roles, 50 candidates per role, basic gap analysis."),
+            ("Growth", "$599 / mo", "Unlimited roles, ATS integration, custom dimension weights, team analytics."),
+            ("Enterprise", "Custom", "SSO, HRIS integration, compliance reporting, dedicated success."),
+        ],
+        faq=[
+            ("Does this replace our ATS?", "No. Atria Hire sits alongside your ATS (Greenhouse, Lever, Ashby). It scores and ranks; your ATS manages the pipeline."),
+            ("How do you avoid bias?", "The scorer is deterministic and auditable — every score is a function of explicit dimensions, not a black-box model trained on historical hires. You can inspect exactly why any candidate ranked where they did."),
+            ("What if we don't know our culture?", "We provide a guided team-assessment (10 questions to the team lead + 2-3 team members). Takes 15 minutes and produces the culture-tag profile."),
+        ],
+        final_cta="Stop matching resumes to descriptions. Start matching people to teams.",
+        status_badge="CROSS-DOMAIN · RECRUITING · LIVE ENGINE",
+        playground_url="/atria/hire/playground",
+        playground_description="See all 8 candidates ranked against the seeded ML startup team, with per-dimension breakdowns showing exactly why each candidate ranked where they did.",
+    )
+
+
+# ═══════════════════════════════════════════════════════════════════════
+# Atria Found
+# ═══════════════════════════════════════════════════════════════════════
+@router.get("/atria/found", response_class=HTMLResponse)
+async def atria_found() -> str:
+    return _product_page(
+        title="Atria Found",
+        parent_name="Atria",
+        parent_path="/atria",
+        accent="#a78bfa",
+        accent_rgb="167,139,250",
+        surface_bg="#0d0a14",
+        surface_card="#1a1322",
+        text_color="#e8dee8",
+        dim_color="#8a7a8e",
+        border_color="#2c2236",
+        tagline="The cofounder decision a YC partner makes by intuition, made queryable.",
+        hero_paragraphs=[
+            "The #1 reason startups die is cofounder conflict. Not market risk, not product failure — the founding team breaks. Choosing a cofounder is the highest-stakes compatibility decision most founders will ever make, and they do it on vibes at a networking event.",
+            "Atria Found scores cofounder compatibility across the six dimensions that predict whether the partnership survives the first 18 months: complementary skills, conflict resolution style, equity philosophy, work pace, life-stage stability, and vision alignment.",
+        ],
+        problem="You pick a cofounder because they're smart and available. Six months in, you discover: they want to move slowly while you want to sprint. They think equity should be equal while you think it should be merit-based. They avoid conflict while you debate everything. The company dies of cofounder friction, not of market risk.",
+        solution="Score cofounder pairs on the six dimensions that YC partners evaluate by intuition. Make the intuition explicit, measurable, and queryable. Surface the pairs most likely to still be aligned at month 18.",
+        how_it_works=[
+            ("Founder profiles", "Each founder fills in skills, conflict style, equity philosophy, pace, stability, and vision tags. 3 minutes."),
+            ("Pairwise scoring", "Every potential pair scored on all six dimensions. Complementary skills are rewarded; overlapping skills are penalized."),
+            ("Ranked matches", "Partners ranked by overall compatibility. Strongest and weakest dimensions shown for each — so founders know exactly where the friction will be before committing."),
+            ("Pre-commitment diagnosis", "Before the handshake: here's where you agree, here's where you'll fight, here's the deal-breaker dimension if it exists."),
+        ],
+        capabilities=[
+            ("Skill complementarity", "Diversity of skills is scored higher than overlap. Technical + business = high; technical + technical = low (you both do the same thing)."),
+            ("Conflict resolution", "Debate + debate = productive friction. Debate + avoid = festering resentment. Empirical table from startup-failure literature."),
+            ("Equity philosophy", "Equal vs merit-based vs role-based. Misalignment here is a ticking bomb. The scorer flags it explicitly."),
+            ("Pace alignment", "Marathon vs sprint. Pace mismatches cause one founder to burn out while the other feels coasted."),
+            ("Life-stage stability", "High-risk-tolerance founder + needs-stability founder = friction on every fundraise and pivot decision."),
+            ("Vision alignment", "Overlap of vision tags (AI, B2B, consumer, impact, scale). Founders who want different things will pull the company apart."),
+        ],
+        demo_html="""<div style="font-size:11px;color:#8a7a8e;margin-bottom:10px">Pick a founder, see who they'd best pair with and why.</div>
+<div style="display:flex;gap:8px;align-items:center;margin-bottom:14px">
+  <select id="found-seed" style="background:#0d0a14;color:#e8dee8;border:1px solid #2c2236;border-radius:4px;padding:8px;font-family:inherit;font-size:11px;min-width:280px"><option>loading…</option></select>
+  <button onclick="foundRank()" style="padding:8px 14px;border-radius:4px;border:1px solid #a78bfa;background:#a78bfa;color:#0d0a14;font-size:11px;cursor:pointer;font-family:inherit;font-weight:bold">Find cofounders</button>
+</div>
+<div id="found-results" style="min-height:200px"><div style="color:#8a7a8e;text-align:center;padding:40px;font-size:11px">Click Find cofounders.</div></div>""",
+        demo_script="""
+async function foundInit() {
+  const r = await fetch('/atria/found-api/seeds');
+  const data = await r.json();
+  const sel = document.getElementById('found-seed');
+  sel.innerHTML = data.seeds.map(s => `<option value="${s.id}">${s.id} — ${s.label}</option>`).join('');
+}
+async function foundRank() {
+  const seed = document.getElementById('found-seed').value;
+  const r = await fetch(`/atria/found-api/rank/${seed}?k=6`);
+  const data = await r.json();
+  document.getElementById('found-results').innerHTML = data.results.map((r, i) => {
+    const dims = Object.entries(r.dim_scores).map(([k, v]) => `<b>${k}</b> ${v.toFixed(2)}`).join(' · ');
+    const label = r.metadata?.label ? ` — ${r.metadata.label}` : '';
+    return `<div style="background:#1a1322;border:1px solid #2c2236;border-left:3px solid #a78bfa;border-radius:4px;padding:12px 16px;margin-bottom:8px"><div style="display:flex;justify-content:space-between"><div><span style="color:#8a7a8e">${i+1}.</span> <b style="color:#a78bfa">${r.id}</b>${label}</div><div style="color:#a78bfa;font-weight:bold">${(r.overall * 100).toFixed(0)}%</div></div><div style="font-size:10px;color:#8a7a8e;margin-top:6px">${dims}</div><div style="font-size:10px;color:#8a7a8e;margin-top:4px">strongest: <b style="color:#a3e635">${r.strongest}</b> · weakest: <b style="color:#fbbf24">${r.weakest}</b></div></div>`;
+  }).join('');
+}
+foundInit();
+""",
+        secondary_demo_title="",
+        secondary_demo_html="",
+        secondary_demo_script="",
+        use_cases=[
+            ("Technical founder looking for a business cofounder", "Strong engineer, no business experience. Needs someone who can sell, fundraise, and manage the commercial side.", "Atria Found surfaces business + sales founders with compatible conflict styles (debate + debate or debate + consensus) and aligned vision. Filters out business founders who want a different kind of company."),
+            ("YC batch doing cofounder matching", "40 solo founders in a batch. YC wants to identify the highest-potential pairings.", "Atria Found scores all 780 possible pairs, surfaces the top 10 by compatibility. Each pair sees their dimension breakdown and knows where the friction will be before committing."),
+            ("Second-time founder who wants to avoid repeating the pattern", "Last startup died of cofounder conflict. Conflict style was avoid + avoid; neither brought up problems until it was too late.", "Conflict dimension explicitly flags the avoid + avoid pattern. Suggests debate + consensus or debate + debate cofounders instead. The founder sees the pattern before repeating it."),
+        ],
+        competitors=[
+            ("CoFoundersLab", "Structural compatibility analysis, not just skill tagging. Conflict, equity, pace, vision all scored.", "Skill-matching only. No conflict, equity, or pace analysis. Networking platform, not a compatibility engine."),
+            ("YC cofounder matching (internal)", "Scalable, data-driven, auditable scoring. Works on 40+ founders simultaneously.", "Intuition-based. Works for experienced partners; doesn't scale to 40 founders."),
+            ("Networking events / Twitter", "Proactive surfacing of compatible cofounders. No serendipity required.", "Serendipity-dependent. Reach limited to personal network. No compatibility signal."),
+        ],
+        integration_steps=[
+            ("Create your profile", "Skills, conflict style, equity philosophy, pace, stability, vision. 3 minutes."),
+            ("Browse matches", "Ranked by compatibility with full breakdown per pair."),
+            ("Deep-dive", "Read the pre-commitment diagnosis: where you agree, where you'll fight."),
+            ("Connect", "Message the match. Atria suggests conversation starters based on the dimension profile."),
+        ],
+        pricing_tiers=[
+            ("Free", "$0 / mo", "5 cofounder matches, basic dimension breakdown. For solo exploration."),
+            ("Founder", "$29 / mo", "Unlimited matches, full breakdown, second-hop discovery, compatibility reports."),
+            ("Accelerator", "Custom", "Batch-wide matching for YC/Techstars/500-type cohorts. Bulk pricing."),
+        ],
+        faq=[
+            ("Is this really better than just meeting people?", "Meeting people is essential; Atria Found helps you meet the RIGHT people. You'll still need to have coffee, work on a side project together, and gut-check the relationship. The engine narrows the search to the highest-potential pairs."),
+            ("What about cofounders who are already friends?", "Great — run your existing relationship through the scorer to see where you're aligned and where you'll fight. The pre-commitment diagnosis is as useful for existing pairs as for new matches."),
+            ("Can it handle 3-person founding teams?", "The pairwise scorer works on any two founders. For a team of three, score all three pairs and look at the weakest link. If A+B and A+C are strong but B+C is weak, the team has a structural fracture."),
+        ],
+        final_cta="Don't leave the most important partnership to chance.",
+        status_badge="CROSS-DOMAIN · COFOUNDERS · LIVE ENGINE",
+        playground_url="/atria/found/playground",
+        playground_description="Pick a founder from the seed set, see their ranked cofounder matches with per-dimension breakdowns across skills, conflict, equity, pace, stability, and vision.",
+    )
+
+
+# ═══════════════════════════════════════════════════════════════════════
+# Atria Therapy
+# ═══════════════════════════════════════════════════════════════════════
+@router.get("/atria/therapy", response_class=HTMLResponse)
+async def atria_therapy() -> str:
+    return _product_page(
+        title="Atria Therapy",
+        parent_name="Atria",
+        parent_path="/atria",
+        accent="#67e8f9",
+        accent_rgb="103,232,249",
+        surface_bg="#0a1014",
+        surface_card="#141d24",
+        text_color="#dcecec",
+        dim_color="#6b8088",
+        border_color="#1f2c34",
+        tagline="The therapeutic alliance is the single biggest predictor of outcomes. Match on it.",
+        hero_paragraphs=[
+            "The research is clear: the quality of the therapeutic relationship (the 'working alliance') predicts outcomes more than the modality, the technique, or the diagnosis. Yet every therapy-matching platform matches on insurance network and zip code — maybe modality if you're lucky. None match on the factors that actually predict whether the patient and therapist will form a productive alliance.",
+            "Atria Therapy scores patient-therapist compatibility across six alliance-predicting dimensions: communication style, attachment competence, value alignment, specialty fit, modality match, and availability. The patient finds the therapist most likely to help, not just the nearest one who takes their insurance.",
+        ],
+        problem="You search for a therapist. You pick one from a directory based on 'anxiety' + 'CBT' + 'takes my insurance' + 'has an opening.' The first session feels off. You try another. And another. Three months and four therapists later you're still shopping, and each false start costs you money and erodes your willingness to try again.",
+        solution="Match the patient to the therapist whose relational characteristics predict a strong working alliance. Communication style, attachment competence (can this therapist work effectively with anxious attachment?), shared values, specialty depth, modality availability, and scheduling alignment — scored and ranked, not filtered by checkbox.",
+        how_it_works=[
+            ("Patient profile", "Communication preference, attachment style, values, presenting issues, modality preference (optional), availability. 2-minute form."),
+            ("Therapist profile", "Communication style, attachment competencies (which styles they work best with), values, specialties, modalities offered, availability."),
+            ("Alliance scoring", "Each therapist scored across all six dimensions against the specific patient. Communication + attachment competence are weighted highest because they predict alliance most strongly."),
+            ("Ranked recommendations", "Therapist ranked by predicted alliance quality. Each recommendation includes the dimension breakdown so the patient can see why this therapist was suggested."),
+        ],
+        capabilities=[
+            ("Communication style match", "Verbal / written / art-based / minimal. Matching communication preferences reduces the first-session dropout rate."),
+            ("Attachment competence", "Does this therapist have experience and training with the patient's attachment style? An anxious patient needs a therapist trained in anxious-attachment work."),
+            ("Value alignment", "Evidence-based / humanistic / spiritual / pragmatic. Misaligned values create invisible friction in the therapeutic relationship."),
+            ("Specialty fit", "Anxiety / depression / trauma / relationship / grief — scored against the therapist's actual specialties, not just their directory tags."),
+            ("Modality match", "CBT / psychodynamic / EMDR / DBT. If the patient wants CBT and the therapist doesn't offer it, the match fails regardless of other dimensions."),
+            ("Availability alignment", "Morning / afternoon / evening / flexible. Scheduling friction is one of the top reasons patients don't follow through."),
+        ],
+        demo_html="""<div style="font-size:11px;color:#6b8088;margin-bottom:10px">Fixed patient: anxious attachment, wants CBT, available evenings. 6 therapists ranked by alliance prediction.</div>
+<button onclick="therapyRank()" style="padding:8px 14px;border-radius:4px;border:1px solid #67e8f9;background:#67e8f9;color:#0a1014;font-size:11px;cursor:pointer;font-family:inherit;font-weight:bold;margin-bottom:14px">Rank therapists</button>
+<div id="therapy-results" style="min-height:200px"><div style="color:#6b8088;text-align:center;padding:40px;font-size:11px">Click Rank therapists.</div></div>""",
+        demo_script="""
+async function therapyRank() {
+  const r = await fetch('/atria/therapy-api/rank?k=6');
+  const data = await r.json();
+  document.getElementById('therapy-results').innerHTML =
+    `<div style="font-size:11px;color:#6b8088;margin-bottom:10px">Patient: <b style="color:#67e8f9">${data.patient.label}</b></div>` +
+    data.results.map((r, i) => {
+      const dims = Object.entries(r.dim_scores).map(([k, v]) => `<b>${k}</b> ${v.toFixed(2)}`).join(' · ');
+      const label = r.metadata?.label ? ` — ${r.metadata.label}` : '';
+      return `<div style="background:#141d24;border:1px solid #1f2c34;border-left:3px solid #67e8f9;border-radius:4px;padding:12px 16px;margin-bottom:8px"><div style="display:flex;justify-content:space-between"><div><span style="color:#6b8088">${i+1}.</span> <b style="color:#67e8f9">${r.id}</b>${label}</div><div style="color:#67e8f9;font-weight:bold">${(r.overall * 100).toFixed(0)}% · alliance ${(r.reengagement_prob * 100).toFixed(0)}%</div></div><div style="font-size:10px;color:#6b8088;margin-top:6px">${dims}</div><div style="font-size:10px;color:#6b8088;margin-top:4px">strongest: <b style="color:#a3e635">${r.strongest}</b> · weakest: <b style="color:#fbbf24">${r.weakest}</b></div></div>`;
+    }).join('');
+}
+""",
+        secondary_demo_title="",
+        secondary_demo_html="",
+        secondary_demo_script="",
+        use_cases=[
+            ("Anxious-attachment patient seeking CBT", "Previous therapists were avoidant-competent but not anxious-competent. Sessions felt distant and unhelpful. Patient quit after 4 sessions each time.", "Atria Therapy surfaces therapist t06: CBT, anxiety specialty, anxious-attachment competent, evening availability — 0.98 overall. Patient reports feeling understood from the first session."),
+            ("Trauma survivor who needs EMDR + evening availability", "Most EMDR-trained therapists in their area are morning-only. The patient works during the day and can't take time off for therapy.", "Availability + modality scoring surfaces the one EMDR therapist with flexible scheduling. Without Atria, this therapist wouldn't have appeared in a filtered directory search."),
+            ("Therapist wanting to improve their match rate", "A therapist gets assigned patients who don't return after the first session. No way to know if the mismatch is communication, modality, or attachment.", "Atria's dimension breakdown shows the therapist where their matches are weak. If most mismatches score low on attachment competence, the therapist knows to pursue attachment-theory training."),
+        ],
+        competitors=[
+            ("BetterHelp / Talkspace", "Alliance-predicting scoring vs random assignment. Compatibility as the primary signal.", "Convenience-first. Random or availability-based matching. No alliance prediction."),
+            ("Psychology Today directory", "Multi-dimensional scoring vs checkbox filtering. Surfaces therapists the patient wouldn't have filtered for.", "Filter by insurance, zip, modality. No scoring, no ranking, no compatibility signal."),
+            ("Therapist referral networks", "Scalable, data-driven matching vs personal-knowledge referrals.", "High-quality but limited to the referrer's knowledge. Doesn't scale."),
+        ],
+        integration_steps=[
+            ("Patient intake", "2-minute form: communication, attachment, values, presenting issues, modality preference, availability."),
+            ("Therapist onboarding", "Therapists fill in their profile: competencies, specialties, modalities, values, availability. One-time, 5 minutes."),
+            ("Match", "Patient sees ranked therapists with full breakdown. Therapist sees why they were matched to this patient."),
+            ("Iterate", "After 3 sessions, Atria checks: did the patient continue? If not, the matcher adjusts dimension weights for that patient's future matches."),
+        ],
+        pricing_tiers=[
+            ("For patients", "$0", "Free matching. Patients never pay for the match itself."),
+            ("For therapists", "$49 / mo", "Profile listing, match analytics, dimension-level feedback on why matches succeed or fail."),
+            ("For platforms", "Custom", "White-label API for therapy platforms (BetterHelp, insurance portals) to use Atria's matching under the hood."),
+        ],
+        faq=[
+            ("Is this a medical device?", "No. Atria Therapy is a matching tool, not a clinical decision-support system. It does not diagnose, prescribe, or recommend treatment. It helps the patient find a therapist whose relational characteristics predict a strong working alliance."),
+            ("What about insurance?", "Insurance filtering is a hard constraint applied before Atria scoring. Atria ranks the therapists who accept the patient's insurance by compatibility — it doesn't override insurance coverage."),
+            ("How do you know attachment competence predicts alliance?", "Extensive literature: Dozier et al. (2001), Daniel (2006), Daly & Mallinckrodt (2009). Therapist attachment style + training predict the quality of the alliance with specific patient attachment types."),
+            ("What about therapist availability changing?", "Therapists update their availability in their profile. Atria re-ranks in real time. A therapist who opens an evening slot immediately surfaces for patients who need evenings."),
+        ],
+        final_cta="Don't match on insurance and zip code. Match on the therapeutic alliance.",
+        status_badge="CROSS-DOMAIN · CLINICAL · LIVE ENGINE",
+        playground_url="/atria/therapy/playground",
+        playground_description="See the seeded anxious-attachment patient matched against 6 therapists, ranked by predicted alliance quality with per-dimension breakdowns.",
+    )
+
+
+# ═══════════════════════════════════════════════════════════════════════
 # Axona Edge
 # ═══════════════════════════════════════════════════════════════════════
 @router.get("/axona/edge", response_class=HTMLResponse)
