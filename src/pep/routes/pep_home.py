@@ -117,6 +117,7 @@ _PAGE = """\
       border-radius:4px;padding:4px 8px;font-family:inherit;font-size:10px;max-width:220px">
       <option value="">jump to canvas…</option>
     </select>
+    <button onclick="downloadPep()" class="nav-btn">Download</button>
     <button onclick="toggleLight()" id="light-btn" class="nav-btn">Light Mode</button>
     <span class="lavas-switch" style="display:flex;gap:8px;align-items:center;font-size:11px;flex-wrap:wrap">
       <span class="lavas-current">PEP</span>
@@ -660,6 +661,16 @@ setTimeout(buildCanvasDropdown, 80);
 // ═══════════════════════════════════════════════════════════════════════
 // Light mode
 // ═══════════════════════════════════════════════════════════════════════
+function downloadPep() {
+  const html = '<!DOCTYPE html>' + document.documentElement.outerHTML;
+  const blob = new Blob([html], { type: 'text/html' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'pep-engine.html';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
 function toggleLight() {
   const isLight = document.body.classList.toggle('light');
   const btn = document.getElementById('light-btn');
