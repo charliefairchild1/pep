@@ -3852,10 +3852,10 @@ _PAGE = """\
     first, then 2, 1, 3.
   </p>
 
-  <div style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #4fc3f7;border-radius:6px;padding:16px 20px;margin-bottom:12px">
+  <a href="/lingora/translate" style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #4fc3f7;border-radius:6px;padding:16px 20px;margin-bottom:12px;text-decoration:none;color:inherit;transition:border-color 0.15s" onmouseover="this.style.borderColor='#4fc3f7'" onmouseout="this.style.borderColor='var(--border)';this.style.borderLeftColor='#4fc3f7'">
     <div style="display:flex;justify-content:space-between;align-items:start;gap:10px;margin-bottom:6px">
-      <div style="font-size:14px;font-weight:bold;color:#4fc3f7">Lingora Translate</div>
-      <span style="font-size:9px;color:#4fc3f7;background:rgba(79,195,247,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">WEDGE 1 · TRANSLATION</span>
+      <div style="font-size:14px;font-weight:bold;color:#4fc3f7">Lingora Translate &rarr;</div>
+      <span style="font-size:9px;color:#4fc3f7;background:rgba(79,195,247,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">WEDGE 1 · BUILT</span>
     </div>
     <div style="font-size:11px;color:var(--text);line-height:1.6;margin-bottom:6px">
       Pragmatic-preserving translation. Decomposes a sentence into
@@ -3872,12 +3872,12 @@ _PAGE = """\
       Workbench mechanism (see Workbench tab) preserves layers that
       every current MT system collapses.
     </div>
-  </div>
+  </a>
 
-  <div style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #81c784;border-radius:6px;padding:16px 20px;margin-bottom:12px">
+  <a href="/lingora/voice" style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #81c784;border-radius:6px;padding:16px 20px;margin-bottom:12px;text-decoration:none;color:inherit;transition:border-color 0.15s" onmouseover="this.style.borderColor='#81c784'" onmouseout="this.style.borderColor='var(--border)';this.style.borderLeftColor='#81c784'">
     <div style="display:flex;justify-content:space-between;align-items:start;gap:10px;margin-bottom:6px">
-      <div style="font-size:14px;font-weight:bold;color:#81c784">Lingora Voice</div>
-      <span style="font-size:9px;color:#81c784;background:rgba(129,199,132,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">WEDGE 2 · WRITING</span>
+      <div style="font-size:14px;font-weight:bold;color:#81c784">Lingora Voice &rarr;</div>
+      <span style="font-size:9px;color:#81c784;background:rgba(129,199,132,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">WEDGE 2 · BUILT</span>
     </div>
     <div style="font-size:11px;color:var(--text);line-height:1.6;margin-bottom:6px">
       Voice-aware writing assistant. Scores prose on eight mechanisms
@@ -3896,12 +3896,12 @@ _PAGE = """\
       Analyzer canvas demonstrates the missing primitive Grammarly
       cannot bolt on.
     </div>
-  </div>
+  </a>
 
-  <div style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #ffb74d;border-radius:6px;padding:16px 20px;margin-bottom:12px">
+  <a href="/lingora/learn" style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #ffb74d;border-radius:6px;padding:16px 20px;margin-bottom:12px;text-decoration:none;color:inherit;transition:border-color 0.15s" onmouseover="this.style.borderColor='#ffb74d'" onmouseout="this.style.borderColor='var(--border)';this.style.borderLeftColor='#ffb74d'">
     <div style="display:flex;justify-content:space-between;align-items:start;gap:10px;margin-bottom:6px">
-      <div style="font-size:14px;font-weight:bold;color:#ffb74d">Lingora Learn</div>
-      <span style="font-size:9px;color:#ffb74d;background:rgba(255,183,77,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">WEDGE 3 · LANGUAGE LEARNING</span>
+      <div style="font-size:14px;font-weight:bold;color:#ffb74d">Lingora Learn &rarr;</div>
+      <span style="font-size:9px;color:#ffb74d;background:rgba(255,183,77,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">WEDGE 3 · BUILT</span>
     </div>
     <div style="font-size:11px;color:var(--text);line-height:1.6;margin-bottom:6px">
       Constellation-based language learning. Teaches words via context
@@ -3920,7 +3920,7 @@ _PAGE = """\
       Constellation, Statistical Learning, Acquisition canvases model
       the actual mechanism that flashcards miss.
     </div>
-  </div>
+  </a>
 
   <a href="/lingora/prompt" style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #ba68c8;border-radius:6px;padding:16px 20px;margin-bottom:12px;text-decoration:none;color:inherit;transition:border-color 0.15s" onmouseover="this.style.borderColor='#ba68c8'" onmouseout="this.style.borderColor='var(--border)';this.style.borderLeftColor='#ba68c8'">
     <div style="display:flex;justify-content:space-between;align-items:start;gap:10px;margin-bottom:6px">

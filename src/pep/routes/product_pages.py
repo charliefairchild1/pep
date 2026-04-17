@@ -528,6 +528,249 @@ updateCost();
         status_badge="WEDGE 4 · GTM FIRST · LIVE ENGINE",
         playground_url="/lingora/prompt/playground",
         playground_description="Paste any prompt; the analyzer runs the real Lingora Prompt engine (structural tokenization, 10 antipattern checks, compression rewrite, cost forecast across 10 providers). No LLM calls, no inference spend — deterministic output.",
+        used_by=[
+            ("Lingora Translate", "Pragmatic-preserving translation with layer decomposition.", "/lingora/translate/playground", "#4fc3f7"),
+            ("Lingora Voice", "Voice-aware writing analysis with 8-mechanism scoring.", "/lingora/voice/playground", "#81c784"),
+            ("Lingora Learn", "Constellation-based vocabulary with haze-primitive spaced repetition.", "/lingora/learn/playground", "#ffb74d"),
+        ],
+    )
+
+
+# ═══════════════════════════════════════════════════════════════════════
+# Lingora Translate
+# ═══════════════════════════════════════════════════════════════════════
+@router.get("/lingora/translate", response_class=HTMLResponse)
+async def lingora_translate() -> str:
+    return _product_page(
+        title="Lingora Translate",
+        parent_name="Lingora",
+        parent_path="/lingora",
+        accent="#4fc3f7",
+        accent_rgb="79,195,247",
+        surface_bg="#0a0e16",
+        surface_card="#161c28",
+        text_color="#e0e6ed",
+        dim_color="#7a8492",
+        border_color="#2a3140",
+        tagline="Translation that preserves what you actually mean, not just what you literally say.",
+        hero_paragraphs=[
+            "Every machine-translation system optimizes for denotation — the literal surface meaning. None preserve pragmatics (what the speaker actually intends), register (formality level), or cultural framing (idioms, sarcasm, politeness masks). 'Bless your heart' becomes a sincere religious blessing. 'It's a piece of cake' becomes a description of a dessert.",
+            "Lingora Translate decomposes a sentence into four semantic layers — denotation, pragmatic intent, register, cultural framing — and translates each layer separately before reassembling. The output preserves what standard MT flattens.",
+        ],
+        problem="Your localization team sends a marketing campaign through Google Translate. The literal meaning is correct. The tone is wrong, the humor is lost, the cultural reference lands flat. You hire a human translator to fix it — but now you're paying $0.15/word for what should have been automated.",
+        solution="Decompose the source into layers. Translate each layer with awareness of the target culture. Reassemble into a sentence that carries the original pragmatic intent, not just the original words. The Translation Workbench canvas in the Lingora app demonstrates this end-to-end.",
+        how_it_works=[
+            ("Layer decomposition", "Every sentence is broken into denotation (literal), pragmatic (intent), register (formality), and cultural (idiom/reference). Each layer gets its own preservation score."),
+            ("Per-layer translation", "Denotation translates word-for-word. Pragmatics translates the INTENT into the target language's equivalent expression. Register maps to the target culture's formality norms. Cultural references map to the target culture's equivalent idiom."),
+            ("Reassembly", "The four translated layers are merged into one target-language sentence. Conflicts are resolved by priority: pragmatic > cultural > register > denotation."),
+            ("Preservation scoring", "Each layer gets a [0, 1] preservation score for both standard MT and Lingora. The delta is the value — what Lingora saves that MT loses."),
+        ],
+        capabilities=[
+            ("Four-layer decomposition", "Denotation, pragmatic, register, cultural — each scored independently."),
+            ("Idiom detection", "Pattern library of English idioms with pragmatic mappings. 'Break a leg' → theater good-luck, not injury."),
+            ("Sarcasm/irony detection", "Markers like 'yeah right', 'oh great', scare quotes, ellipsis. Flagged and preserved in translation."),
+            ("Register mapping", "Formal/casual/technical/literary detected and mapped to target-culture equivalents."),
+            ("Cultural reference bank", "Untranslatables (saudade, schadenfreude, wabi-sabi, hygge) glossed rather than flattened."),
+            ("Preservation scoring", "Per-layer + overall scores for MT vs Lingora. The delta is the pitch: here's exactly what you're losing."),
+        ],
+        demo_html="""<div style="font-size:11px;color:var(--dim);margin-bottom:8px">Try a phrase with pragmatic content:</div>
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px"><button onclick="trPick('piece')" style="padding:4px 10px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:10px;cursor:pointer">"piece of cake"</button><button onclick="trPick('bless')" style="padding:4px 10px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:10px;cursor:pointer">"bless your heart"</button><button onclick="trPick('leg')" style="padding:4px 10px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:10px;cursor:pointer">"break a leg"</button></div>
+<div id="tr-results" style="min-height:200px"><div style="text-align:center;color:var(--dim);padding:40px;font-size:11px">Pick a phrase.</div></div>""",
+        demo_script="""const TR_MAP = {piece:"It's a piece of cake", bless:"Bless your heart", leg:"Break a leg"};
+async function trPick(k) {
+  const text = TR_MAP[k];
+  const r = await fetch('/lingora/translate-api/analyze', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({text})});
+  const d = await r.json();
+  const layers = d.layers.map(l => `<div style="display:flex;gap:10px;padding:6px 0;border-bottom:1px solid var(--border);font-size:11px"><b style="color:#4fc3f7;min-width:90px">${l.layer}</b><span style="color:var(--dim);flex:1">${l.description}</span><span style="min-width:50px;text-align:right">MT ${(l.mt_preserves*100).toFixed(0)}%</span><span style="min-width:50px;text-align:right;color:#4fc3f7">Lin ${(l.lingora_preserves*100).toFixed(0)}%</span></div>`).join('');
+  document.getElementById('tr-results').innerHTML = `<div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:14px">${layers}<div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:12px"><div style="background:#0e1420;border:1px solid var(--border);border-left:3px solid #a78bfa;border-radius:4px;padding:10px"><div style="font-size:10px;color:#a78bfa;font-weight:bold;margin-bottom:4px">STANDARD MT</div><div style="font-size:12px">${d.mt_output}</div></div><div style="background:#0e1420;border:1px solid var(--border);border-left:3px solid #4fc3f7;border-radius:4px;padding:10px"><div style="font-size:10px;color:#4fc3f7;font-weight:bold;margin-bottom:4px">LINGORA</div><div style="font-size:12px">${d.lingora_output}</div></div></div><div style="margin-top:10px;font-size:11px;color:var(--dim);line-height:1.7">${d.explanation}</div></div>`;
+}""",
+        secondary_demo_title="", secondary_demo_html="", secondary_demo_script="",
+        use_cases=[
+            ("Game studio localizing dialogue", "Character says 'yeah right' sarcastically. Standard MT renders it as sincere agreement in the target language. Players in that market see the character acting out of character.", "Lingora detects sarcasm, translates the INTENT (disbelief) into the target language's sarcastic equivalent. Character voice preserved across languages."),
+            ("Legal firm translating contracts across jurisdictions", "A clause uses 'reasonable efforts' — a term with specific legal meaning in common law that has no direct equivalent in civil law. Standard MT translates literally.", "Lingora's cultural layer flags the legal term, maps it to the civil-law equivalent concept, and annotates the difference for the reviewing attorney."),
+            ("Subtitle studio translating comedy", "A joke relies on a pun that doesn't exist in the target language. Standard MT produces a grammatically correct sentence that isn't funny.", "Lingora's pragmatic layer identifies the humor mechanism (pun, callback, cultural reference) and suggests an equivalent joke in the target language that serves the same comedic function."),
+        ],
+        competitors=[
+            ("Google Translate", "Four-layer decomposition with preservation scoring. Shows exactly what was lost.", "Good denotation. Loses pragmatics, register, cultural framing. No preservation scoring."),
+            ("DeepL", "Same layer-aware approach, plus cultural-reference bank and sarcasm detection.", "Better than Google on fluency. Still loses pragmatics on idioms and sarcasm. No layer visibility."),
+            ("Human translators", "Augments, not replaces. Handles the 80% that's denotation-safe; flags the 20% that needs human judgment.", "Best quality but $0.10-0.20/word. Not scalable for real-time or high-volume use cases."),
+        ],
+        integration_steps=[
+            ("API call", "POST /lingora/translate-api/analyze with source text + target language."),
+            ("Review layers", "Each layer's preservation score shows what standard MT would lose."),
+            ("Use the output", "Lingora's translation preserves all four layers. Use directly or hand to a human translator as a starting point."),
+            ("Batch mode", "For localization pipelines: batch endpoint processes arrays of strings with consistent layer analysis."),
+        ],
+        pricing_tiers=[
+            ("Free", "$0 / mo", "100 translations/mo, 4-layer analysis, no batch mode."),
+            ("Pro", "$49 / mo", "10K translations/mo, batch mode, priority processing, API access."),
+            ("Enterprise", "Custom", "Unlimited volume, custom cultural-reference banks, on-prem option."),
+        ],
+        faq=[
+            ("Does it actually translate or just analyze?", "Both. The analysis shows the layer decomposition; the output is a translated sentence that preserves all four layers. For the demo, we use a curated example bank; the production version would use Claude for the actual generation."),
+            ("What languages are supported?", "The layer decomposition works on any source language. Translation output quality depends on the underlying model; English → Spanish/French/German/Japanese are strongest in the current bank."),
+            ("How is this different from just using Claude to translate?", "Claude can translate well but doesn't decompose into layers or score preservation. Lingora adds the structural analysis that tells you WHAT was preserved and what was lost — and ensures the pragmatic layer is explicitly handled, not left to chance."),
+        ],
+        final_cta="Stop translating words. Start translating meaning.",
+        status_badge="WEDGE 1 · TRANSLATION · LIVE ENGINE",
+        playground_url="/lingora/translate/playground",
+        playground_description="Type or pick a sentence with pragmatic content. See the four-layer decomposition, standard MT vs Lingora output, and preservation scores.",
+    )
+
+
+# ═══════════════════════════════════════════════════════════════════════
+# Lingora Voice
+# ═══════════════════════════════════════════════════════════════════════
+@router.get("/lingora/voice", response_class=HTMLResponse)
+async def lingora_voice() -> str:
+    return _product_page(
+        title="Lingora Voice",
+        parent_name="Lingora",
+        parent_path="/lingora",
+        accent="#81c784",
+        accent_rgb="129,199,132",
+        surface_bg="#0a0e16",
+        surface_card="#161c28",
+        text_color="#e0e6ed",
+        dim_color="#7a8492",
+        border_color="#2a3140",
+        tagline="Understand your writing voice. Sharpen it without losing it.",
+        hero_paragraphs=[
+            "Grammarly flags Hemingway's fragments as errors. It suggests Baldwin rewrite his repetition. It tells every corporate memo to use active voice. The tool has no model of voice — it treats every deviation as a bug. The next-gen writing tool needs to measure what the prose is actually doing, then suggest changes that align with the writer's intent.",
+            "Lingora Voice scores paragraphs on eight mechanisms (POV, register, irony, subtext, pacing, voice consistency, repetition, sound symmetry). Detects the voice signature. Generates diagnostics that PRESERVE the voice instead of flattening it.",
+        ],
+        problem="You paste your novel chapter into Grammarly. It flags 47 'issues.' You fix them. The prose is now grammatically perfect and sounds like it was written by a robot. Your voice — the thing that makes your writing yours — has been edited out.",
+        solution="Score the prose on the mechanisms that define voice, not on grammar rules. Identify the voice signature (clipped declarative, rhythmic, ironic, indirect, formal, casual). Generate suggestions that strengthen the existing voice rather than normalizing it.",
+        how_it_works=[
+            ("Mechanism scoring", "Eight pure-function scorers run on the text: POV, register, irony, subtext, pacing, voice consistency, repetition, sound symmetry. Each returns [0, 1]."),
+            ("Voice signature", "The mechanism profile maps to a named voice type: 'clipped declarative (Hemingway-like)', 'rhythmic/incantatory (Faulkner-like)', 'ironic/sardonic', 'indirect/implicature-heavy', etc."),
+            ("Diagnostics", "Voice-PRESERVING suggestions. If register is inconsistent, flag it — but note that it might be intentional code-switching. If pacing is monotonous, suggest variation — but don't flatten a deliberately clipped style."),
+            ("Strength score", "Overall voice strength in [0, 1]. Higher = more distinctive voice. A corporate memo at 0.4 is doing its job; a novel at 0.4 needs sharpening."),
+        ],
+        capabilities=[
+            ("8-mechanism scoring", "POV, register, irony, subtext, pacing, voice consistency, repetition, sound symmetry."),
+            ("Voice signature detection", "Named labels: clipped declarative, rhythmic, ironic, indirect, formal, casual, moderate/neutral."),
+            ("Voice-preserving diagnostics", "Suggestions aligned with the writer's intent, not against it."),
+            ("Register consistency check", "Flags formal+casual mixing — which may be a bug or a deliberate code-switch."),
+            ("Pacing analysis", "Sentence-length variance + average length. Varied = strong rhythm; uniform = monotonous."),
+            ("Sound awareness", "Alliteration, assonance, and syllabic patterns detected and scored."),
+        ],
+        demo_html="""<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px"><button onclick="vcPick(0)" style="padding:4px 10px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:10px;cursor:pointer">Hemingway</button><button onclick="vcPick(1)" style="padding:4px 10px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:10px;cursor:pointer">Faulkner</button><button onclick="vcPick(2)" style="padding:4px 10px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:10px;cursor:pointer">Corporate</button><button onclick="vcPick(3)" style="padding:4px 10px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:10px;cursor:pointer">Tweet</button></div>
+<div id="vc-results" style="min-height:200px"><div style="text-align:center;color:var(--dim);padding:40px;font-size:11px">Pick a sample.</div></div>""",
+        demo_script="""const VC_SAMPLES = ['The old man was thin and gaunt with deep wrinkles. He fished alone. He had not caught a fish in eighty-four days. The boy loved him.', 'It was a long sentence that wound through the dust of years and the heat of summers and the slow thick blood of a family that did not know how to forget.', 'It has been determined that certain efficiencies could potentially be realized through a strategic re-evaluation of current operational paradigms.', "oh great another framework that'll be deprecated by friday"];
+async function vcPick(i) {
+  const r = await fetch('/lingora/voice-api/analyze', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({text:VC_SAMPLES[i]})});
+  const d = await r.json();
+  const mechs = d.mechanisms.map(m => `<div style="display:flex;gap:8px;align-items:center;padding:4px 0;font-size:11px"><span style="color:#81c784;font-weight:bold;min-width:120px">${m.name}</span><span style="flex:1;height:8px;background:#0e1420;border-radius:4px;overflow:hidden"><span style="display:block;height:100%;width:${Math.round(m.value*100)}%;background:#81c784;border-radius:4px"></span></span><span style="min-width:30px;text-align:right;font-weight:bold">${(m.value*100).toFixed(0)}</span><span style="color:var(--dim);font-size:9px;min-width:160px">${m.description}</span></div>`).join('');
+  const diags = d.diagnostics.map(dg => `<div style="background:#0e1420;border:1px solid var(--border);border-left:3px solid #81c784;border-radius:4px;padding:8px 12px;margin-top:6px;font-size:11px"><b style="color:#81c784;font-size:10px">${dg.mechanism}</b><div style="color:var(--text);margin-top:3px">${dg.suggestion}</div></div>`).join('');
+  document.getElementById('vc-results').innerHTML = `<div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:14px"><div style="display:flex;justify-content:space-between;margin-bottom:10px"><b style="color:#81c784;font-size:13px">${d.voice_signature}</b><span style="color:var(--dim);font-size:11px">${d.total_words} words · strength ${(d.overall_voice_strength*100).toFixed(0)}%</span></div>${mechs}</div><div style="margin-top:12px">${diags}</div>`;
+}""",
+        secondary_demo_title="", secondary_demo_html="", secondary_demo_script="",
+        use_cases=[
+            ("Novelist editing a draft", "Wants feedback on voice consistency across chapters. Grammarly flags 200 'issues' that are actually the author's style.", "Lingora Voice identifies the voice signature ('clipped declarative') and only flags actual inconsistencies (a register shift in chapter 7 that breaks the established pattern)."),
+            ("Copywriter matching a brand voice", "The brand guide says 'warm, direct, slightly irreverent.' No tool measures those qualities.", "Lingora Voice scores warmth (register + subtext), directness (pacing + POV), and irreverence (irony score). The copywriter adjusts until the scores match the guide."),
+            ("Academic writer reducing jargon", "Wants to write more accessibly without losing precision.", "Register scorer flags technical-register markers. Diagnostics suggest specific replacements that preserve the claim while lowering the formality."),
+        ],
+        competitors=[
+            ("Grammarly", "Voice-aware analysis. Understands that fragments can be intentional. Suggests changes aligned with the writer's style, not against it.", "Grammar-rule-based. Treats every deviation as an error. No voice model. Flattens distinctive prose."),
+            ("Hemingway Editor", "8-mechanism scoring vs sentence-length-only analysis. Voice signature detection. Mechanism-specific diagnostics.", "Sentence-length highlighter. Useful but one-dimensional. No irony, subtext, register, or consistency detection."),
+            ("ProWritingAid", "LLM-free, deterministic, auditable. Every score is a pure function the writer can inspect.", "Feature-rich but opaque. Many metrics without a unifying voice model. Overwhelming rather than diagnostic."),
+        ],
+        integration_steps=[
+            ("Paste text", "POST /lingora/voice-api/analyze with your paragraph or chapter."),
+            ("Review mechanisms", "Eight scored dimensions with descriptions. Voice signature identified."),
+            ("Read diagnostics", "Voice-preserving suggestions. Act on the ones that align with your intent."),
+            ("Iterate", "Re-paste, re-score. Watch the voice-strength score rise as consistency improves."),
+        ],
+        pricing_tiers=[
+            ("Free", "$0 / mo", "5 analyses/day, basic mechanism scores, no diagnostics."),
+            ("Writer", "$19 / mo", "Unlimited analyses, full diagnostics, voice-signature tracking over time."),
+            ("Team", "$99 / mo", "Brand-voice templates, team scoring, API access, batch analysis."),
+        ],
+        faq=[
+            ("Will it 'fix' my writing?", "No. Lingora Voice describes what your writing is doing, not what it should be doing. It only suggests changes when a mechanism is inconsistent with the rest of the voice — not when it deviates from a norm."),
+            ("What about non-English text?", "The mechanism scorers work on any language that uses whitespace-delimited words. Register and irony detection are strongest in English; expanding to other languages is on the roadmap."),
+            ("How is 'voice strength' calculated?", "Average of all eight mechanism scores. Higher = more distinctive voice. A neutral corporate document might score 0.4; a strong literary voice scores 0.7+."),
+        ],
+        final_cta="Stop normalizing your prose. Start understanding your voice.",
+        status_badge="WEDGE 2 · WRITING · LIVE ENGINE",
+        playground_url="/lingora/voice/playground",
+        playground_description="Paste a paragraph or pick a sample (Hemingway, Faulkner, corporate memo, tweet). See all 8 mechanism scores, the voice signature, and voice-preserving diagnostics.",
+    )
+
+
+# ═══════════════════════════════════════════════════════════════════════
+# Lingora Learn
+# ═══════════════════════════════════════════════════════════════════════
+@router.get("/lingora/learn", response_class=HTMLResponse)
+async def lingora_learn() -> str:
+    return _product_page(
+        title="Lingora Learn",
+        parent_name="Lingora",
+        parent_path="/lingora",
+        accent="#ffb74d",
+        accent_rgb="255,183,77",
+        surface_bg="#0e0a16",
+        surface_card="#1a1228",
+        text_color="#e8daf4",
+        dim_color="#8a78a0",
+        border_color="#2a1e38",
+        tagline="Words are constellations, not flashcards. Learn them that way.",
+        hero_paragraphs=[
+            "Duolingo teaches you to recognize 'chat' means 'cat' in French. It does not teach you that 'chat' also means 'the warm furry thing on your lap,' 'the creature that ignores you,' 'the animal ancient Egyptians worshipped,' and 'the thing that knocks your coffee off the table.' A word is a constellation of meanings, associations, and contexts — not a single definition on a flashcard.",
+            "Lingora Learn teaches words the way humans actually acquire them: through repeated contextual exposure until the constellation crystallizes. Uses PEP's haze primitive for spaced repetition — each word has an opacity that decays and gets reinforced by recall, personalized per word.",
+        ],
+        problem="You use Duolingo for 6 months. You can match words to definitions. You cannot have a conversation because the words are isolated nodes in your memory — no context, no association, no constellation. You plateau at A2 and never break through to fluency.",
+        solution="Teach constellations, not definitions. Present each word in 12+ different contexts until the meaning crystallizes from the pattern. Track acquisition depth (unseen → shallow → moderate → deep) using opacity-based spaced repetition. Surface words for review based on their actual decay curve, not a population average.",
+        how_it_works=[
+            ("Word as constellation", "Each word comes with a definition + multiple example contexts + semantic associations. The learner sees the word in varied contexts, building the constellation gradually."),
+            ("Study events", "Clicking 'Study' boosts the word's opacity (encoding strength). Diminishing returns on repeated study without recall testing."),
+            ("Recall testing", "The learner marks 'I recalled it' or 'I forgot.' Success boosts opacity AND extends the half-life (spacing effect). Failure drops opacity and shortens the half-life (resets to more frequent review)."),
+            ("Personalized schedule", "Each word has its own decay curve. Words you consistently recall get longer intervals; words you struggle with get shorter intervals. No population averages."),
+        ],
+        capabilities=[
+            ("Constellation-based presentation", "Definition + contexts + associations per word. Not a flashcard — a semantic neighborhood."),
+            ("Haze-primitive spaced repetition", "Opacity decays exponentially with a personalized half-life. Reinforced by study and recall events."),
+            ("Acquisition depth tracking", "unseen → shallow → moderate → deep. Based on effective strength, not just times-seen."),
+            ("Personalized review schedule", "next_review() returns the words most in need of reinforcement, ranked by current strength."),
+            ("Session analytics", "Total words, depth distribution, average strength, total study events."),
+            ("10 untranslatable words as demo vocabulary", "saudade, schadenfreude, hygge, wabi-sabi, ubuntu, ikigai, tsundoku, komorebi, fernweh, meraki — each with contexts and associations."),
+        ],
+        demo_html="""<div style="font-size:11px;color:var(--dim);margin-bottom:10px">The playground has 10 untranslatable words. Study them, test recall, watch the haze-based learning curve. Try the full interactive version:</div>
+<a href="/lingora/learn/playground" style="display:block;padding:14px 20px;background:rgba(255,183,77,0.1);border:1px solid #ffb74d;border-radius:6px;color:#ffb74d;font-weight:bold;text-align:center;text-decoration:none;font-size:13px;margin-bottom:14px">Open Lingora Learn Playground →</a>
+<div style="font-size:10px;color:var(--dim);text-align:center">Interactive sidebar with vocabulary cards + study/recall buttons + strength tracking + session history</div>""",
+        demo_script="",
+        secondary_demo_title="", secondary_demo_html="", secondary_demo_script="",
+        use_cases=[
+            ("Language learner stuck at A2", "Knows 2,000 words by flashcard definition. Cannot use them in conversation because they're isolated nodes.", "Lingora Learn presents each word in 12+ contexts. After a month, the learner can use the word in conversation because the constellation (not just the definition) has been acquired."),
+            ("Traveler learning untranslatable words", "Wants to understand 'saudade,' 'wabi-sabi,' 'hygge' — words that don't have single-word English equivalents.", "Lingora Learn presents each with contexts + associations + semantic neighbors. The learner builds a constellation that captures the concept's full shape, not a reductive gloss."),
+            ("Writer building vocabulary depth", "Has a large passive vocabulary but uses the same 500 words in active writing.", "Recall testing surfaces words that are 'fading' in active use. The spaced repetition keeps them in the active vocabulary without flashcard grinding."),
+        ],
+        competitors=[
+            ("Duolingo", "Constellation-based learning vs flashcard drilling. Personalized per-word decay curves vs population averages. Acquisition depth tracking.", "Gamified flashcards. Plateaus at A2. Per-word personalization is minimal. No constellation model."),
+            ("Anki", "Built-in constellation (contexts + associations) per word. No manual card creation.", "Excellent spaced repetition but the user builds every card manually. No contextual presentation. Steep learning curve."),
+            ("Memrise", "Same spaced-repetition foundation but with constellation presentation and acquisition-depth measurement.", "Mnemonic-focused. Better than Duolingo on retention but still single-definition-per-card."),
+        ],
+        integration_steps=[
+            ("Pick a vocabulary", "Start with the demo set (10 untranslatable words) or import your own word list."),
+            ("Study", "Click words to study them. See the constellation: definition + contexts + associations."),
+            ("Test recall", "Mark 'I recalled it' or 'I forgot.' The engine adjusts the word's decay curve accordingly."),
+            ("Review", "Check 'Next review' to see which words need reinforcement. The schedule is personalized per word."),
+        ],
+        pricing_tiers=[
+            ("Free", "$0 / mo", "50-word vocabulary, basic constellation view, spaced repetition."),
+            ("Learner", "$9 / mo", "Unlimited vocabulary, custom word lists, import/export, session analytics."),
+            ("Pro", "$29 / mo", "API access, team vocabularies, progress reports, integration with LMS."),
+        ],
+        faq=[
+            ("How is this different from Anki?", "Anki is a blank-card system — you build everything yourself. Lingora Learn comes with the constellation (contexts + associations) pre-built. You study meaning, not cards."),
+            ("Why untranslatable words for the demo?", "They're the hardest test of constellation-based learning. A word like 'saudade' literally cannot be learned from a single definition — it requires the constellation. If the engine works for these, it works for everything."),
+            ("Does the spaced repetition actually work?", "It uses the same exponential-decay + reinforcement model as Anki and SuperMemo, but with per-word half-lives instead of population-averaged intervals. The haze primitive is mathematically equivalent to the SM-2 algorithm with personalized parameters."),
+        ],
+        final_cta="Stop drilling definitions. Start building constellations.",
+        status_badge="WEDGE 3 · LANGUAGE LEARNING · LIVE ENGINE",
+        playground_url="/lingora/learn/playground",
+        playground_description="10 untranslatable words (saudade, schadenfreude, hygge, wabi-sabi, ubuntu, ikigai, tsundoku, komorebi, fernweh, meraki). Study, test recall, watch the opacity-based learning curve. Per-word strength tracking + session history.",
     )
 
 
