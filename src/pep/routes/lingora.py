@@ -129,7 +129,7 @@ _PAGE = """\
   <div class="nav-row nav-row-bottom">
     <div class="tabs" id="tabs">
       <div class="tab active" data-panel="home-tab">Home</div>
-      <div class="tab" data-panels="word-tab ambig-tab idiom-tab taboo-tab vocab-tab drift-tab onoma-tab metaphor-tab colloc-tab gramm-tab lexgap-tab jargon-tab cognates-tab vec-live-tab">Words &amp; Meaning</div>
+      <div class="tab" data-panels="word-tab ambig-tab idiom-tab taboo-tab vocab-tab drift-tab onoma-tab metaphor-tab colloc-tab gramm-tab lexgap-tab jargon-tab cognates-tab vec-live-tab vec-context-tab">Words &amp; Meaning</div>
       <div class="tab" data-panels="phono-tab prosody-tab silence-tab soundsym-tab repetition-tab rhyme-tab">Sounds &amp; Rhythm</div>
       <div class="tab" data-panels="sentence-tab grammar-tab listener-tab transfer-tab acquisition-tab babytalk-tab deixis-tab anaphora-tab statistical-tab">Sentences &amp; Learning</div>
       <div class="tab" data-panels="humor-tab voice-tab irony-tab grice-tab conv-tab subtext-tab lying-tab persuasion-tab politeness-tab discourse-tab swearing-tab gesture-tab">Speech Acts</div>
@@ -3038,6 +3038,52 @@ _PAGE = """\
     re-implementing per-app, Lingora delegates neighborhood queries to
     Vectora. Every LAVAS app that needs spreading-activation retrieval
     does the same &mdash; one engine, many products.
+  </div>
+</div>
+</div>
+
+<!-- ═══ Vectora Context — session-aware word lookup ══════════════ -->
+<div class="panel" id="vec-context-tab">
+<div class="container">
+  <h2>Context-Aware Word Lookup
+    <span style="font-size:10px;color:#a3e635;margin-left:10px;letter-spacing:0.1em">● POWERED BY VECTORA CONTEXT</span>
+  </h2>
+  <p class="desc">
+    This canvas uses <b>Vectora Context</b> &mdash; the product at
+    <a href="/vectora/context">/vectora/context</a> &mdash; to modulate
+    word retrieval by your recent activity. Click words below to &quot;browse&quot;
+    them; then pick a seed and query. The same seed word returns
+    different results depending on what you've been viewing, because
+    your session's context vector shifts the edge weights in the word
+    graph. Same primitive any Vectora Context customer would use.
+  </p>
+  <div class="canvas-box" style="padding:20px">
+    <div style="margin-bottom:14px">
+      <div style="font-size:11px;color:var(--dim);margin-bottom:8px">Recent browsing (click to &quot;view&quot; a word):</div>
+      <div id="lingora-ctx-docs" style="display:flex;flex-wrap:wrap;gap:6px"></div>
+    </div>
+    <div style="margin-bottom:14px;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:4px;font-size:10px;color:var(--dim)">
+      <b id="lingora-ctx-session-stat">session: 0 views</b>
+      <span id="lingora-ctx-recent" style="margin-left:12px"></span>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px">
+      <label style="font-size:11px;color:var(--dim);display:flex;gap:6px;align-items:center;flex:1;min-width:240px">
+        <span>seed word:</span>
+        <select id="lingora-ctx-seed" style="flex:1;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:6px;font-family:inherit;font-size:11px"></select>
+      </label>
+      <button onclick="lingoraCtxQuery()" style="padding:6px 14px;border-radius:4px;border:1px solid var(--accent);background:var(--accent);color:var(--bg);font-size:11px;cursor:pointer;font-family:inherit;font-weight:bold">Compare</button>
+      <button onclick="lingoraCtxClear()" style="padding:6px 14px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--dim);font-size:11px;cursor:pointer;font-family:inherit">Clear session</button>
+    </div>
+    <div id="lingora-ctx-results" style="min-height:200px"></div>
+  </div>
+  <div class="info">
+    <b>Example:</b> start by clicking a few "emotion" words (joy, fear,
+    anger) as if you were reading an affect-theory article. Then query
+    with seed <code>w18 (bird)</code>. Without context, Vectora returns
+    fish, tree, and other animal-adjacent words. With the emotion
+    context built up, the same seed leans toward words that connect
+    emotion and flight &mdash; because your session vector has pulled
+    edge weights toward that region of the word graph.
   </div>
 </div>
 </div>
@@ -7919,6 +7965,89 @@ async function vecLingoraQuery() {
   }
 }
 vecLingoraInit();
+
+// ═══════════════════════════════════════════════════════════════════════
+// Vectora Context dogfood — session-aware word lookup
+// ═══════════════════════════════════════════════════════════════════════
+const lingoraCtxSession = 'lingora-ctx-' + Math.random().toString(36).slice(2, 8);
+let lingoraCtxDocs = [];
+
+async function lingoraCtxInit() {
+  try {
+    const r = await fetch('/vectora/seeds/lingora');
+    const data = await r.json();
+    lingoraCtxDocs = data.seeds;
+    const list = document.getElementById('lingora-ctx-docs');
+    if (!list) return;
+    list.innerHTML = lingoraCtxDocs.map(s =>
+      `<button data-doc-id="${s.id}" onclick="lingoraCtxView('${s.id}')" style="padding:4px 10px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--text);font-size:10px;cursor:pointer;font-family:inherit">${s.id} · ${s.text.split(' ').slice(0, 3).join(' ')}</button>`
+    ).join('');
+    const sel = document.getElementById('lingora-ctx-seed');
+    if (sel) sel.innerHTML = lingoraCtxDocs.map(s => `<option value="${s.id}">${s.id} — ${s.text.split(' ').slice(0, 4).join(' ')}</option>`).join('');
+  } catch (e) { console.warn('lingora ctx init failed', e); }
+}
+async function lingoraCtxView(docId) {
+  try {
+    await fetch(`/vectora/context/lingora/record`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ session_id: lingoraCtxSession, doc_id: docId }),
+    });
+    const btn = document.querySelector(`#lingora-ctx-docs button[data-doc-id="${docId}"]`);
+    if (btn) { btn.style.borderColor = 'var(--accent)'; btn.style.background = 'rgba(124,184,255,0.15)'; }
+    lingoraCtxUpdateSessionStat();
+  } catch (e) { console.warn(e); }
+}
+async function lingoraCtxClear() {
+  try {
+    await fetch(`/vectora/context/lingora/clear`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ session_id: lingoraCtxSession }),
+    });
+    document.querySelectorAll('#lingora-ctx-docs button').forEach(b => {
+      b.style.borderColor = 'var(--border)'; b.style.background = 'var(--surface)';
+    });
+    lingoraCtxUpdateSessionStat();
+  } catch (e) { console.warn(e); }
+}
+function lingoraCtxUpdateSessionStat() {
+  const viewed = document.querySelectorAll('#lingora-ctx-docs button[style*="accent"]').length;
+  const stat = document.getElementById('lingora-ctx-session-stat');
+  if (stat) stat.textContent = `session: ${viewed} view${viewed === 1 ? '' : 's'}`;
+}
+async function lingoraCtxQuery() {
+  const seed = document.getElementById('lingora-ctx-seed').value;
+  if (!seed) return;
+  const out = document.getElementById('lingora-ctx-results');
+  out.innerHTML = '<div style="text-align:center;color:var(--dim);padding:30px;font-size:11px">querying Vectora Context…</div>';
+  try {
+    const r = await fetch('/vectora/context/lingora/compare', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ session_id: lingoraCtxSession, seed_id: seed, k: 6 }),
+    });
+    if (!r.ok) throw new Error('query failed');
+    const data = await r.json();
+    const plainIds = new Set(data.plain.map(h => h.id));
+    const renderList = (hits, shifted) => hits.map((h, i) => {
+      const hopBadge = h.hop_distance > 0 ? `<span style="background:rgba(124,184,255,0.2);color:var(--accent);padding:1px 5px;border-radius:8px;font-size:9px;margin-left:4px">hop ${h.hop_distance}</span>` : '';
+      const shiftedStyle = shifted && !plainIds.has(h.id) ? ';background:rgba(163,230,53,0.08)' : '';
+      return `<div style="padding:8px 12px;border-bottom:1px solid var(--border);font-size:11px${shiftedStyle}"><div style="display:flex;gap:6px;align-items:center"><span style="color:var(--dim);font-size:10px">${i+1}.</span><span style="color:var(--accent);font-weight:bold;font-family:monospace">${h.id}</span>${hopBadge}<span style="color:var(--dim);margin-left:auto;font-size:10px">${h.score.toFixed(3)}</span></div><div style="color:var(--text);margin-top:3px;line-height:1.5">${h.text}</div></div>`;
+    }).join('');
+    out.innerHTML = `<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid #a78bfa;border-radius:6px;overflow:hidden">
+        <div style="padding:10px 14px;border-bottom:1px solid var(--border);font-weight:bold;font-size:12px;color:#a78bfa">PLAIN (no context)</div>
+        ${renderList(data.plain, false)}
+      </div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:6px;overflow:hidden">
+        <div style="padding:10px 14px;border-bottom:1px solid var(--border);font-weight:bold;font-size:12px;color:var(--accent)">CONTEXTUAL (${data.session.size} views)</div>
+        ${renderList(data.contextual, true)}
+      </div>
+    </div>`;
+    pepSend('vectora.context.compare', { seed });
+  } catch (e) {
+    out.innerHTML = `<div style="color:#f06292;text-align:center;padding:30px;font-size:11px">Error: ${e.message}</div>`;
+  }
+}
+lingoraCtxInit();
 
 // ═══════════════════════════════════════════════════════════════════════
 // Translation Workbench

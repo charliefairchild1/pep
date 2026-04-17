@@ -16,6 +16,10 @@ Public API:
 from .context import ContextConfig, ContextEvent, ContextTracker
 from .document import Document
 from .embeddings import LocalEmbedder, EmbedderProtocol
+from .eval import (
+    EVAL_CORPUS, EVAL_QUERIES, EvalReport, LabeledQuery, QueryMetrics,
+    compare, evaluate, run_builtin_eval,
+)
 from .graph import DocumentGraph, Edge
 from .kg import EdgeProvenance, TraversalResult, TypedEdge, VectoraKG
 from .retrieval import VectoraRetriever, RetrievalResult, RetrievalMode
@@ -27,10 +31,15 @@ __all__ = [
     "ContextTracker",
     "Document",
     "DocumentGraph",
+    "EVAL_CORPUS",
+    "EVAL_QUERIES",
     "Edge",
     "EdgeProvenance",
     "EmbedderProtocol",
+    "EvalReport",
+    "LabeledQuery",
     "LocalEmbedder",
+    "QueryMetrics",
     "RetrievalMode",
     "RetrievalResult",
     "TraversalResult",
@@ -40,4 +49,7 @@ __all__ = [
     "VectoraWatch",
     "WatchConfig",
     "WatchResult",
+    "compare",
+    "evaluate",
+    "run_builtin_eval",
 ]

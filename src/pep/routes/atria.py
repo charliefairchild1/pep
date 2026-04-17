@@ -128,7 +128,7 @@ _PAGE = """\
     <div class="tabs" id="tabs">
       <div class="tab active" data-panel="home-tab">Home</div>
       <div class="tab" data-panels="elo-tab rps-tab residual-tab multi-tab">Thesis</div>
-      <div class="tab" data-panels="pool-tab oracle-tab queue-tab coldstart-tab confidence-tab ladder-tab vec-live-tab">Matchmaker</div>
+      <div class="tab" data-panels="pool-tab oracle-tab queue-tab coldstart-tab confidence-tab ladder-tab vec-live-tab vec-kg-tab">Matchmaker</div>
       <div class="tab" data-panels="behavior-tab smurf-tab toxcascade-tab">Behavior</div>
       <div class="tab" data-panels="party-tab chemistry-tab draft-tab">Groups</div>
       <div class="tab" data-panels="crossgame-tab engagement-tab transparency-tab domain-tab">Beyond</div>
@@ -1173,6 +1173,57 @@ _PAGE = """\
     logic delegates to Vectora. Every LAVAS app that needs
     spreading-activation retrieval does the same &mdash; one engine,
     many products.
+  </div>
+</div>
+</div>
+
+<!-- ═══ Vectora KG — typed player relationships ═════════════════ -->
+<div class="panel" id="vec-kg-tab">
+<div class="container">
+  <h2>Typed Player Relationships
+    <span style="font-size:10px;color:#a3e635;margin-left:10px;letter-spacing:0.1em">● POWERED BY VECTORA GRAPH</span>
+  </h2>
+  <p class="desc">
+    Atria's compatibility graph carries typed edges on top of embedding
+    similarity: <b>friends_with</b>, <b>party_member</b>, <b>blocked_by</b>,
+    <b>recently_matched</b>, <b>counter_to</b>. Typed edges come from
+    <b>Vectora Graph</b> (<a href="/vectora/graph">product page</a>).
+    Same node set, precise structural edges alongside the statistical
+    ones. Pick a player, pick edge types, traverse.
+  </p>
+  <div class="canvas-box" style="padding:20px">
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px">
+      <label style="font-size:11px;color:var(--dim);display:flex;gap:6px;align-items:center;flex:1;min-width:200px">
+        <span>seed player:</span>
+        <select id="atria-kg-start" style="flex:1;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:6px;font-family:inherit;font-size:11px"></select>
+      </label>
+      <label style="font-size:11px;color:var(--dim);display:flex;gap:6px;align-items:center">
+        <span>max hops:</span>
+        <input type="range" id="atria-kg-hops" min="1" max="3" value="2" style="width:60px">
+        <span id="atria-kg-hops-v" style="color:var(--accent);font-weight:bold">2</span>
+      </label>
+    </div>
+    <div style="margin-bottom:14px">
+      <div style="font-size:11px;color:var(--dim);margin-bottom:6px">filter by edge type (empty = all types):</div>
+      <div id="atria-kg-relations" style="display:flex;gap:6px;flex-wrap:wrap"></div>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:14px">
+      <button onclick="atriaKgTraverse()" style="padding:6px 14px;border-radius:4px;border:1px solid var(--accent);background:var(--accent);color:var(--bg);font-size:11px;cursor:pointer;font-family:inherit;font-weight:bold">Walk the graph</button>
+      <button onclick="atriaKgShowViz()" style="padding:6px 14px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--text);font-size:11px;cursor:pointer;font-family:inherit">Show full graph</button>
+    </div>
+    <div id="atria-kg-stats" style="font-size:10px;color:var(--dim);margin-bottom:10px"></div>
+    <div id="atria-kg-results" style="min-height:160px">
+      <div style="color:var(--dim);text-align:center;padding:30px;font-size:11px">pick a seed and walk the graph</div>
+    </div>
+    <canvas id="atria-kg-canvas" width="600" height="360" style="width:100%;height:360px;background:var(--surface);border:1px solid var(--border);border-radius:4px;margin-top:14px;display:none"></canvas>
+  </div>
+  <div class="info">
+    <b>Dogfood.</b> Atria layers typed player relationships on top of
+    its compatibility graph via Vectora Graph. Friend/party/blocked
+    edges constrain pool formation; counter_to edges prevent hard-
+    matchup mismatches; recently_matched edges avoid repeat pairings
+    too often. Typed query, same node set as the embedding-based
+    retrieval.
   </div>
 </div>
 </div>
@@ -3657,6 +3708,105 @@ async function vecAtriaQuery() {
   }
 }
 vecAtriaInit();
+
+// ═══════════════════════════════════════════════════════════════════════
+// Vectora KG dogfood — typed player relationships
+// ═══════════════════════════════════════════════════════════════════════
+const ATRIA_KG_RELATIONS = ['friends_with', 'party_member', 'blocked_by', 'recently_matched', 'counter_to'];
+let atriaKgSelectedRels = new Set();
+
+async function atriaKgInit() {
+  try {
+    const r = await fetch('/vectora/seeds/atria');
+    const data = await r.json();
+    const sel = document.getElementById('atria-kg-start');
+    if (sel) sel.innerHTML = data.seeds.map(s => `<option value="${s.id}">${s.id} — ${s.metadata.label || s.text.slice(0, 30)}</option>`).join('');
+    const relBox = document.getElementById('atria-kg-relations');
+    if (relBox) relBox.innerHTML = ATRIA_KG_RELATIONS.map(rel => `<button onclick="atriaKgToggleRel('${rel}')" id="atria-kg-rel-${rel}" style="padding:3px 10px;border-radius:12px;border:1px solid var(--border);background:var(--surface);color:var(--dim);font-size:10px;cursor:pointer;font-family:inherit">${rel}</button>`).join('');
+    const viz = await fetch('/vectora/kg/atria/viz').then(r => r.json());
+    const stats = document.getElementById('atria-kg-stats');
+    if (stats) stats.textContent = `typed edges: ${viz.stats.typed_edges} · ${viz.stats.unique_relations} relation types`;
+  } catch (e) { console.warn('atria kg init failed', e); }
+}
+function atriaKgToggleRel(rel) {
+  if (atriaKgSelectedRels.has(rel)) atriaKgSelectedRels.delete(rel);
+  else atriaKgSelectedRels.add(rel);
+  const btn = document.getElementById('atria-kg-rel-' + rel);
+  if (btn) {
+    if (atriaKgSelectedRels.has(rel)) { btn.style.background = 'var(--accent)'; btn.style.color = 'var(--bg)'; btn.style.borderColor = 'var(--accent)'; }
+    else { btn.style.background = 'var(--surface)'; btn.style.color = 'var(--dim)'; btn.style.borderColor = 'var(--border)'; }
+  }
+}
+const atriaKgHopsSlider = document.getElementById('atria-kg-hops');
+if (atriaKgHopsSlider) atriaKgHopsSlider.addEventListener('input', (e) => {
+  document.getElementById('atria-kg-hops-v').textContent = e.target.value;
+});
+async function atriaKgTraverse() {
+  const start = document.getElementById('atria-kg-start').value;
+  const hops = parseInt(document.getElementById('atria-kg-hops').value);
+  const relations = atriaKgSelectedRels.size ? Array.from(atriaKgSelectedRels) : null;
+  const out = document.getElementById('atria-kg-results');
+  out.innerHTML = '<div style="text-align:center;color:var(--dim);padding:30px;font-size:11px">traversing…</div>';
+  try {
+    const r = await fetch('/vectora/kg/atria/traverse', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ start, max_hops: hops, relations }),
+    });
+    if (!r.ok) throw new Error('traverse failed');
+    const data = await r.json();
+    if (!data.results.length) {
+      out.innerHTML = `<div style="color:var(--dim);text-align:center;padding:30px;font-size:11px">no neighbors from <b style="color:var(--accent)">${start}</b> within ${hops} hop(s)${relations ? ' via ' + relations.join(', ') : ''}</div>`;
+      return;
+    }
+    out.innerHTML = data.results.map(r => {
+      const chain = r.relations_to_seed.map(p => `<span style="color:var(--accent);font-family:monospace">${p[1]}</span> <span style="color:#a3e635;font-size:9px">→[${p[0]}]→</span>`).join(' ');
+      return `<div style="padding:10px 14px;border-bottom:1px solid var(--border);font-size:11px"><div style="display:flex;gap:6px;align-items:center"><span style="color:var(--accent);font-weight:bold;font-family:monospace">${r.doc_id}</span><span style="color:var(--dim);font-size:10px">weight ${r.total_weight} · hop ${r.hop_distance}</span></div><div style="color:#a3e635;font-size:10px;margin-top:4px">${chain} <span style="color:var(--text);font-family:monospace">${r.doc_id}</span></div><div style="color:var(--text);font-size:10px;margin-top:3px;line-height:1.55">${r.text}</div></div>`;
+    }).join('');
+  } catch (e) {
+    out.innerHTML = `<div style="color:#f06292;text-align:center;padding:30px;font-size:11px">Error: ${e.message}</div>`;
+  }
+}
+async function atriaKgShowViz() {
+  const canvas = document.getElementById('atria-kg-canvas');
+  canvas.style.display = 'block';
+  try {
+    const viz = await fetch('/vectora/kg/atria/viz').then(r => r.json());
+    drawAtriaKgViz(canvas, viz);
+  } catch (e) { console.warn(e); }
+}
+function drawAtriaKgViz(canvas, viz) {
+  const ctx = canvas.getContext('2d');
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width; canvas.height = rect.height;
+  const W = rect.width, H = rect.height;
+  ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--surface').trim() || '#141d24';
+  ctx.fillRect(0, 0, W, H);
+  const inEdges = new Set();
+  viz.edges.forEach(e => { inEdges.add(e.source); inEdges.add(e.target); });
+  const relevant = viz.nodes.filter(n => inEdges.has(n.id));
+  const pos = {};
+  relevant.forEach((n, i) => {
+    const a = (i / relevant.length) * Math.PI * 2;
+    pos[n.id] = { x: W / 2 + Math.cos(a) * (Math.min(W, H) * 0.38), y: H / 2 + Math.sin(a) * (Math.min(W, H) * 0.38) };
+  });
+  const RELATION_COLORS = { friends_with: '#5eead4', party_member: '#a3e635', blocked_by: '#f06292', recently_matched: '#fbbf24', counter_to: '#c084fc' };
+  viz.edges.forEach(e => {
+    const s = pos[e.source], t = pos[e.target]; if (!s || !t) return;
+    ctx.strokeStyle = (RELATION_COLORS[e.relation] || '#ffffff') + 'aa';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(s.x, s.y); ctx.lineTo(t.x, t.y); ctx.stroke();
+    ctx.fillStyle = RELATION_COLORS[e.relation] || '#fff'; ctx.font = '8px monospace'; ctx.textAlign = 'center';
+    ctx.fillText(e.relation, (s.x + t.x) / 2, (s.y + t.y) / 2 - 3);
+  });
+  Object.entries(pos).forEach(([id, p]) => {
+    ctx.fillStyle = 'rgba(94,234,212,0.5)';
+    ctx.beginPath(); ctx.arc(p.x, p.y, 16, 0, Math.PI * 2); ctx.fill();
+    ctx.strokeStyle = 'rgba(94,234,212,0.95)'; ctx.lineWidth = 1.5; ctx.stroke();
+    ctx.fillStyle = '#fff'; ctx.font = 'bold 9px monospace'; ctx.textAlign = 'center';
+    ctx.fillText(id, p.x, p.y + 3);
+  });
+}
+atriaKgInit();
 
 // ═══════════════════════════════════════════════════════════════════════
 // Before / After Dashboard

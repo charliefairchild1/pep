@@ -201,6 +201,63 @@ def test_dogfood_neighbors_endpoint(client: TestClient, app: str, seed: str) -> 
     assert all(h["id"] != seed for h in data["hits"])
 
 
+def test_dogfood_context_roundtrip(client: TestClient) -> None:
+    sess = "roundtrip-" + "a" * 5
+    rec = client.post(
+        "/vectora/context/lingora/record",
+        json={"session_id": sess, "doc_id": "w11"},
+    )
+    assert rec.status_code == 200
+    assert rec.json()["session_size"] == 1
+    cmp = client.post(
+        "/vectora/context/lingora/compare",
+        json={"session_id": sess, "seed_id": "w15", "k": 4},
+    )
+    assert cmp.status_code == 200
+    data = cmp.json()
+    assert "plain" in data and "contextual" in data
+    assert data["session"]["size"] == 1
+
+
+def test_dogfood_watch_roundtrip(client: TestClient) -> None:
+    resp = client.post(
+        "/vectora/watch/strata/score",
+        json={"text": "rare earth element sovereign nationalization export ban"},
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert "residual" in data
+    assert data["label"] in ("normal", "notable", "unusual", "extreme")
+
+
+def test_dogfood_kg_roundtrip(client: TestClient) -> None:
+    viz = client.get("/vectora/kg/atria/viz")
+    assert viz.status_code == 200
+    assert viz.json()["stats"]["typed_edges"] > 0
+    trav = client.post(
+        "/vectora/kg/atria/traverse",
+        json={"start": "p02", "max_hops": 2},
+    )
+    assert trav.status_code == 200
+
+
+def test_eval_endpoint_returns_real_numbers(client: TestClient) -> None:
+    resp = client.get("/vectora/eval/run?k=10")
+    assert resp.status_code == 200
+    data = resp.json()
+    assert "topk" in data and "vectora" in data and "delta" in data
+    # 12 labeled queries in the built-in eval
+    assert data["topk"]["n_queries"] == 12
+    # Vectora should beat top-k on recall on this corpus
+    assert data["delta"]["recall"] > 0
+
+
+def test_benchmark_page_loads(client: TestClient) -> None:
+    resp = client.get("/vectora/benchmark")
+    assert resp.status_code == 200
+    assert "Vectora Benchmark" in resp.text
+
+
 def test_dogfood_unknown_app_404(client: TestClient) -> None:
     assert client.get("/vectora/neighbors/bogus/x").status_code == 404
     assert client.get("/vectora/seeds/bogus").status_code == 404

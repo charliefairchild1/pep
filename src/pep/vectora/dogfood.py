@@ -16,8 +16,11 @@ from dataclasses import dataclass
 from functools import lru_cache
 from typing import Any
 
+from .context import ContextConfig, ContextTracker
 from .document import Document
+from .kg import EdgeProvenance, VectoraKG
 from .retrieval import RetrievalMode, VectoraRetriever
+from .watch import VectoraWatch, WatchConfig
 
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -200,3 +203,205 @@ def stats(app: str) -> dict[str, int]:
 
 def all_stats() -> dict[str, dict[str, int]]:
     return {app: stats(app) for app in APP_SEEDS}
+
+
+# ═══════════════════════════════════════════════════════════════════════
+# Per-product dogfood: Context tracker per app
+# ═══════════════════════════════════════════════════════════════════════
+
+@lru_cache(maxsize=4)
+def _context_tracker(app: str) -> ContextTracker:
+    """One ContextTracker per app. Same seeded retriever; per-session
+    tracking lives in-process."""
+    r = _build_retriever(app)
+    return ContextTracker(r, ContextConfig(context_weight=0.5))
+
+
+def record_context_view(app: str, session_id: str, doc_id: str) -> int:
+    ct = _context_tracker(app)
+    ct.record_view(session_id, doc_id)
+    return ct.session_size(session_id)
+
+
+def contextual_neighbors(
+    app: str,
+    session_id: str,
+    seed_id: str,
+    k: int = 6,
+    decay: float = 0.35,
+) -> dict[str, list[NeighborhoodHit]]:
+    """Return both plain and context-modulated neighborhoods for a seed.
+    Lets callers show the diff."""
+    ct = _context_tracker(app)
+    r = ct.retriever
+    doc = r.graph.get_document(seed_id)
+    if doc is None:
+        raise KeyError(f"unknown seed id for {app}: {seed_id!r}")
+
+    def _hits(results) -> list[NeighborhoodHit]:
+        out = []
+        for res in results:
+            if res.doc.id == seed_id:
+                continue
+            out.append(NeighborhoodHit(
+                id=res.doc.id, text=res.doc.text,
+                score=round(res.score, 4), hop_distance=res.hop_distance,
+                metadata=dict(res.doc.metadata),
+            ))
+            if len(out) >= k:
+                break
+        return out
+
+    plain = r.retrieve(doc.text, k=k + 2, mode=RetrievalMode.VECTORA, decay=decay)
+    ctx = ct.contextual_retrieve(session_id, doc.text, k=k + 2, decay=decay)
+    return {"plain": _hits(plain), "contextual": _hits(ctx)}
+
+
+def clear_context_session(app: str, session_id: str) -> bool:
+    return _context_tracker(app).clear_session(session_id)
+
+
+def context_session_info(app: str, session_id: str) -> dict[str, Any]:
+    ct = _context_tracker(app)
+    recent = ct.recent_views(session_id, limit=20)
+    return {
+        "app": app,
+        "session_id": session_id,
+        "size": ct.session_size(session_id),
+        "recent": [{"doc_id": e.doc_id, "weight": e.weight} for e in recent],
+    }
+
+
+# ═══════════════════════════════════════════════════════════════════════
+# Per-product dogfood: Watch per app
+# ═══════════════════════════════════════════════════════════════════════
+
+@lru_cache(maxsize=4)
+def _watch(app: str) -> VectoraWatch:
+    r = _build_retriever(app)
+    return VectoraWatch(r, WatchConfig(notable_threshold=35, unusual_threshold=65, extreme_threshold=82))
+
+
+def watch_score(app: str, text: str, item_id: str = "incoming") -> dict[str, Any]:
+    result = _watch(app).score_item(text, item_id=item_id)
+    return {
+        "id": result.doc_id,
+        "text": result.text,
+        "residual": result.residual,
+        "label": result.label,
+        "components": {
+            "distance": result.distance_component,
+            "neighbor": result.neighbor_component,
+            "novelty": result.novelty_component,
+        },
+        "stats": _watch(app).stats(),
+    }
+
+
+# ═══════════════════════════════════════════════════════════════════════
+# Per-product dogfood: KG per app (with seeded typed edges)
+# ═══════════════════════════════════════════════════════════════════════
+
+# Seed typed edges per app so each app's KG has structure from the start
+_APP_SEED_EDGES: dict[str, list[tuple]] = {
+    "atria": [
+        # Friend / party relationships among player archetypes
+        ("p02", "friends_with", "p09", 1.0),
+        ("p02", "friends_with", "p19", 1.0),
+        ("p09", "friends_with", "p19", 1.0),
+        ("p08", "party_member", "p11", 1.0),
+        ("p08", "party_member", "p17", 1.0),
+        ("p11", "party_member", "p17", 1.0),
+        # Blocked / avoid
+        ("p07", "blocked_by", "p08", 0.9),
+        ("p07", "blocked_by", "p17", 0.9),
+        # Recently matched
+        ("p04", "recently_matched", "p12", 0.8),
+        ("p06", "recently_matched", "p16", 0.8),
+        ("p04", "counter_to", "p20", 1.0),
+        ("p20", "counter_to", "p04", 1.0),
+    ],
+    "axona": [
+        # Memory association edges: emotional-through-line, lesson-from
+        ("m01", "emotionally_echoes", "m13", 0.9),  # birthday ↔ graduation
+        ("m05", "emotionally_echoes", "m16", 0.95),  # grief ↔ heartbreak
+        ("m05", "emotionally_echoes", "m14", 0.8),   # grief ↔ car accident
+        ("m07", "lesson_for", "m20", 0.7),           # bike ↔ first day school (overcoming fear)
+        ("m08", "lesson_for", "m18", 0.7),           # exam ↔ public speaking
+        ("m03", "state_cousin_of", "m15", 0.9),      # flow ↔ meditation
+        ("m11", "state_cousin_of", "m15", 0.85),     # morning coffee ↔ meditation
+    ],
+    "lingora": [
+        # Semantic relations beyond what embeddings find
+        ("w01", "opposite_of", "w07", 0.9),   # ocean ↔ desert
+        ("w04", "opposite_of", "w05", 0.9),   # mountain ↔ valley
+        ("w11", "opposite_of", "w12", 1.0),   # joy ↔ sorrow
+        ("w14", "opposite_of", "w13", 0.95),  # calm ↔ anger
+        ("w15", "opposite_of", "w16", 0.85),  # love ↔ fear
+        ("w08", "contains", "w09", 0.7),      # city contains village (historical)
+        ("w10", "subset_of", "w09", 0.8),     # home subset of village
+    ],
+    "strata": [
+        # Correlation / sector / macro relations
+        ("AAPL", "same_sector", "MSFT", 1.0),
+        ("AAPL", "same_sector", "GOOGL", 1.0),
+        ("MSFT", "same_sector", "GOOGL", 1.0),
+        ("NVDA", "same_sector", "AAPL", 0.9),
+        ("JPM", "same_sector", "GS", 1.0),
+        ("XOM", "same_sector", "CVX", 1.0),
+        ("GLD", "inversely_correlated", "SPY", 0.7),
+        ("TLT", "inversely_correlated", "SPY", 0.75),
+        ("BTC", "volatility_peer", "ETH", 1.0),
+        ("QQQ", "tracks", "NVDA", 0.85),
+        ("QQQ", "tracks", "MSFT", 0.85),
+        ("SPY", "broader_than", "QQQ", 0.8),
+    ],
+}
+
+
+@lru_cache(maxsize=4)
+def _kg(app: str) -> VectoraKG:
+    r = _build_retriever(app)
+    kg = VectoraKG(r)
+    seed = _APP_SEED_EDGES.get(app, [])
+    for triple in seed:
+        kg.add_triple(
+            triple[0], triple[1], triple[2],
+            weight=triple[3] if len(triple) > 3 else 1.0,
+            provenance=EdgeProvenance.MANUAL,
+        )
+    return kg
+
+
+def kg_add_triple(
+    app: str, source: str, relation: str, target: str,
+    weight: float = 1.0, confidence: float = 1.0,
+) -> dict[str, Any]:
+    edge = _kg(app).add_triple(
+        source, relation, target,
+        weight=weight, provenance=EdgeProvenance.MANUAL, confidence=confidence,
+    )
+    return {
+        "source": edge.source, "target": edge.target, "relation": edge.relation,
+        "weight": edge.weight, "confidence": edge.confidence,
+        "provenance": edge.provenance.value,
+    }
+
+
+def kg_traverse(
+    app: str, start: str, relations: list[str] | None = None, max_hops: int = 2,
+) -> list[dict[str, Any]]:
+    kg = _kg(app)
+    results = kg.traverse(start, relations=relations, max_hops=max_hops)
+    return [
+        {
+            "doc_id": r.doc_id, "text": r.text,
+            "hop_distance": r.hop_distance, "total_weight": round(r.total_weight, 4),
+            "relations_to_seed": r.relations_to_seed,
+        }
+        for r in results
+    ]
+
+
+def kg_viz(app: str) -> dict[str, Any]:
+    return {**_kg(app).to_viz_data(), "stats": _kg(app).stats()}

@@ -132,6 +132,7 @@ _PAGE = """\
       <div class="tab" data-panel="regime-tab">Regime Modulation</div>
       <div class="tab" data-panel="rotation-tab">Sector Rotation</div>
       <div class="tab" data-panel="vec-live-tab">Vectora Live</div>
+      <div class="tab" data-panel="vec-watch-tab">Vectora Watch</div>
       <div class="tab" data-panels="unusual-tab classify-tab newscore-tab">Equities</div>
       <div class="tab" data-panels="leaderboard-tab catalog-tab strategy-detail-tab">Strategies</div>
       <div class="tab" data-panels="pitch-tab bench-tab">Pitch</div>
@@ -380,6 +381,44 @@ _PAGE = """\
     retrieval. Strata's asset graph delegates to Vectora. Every LAVAS app
     that needs spreading-activation retrieval does the same &mdash; one
     engine, many products.
+  </div>
+</div>
+</div>
+
+<!-- ═══ Vectora Watch — real residual scoring on asset descriptions ═══ -->
+<div class="panel" id="vec-watch-tab">
+<div class="container">
+  <h2>Anomaly Scoring
+    <span style="font-size:10px;color:#a3e635;margin-left:10px;letter-spacing:0.1em">● POWERED BY VECTORA WATCH</span>
+  </h2>
+  <p class="desc">
+    This canvas delegates anomaly scoring to <b>Vectora Watch</b>
+    (<a href="/vectora/watch">product page</a>). Paste an asset
+    description or click a sample. Vectora scores it against the
+    20-asset reference corpus with a three-component residual:
+    distance from the corpus centroid + nearest-neighbor weakness +
+    novelty vs recent stream. Same engine, different asset class.
+  </p>
+  <div class="canvas-box" style="padding:20px">
+    <div style="margin-bottom:10px">
+      <div style="font-size:11px;color:var(--dim);margin-bottom:8px">Sample items (click to score):</div>
+      <div id="strata-watch-samples" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:6px"></div>
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:14px">
+      <input id="strata-watch-input" type="text" placeholder="paste an asset description or news snippet..." style="flex:1;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:8px 12px;font-family:inherit;font-size:11px">
+      <button onclick="strataWatchScore()" style="padding:8px 14px;border-radius:4px;border:1px solid var(--accent);background:var(--accent);color:var(--bg);font-size:11px;cursor:pointer;font-family:inherit;font-weight:bold">Score</button>
+    </div>
+    <div id="strata-watch-stream" style="min-height:200px;max-height:340px;overflow-y:auto;background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:12px">
+      <div style="color:var(--dim);text-align:center;padding:30px;font-size:11px">No items scored yet.</div>
+    </div>
+    <div id="strata-watch-stats" style="margin-top:10px;padding:8px 12px;background:var(--surface);border:1px solid var(--border);border-radius:4px;font-size:10px;color:var(--dim);display:none"></div>
+  </div>
+  <div class="info">
+    <b>Dogfood.</b> Strata's equities vertical does not re-implement
+    anomaly detection &mdash; it calls Vectora Watch. The residual
+    scoring you see here is the same primitive every Watch customer
+    would use, seeded with Strata's asset corpus. Drop in a dataset,
+    get a scorer.
   </div>
 </div>
 </div>
@@ -1508,6 +1547,57 @@ async function vecStrataQuery() {
   }
 }
 vecStrataInit();
+
+// ═══════════════════════════════════════════════════════════════════════
+// Vectora Watch dogfood — anomaly scoring on asset-like text
+// ═══════════════════════════════════════════════════════════════════════
+const STRATA_WATCH_SAMPLES = [
+  { kind: 'SIMILAR', text: 'apple tech consumer hardware phone services' },
+  { kind: 'SIMILAR', text: 'jpmorgan investment bank wealth management services' },
+  { kind: 'SIMILAR', text: 'exxon oil upstream crude gas energy major' },
+  { kind: 'SIMILAR', text: 'bitcoin crypto digital decentralized volatile asset' },
+  { kind: 'SLIGHTLY NOVEL', text: 'lithium mining battery supply chain ev demand' },
+  { kind: 'SLIGHTLY NOVEL', text: 'quantum computing IBM Google long-term research bet' },
+  { kind: 'ANOMALOUS', text: 'rare earth element sovereign nationalization export ban' },
+  { kind: 'ANOMALOUS', text: 'meme stock social media coordinated retail squeeze' },
+  { kind: 'EXTREME', text: 'volcanic eruption tectonic plates lava flow hawaiian basalt' },
+];
+function strataWatchInit() {
+  const c = document.getElementById('strata-watch-samples');
+  if (!c) return;
+  c.innerHTML = STRATA_WATCH_SAMPLES.map(s => {
+    const col = s.kind === 'EXTREME' ? '#ef4444' : s.kind === 'ANOMALOUS' ? '#f06292' : s.kind === 'SLIGHTLY NOVEL' ? '#fbbf24' : '#67e8f9';
+    return `<button onclick="strataWatchPick('${s.text.replace(/'/g, "\\\\'")}')" style="text-align:left;padding:8px 12px;background:var(--surface);border:1px solid var(--border);border-left:3px solid ${col};border-radius:4px;color:var(--text);font-size:10px;cursor:pointer;font-family:inherit"><div style="color:${col};font-size:9px;letter-spacing:0.1em;margin-bottom:2px">${s.kind}</div>${s.text}</button>`;
+  }).join('');
+}
+function strataWatchPick(t) { document.getElementById('strata-watch-input').value = t; strataWatchScore(); }
+async function strataWatchScore() {
+  const text = document.getElementById('strata-watch-input').value.trim();
+  if (!text) return;
+  try {
+    const r = await fetch('/vectora/watch/strata/score', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text, item_id: 'item-' + Date.now() }),
+    });
+    if (!r.ok) throw new Error('score failed');
+    const data = await r.json();
+    const labelCol = { normal: '#67e8f9', notable: '#fbbf24', unusual: '#f06292', extreme: '#ef4444' }[data.label] || '#fff';
+    const stream = document.getElementById('strata-watch-stream');
+    if (stream.querySelector('.empty') || stream.children.length === 1 && stream.children[0].style.textAlign === 'center') stream.innerHTML = '';
+    const item = document.createElement('div');
+    item.style.cssText = `padding:8px 12px;margin-bottom:6px;border-radius:4px;border-left:3px solid ${labelCol};background:var(--surface)`;
+    item.innerHTML = `<div style="display:flex;gap:8px;align-items:baseline"><span style="color:${labelCol};font-weight:bold;font-size:13px">residual ${data.residual}</span><span style="font-size:9px;letter-spacing:0.1em;color:${labelCol};background:rgba(255,255,255,0.05);padding:1px 6px;border-radius:8px">${data.label.toUpperCase()}</span><span style="color:var(--text);margin-left:8px;font-size:11px">${data.text}</span></div><div style="font-size:9px;color:var(--dim);margin-top:4px">distance ${data.components.distance} · neighbor ${data.components.neighbor} · novelty ${data.components.novelty}</div>`;
+    stream.insertBefore(item, stream.firstChild);
+    const stats = document.getElementById('strata-watch-stats');
+    stats.style.display = 'block';
+    stats.innerHTML = `items scored: <b style="color:var(--accent)">${data.stats.n}</b> · mean residual: <b style="color:var(--accent)">${data.stats.mean.toFixed(1)}</b> · max: <b style="color:var(--accent)">${(data.stats.max || 0).toFixed(1)}</b> · adaptive threshold: <b style="color:var(--accent)">${(data.stats.threshold || 0).toFixed(1)}</b>`;
+    document.getElementById('strata-watch-input').value = '';
+    pepSend('vectora.watch.score', { residual: data.residual, label: data.label });
+  } catch (e) {
+    console.warn('strata watch failed', e);
+  }
+}
+strataWatchInit();
 
 // ═══════════════════════════════════════════════════════════════════════
 // Unusual Move Scanner (Strata equities vertical, source: ~/projects/charlie_project)

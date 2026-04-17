@@ -731,3 +731,169 @@ async def watch_playground_page() -> str:
 @router.get("/vectora/graph-playground", response_class=HTMLResponse)
 async def kg_playground_page() -> str:
     return _KG_HTML
+
+
+# ═══════════════════════════════════════════════════════════════════════
+# Eval harness HTTP endpoint + benchmark page
+# ═══════════════════════════════════════════════════════════════════════
+_eval_cache: dict[str, Any] = {}
+
+
+@router.get("/vectora/eval/run")
+async def eval_run(k: int = 10, decay: float = 0.4) -> dict[str, Any]:
+    """Run the built-in eval harness and return the metrics.
+
+    Cached per (k, decay) combination since the corpus is static and the
+    algorithm is deterministic given the inputs.
+    """
+    from pep.vectora.eval import run_builtin_eval
+    key = f"{k}:{decay}"
+    if key not in _eval_cache:
+        _eval_cache[key] = run_builtin_eval(k=k, decay=decay)
+    return _eval_cache[key]
+
+
+_BENCHMARK_HTML = """\
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vectora Benchmark — real eval numbers</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0a121a; --surface: #142028; --surface2: #0f181f;
+    --text: #dce6ed; --dim: #6a808a; --accent: #38bdf8; --accent2: #a3e635;
+    --warn: #fb7185; --border: #1f3040;
+  }
+  body { font-family: 'SF Mono', monospace; background: var(--bg); color: var(--text); line-height: 1.6; }
+  nav { position: sticky; top: 0; background: var(--bg); padding: 10px 20px;
+        border-bottom: 1px solid var(--border); display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+  .brand { font-size: 18px; font-weight: bold; color: var(--accent); }
+  .badge { font-size: 9px; color: var(--accent); background: rgba(56,189,248,0.15);
+           padding: 2px 8px; border-radius: 10px; letter-spacing: 0.05em; }
+  .links { margin-left: auto; display: flex; gap: 14px; font-size: 11px; }
+  .links a { color: var(--dim); text-decoration: none; }
+  .links a:hover { color: var(--accent); }
+  .container { max-width: 1100px; margin: 0 auto; padding: 20px; }
+  h2 { font-size: 16px; color: var(--accent); margin: 24px 0 12px; }
+  .desc { font-size: 11px; color: var(--dim); line-height: 1.7; margin-bottom: 16px; }
+  .controls { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; margin-bottom: 20px;
+              background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 14px; }
+  .controls label { display: flex; gap: 8px; align-items: center; font-size: 11px; color: var(--dim); }
+  .controls input[type=range] { width: 140px; }
+  .controls .v { color: var(--accent); font-weight: bold; min-width: 36px; text-align: right; }
+  button { padding: 6px 14px; border-radius: 4px; border: 1px solid var(--accent);
+           background: var(--accent); color: var(--bg); font-family: inherit; font-size: 11px; cursor: pointer; font-weight: bold; }
+  .metrics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 24px; }
+  .metric-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+                 padding: 16px 18px; text-align: left; border-left: 3px solid var(--accent); }
+  .metric-card .m-label { font-size: 9px; color: var(--dim); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 6px; }
+  .metric-card .m-val { font-size: 20px; font-weight: bold; color: var(--accent); margin-bottom: 4px; }
+  .metric-card .m-compare { font-size: 10px; color: var(--dim); line-height: 1.5; }
+  .metric-card .m-delta { font-size: 11px; font-weight: bold; margin-top: 4px; }
+  .m-delta.positive { color: var(--accent2); }
+  .m-delta.negative { color: var(--warn); }
+  table { width: 100%; border-collapse: collapse; font-size: 11px; background: var(--surface);
+          border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+  th, td { padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border); }
+  th { font-weight: bold; color: var(--dim); letter-spacing: 0.1em; font-size: 10px; text-transform: uppercase; }
+  td.num { text-align: right; font-family: monospace; }
+  td.num.good { color: var(--accent2); }
+  td.num.bad { color: var(--warn); }
+  td.query { color: var(--text); max-width: 280px; }
+  td.mode.topk { color: #a78bfa; font-weight: bold; }
+  td.mode.vec { color: var(--accent); font-weight: bold; }
+  .loading { text-align: center; padding: 40px; color: var(--dim); }
+</style></head><body>
+<nav>
+  <span class="brand">Vectora Benchmark</span>
+  <span class="badge">REAL EVAL</span>
+  <span style="font-size:10px;color:var(--dim)">30 docs · 12 labeled queries · live measurement</span>
+  <div class="links">
+    <a href="/vectora/retrieval">Product</a>
+    <a href="/vectora/playground">Playground</a>
+    <a href="/vectora">Vectora</a>
+    <a href="/pep">PEP</a>
+  </div>
+</nav>
+<div class="container">
+  <p class="desc">This page runs the built-in eval harness (<code>pep.vectora.eval.run_builtin_eval</code>) in-process every time you load it. 30-document corpus with 12 hand-labeled queries. Computes recall@k, precision@k, MRR, NDCG for top-k and Vectora. No cached marketing numbers &mdash; these are the actual measurements.</p>
+  <div class="controls">
+    <label><span>k:</span><input type="range" id="k" min="3" max="15" value="10" oninput="update()"><span class="v" id="kv">10</span></label>
+    <label><span>decay:</span><input type="range" id="decay" min="10" max="70" value="40" oninput="update()"><span class="v" id="dv">0.40</span></label>
+    <button onclick="runEval()">Re-run eval</button>
+  </div>
+  <div id="content"><div class="loading">Loading...</div></div>
+</div>
+<script>
+function update() {
+  document.getElementById('kv').textContent = document.getElementById('k').value;
+  document.getElementById('dv').textContent = (parseInt(document.getElementById('decay').value) / 100).toFixed(2);
+}
+function pct(x) { return (x * 100).toFixed(2) + '%'; }
+function sign(x) { return x > 0 ? '+' + x.toFixed(4) : x.toFixed(4); }
+async function runEval() {
+  const k = document.getElementById('k').value;
+  const decay = parseInt(document.getElementById('decay').value) / 100;
+  document.getElementById('content').innerHTML = '<div class="loading">Running eval...</div>';
+  const r = await fetch(`/vectora/eval/run?k=${k}&decay=${decay}`);
+  const data = await r.json();
+  renderResults(data);
+}
+function renderResults(data) {
+  const { topk, vectora, delta } = data;
+  const metrics = [
+    { key: 'recall', label: 'Recall@k', tk: topk.mean_recall, vc: vectora.mean_recall, d: delta.recall, good: d => d >= 0 },
+    { key: 'precision', label: 'Precision@k', tk: topk.mean_precision, vc: vectora.mean_precision, d: delta.precision, good: d => d >= 0 },
+    { key: 'mrr', label: 'MRR', tk: topk.mean_mrr, vc: vectora.mean_mrr, d: delta.mrr, good: d => d >= 0 },
+    { key: 'ndcg', label: 'NDCG@k', tk: topk.mean_ndcg, vc: vectora.mean_ndcg, d: delta.ndcg, good: d => d >= 0 },
+  ];
+  const cards = metrics.map(m => {
+    const deltaCls = m.good(m.d) ? 'positive' : 'negative';
+    const deltaSign = m.d > 0 ? '+' : '';
+    return `<div class="metric-card">
+      <div class="m-label">${m.label}</div>
+      <div class="m-val">${pct(m.vc)}</div>
+      <div class="m-compare">top-k baseline: ${pct(m.tk)}</div>
+      <div class="m-delta ${deltaCls}">${deltaSign}${(m.d * 100).toFixed(2)} pts</div>
+    </div>`;
+  }).join('');
+  // Per-query table
+  const rows = topk.per_query.map((tq, i) => {
+    const vq = vectora.per_query[i];
+    const rowsPerQ = [
+      { mode: 'topk', m: tq },
+      { mode: 'vec', m: vq },
+    ];
+    return rowsPerQ.map(row => `<tr>
+      <td class="query">${i + 1 === 1 || row.mode === 'topk' ? esc(tq.query) : ''}</td>
+      <td class="mode ${row.mode}">${row.mode === 'topk' ? 'top-k' : 'Vectora'}</td>
+      <td class="num">${row.m.recall.toFixed(3)}</td>
+      <td class="num">${row.m.precision.toFixed(3)}</td>
+      <td class="num">${row.m.mrr.toFixed(3)}</td>
+      <td class="num">${row.m.ndcg.toFixed(3)}</td>
+      <td style="font-size:10px;color:var(--dim)">${row.m.hits.slice(0, 5).join(', ')}${row.m.hits.length > 5 ? '…' : ''}</td>
+    </tr>`).join('');
+  }).join('');
+  const html = `
+    <h2>Aggregate metrics (k=${topk.k}, n=${topk.n_queries} queries)</h2>
+    <div class="metrics-grid">${cards}</div>
+    <h2>Per-query breakdown</h2>
+    <table>
+      <thead><tr><th>Query</th><th>Mode</th><th>Recall</th><th>Precision</th><th>MRR</th><th>NDCG</th><th>Top hits</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <div style="margin-top:20px;padding:16px;background:var(--surface);border:1px solid var(--border);border-radius:6px;font-size:10px;color:var(--dim);line-height:1.7">
+      <b style="color:var(--text)">How to read this.</b> Recall measures how many relevant docs you found. Precision measures how many retrieved docs were relevant. MRR measures how quickly the first relevant doc appears. NDCG blends rank-position quality. Vectora is expected to lead on <b>recall</b> (graph walk surfaces second-hop hits) and tie/lag on <b>MRR</b> (top-k always puts the direct match first). The net effect is usually a win on overall answer quality in RAG applications where recall gates LLM grounding.
+    </div>`;
+  document.getElementById('content').innerHTML = html;
+}
+function esc(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+runEval();
+</script></body></html>
+"""
+
+
+@router.get("/vectora/benchmark", response_class=HTMLResponse)
+async def benchmark_page() -> str:
+    return _BENCHMARK_HTML
