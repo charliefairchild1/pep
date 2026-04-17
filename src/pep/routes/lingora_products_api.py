@@ -201,8 +201,8 @@ def _translate_html() -> str:
 </div>
 <script>
 const SAMPLES = ["It's a piece of cake", "Bless your heart", "Break a leg", "Yeah right", "That's just wonderful", "Under the weather", "Spill the beans"];
-document.getElementById('samples').innerHTML = SAMPLES.map(s => `<button class="sample" onclick="pick('${s}')">${s}</button>`).join('');
-function pick(s) { document.getElementById('input').value = s; run(); }
+document.getElementById('samples').innerHTML = SAMPLES.map((s, i) => `<button class="sample" onclick="pick(${i})">${s}</button>`).join('');
+function pick(i) { document.getElementById('input').value = SAMPLES[i]; run(); }
 function esc(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 async function run() {
   const text = document.getElementById('input').value.trim(); if (!text) return;
