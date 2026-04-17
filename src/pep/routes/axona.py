@@ -1215,6 +1215,121 @@ _PAGE = """\
     checking whether the threat monitor is clear enough for the prediction-error spike
     to land as humor instead of alarm.
   </div>
+
+  <div class="info" style="border-left: 3px solid #f06292">
+    <b style="color:#f06292">Horror uses the same residual &mdash; different routing</b><br><br>
+    A jump scare and a punchline are structurally identical at the
+    residual level. Both violate the prediction. The difference is the
+    <b>context frame</b> &mdash; a state modulator that determines
+    whether the residual gets routed to laughter or fight-or-flight.<br><br>
+    &bull; <b>Humor = prediction error + safety frame.</b> Nobody is
+    hurt, stakes are zero, social context is playful. Laughter is
+    literally a signal to others: &quot;this was surprising but
+    safe.&quot;<br>
+    &bull; <b>Horror = prediction error + threat frame.</b> Darkness,
+    tense music, isolation cues. The same residual routes to adrenaline,
+    flinch, scream.<br>
+    &bull; <b>Nervous laughter</b> = the safety signal is ambiguous.
+    The brain cannot decide if the situation is threatening or safe, so
+    both responses fire partially.<br>
+    &bull; <b>Dark humor</b> = deliberately placing a safety frame on
+    threatening content. The joke re-routes what should be horror
+    through the laughter pathway. People who &quot;can&apos;t handle
+    dark humor&quot; have a stronger threat frame that overrides the
+    safety signal.<br>
+    &bull; <b>Jump-scare fatigue</b> = the same reason repeated jokes
+    are not funny. The prediction error shrinks because you have
+    calibrated. Horror movies escalate because the residual threshold
+    rises with exposure (same mechanism as the Media canvas's
+    short-form tolerance).<br>
+    &bull; <b>Comedic timing</b> = the setup builds the prediction,
+    the pause lets it solidify, the punchline violates it. Too fast =
+    prediction never forms, no residual. Too slow = audience predicts
+    the punchline, small residual.<br>
+    &bull; <b>You can&apos;t tickle yourself</b> because your motor
+    predictor perfectly predicts your own touch. Zero residual = zero
+    response. Someone else&apos;s touch is unpredicted = residual +
+    safety frame (you know them) = laughter.
+  </div>
+  </div>
+
+  <div class="sub-section">
+  <h3 id="arousal-clarity">Arousal &amp; Clarity &mdash; The Brain&apos;s Most Powerful State Modulator</h3>
+  <p class="desc">
+    Sexual arousal is the most powerful state modulator the brain
+    produces. It temporarily rewrites the entire edge-weight landscape:
+    narrows bandwidth to one goal, suppresses the frontal cortex
+    (judgment, consequences, planning), collapses the prediction window
+    to seconds, and amplifies reward-pathway edges. When it switches
+    off after orgasm, the landscape snaps back &mdash; and the contrast
+    between suppressed and restored feels like sudden clarity.
+  </p>
+  <div class="canvas-box">
+    <canvas id="clarity-canvas" width="960" height="400"></canvas>
+  </div>
+  <div class="controls">
+    <button onclick="clarityPhase('baseline')">Baseline</button>
+    <button onclick="clarityPhase('arousal')">During arousal</button>
+    <button onclick="clarityPhase('peak')">Orgasm (residual closes)</button>
+    <button onclick="clarityPhase('clarity')">Post-nut clarity</button>
+  </div>
+
+  <div class="info">
+    <b>The four phases through PEP primitives:</b><br><br>
+    <b style="color:var(--accent)">1. Baseline.</b> Normal edge weights.
+    Frontal cortex online. Full bandwidth. Prediction window extends
+    hours ahead. Judgment, consequence evaluation, social reasoning all
+    active. This is your default operating state.<br><br>
+    <b style="color:#f06292">2. Arousal.</b> The state modulator fires.
+    Bandwidth narrows to one goal. Frontal cortex suppresses (measurable
+    in fMRI &mdash; prefrontal activity drops during arousal). Edge
+    weights rewrite: pathways to reward are amplified; pathways to
+    &quot;is this a good idea&quot; are dampened. Prediction window
+    collapses to the next 30 seconds. This is why decisions made during
+    arousal would never be made otherwise &mdash; the landscape is
+    temporarily different.<br><br>
+    <b style="color:#fbbf24">3. Orgasm.</b> The reward prediction
+    resolves. Residual closes to zero. Massive dopamine spike followed
+    by prolactin surge that rapidly drops dopamine below baseline.
+    The arousal modulator switches off <em>abruptly</em> because
+    prolactin antagonizes the dopamine that was sustaining it.<br><br>
+    <b style="color:var(--accent2)">4. Post-nut clarity.</b> Frontal
+    cortex comes back online. Bandwidth restores. Coherence rebuilds.
+    Prediction window extends. You can think about tomorrow again. The
+    &quot;clarity&quot; IS the contrast &mdash; you feel clear-headed
+    not because you are smarter than baseline, but because you were
+    just in a state where most cognitive machinery was suppressed.
+    Stepping from suppressed &rarr; baseline <em>feels</em> like a
+    boost because the delta is stark.
+  </div>
+
+  <div class="info" style="border-left: 3px solid var(--accent2)">
+    <b style="color:var(--accent2)">What this explains</b><br><br>
+    &bull; <b>Post-nut regret.</b> Decisions made during Phase 2
+    (suppressed frontal cortex) are now evaluated by Phase 4 (restored
+    frontal cortex). The evaluation changes because the state modulator
+    changed. What seemed worth it when consequences were dampened does
+    not seem worth it when they are back online.<br><br>
+    &bull; <b>Why it&apos;s sudden.</b> The arousal modulator has a
+    near-binary off-transition. Prolactin surge is rapid. The switch
+    from &quot;arousal mode&quot; to &quot;normal mode&quot; happens in
+    seconds, not minutes.<br><br>
+    &bull; <b>Why intensity varies.</b> The strength of the clarity
+    depends on how far the arousal modulator pushed the system from
+    baseline. More intense arousal = more suppression = more dramatic
+    contrast on return.<br><br>
+    &bull; <b>Why it fades.</b> After prolactin clears (minutes to
+    hours), the modulator can re-engage. The clarity normalizes as
+    baseline stabilizes and the contrast effect dissipates.<br><br>
+    &bull; <b>Why &quot;think with your brain, not your...&quot;</b>
+    This folk advice is literally describing the state-modulation
+    mechanism. During arousal, you are not thinking with your full
+    brain &mdash; a large part of it (the frontal cortex) has been
+    taken offline by the modulator. The advice is &quot;notice that the
+    modulator is active and discount its influence on your
+    decision-making.&quot; Easier said than done, because the modulator
+    also suppresses the meta-awareness that would notice it.
+  </div>
   </div>
 
   <div class="sub-section">
@@ -8419,6 +8534,116 @@ function drawHumor() {
   requestAnimationFrame(drawHumor);
 }
 drawHumor();
+
+// ═══════════════════════════════════════════════════════════════════════
+// Arousal & Clarity — the brain's most powerful state modulator
+// ═══════════════════════════════════════════════════════════════════════
+const clarityCanvas = document.getElementById('clarity-canvas');
+const clarityCtx = clarityCanvas.getContext('2d');
+let clarityPhaseActive = 'baseline';
+function clarityPhase(p) { clarityPhaseActive = p; }
+
+const CLARITY_PHASES = {
+  baseline: {
+    label: 'BASELINE', color: '#a78bfa',
+    bandwidth: 0.80, coherence: 0.75, frontal: 0.85, predWindow: 0.80, reward: 0.30, valence: 0.10,
+    desc: 'Normal operating state. Full bandwidth, frontal cortex online, prediction window hours ahead.',
+  },
+  arousal: {
+    label: 'AROUSAL', color: '#f06292',
+    bandwidth: 0.25, coherence: 0.30, frontal: 0.20, predWindow: 0.15, reward: 0.95, valence: 0.70,
+    desc: 'State modulator active. Bandwidth narrowed to one goal. Frontal cortex suppressed. Prediction window collapsed.',
+  },
+  peak: {
+    label: 'ORGASM', color: '#fbbf24',
+    bandwidth: 0.10, coherence: 0.15, frontal: 0.10, predWindow: 0.05, reward: 1.00, valence: 0.95,
+    desc: 'Reward prediction resolves. Massive dopamine spike. Residual closes to zero. Prolactin surge begins.',
+  },
+  clarity: {
+    label: 'POST-NUT CLARITY', color: '#a3e635',
+    bandwidth: 0.85, coherence: 0.80, frontal: 0.90, predWindow: 0.85, reward: 0.15, valence: 0.05,
+    desc: 'Modulator OFF. Frontal cortex restored. Bandwidth returns. The contrast from suppressed to baseline feels like a boost.',
+  },
+};
+
+function drawClarity() {
+  var W = 960, H = 400;
+  clarityCtx.fillStyle = themeBg(); clarityCtx.fillRect(0, 0, W, H);
+  var p = CLARITY_PHASES[clarityPhaseActive];
+  if (!p) { requestAnimationFrame(drawClarity); return; }
+
+  // Phase label
+  clarityCtx.fillStyle = p.color; clarityCtx.font = 'bold 16px monospace'; clarityCtx.textAlign = 'left';
+  clarityCtx.fillText(p.label, 30, 30);
+  clarityCtx.fillStyle = '#aaa'; clarityCtx.font = '11px monospace';
+  clarityCtx.fillText(p.desc, 30, 52);
+
+  // Six bars
+  var dims = [
+    { label: 'Bandwidth', v: p.bandwidth, col: '#a78bfa', goodHigh: true },
+    { label: 'Coherence', v: p.coherence, col: '#67e8f9', goodHigh: true },
+    { label: 'Frontal cortex', v: p.frontal, col: '#81c784', goodHigh: true },
+    { label: 'Prediction window', v: p.predWindow, col: '#4fc3f7', goodHigh: true },
+    { label: 'Reward drive', v: p.reward, col: '#f06292', goodHigh: false },
+    { label: 'Valence (arousal)', v: p.valence, col: '#fbbf24', goodHigh: false },
+  ];
+
+  dims.forEach(function(d, i) {
+    var y = 80 + i * 46;
+    clarityCtx.fillStyle = '#ccc'; clarityCtx.font = '11px monospace'; clarityCtx.textAlign = 'left';
+    clarityCtx.fillText(d.label, 30, y);
+
+    // Bar background
+    clarityCtx.fillStyle = 'rgba(120,120,130,0.15)';
+    clarityCtx.fillRect(200, y - 6, 500, 22);
+
+    // Bar fill — color-coded by whether high is good or bad
+    var healthColor;
+    if (d.goodHigh) {
+      healthColor = d.v > 0.6 ? '129,199,132' : d.v > 0.35 ? '255,183,77' : '248,113,113';
+    } else {
+      healthColor = d.v < 0.35 ? '129,199,132' : d.v < 0.60 ? '255,183,77' : '248,113,113';
+    }
+    clarityCtx.fillStyle = 'rgba(' + healthColor + ', 0.75)';
+    clarityCtx.fillRect(200, y - 6, 500 * d.v, 22);
+
+    // Value
+    clarityCtx.fillStyle = '#fff'; clarityCtx.font = 'bold 10px monospace'; clarityCtx.textAlign = 'right';
+    clarityCtx.fillText((d.v * 100).toFixed(0), 695, y + 8);
+  });
+
+  // Phase indicator at bottom
+  var phases = ['baseline', 'arousal', 'peak', 'clarity'];
+  var phaseW = (W - 60) / phases.length;
+  phases.forEach(function(ph, i) {
+    var x = 30 + i * phaseW;
+    var isActive = ph === clarityPhaseActive;
+    var pp = CLARITY_PHASES[ph];
+    clarityCtx.fillStyle = isActive ? pp.color + '33' : 'transparent';
+    clarityCtx.fillRect(x, H - 50, phaseW - 8, 40);
+    clarityCtx.strokeStyle = isActive ? pp.color : 'rgba(120,120,130,0.3)';
+    clarityCtx.lineWidth = isActive ? 2 : 1;
+    clarityCtx.strokeRect(x, H - 50, phaseW - 8, 40);
+    clarityCtx.fillStyle = isActive ? pp.color : '#666';
+    clarityCtx.font = isActive ? 'bold 10px monospace' : '10px monospace';
+    clarityCtx.textAlign = 'center';
+    clarityCtx.fillText(pp.label, x + (phaseW - 8) / 2, H - 26);
+  });
+
+  // Arrow between phases
+  for (var i = 0; i < 3; i++) {
+    var ax = 30 + (i + 1) * phaseW - 4;
+    clarityCtx.fillStyle = '#666'; clarityCtx.font = '14px monospace'; clarityCtx.textAlign = 'center';
+    clarityCtx.fillText('\u2192', ax, H - 26);
+  }
+
+  // Green = healthy, yellow = moderate, red = degraded
+  clarityCtx.fillStyle = '#666'; clarityCtx.font = '10px monospace'; clarityCtx.textAlign = 'center';
+  clarityCtx.fillText('green = healthy for cognition \u00b7 red = suppressed or overdriven', W / 2, H - 4);
+
+  requestAnimationFrame(drawClarity);
+}
+drawClarity();
 
 // ═══════════════════════════════════════════════════════════════════════
 // Reading — Controlled Hallucination
