@@ -2568,5 +2568,132 @@ renderEq();
              "Yes — those are Strata's other proposed verticals (Strata Crypto, Strata FX, Strata Commodities, Strata Predict, Strata Bonds). The engine is asset-class-agnostic; only the data sources and archetype definitions differ. Equities is shipping first to validate the playbook."),
         ],
         final_cta="Read the structural signal. Stop trading the surface.",
-        status_badge="SHIPPING · FIRST VERTICAL",
+        status_badge="SHIPPING · FIRST VERTICAL · LIVE ENGINE",
+        playground_url="/strata/equities/playground",
+        playground_description="Pick an asset, enter a price move + volume + persistence. The engine runs the full unusual-score formula and classifies the move into an archetype.",
+    )
+
+
+# ── Strata Crypto ───────────────────────────────────────────────────────
+@router.get("/strata/crypto", response_class=HTMLResponse)
+async def strata_crypto() -> str:
+    return _product_page(
+        title="Strata Crypto", parent_name="Strata", parent_path="/strata",
+        accent="#fbbf24", accent_rgb="251,191,36",
+        surface_bg="#0c0a14", surface_card="#181423", text_color="#e8dce8", dim_color="#7a708a", border_color="#2a2236",
+        tagline="Same engine, different assets. Pump-and-dump detection that flags structure, not just price.",
+        hero_paragraphs=["Strata Crypto applies the same market-primitive engine to cryptocurrency. Archetypes are crypto-specific: pump-and-dump, rug pull, listing effect, halving cycle, MEV sandwich. News sources weighted toward on-chain analytics and crypto-native press."],
+        problem="Crypto moves fast, narratives change hourly, and pump-and-dumps look identical to breakouts until it's too late.",
+        solution="Structural pattern detection: the unusual-score formula + crypto-specific archetypes distinguish real momentum from coordinated manipulation.",
+        how_it_works=[("Scan", "10 crypto assets scored in real-time."), ("Score", "Same 35/25/25/15 formula."), ("Classify", "Crypto-specific archetypes."), ("Alert", "Pump-risk flagging before the dump.")],
+        capabilities=[("Pump detection", "Structural pattern, not just price spike."), ("On-chain signals", "Wallet concentration, exchange flows."), ("Halving-cycle awareness", "Long-term cycle context."), ("DeFi protocol risk", "TVL changes, governance attacks."), ("Cross-exchange arb", "Price discrepancies across venues."), ("Meme coin filters", "Social sentiment without FOMO.")],
+        demo_html='<a href="/strata/crypto/playground" style="display:block;padding:14px;background:rgba(251,191,36,0.1);border:1px solid #fbbf24;border-radius:6px;color:#fbbf24;text-align:center;font-weight:bold;text-decoration:none">Open Crypto Playground →</a>',
+        demo_script="", secondary_demo_title="", secondary_demo_html="", secondary_demo_script="",
+        use_cases=[("Crypto trader", "Needs to distinguish breakout from pump-and-dump before entering.", "Unusual score + classification catches the structural pattern early.")],
+        competitors=[("CoinGecko / CoinMarketCap", "Structural scoring, not just price display.", "Price + volume display with no structural analysis.")],
+        integration_steps=[("Connect", "CoinGecko or exchange API."), ("Scan", "Real-time unusual-score scanning."), ("Alert", "Webhook on pump-risk flags.")],
+        pricing_tiers=[("Free", "$0", "Top-20 tokens, daily."), ("Pro", "$29", "All tokens, real-time, alerts."), ("Trader", "$99", "Custom strategies, API.")],
+        faq=[("Does it detect rug pulls?", "The structural pattern (low float + coordinated wallets + sudden drain) is detectable; Strata flags it as pump_risk or capitulation.")],
+        final_cta="Don't get pumped. Read the structure.", status_badge="PROPOSED · CRYPTO · LIVE ENGINE",
+        playground_url="/strata/crypto/playground", playground_description="Score crypto moves with the same engine. 10 seed assets from BTC to UNI.",
+    )
+
+
+# ── Strata FX ───────────────────────────────────────────────────────────
+@router.get("/strata/fx", response_class=HTMLResponse)
+async def strata_fx() -> str:
+    return _product_page(
+        title="Strata FX", parent_name="Strata", parent_path="/strata",
+        accent="#67e8f9", accent_rgb="103,232,249",
+        surface_bg="#0c0a14", surface_card="#181423", text_color="#e8dce8", dim_color="#7a708a", border_color="#2a2236",
+        tagline="Carry-trade unwinds, intervention spikes, risk-off flights — classified before they finish.",
+        hero_paragraphs=["Strata FX applies the market-primitive engine to currency pairs. Archetypes: carry-trade unwind, central-bank intervention, risk-off flight to safe havens, peg breaks, quarter-end rebalancing. News weighted toward central-bank statements and macro data."],
+        problem="FX moves on macro events that propagate across pairs. A single intervention cascades through carry trades, crosses, and EM pairs.",
+        solution="The correlation graph + spreading-activation momentum captures the cascade structure. Score individual pair moves; the graph walk shows which other pairs are about to follow.",
+        how_it_works=[("Scan", "10 major + EM pairs."), ("Score", "Same formula, FX-calibrated."), ("Classify", "FX-specific archetypes."), ("Cascade", "Graph shows propagation path.")],
+        capabilities=[("Carry-trade mapping", "Yield differentials as edge weights."), ("Intervention detection", "Unusual volume + size = central-bank action."), ("Risk-off cascade", "JPY/CHF strength propagation."), ("Peg-break early warning", "Deviation from managed-float band."), ("Rebalancing flow", "Quarter-end predictable patterns."), ("Cross-pair correlation", "Full 10-pair correlation graph.")],
+        demo_html='<a href="/strata/fx/playground" style="display:block;padding:14px;background:rgba(103,232,249,0.1);border:1px solid #67e8f9;border-radius:6px;color:#67e8f9;text-align:center;font-weight:bold;text-decoration:none">Open FX Playground →</a>',
+        demo_script="", secondary_demo_title="", secondary_demo_html="", secondary_demo_script="",
+        use_cases=[("Macro hedge fund", "Needs to see carry-trade unwind cascade in real-time.", "Graph-based momentum shows which pairs are next.")],
+        competitors=[("Bloomberg FX", "Structural scoring + cascade visualization.", "Price display + news. No structural analysis.")],
+        integration_steps=[("Connect", "Broker feed or Polygon."), ("Scan", "Real-time pair scoring."), ("Alert", "Intervention + carry-unwind flags.")],
+        pricing_tiers=[("Pro", "$49", "All major pairs, real-time."), ("Institutional", "Custom", "EM pairs, custom alerts, API.")],
+        faq=[("Does it predict interventions?", "It detects the structural signature (unusual volume + directional persistence) within minutes of an intervention starting.")],
+        final_cta="See the cascade before it finishes.", status_badge="PROPOSED · FX · LIVE ENGINE",
+        playground_url="/strata/fx/playground", playground_description="Score FX moves across 10 major + EM pairs.",
+    )
+
+
+# ── Strata Commodities ──────────────────────────────────────────────────
+@router.get("/strata/commodities", response_class=HTMLResponse)
+async def strata_commodities() -> str:
+    return _product_page(
+        title="Strata Commodities", parent_name="Strata", parent_path="/strata",
+        accent="#fb7185", accent_rgb="251,113,133",
+        surface_bg="#0c0a14", surface_card="#181423", text_color="#e8dce8", dim_color="#7a708a", border_color="#2a2236",
+        tagline="Weather spikes, OPEC announcements, shipping disruptions — scored before the futures close.",
+        hero_paragraphs=["Strata Commodities applies the engine to futures markets. Archetypes: weather-driven ag spikes, OPEC supply shocks, shipping-route disruptions, seasonal contango/backwardation flips, strategic-mineral supply deficits."],
+        problem="Commodity markets move on physical-world events (weather, geopolitics, supply chains) that standard technical analysis doesn't capture.",
+        solution="The residual scorer flags moves that deviate from the physical-supply pattern. The correlation graph shows which commodities co-move on shared supply-chain exposure.",
+        how_it_works=[("Scan", "10 futures from oil to uranium."), ("Score", "Supply-chain-aware unusual scoring."), ("Classify", "Physical-world archetypes."), ("Correlate", "Cross-commodity propagation.")],
+        capabilities=[("Weather spike detection", "Ag futures + weather correlation."), ("OPEC signal", "Supply announcement → price impact."), ("Shipping disruption", "Route closure → affected commodities."), ("Seasonal awareness", "Contango/backwardation cycle position."), ("Strategic mineral tracking", "Lithium, uranium supply deficit signals."), ("Cross-commodity correlation", "Oil → gas → ag → industrial cascades.")],
+        demo_html='<a href="/strata/commodities/playground" style="display:block;padding:14px;background:rgba(251,113,133,0.1);border:1px solid #fb7185;border-radius:6px;color:#fb7185;text-align:center;font-weight:bold;text-decoration:none">Open Commodities Playground →</a>',
+        demo_script="", secondary_demo_title="", secondary_demo_html="", secondary_demo_script="",
+        use_cases=[("Commodity trading shop", "Needs early signal on supply disruptions.", "Residual scorer catches the structural break before the move completes.")],
+        competitors=[("CME data", "Structural analysis on top of raw data.", "Raw price + volume. No scoring, no classification.")],
+        integration_steps=[("Connect", "CME group + broker."), ("Scan", "Futures universe."), ("Alert", "Supply-disruption flags.")],
+        pricing_tiers=[("Pro", "$99", "All major futures, real-time."), ("Enterprise", "Custom", "Custom commodities, on-prem.")],
+        faq=[("Does it work for agricultural commodities?", "Yes — the weather-spike archetype is specifically calibrated for ag futures with USDA crop-condition overlay.")],
+        final_cta="Read the physical signal.", status_badge="PROPOSED · COMMODITIES · LIVE ENGINE",
+        playground_url="/strata/commodities/playground", playground_description="Score commodity moves across 10 futures from crude oil to uranium.",
+    )
+
+
+# ── Strata Predict ──────────────────────────────────────────────────────
+@router.get("/strata/predict", response_class=HTMLResponse)
+async def strata_predict() -> str:
+    return _product_page(
+        title="Strata Predict", parent_name="Strata", parent_path="/strata",
+        accent="#a3e635", accent_rgb="163,230,53",
+        surface_bg="#0c0a14", surface_card="#181423", text_color="#e8dce8", dim_color="#7a708a", border_color="#2a2236",
+        tagline="Market-implied probability vs reality. The cleanest application of residual scoring.",
+        hero_paragraphs=["Strata Predict applies the engine to prediction markets (Polymarket, Kalshi, Manifold). The residual is literal: market-implied probability vs the outcome distribution. Archetypes: news-driven jumps, poll mean-reversion, late-resolution liquidity collapse, cross-venue arbitrage."],
+        problem="Prediction markets move on news events. The question is whether the move is an efficient update or an overreaction.",
+        solution="Residual scoring on the probability change. A 10-point jump on credible news = efficient. A 10-point jump on rumor = overreaction. The scoring framework distinguishes them.",
+        how_it_works=[("Scan", "10 prediction markets."), ("Score", "Probability-change residual."), ("Classify", "News jump vs overreaction."), ("Arb", "Cross-venue price discrepancies.")],
+        capabilities=[("Probability residual", "Implied probability vs news-quality-adjusted expectation."), ("News quality scoring", "Same Claude-scored dimensions as equities."), ("Poll mean-reversion", "Election markets overshoot on polls."), ("Late-resolution collapse", "Liquidity dries up near resolution."), ("Cross-venue arb", "Polymarket vs Kalshi price gaps."), ("Resolution timeline", "Time-decay on unresolved markets.")],
+        demo_html='<a href="/strata/predict/playground" style="display:block;padding:14px;background:rgba(163,230,53,0.1);border:1px solid #a3e635;border-radius:6px;color:#a3e635;text-align:center;font-weight:bold;text-decoration:none">Open Predict Playground →</a>',
+        demo_script="", secondary_demo_title="", secondary_demo_html="", secondary_demo_script="",
+        use_cases=[("Active prediction-market trader", "Needs to distinguish efficient updates from overreactions.", "Residual scoring + news quality shows when the market moved more than the news warranted.")],
+        competitors=[("Raw Polymarket", "Structural scoring on probability moves.", "Price display + volume. No residual analysis.")],
+        integration_steps=[("Connect", "Polymarket / Kalshi API."), ("Scan", "Market-by-market probability tracking."), ("Alert", "Overreaction + arb opportunity flags.")],
+        pricing_tiers=[("Free", "$0", "Top-10 markets."), ("Pro", "$19", "All markets, real-time."), ("Trader", "$49", "Custom alerts, API, arb scanner.")],
+        faq=[("Is this gambling?", "Prediction markets are regulated differently by jurisdiction. Strata is an analysis tool, not a trading platform. Same disclaimer as equities: research only.")],
+        final_cta="The probability IS the residual.", status_badge="PROPOSED · PREDICTION MARKETS · LIVE ENGINE",
+        playground_url="/strata/predict/playground", playground_description="Score prediction-market probability moves. 10 markets from elections to AGI timelines.",
+    )
+
+
+# ── Strata Bonds ────────────────────────────────────────────────────────
+@router.get("/strata/bonds", response_class=HTMLResponse)
+async def strata_bonds() -> str:
+    return _product_page(
+        title="Strata Bonds", parent_name="Strata", parent_path="/strata",
+        accent="#94a3b8", accent_rgb="148,163,184",
+        surface_bg="#0c0a14", surface_card="#181423", text_color="#e8dce8", dim_color="#7a708a", border_color="#2a2236",
+        tagline="Yield curves, credit spreads, repo stress — the fixed-income signals that equity traders ignore.",
+        hero_paragraphs=["Strata Bonds applies the engine to fixed income. Archetypes: yield-curve inversion, credit-spread blowout, downgrade cascade, repo stress, central-bank pivot. The most institutional vertical; longest sales cycle but most stable customers."],
+        problem="Fixed income is the largest market and the least retail-accessible. Yield-curve signals predict recessions months ahead but are opaque to non-specialists.",
+        solution="Score bond-market moves using the same structural framework. Yield-curve slope, credit spreads, and repo rates as inputs; archetypes as output. Make the fixed-income signal readable.",
+        how_it_works=[("Scan", "10 bond instruments."), ("Score", "Yield-change + spread-change unusual scoring."), ("Classify", "Fixed-income archetypes."), ("Signal", "Recession signal, stress signal, pivot signal.")],
+        capabilities=[("Yield-curve analysis", "2Y/10Y slope, term premium."), ("Credit-spread monitoring", "IG/HY spread widening = stress."), ("Downgrade cascade", "One downgrade → sector contagion."), ("Repo stress", "Overnight funding market strain."), ("Central-bank pivot", "Rate expectation shifts."), ("Duration risk", "Interest-rate sensitivity per instrument.")],
+        demo_html='<a href="/strata/bonds/playground" style="display:block;padding:14px;background:rgba(148,163,184,0.1);border:1px solid #94a3b8;border-radius:6px;color:#94a3b8;text-align:center;font-weight:bold;text-decoration:none">Open Bonds Playground →</a>',
+        demo_script="", secondary_demo_title="", secondary_demo_html="", secondary_demo_script="",
+        use_cases=[("Credit hedge fund", "Needs early signal on spread blowouts.", "Unusual scoring on spread changes catches stress before CDS markets price it.")],
+        competitors=[("Bloomberg Fixed Income", "Structural scoring accessible without a terminal.", "Industry standard but $24K/year and designed for specialists.")],
+        integration_steps=[("Connect", "Bloomberg or MarketAxess."), ("Scan", "Bond universe."), ("Alert", "Stress + pivot signals.")],
+        pricing_tiers=[("Pro", "$199", "All instruments, real-time."), ("Enterprise", "Custom", "Custom instruments, compliance, on-prem.")],
+        faq=[("Is this for retail?", "Strata Bonds is positioned for institutional users. The data sources (Bloomberg, MarketAxess) are institutional-grade; the pricing reflects that.")],
+        final_cta="Read the bond market's signal before it reaches equities.", status_badge="PROPOSED · FIXED INCOME · LIVE ENGINE",
+        playground_url="/strata/bonds/playground", playground_description="Score fixed-income moves across treasuries, corporates, MBS, munis, and EM.",
     )

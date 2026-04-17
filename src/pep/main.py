@@ -28,6 +28,7 @@ from pep.routes.vectora_product_apis import router as vectora_product_apis_route
 from pep.routes.atria_match_api import router as atria_match_api_router
 from pep.routes.atria_products_api import router as atria_products_api_router
 from pep.routes.axona_products_api import router as axona_products_api_router
+from pep.routes.strata_products_api import router as strata_products_api_router
 from pep.routes.lingora_prompt_api import router as lingora_prompt_api_router
 from pep.routes.lingora_prompt_playground import router as lingora_prompt_playground_router
 from pep.routes.lingora_products_api import router as lingora_products_api_router
@@ -91,6 +92,7 @@ app.include_router(lingora_products_api_router)
 app.include_router(atria_match_api_router)
 app.include_router(atria_products_api_router)
 app.include_router(axona_products_api_router)
+app.include_router(strata_products_api_router)
 app.include_router(strata_router)
 app.include_router(strata_bridge_router)
 app.include_router(vectora_router)

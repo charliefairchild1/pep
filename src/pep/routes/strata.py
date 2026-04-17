@@ -873,10 +873,10 @@ _PAGE = """\
     </div>
   </a>
 
-  <div style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #fbbf24;border-radius:6px;padding:16px 20px;margin-bottom:12px">
+  <a href="/strata/crypto" style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #fbbf24;border-radius:6px;padding:16px 20px;margin-bottom:12px;text-decoration:none;color:inherit;transition:border-color 0.15s" onmouseover="this.style.borderColor='#fbbf24'" onmouseout="this.style.borderColor='var(--border)';this.style.borderLeftColor='#fbbf24'">
     <div style="display:flex;justify-content:space-between;align-items:start;gap:10px;margin-bottom:6px">
-      <div style="font-size:14px;font-weight:bold;color:#fbbf24">Strata Crypto</div>
-      <span style="font-size:9px;color:#fbbf24;background:rgba(251,191,36,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">PROPOSED · CRYPTO</span>
+      <div style="font-size:14px;font-weight:bold;color:#fbbf24">Strata Crypto →</div>
+      <span style="font-size:9px;color:#fbbf24;background:rgba(251,191,36,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">CRYPTO · BUILT</span>
     </div>
     <div style="font-size:11px;color:var(--text);line-height:1.6;margin-bottom:6px">
       Same engine wired to crypto. Pattern archetypes are
@@ -894,12 +894,12 @@ _PAGE = """\
       <b style="color:var(--text)">Why next:</b> data is cheap, signal
       is strong, regulatory framework is permissive for analysis.
     </div>
-  </div>
+  </a>
 
-  <div style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #67e8f9;border-radius:6px;padding:16px 20px;margin-bottom:12px">
+  <a href="/strata/fx" style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #67e8f9;border-radius:6px;padding:16px 20px;margin-bottom:12px;text-decoration:none;color:inherit;transition:border-color 0.15s" onmouseover="this.style.borderColor='#67e8f9'" onmouseout="this.style.borderColor='var(--border)';this.style.borderLeftColor='#67e8f9'">
     <div style="display:flex;justify-content:space-between;align-items:start;gap:10px;margin-bottom:6px">
-      <div style="font-size:14px;font-weight:bold;color:#67e8f9">Strata FX</div>
-      <span style="font-size:9px;color:#67e8f9;background:rgba(103,232,249,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">PROPOSED · CURRENCY PAIRS</span>
+      <div style="font-size:14px;font-weight:bold;color:#67e8f9">Strata FX →</div>
+      <span style="font-size:9px;color:#67e8f9;background:rgba(103,232,249,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">FX · BUILT</span>
     </div>
     <div style="font-size:11px;color:var(--text);line-height:1.6;margin-bottom:6px">
       Foreign-exchange vertical. Pattern archetypes: carry-trade
@@ -916,12 +916,12 @@ _PAGE = """\
       <b style="color:var(--text)">Tradeoff:</b> data is more expensive
       and the buyer set is smaller and more sophisticated.
     </div>
-  </div>
+  </a>
 
-  <div style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #fb7185;border-radius:6px;padding:16px 20px;margin-bottom:12px">
+  <a href="/strata/commodities" style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #fb7185;border-radius:6px;padding:16px 20px;margin-bottom:12px;text-decoration:none;color:inherit;transition:border-color 0.15s" onmouseover="this.style.borderColor='#fb7185'" onmouseout="this.style.borderColor='var(--border)';this.style.borderLeftColor='#fb7185'">
     <div style="display:flex;justify-content:space-between;align-items:start;gap:10px;margin-bottom:6px">
-      <div style="font-size:14px;font-weight:bold;color:#fb7185">Strata Commodities</div>
-      <span style="font-size:9px;color:#fb7185;background:rgba(251,113,133,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">PROPOSED · FUTURES</span>
+      <div style="font-size:14px;font-weight:bold;color:#fb7185">Strata Commodities →</div>
+      <span style="font-size:9px;color:#fb7185;background:rgba(251,113,133,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">COMMODITIES · BUILT</span>
     </div>
     <div style="font-size:11px;color:var(--text);line-height:1.6;margin-bottom:6px">
       Commodity-futures vertical. Pattern archetypes: weather-driven
@@ -938,12 +938,12 @@ _PAGE = """\
       <b style="color:var(--text)">Tradeoff:</b> niche but highly
       paying buyers; long sales cycle.
     </div>
-  </div>
+  </a>
 
-  <div style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #a3e635;border-radius:6px;padding:16px 20px;margin-bottom:12px">
+  <a href="/strata/predict" style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #a3e635;border-radius:6px;padding:16px 20px;margin-bottom:12px;text-decoration:none;color:inherit;transition:border-color 0.15s" onmouseover="this.style.borderColor='#a3e635'" onmouseout="this.style.borderColor='var(--border)';this.style.borderLeftColor='#a3e635'">
     <div style="display:flex;justify-content:space-between;align-items:start;gap:10px;margin-bottom:6px">
-      <div style="font-size:14px;font-weight:bold;color:#a3e635">Strata Predict</div>
-      <span style="font-size:9px;color:#a3e635;background:rgba(163,230,53,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">PROPOSED · PREDICTION MARKETS</span>
+      <div style="font-size:14px;font-weight:bold;color:#a3e635">Strata Predict →</div>
+      <span style="font-size:9px;color:#a3e635;background:rgba(163,230,53,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">PREDICT · BUILT</span>
     </div>
     <div style="font-size:11px;color:var(--text);line-height:1.6;margin-bottom:6px">
       Prediction-market vertical (Polymarket, Kalshi, Manifold).
@@ -961,12 +961,12 @@ _PAGE = """\
       <b style="color:var(--text)">Why interesting:</b> youngest market,
       cleanest signal, smallest competition.
     </div>
-  </div>
+  </a>
 
-  <div style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #94a3b8;border-radius:6px;padding:16px 20px;margin-bottom:12px">
+  <a href="/strata/bonds" style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #94a3b8;border-radius:6px;padding:16px 20px;margin-bottom:12px;text-decoration:none;color:inherit;transition:border-color 0.15s" onmouseover="this.style.borderColor='#94a3b8'" onmouseout="this.style.borderColor='var(--border)';this.style.borderLeftColor='#94a3b8'">
     <div style="display:flex;justify-content:space-between;align-items:start;gap:10px;margin-bottom:6px">
-      <div style="font-size:14px;font-weight:bold;color:#94a3b8">Strata Bonds</div>
-      <span style="font-size:9px;color:#94a3b8;background:rgba(148,163,184,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">PROPOSED · FIXED INCOME</span>
+      <div style="font-size:14px;font-weight:bold;color:#94a3b8">Strata Bonds →</div>
+      <span style="font-size:9px;color:#94a3b8;background:rgba(148,163,184,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">BONDS · BUILT</span>
     </div>
     <div style="font-size:11px;color:var(--text);line-height:1.6;margin-bottom:6px">
       Fixed-income vertical. Pattern archetypes: yield-curve
@@ -983,7 +983,7 @@ _PAGE = """\
       crack from the outside; pursue once Strata is the established
       cross-asset platform.
     </div>
-  </div>
+  </a>
 
   <h3 style="font-size:13px;color:var(--accent2);margin:24px 0 8px">Why one engine, six verticals</h3>
   <div class="info">
