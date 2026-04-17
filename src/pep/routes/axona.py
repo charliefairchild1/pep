@@ -70,6 +70,10 @@ _PAGE = """\
   .quadrant-label { position: absolute; font-size: 10px; pointer-events: none; opacity: 0.5; }
   .sub-section { margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border); scroll-margin-top: 130px; }
   [id^="dsm-"] { scroll-margin-top: 130px; }
+  .media-btn { padding: 4px 12px; border-radius: 12px; border: 1px solid var(--border);
+               background: var(--surface); color: var(--dim); font-size: 10px; cursor: pointer; font-family: inherit; }
+  .media-btn:hover { color: var(--text); border-color: var(--accent); }
+  .media-btn.media-active { background: var(--accent); color: var(--bg); border-color: var(--accent); font-weight: bold; }
   /* LAVAS switcher + mobile responsive */
   .lavas-switch a { color: var(--accent); text-decoration: none; padding: 2px 4px; border-radius: 3px; }
   .lavas-switch a:hover { background: var(--surface); }
@@ -137,6 +141,7 @@ _PAGE = """\
       <div class="tab" data-panel="sandbox-tab">Sandbox</div>
       <div class="tab" data-panel="vec-live-tab">Vectora Live</div>
       <div class="tab" data-panel="haze-tab">Memory Haze</div>
+      <div class="tab" data-panel="media-tab">Media &amp; Brain</div>
       <div class="tab" data-panel="workbench-tab">Workbench</div>
       <div class="tab" data-panel="pitch-tab">Pitch</div>
       <div class="tab" data-panel="products-tab">Products</div>
@@ -5167,7 +5172,85 @@ _PAGE = """\
 </div>
 </div>
 
-<!-- ═══ Tab: Workbench ═══════════════════════════════════════════ -->
+<!-- ══��� Tab: Media & Brain ═══════════════════════════════════════ -->
+<div class="panel" id="media-tab">
+<div class="container">
+  <h2>Media &amp; The Brain &mdash; How Each Medium Retrains Your Prediction Engine</h2>
+  <p class="desc">
+    Media doesn't just fill time &mdash; it trains your prediction
+    engine's timescale. A brain trained on short-form content literally
+    cannot sustain attention for a book, not because of willpower failure
+    but because the predictor and bandwidth allocator have been
+    retrained for a different input regime.
+  </p>
+  <div class="canvas-box">
+    <canvas id="media-canvas" width="960" height="560"></canvas>
+  </div>
+  <div class="controls" style="flex-wrap:wrap;gap:10px">
+    <div style="font-size:11px;color:var(--dim);margin-right:10px">Train on:</div>
+    <button onclick="mediaTrain('books')" id="media-books" class="media-btn media-active">Books</button>
+    <button onclick="mediaTrain('tv')" id="media-tv" class="media-btn">TV Shows</button>
+    <button onclick="mediaTrain('movies')" id="media-movies" class="media-btn">Movies</button>
+    <button onclick="mediaTrain('social')" id="media-social" class="media-btn">Social Media</button>
+    <button onclick="mediaTrain('short')" id="media-short" class="media-btn">Short-Form (TikTok)</button>
+    <label style="font-size:11px;color:var(--dim);display:flex;gap:6px;align-items:center;margin-left:auto">
+      <span>months trained:</span>
+      <input type="range" id="media-months" min="1" max="24" value="6" style="width:120px" oninput="document.getElementById('media-months-v').textContent=this.value">
+      <span id="media-months-v" style="color:var(--accent);font-weight:bold;min-width:18px">6</span>
+    </label>
+  </div>
+
+  <div class="info" style="border-left: 3px solid var(--accent)">
+    <b style="color:var(--accent)">Five media types, five cognitive adaptations</b><br><br>
+    &bull; <b>Books</b> &mdash; prediction window spans hours. The predictor
+    holds character arcs, thematic threads, nested arguments. Deep
+    consolidation between sessions (you process the book overnight).
+    Nodes get reinforced through slow retrieval. Builds the deepest
+    semantic networks because spreading activation has time to reach
+    second and third hops.<br><br>
+    &bull; <b>TV shows</b> &mdash; prediction window ~45 minutes with
+    engineered breaks. Cliffhangers are unresolved predictions; the
+    residual stays open between episodes. The between-episode gap IS
+    the consolidation window. Binge-watching collapses it: middle
+    episodes go hazy because there was no consolidation gap and the
+    opacity was never reinforced.<br><br>
+    &bull; <b>Movies</b> &mdash; single 2-hour sustained-attention
+    session. Three-act structure maps onto prediction/residual: setup
+    builds the predictor's model, complication violates it (residual
+    spike), resolution restores it. A great movie leaves an emotional
+    residual &mdash; the prediction was restored but the path through
+    the violation changed your model.<br><br>
+    &bull; <b>Social media</b> &mdash; variable-ratio reinforcement on
+    a scroll feed. Fragmentary 3-10 second attention per item. The
+    predictor trains on a very short window. Spreading activation never
+    reaches the second hop because the topic changes. No consolidation
+    gaps; everything stays surface.<br><br>
+    &bull; <b>Short-form content</b> (TikTok/Reels/Shorts) &mdash; the
+    extreme. 15-60 seconds per item, algorithmically optimized for
+    residual spikes. Trains three specific adaptations: (1) prediction
+    window collapses to seconds, (2) residual threshold rises so books
+    feel boring, (3) bandwidth allocation shrinks because sustained
+    attention is never rewarded.
+  </div>
+
+  <div class="info" style="border-left: 3px solid var(--accent2)">
+    <b style="color:var(--accent2)">The cross-training effect</b><br><br>
+    Going back to books after months of short-form requires <em>retraining</em>
+    the prediction engine, which feels effortful the same way returning
+    to exercise after months off feels effortful. The brain doesn't want
+    to allocate bandwidth for an hour when it has learned that nothing
+    rewards sustained attention beyond a few seconds.<br><br>
+    <b>The haze primitive explains why you can't remember what you
+    scrolled:</b> no consolidation gap means no reinforcement. The opacity
+    of those nodes was never boosted. They were encoded weakly (low
+    novelty per individual item, even though novelty-per-minute is high)
+    and decay fast. You binge a show, can't name episode 3. You scroll
+    for an hour and can't recall three posts. Same mechanism.
+  </div>
+</div>
+</div>
+
+<!-- ═══ Tab: Workbench ══════════════���═════════════��══════════════ -->
 <div class="panel" id="workbench-tab">
 <div class="container">
   <h2>Cognitive State Workbench &mdash; Map a Description to State-Space</h2>
@@ -11204,6 +11287,111 @@ function drawHaze() {
   requestAnimationFrame(drawHaze);
 }
 drawHaze();
+
+// ═══════════════════════════════════════════════════════════════════════
+// Media & Brain — how each medium retrains the prediction engine
+// ═══════════════════════════════════════════════════════════════════════
+const MEDIA_TYPES = {
+  books:  { label: 'BOOKS',        col: '#a78bfa', predWindow: 0.95, bandwidth: 0.92, residualThresh: 0.20, consolidation: 0.95, retention: 0.85, networkDepth: 0.90 },
+  tv:     { label: 'TV SHOWS',     col: '#4fc3f7', predWindow: 0.65, bandwidth: 0.68, residualThresh: 0.35, consolidation: 0.60, retention: 0.55, networkDepth: 0.60 },
+  movies: { label: 'MOVIES',       col: '#81c784', predWindow: 0.75, bandwidth: 0.78, residualThresh: 0.30, consolidation: 0.45, retention: 0.50, networkDepth: 0.65 },
+  social: { label: 'SOCIAL MEDIA', col: '#ffb74d', predWindow: 0.25, bandwidth: 0.30, residualThresh: 0.70, consolidation: 0.15, retention: 0.18, networkDepth: 0.20 },
+  short:  { label: 'SHORT-FORM',   col: '#f06292', predWindow: 0.10, bandwidth: 0.15, residualThresh: 0.88, consolidation: 0.08, retention: 0.10, networkDepth: 0.08 },
+};
+const MEDIA_DIMS = [
+  { key: 'predWindow',     label: 'Prediction window',     desc: 'how far ahead the predictor holds state', goodHigh: true },
+  { key: 'bandwidth',      label: 'Bandwidth allocation',  desc: 'sustained attention capacity',             goodHigh: true },
+  { key: 'residualThresh', label: 'Residual threshold',    desc: 'how much surprise needed to feel engaged', goodHigh: false },
+  { key: 'consolidation',  label: 'Consolidation gap',     desc: 'time between inputs for deep encoding',    goodHigh: true },
+  { key: 'retention',      label: 'Content retention',     desc: 'how much you remember afterward',          goodHigh: true },
+  { key: 'networkDepth',   label: 'Semantic network depth', desc: 'how many hops activation reaches',        goodHigh: true },
+];
+let mediaTrainedOn = 'books';
+const mediaCanvas = document.getElementById('media-canvas');
+const mediaCtx = mediaCanvas.getContext('2d');
+
+function mediaTrain(type) {
+  mediaTrainedOn = type;
+  document.querySelectorAll('.media-btn').forEach(b => b.classList.remove('media-active'));
+  const btn = document.getElementById('media-' + type);
+  if (btn) btn.classList.add('media-active');
+}
+
+function drawMedia() {
+  const W = 960, H = 560;
+  mediaCtx.fillStyle = themeBg(); mediaCtx.fillRect(0, 0, W, H);
+  const months = parseInt(document.getElementById('media-months').value);
+  const trainFactor = Math.min(1, months / 12);
+  const trained = MEDIA_TYPES[mediaTrainedOn];
+
+  mediaCtx.fillStyle = trained.col; mediaCtx.font = 'bold 14px monospace'; mediaCtx.textAlign = 'left';
+  mediaCtx.fillText('TRAINED ON: ' + trained.label + ' (' + months + ' months)', 30, 30);
+  mediaCtx.fillStyle = '#aaa'; mediaCtx.font = '10px monospace';
+  mediaCtx.fillText('Each column shows the brain adapted to that medium. Green = healthy for deep cognition; red = degraded.', 30, 50);
+
+  const types = Object.entries(MEDIA_TYPES);
+  const colW = (W - 60) / types.length;
+
+  types.forEach(function(entry, col) {
+    var key = entry[0], mt = entry[1];
+    var x = 30 + col * colW;
+    var isActive = key === mediaTrainedOn;
+
+    mediaCtx.fillStyle = isActive ? mt.col : '#666';
+    mediaCtx.font = isActive ? 'bold 11px monospace' : '10px monospace';
+    mediaCtx.textAlign = 'center';
+    mediaCtx.fillText(mt.label, x + colW / 2, 82);
+    if (isActive) {
+      mediaCtx.fillStyle = mt.col + '22';
+      mediaCtx.fillRect(x + 4, 68, colW - 8, H - 100);
+    }
+
+    MEDIA_DIMS.forEach(function(dim, row) {
+      var y = 100 + row * 72;
+      var baseVal = mt[dim.key];
+      var adaptedVal;
+      if (key === mediaTrainedOn) {
+        adaptedVal = baseVal;
+      } else {
+        var trainedVal = trained[dim.key];
+        if (dim.goodHigh) {
+          adaptedVal = baseVal * (1 - trainFactor * 0.6 * (1 - trainedVal));
+        } else {
+          adaptedVal = baseVal + trainFactor * 0.4 * (trainedVal - baseVal);
+        }
+        adaptedVal = Math.max(0, Math.min(1, adaptedVal));
+      }
+
+      if (col === 0) {
+        mediaCtx.fillStyle = '#ccc'; mediaCtx.font = 'bold 10px monospace'; mediaCtx.textAlign = 'left';
+        mediaCtx.fillText(dim.label, 30, y + 6);
+        mediaCtx.fillStyle = '#666'; mediaCtx.font = '9px monospace';
+        mediaCtx.fillText(dim.desc, 30, y + 20);
+      }
+
+      var barX = x + 10, barW = colW - 20, barY = y + 28, barH = 22;
+      mediaCtx.fillStyle = 'rgba(120,120,130,0.15)';
+      mediaCtx.fillRect(barX, barY, barW, barH);
+
+      var healthColor;
+      if (dim.goodHigh) {
+        healthColor = adaptedVal > 0.6 ? '129,199,132' : adaptedVal > 0.35 ? '255,183,77' : '248,113,113';
+      } else {
+        healthColor = adaptedVal < 0.35 ? '129,199,132' : adaptedVal < 0.60 ? '255,183,77' : '248,113,113';
+      }
+      mediaCtx.fillStyle = 'rgba(' + healthColor + ', 0.75)';
+      mediaCtx.fillRect(barX, barY, barW * adaptedVal, barH);
+
+      mediaCtx.fillStyle = '#fff'; mediaCtx.font = '10px monospace'; mediaCtx.textAlign = 'center';
+      mediaCtx.fillText((adaptedVal * 100).toFixed(0), barX + barW / 2, barY + 14);
+    });
+  });
+
+  mediaCtx.fillStyle = '#666'; mediaCtx.font = '10px monospace'; mediaCtx.textAlign = 'center';
+  mediaCtx.fillText('green = healthy for deep cognition \u00b7 yellow = moderate \u00b7 red = degraded by training regime', W / 2, H - 14);
+  requestAnimationFrame(drawMedia);
+}
+drawMedia();
 
 // ═══════════════════════════════════════════════════════════════════════
 // Vectora-Powered Live Retrieval (dogfood)
