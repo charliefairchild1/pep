@@ -1461,10 +1461,10 @@ _PAGE = """\
     </div>
   </a>
 
-  <div style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #ec4899;border-radius:6px;padding:16px 20px;margin-bottom:12px">
+  <a href="/atria/date/playground" style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #ec4899;border-radius:6px;padding:16px 20px;margin-bottom:12px;text-decoration:none;color:inherit;transition:border-color 0.15s" onmouseover="this.style.borderColor='#ec4899'" onmouseout="this.style.borderColor='var(--border)';this.style.borderLeftColor='#ec4899'">
     <div style="display:flex;justify-content:space-between;align-items:start;gap:10px;margin-bottom:6px">
-      <div style="font-size:14px;font-weight:bold;color:#ec4899">Atria Date</div>
-      <span style="font-size:9px;color:#ec4899;background:rgba(236,72,153,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">CROSS-DOMAIN · DATING</span>
+      <div style="font-size:14px;font-weight:bold;color:#ec4899">Atria Date &rarr;</div>
+      <span style="font-size:9px;color:#ec4899;background:rgba(236,72,153,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">CROSS-DOMAIN · BUILT</span>
     </div>
     <div style="font-size:11px;color:var(--text);line-height:1.6;margin-bottom:6px">
       Dating compatibility scoring built on the same relational-matching
@@ -1485,12 +1485,12 @@ _PAGE = """\
       than PvP (months, not minutes) — pursue after the matchmaking
       engine is validated on games.
     </div>
-  </div>
+  </a>
 
-  <div style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #fbbf24;border-radius:6px;padding:16px 20px;margin-bottom:12px">
+  <a href="/atria/hire/playground" style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #fbbf24;border-radius:6px;padding:16px 20px;margin-bottom:12px;text-decoration:none;color:inherit;transition:border-color 0.15s" onmouseover="this.style.borderColor='#fbbf24'" onmouseout="this.style.borderColor='var(--border)';this.style.borderLeftColor='#fbbf24'">
     <div style="display:flex;justify-content:space-between;align-items:start;gap:10px;margin-bottom:6px">
-      <div style="font-size:14px;font-weight:bold;color:#fbbf24">Atria Hire</div>
-      <span style="font-size:9px;color:#fbbf24;background:rgba(251,191,36,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">CROSS-DOMAIN · RECRUITING</span>
+      <div style="font-size:14px;font-weight:bold;color:#fbbf24">Atria Hire &rarr;</div>
+      <span style="font-size:9px;color:#fbbf24;background:rgba(251,191,36,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">CROSS-DOMAIN · BUILT</span>
     </div>
     <div style="font-size:11px;color:var(--text);line-height:1.6;margin-bottom:6px">
       Candidate-team compatibility scoring for hiring. Beyond
@@ -1509,12 +1509,12 @@ _PAGE = """\
       slow and high-stakes (regulated, biased-against-AI scrutiny).
       Long sales cycle.
     </div>
-  </div>
+  </a>
 
-  <div style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #a78bfa;border-radius:6px;padding:16px 20px;margin-bottom:12px">
+  <a href="/atria/found/playground" style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #a78bfa;border-radius:6px;padding:16px 20px;margin-bottom:12px;text-decoration:none;color:inherit;transition:border-color 0.15s" onmouseover="this.style.borderColor='#a78bfa'" onmouseout="this.style.borderColor='var(--border)';this.style.borderLeftColor='#a78bfa'">
     <div style="display:flex;justify-content:space-between;align-items:start;gap:10px;margin-bottom:6px">
-      <div style="font-size:14px;font-weight:bold;color:#a78bfa">Atria Found</div>
-      <span style="font-size:9px;color:#a78bfa;background:rgba(167,139,250,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">CROSS-DOMAIN · COFOUNDERS</span>
+      <div style="font-size:14px;font-weight:bold;color:#a78bfa">Atria Found &rarr;</div>
+      <span style="font-size:9px;color:#a78bfa;background:rgba(167,139,250,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">CROSS-DOMAIN · BUILT</span>
     </div>
     <div style="font-size:11px;color:var(--text);line-height:1.6;margin-bottom:6px">
       Cofounder-matching service. Founders are matched on
@@ -1533,12 +1533,12 @@ _PAGE = """\
       <b style="color:var(--text)">Tradeoff:</b> tiny TAM but
       catastrophic value if the match works (or doesn't).
     </div>
-  </div>
+  </a>
 
-  <div style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #67e8f9;border-radius:6px;padding:16px 20px;margin-bottom:12px">
+  <a href="/atria/therapy/playground" style="display:block;background:var(--surface);border:1px solid var(--border);border-left:3px solid #67e8f9;border-radius:6px;padding:16px 20px;margin-bottom:12px;text-decoration:none;color:inherit;transition:border-color 0.15s" onmouseover="this.style.borderColor='#67e8f9'" onmouseout="this.style.borderColor='var(--border)';this.style.borderLeftColor='#67e8f9'">
     <div style="display:flex;justify-content:space-between;align-items:start;gap:10px;margin-bottom:6px">
-      <div style="font-size:14px;font-weight:bold;color:#67e8f9">Atria Therapy</div>
-      <span style="font-size:9px;color:#67e8f9;background:rgba(103,232,249,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">CROSS-DOMAIN · CLINICAL</span>
+      <div style="font-size:14px;font-weight:bold;color:#67e8f9">Atria Therapy &rarr;</div>
+      <span style="font-size:9px;color:#67e8f9;background:rgba(103,232,249,0.15);padding:2px 8px;border-radius:10px;white-space:nowrap">CROSS-DOMAIN · BUILT</span>
     </div>
     <div style="font-size:11px;color:var(--text);line-height:1.6;margin-bottom:6px">
       Patient-therapist matching. The single biggest predictor of
@@ -1557,7 +1557,7 @@ _PAGE = """\
       buy-in (data sharing) and clinical validation; long path to
       market but enormous societal value if it lands.
     </div>
-  </div>
+  </a>
 
   <h3 style="font-size:13px;color:var(--accent2);margin:24px 0 8px">Why one engine, five products</h3>
   <div class="info">
