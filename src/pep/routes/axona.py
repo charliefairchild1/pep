@@ -136,6 +136,7 @@ _PAGE = """\
       <div class="tab" data-panel="composer-tab">Composer</div>
       <div class="tab" data-panel="sandbox-tab">Sandbox</div>
       <div class="tab" data-panel="vec-live-tab">Vectora Live</div>
+      <div class="tab" data-panel="haze-tab">Memory Haze</div>
       <div class="tab" data-panel="workbench-tab">Workbench</div>
       <div class="tab" data-panel="pitch-tab">Pitch</div>
       <div class="tab" data-panel="products-tab">Products</div>
@@ -5056,6 +5057,62 @@ _PAGE = """\
     than re-implementing per-app, Axona's memory lookup delegates to
     Vectora. Every LAVAS app that needs spreading-activation retrieval
     does the same &mdash; one engine, many products.
+  </div>
+</div>
+</div>
+
+<!-- ═══ Tab: Memory Haze (opacity decay + reuse) ═════════════════ -->
+<div class="panel" id="haze-tab">
+<div class="container">
+  <h2>Memory Haze &mdash; Opacity Decay and Reuse
+    <span style="font-size:10px;color:#a3e635;margin-left:10px;letter-spacing:0.1em">● PEP PRIMITIVE</span>
+  </h2>
+  <p class="desc">
+    Every node in the graph has an <b>opacity</b> &mdash; its current
+    encoding strength &mdash; that decays over time toward a floor. When
+    opacity drops below a reuse threshold, the node becomes available for
+    overwriting by new encoding. This is why vivid memories are bright
+    and old memories are hazy: it is the same capacity, partially
+    reclaimed. Forgetting and learning are the same mechanism.
+  </p>
+
+  <div class="canvas-box">
+    <canvas id="haze-canvas" width="960" height="460"></canvas>
+  </div>
+  <div class="controls" style="flex-wrap:wrap;gap:10px">
+    <label style="font-size:11px;color:var(--dim);display:flex;gap:6px;align-items:center">
+      <span>time elapsed:</span>
+      <input type="range" id="haze-time" min="0" max="100" value="0" style="width:200px">
+      <span id="haze-time-v" style="color:var(--accent);font-weight:bold;min-width:54px">0 days</span>
+    </label>
+    <label style="font-size:11px;color:var(--dim);display:flex;gap:6px;align-items:center">
+      <span>half-life:</span>
+      <input type="range" id="haze-halflife" min="1" max="60" value="14" style="width:140px">
+      <span id="haze-halflife-v" style="color:var(--accent);font-weight:bold;min-width:48px">14 days</span>
+    </label>
+    <button onclick="hazeReinforce()" style="padding:4px 12px;border-radius:4px;border:1px solid var(--accent);background:var(--accent);color:var(--bg);font-size:11px;cursor:pointer;font-family:inherit;font-weight:bold">Reinforce random</button>
+    <button onclick="hazeReset()" style="padding:4px 12px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--text);font-size:11px;cursor:pointer;font-family:inherit">Reset</button>
+  </div>
+
+  <div class="info">
+    <b>What you are watching:</b> 24 memory nodes, each with an
+    individual opacity and its own encoded-at timestamp. Brightness on
+    screen = effective opacity. As &quot;time elapsed&quot; advances,
+    older memories fade toward the floor. Click <b>Reinforce random</b>
+    to re-encode a node &mdash; its opacity jumps back up and its
+    encoded-at resets (the successful-recall effect). Nodes that drop
+    below 0.15 are marked for reuse (dashed outline); in a real system,
+    those are the slots that new incoming memories overwrite.<br><br>
+    <b>The unification claim:</b> forgetting is not a bug. It is the
+    mechanism that makes capacity finite and therefore usable. A system
+    that could not forget would eventually drown in stale encodings.
+    Haze is how a finite-capacity predictor handles a stream of
+    novel input.<br><br>
+    <b>See also:</b>
+    <a href="#" onclick="document.querySelector('[data-panel=vec-live-tab]').click();return false">Axona &rarr; Live Vectora Retrieval</a>
+    (opacity attenuates activation in real time),
+    <a href="/pep">PEP &rarr; State Modulator</a> (haze is
+    node-level state modulation on a slow timescale).
   </div>
 </div>
 </div>
@@ -10928,6 +10985,121 @@ document.querySelectorAll('.tab').forEach(t => {
 // ═══════════════════════════════════════════════════════════════════════
 // Gallery
 // ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
+// Memory Haze — opacity decay + reuse
+// ═══════════════════════════════════════════════════════════════════════
+const hazeCanvas = document.getElementById('haze-canvas');
+const hazeCtx = hazeCanvas.getContext('2d');
+const HAZE_LABELS = [
+  'birthday party', 'job interview', 'flow state', 'beach vacation', 'grief',
+  'first kiss', 'learning bike', 'final exam', 'shared joke', 'waiting room',
+  'morning coffee', 'deadline rush', 'graduation', 'car accident', 'meditation',
+  'heartbreak', 'treehouse', 'public speaking', "grandma's kitchen", 'first day school',
+  'concert', 'pet loss', 'road trip', 'injury',
+];
+const hazeNodes = [];
+(function hazeInit() {
+  const W = 960, H = 460;
+  const cols = 6, rows = 4;
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const idx = r * cols + c;
+      if (idx >= HAZE_LABELS.length) break;
+      hazeNodes.push({
+        x: 90 + c * 140,
+        y: 60 + r * 100,
+        label: HAZE_LABELS[idx],
+        encodedDaysAgo: Math.random() * 40,  // random encoding time 0-40 days ago
+        baseOpacity: 0.85 + Math.random() * 0.15,
+      });
+    }
+  }
+})();
+function hazeTimeDays() { return parseFloat(document.getElementById('haze-time').value); }
+function hazeHalfLife() { return parseFloat(document.getElementById('haze-halflife').value); }
+function hazeEffective(node) {
+  const elapsed = hazeTimeDays() + node.encodedDaysAgo;
+  const hl = hazeHalfLife();
+  return Math.max(0.05, node.baseOpacity * Math.pow(0.5, elapsed / hl));
+}
+function hazeReinforce() {
+  // Pick a random node and re-encode it (strength back up, clock reset)
+  const candidates = hazeNodes.filter(n => hazeEffective(n) > 0.1);
+  if (!candidates.length) return;
+  const pick = candidates[Math.floor(Math.random() * candidates.length)];
+  pick.encodedDaysAgo = -hazeTimeDays();  // so elapsed becomes 0
+  pick.baseOpacity = 1.0;
+  pick.reinforced = Date.now();
+  pepSend('haze.reinforce', { label: pick.label });
+}
+function hazeReset() {
+  hazeNodes.forEach(n => {
+    n.encodedDaysAgo = Math.random() * 40;
+    n.baseOpacity = 0.85 + Math.random() * 0.15;
+    delete n.reinforced;
+  });
+  document.getElementById('haze-time').value = 0;
+  document.getElementById('haze-time-v').textContent = '0 days';
+}
+['haze-time','haze-halflife'].forEach(id => {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.addEventListener('input', (e) => {
+    const v = parseFloat(e.target.value);
+    const out = document.getElementById(id + '-v');
+    if (out) out.textContent = v + ' days';
+  });
+});
+function drawHaze() {
+  const W = 960, H = 460;
+  hazeCtx.fillStyle = themeBg(); hazeCtx.fillRect(0, 0, W, H);
+  let reusableCount = 0;
+  hazeNodes.forEach(n => {
+    const op = hazeEffective(n);
+    const reusable = op < 0.15;
+    if (reusable) reusableCount++;
+    const r = 28 + op * 14;
+    // Node circle with opacity-based alpha
+    hazeCtx.fillStyle = `rgba(186, 104, 200, ${op.toFixed(3)})`;
+    hazeCtx.beginPath(); hazeCtx.arc(n.x, n.y, r, 0, Math.PI * 2); hazeCtx.fill();
+    // Halo if recently reinforced
+    if (n.reinforced && Date.now() - n.reinforced < 1200) {
+      const age = (Date.now() - n.reinforced) / 1200;
+      hazeCtx.strokeStyle = `rgba(163, 230, 53, ${(1 - age).toFixed(3)})`;
+      hazeCtx.lineWidth = 3;
+      hazeCtx.beginPath(); hazeCtx.arc(n.x, n.y, r + 8 + age * 20, 0, Math.PI * 2); hazeCtx.stroke();
+    }
+    // Reuse marker: dashed outline
+    if (reusable) {
+      hazeCtx.strokeStyle = 'rgba(248, 113, 113, 0.8)';
+      hazeCtx.lineWidth = 1.5;
+      hazeCtx.setLineDash([4, 4]);
+      hazeCtx.beginPath(); hazeCtx.arc(n.x, n.y, r + 4, 0, Math.PI * 2); hazeCtx.stroke();
+      hazeCtx.setLineDash([]);
+    } else {
+      hazeCtx.strokeStyle = `rgba(186, 104, 200, ${Math.min(1, op + 0.2).toFixed(3)})`;
+      hazeCtx.lineWidth = 1.5;
+      hazeCtx.beginPath(); hazeCtx.arc(n.x, n.y, r, 0, Math.PI * 2); hazeCtx.stroke();
+    }
+    // Label
+    hazeCtx.fillStyle = `rgba(255, 255, 255, ${Math.max(0.4, op).toFixed(3)})`;
+    hazeCtx.font = '10px monospace';
+    hazeCtx.textAlign = 'center';
+    hazeCtx.fillText(n.label, n.x, n.y + r + 14);
+    // Opacity score
+    hazeCtx.fillStyle = `rgba(200, 200, 200, ${Math.max(0.3, op).toFixed(3)})`;
+    hazeCtx.font = 'bold 10px monospace';
+    hazeCtx.fillText(op.toFixed(2), n.x, n.y + 3);
+  });
+  // Footer
+  hazeCtx.fillStyle = '#aaa'; hazeCtx.font = '11px monospace'; hazeCtx.textAlign = 'left';
+  hazeCtx.fillText(`t = ${hazeTimeDays()} days · half-life = ${hazeHalfLife()} days`, 20, 24);
+  hazeCtx.fillStyle = reusableCount > 0 ? '#f06292' : '#81c784'; hazeCtx.textAlign = 'right';
+  hazeCtx.fillText(`${reusableCount} node(s) available for reuse`, W - 20, 24);
+  requestAnimationFrame(drawHaze);
+}
+drawHaze();
+
 // ═══════════════════════════════════════════════════════════════════════
 // Vectora-Powered Live Retrieval (dogfood)
 // ═══════════════════════════════════════════════════════════════════════

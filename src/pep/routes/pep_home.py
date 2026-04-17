@@ -528,6 +528,25 @@ _PAGE = """\
     conditions without retraining anything.
   </div>
   <div class="info">
+    <b>5. Opacity + haze (the forgetting primitive).</b> Every node in
+    the graph has an <em>opacity</em> &mdash; its current encoding strength
+    in [0, 1] &mdash; that decays over time toward a floor. A node whose
+    effective opacity drops below the reuse threshold becomes available
+    for overwriting by new encoding. This is the mechanism that makes
+    capacity finite and therefore usable: forgetting is not a defect of
+    the system, it is the feature that lets the same physical slots
+    carry different content at different times. Vivid memories are
+    bright; old ones are hazy; the difference is not noise, it is
+    reclaimed capacity.<br><br>
+    Opacity is node-level state modulation at a slow timescale, so it is
+    a refinement of primitive 4, not a separate fifth thing. But it is
+    load-bearing enough to call out explicitly. See
+    <a href="/axona#haze-tab">Axona &rarr; Memory Haze</a> for the live
+    visualization and <code>pep.vectora.Document</code> for the concrete
+    implementation (opacity + encoded_at + half_life_seconds +
+    reinforce + is_reusable).
+  </div>
+  <div class="info">
     <b>How the LAVAS siblings use them.</b><br>
     &bull; <b>Axona</b> uses all four across its cognition canvases. The
     Attention Spotlight is spreading activation; Prediction vs Reality is

@@ -123,3 +123,38 @@ class DocumentGraph:
             self.add_edge(e)
             n += 1
         return n
+
+    # ── opacity / haze primitive ────────────────────────────────────────
+    def reusable_nodes(self, threshold: float = 0.15, at: float | None = None) -> list[Document]:
+        """Documents whose effective opacity has decayed below the reuse
+        threshold. These are candidates for eviction when new encoding
+        needs capacity — the mechanism that makes memory finite."""
+        return [d for d in self.documents() if d.is_reusable(threshold, at)]
+
+    def reinforce(self, doc_id: str, amount: float = 0.5) -> bool:
+        """Boost a document's opacity (e.g. on successful recall).
+        Returns True if the doc existed, False otherwise."""
+        doc = self._docs.get(doc_id)
+        if doc is None:
+            return False
+        doc.reinforce(amount)
+        return True
+
+    def evict(self, doc_id: str) -> bool:
+        """Remove a document and all its edges from the graph. Used when
+        a reusable node is overwritten by new encoding."""
+        if doc_id not in self._docs:
+            return False
+        del self._docs[doc_id]
+        if doc_id in self._adj:
+            del self._adj[doc_id]
+        # Strip edges that point to the evicted node from other nodes' adj
+        for src_id in list(self._adj.keys()):
+            self._adj[src_id] = [e for e in self._adj[src_id] if e.target != doc_id]
+        self._all_edges = [e for e in self._all_edges if e.source != doc_id and e.target != doc_id]
+        return True
+
+    def opacity_snapshot(self, at: float | None = None) -> dict[str, float]:
+        """Current effective opacity per node. Useful for UIs that want to
+        visualize the haze field across the graph."""
+        return {d.id: d.effective_opacity(at) for d in self.documents()}

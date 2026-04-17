@@ -213,3 +213,92 @@ def test_hop_distance_is_nonnegative(small_corpus: VectoraRetriever) -> None:
     results = small_corpus.retrieve("caching", k=5, mode=RetrievalMode.VECTORA)
     for r in results:
         assert r.hop_distance >= 0
+
+
+# ── Haze primitive (opacity decay) ───────────────────────────────────────
+def test_document_opacity_defaults() -> None:
+    d = Document(id="a", text="hello")
+    assert d.opacity == 1.0
+    assert d.opacity_floor == 0.0
+    assert d.half_life_seconds > 0
+
+
+def test_opacity_out_of_range_rejected() -> None:
+    with pytest.raises(ValueError):
+        Document(id="a", text="x", opacity=1.5)
+
+
+def test_opacity_decays_over_time() -> None:
+    import time as _t
+    d = Document(id="a", text="hello", half_life_seconds=60)
+    now = _t.time()
+    full = d.effective_opacity(at=now)
+    one_hl = d.effective_opacity(at=now + 60)
+    two_hl = d.effective_opacity(at=now + 120)
+    assert abs(full - 1.0) < 0.01
+    assert abs(one_hl - 0.5) < 0.01
+    assert abs(two_hl - 0.25) < 0.01
+
+
+def test_opacity_floor_respected() -> None:
+    import time as _t
+    d = Document(id="a", text="x", half_life_seconds=1, opacity_floor=0.1)
+    op = d.effective_opacity(at=_t.time() + 1_000_000)
+    assert op >= 0.1
+
+
+def test_reinforce_boosts_opacity() -> None:
+    import time as _t
+    d = Document(id="a", text="x", half_life_seconds=60)
+    past = _t.time() - 120  # 2 half-lives ago → ~0.25
+    d.encoded_at = past
+    before = d.effective_opacity()
+    d.reinforce(amount=0.5)
+    after = d.effective_opacity()
+    assert after > before
+    assert after <= 1.0
+
+
+def test_is_reusable_at_low_opacity() -> None:
+    import time as _t
+    d = Document(id="a", text="x", half_life_seconds=1)
+    assert not d.is_reusable(threshold=0.15, at=_t.time())
+    assert d.is_reusable(threshold=0.15, at=_t.time() + 100)
+
+
+def test_graph_reusable_nodes() -> None:
+    import time as _t
+    g = DocumentGraph()
+    fresh = Document(id="fresh", text="new encoding", half_life_seconds=1000)
+    old = Document(id="old", text="fading memory", half_life_seconds=1, encoded_at=_t.time() - 100)
+    g.add_document(fresh)
+    g.add_document(old)
+    reusable = g.reusable_nodes(threshold=0.15)
+    assert old in reusable
+    assert fresh not in reusable
+
+
+def test_graph_evict() -> None:
+    g = DocumentGraph()
+    g.add_document(Document(id="a", text="x"))
+    g.add_document(Document(id="b", text="y"))
+    g.add_edge(Edge("a", "b", 0.5))
+    assert g.evict("a") is True
+    assert "a" not in g
+    assert g.edge_count() == 0
+    assert g.evict("nonexistent") is False
+
+
+def test_retrieval_attenuates_hazy_nodes() -> None:
+    """A faded node should rank below a bright node with the same text."""
+    import time as _t
+    r = VectoraRetriever()
+    bright = Document(id="bright", text="redis caching for django")
+    # Same content, but encoded long ago → should be hazy
+    hazy = Document(id="hazy", text="redis caching for django", half_life_seconds=1, encoded_at=_t.time() - 100)
+    r.add_documents([bright, hazy, Document(id="other", text="completely unrelated topic")])
+    r.build_graph()
+    results = r.retrieve("redis caching", k=3, mode=RetrievalMode.TOPK)
+    ids = [res.doc.id for res in results]
+    # Bright should rank above hazy
+    assert ids.index("bright") < ids.index("hazy")

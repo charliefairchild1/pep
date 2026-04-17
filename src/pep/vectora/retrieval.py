@@ -107,10 +107,16 @@ class VectoraRetriever:
         # 1. Embed the query in the same space as the documents
         query_embedding = self.embedder.embed([query])[0]
 
-        # 2. Score every doc by direct cosine similarity (baseline)
+        # 2. Score every doc by direct cosine similarity, attenuated by
+        # the node's effective (time-decayed) opacity. Hazy memories
+        # contribute less even when they're semantically relevant.
         sims: dict[str, float] = {}
+        opacities: dict[str, float] = {}
         for doc in self.graph.documents():
-            sims[doc.id] = cosine_similarity(query_embedding, doc.embedding)
+            raw = cosine_similarity(query_embedding, doc.embedding)
+            op = doc.effective_opacity()
+            opacities[doc.id] = op
+            sims[doc.id] = raw * op
 
         if mode == RetrievalMode.TOPK:
             ranked = sorted(sims.items(), key=lambda kv: kv[1], reverse=True)[:k]
@@ -144,17 +150,22 @@ class VectoraRetriever:
             activation[doc_id] += sim
             hop_distance[doc_id] = 0
             breakdown[doc_id]["direct"] = sim
+            breakdown[doc_id]["opacity"] = opacities[doc_id]
             frontier[doc_id] = sim
 
-        # Layers 1..max_hops
+        # Layers 1..max_hops. A relay node's outgoing activation is
+        # attenuated by its own effective opacity — a hazy node not only
+        # receives less directly, it also passes less along.
         for hop in range(1, max_hops + 1):
             next_frontier: dict[str, float] = defaultdict(float)
             edge_type_credit: dict[tuple[str, str], float] = defaultdict(float)
             for src_id, src_act in frontier.items():
                 if src_act < 0.01:
                     continue
+                src_op = opacities.get(src_id, 1.0)
                 for edge in self.graph.neighbors(src_id):
-                    delivered = src_act * edge.weight * (1 - decay) ** hop
+                    tgt_op = opacities.get(edge.target, 1.0)
+                    delivered = src_act * edge.weight * (1 - decay) ** hop * src_op * tgt_op
                     if delivered < 0.005:
                         continue
                     next_frontier[edge.target] += delivered
