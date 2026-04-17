@@ -728,6 +728,12 @@ updateAtriaTune();
         status_badge="FIRST WEDGE · GAME STUDIOS · LIVE ENGINE",
         playground_url="/atria/match/playground",
         playground_description="Configure a seed player, generate a random pool, and watch Atria and Elo rank it side by side. The playground runs the real Atria Match engine (multi-objective scoring across 7 dimensions + rematch probability + explainability). Run the built-in 500-pair eval to see live AUC numbers — Atria vs Elo on labeled synthetic matches.",
+        used_by=[
+            ("Atria Date", "Dating compatibility across values, attachment, conflict, interests.", "/atria/date/playground", "#ec4899"),
+            ("Atria Hire", "Candidate-team fit across skills, culture, communication, pace.", "/atria/hire/playground", "#fbbf24"),
+            ("Atria Found", "Cofounder compatibility across skills, conflict, equity, vision.", "/atria/found/playground", "#a78bfa"),
+            ("Atria Therapy", "Patient-therapist matching across communication, attachment, modality.", "/atria/therapy/playground", "#67e8f9"),
+        ],
     )
 
 
