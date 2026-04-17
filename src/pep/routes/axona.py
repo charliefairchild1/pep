@@ -2367,6 +2367,99 @@ _PAGE = """\
   </div>
 
   <div class="sub-section">
+  <h3 id="bio-substrate">The Biological Substrate &mdash; It&apos;s Not Just Neurons</h3>
+  <p class="desc">
+    PEP&apos;s five primitives map onto specific cell types in the
+    brain &mdash; not just neurons. Glial cells (astrocytes,
+    oligodendrocytes, microglia) implement the mechanisms PEP
+    describes at the functional level.
+  </p>
+  <div class="canvas-box">
+    <canvas id="substrate-canvas" width="960" height="480"></canvas>
+  </div>
+  <div class="controls">
+    <button onclick="substrateFocus('neuron')">Neurons (nodes + edges)</button>
+    <button onclick="substrateFocus('astro')">Astrocytes (state modulation)</button>
+    <button onclick="substrateFocus('oligo')">Oligodendrocytes (edge speed)</button>
+    <button onclick="substrateFocus('micro')">Microglia (pruning / haze)</button>
+    <button onclick="substrateFocus('all')">All together</button>
+  </div>
+
+  <div class="info">
+    <b>The three glial types and what they do for PEP&apos;s primitives:</b><br><br>
+
+    <b style="color:#ba68c8">Astrocytes &rarr; state modulation.</b>
+    Each astrocyte wraps thousands of synapses, forming the
+    &quot;tripartite synapse&quot; (astrocyte + presynaptic neuron +
+    postsynaptic neuron). Astrocytes do not fire action potentials.
+    Instead, they communicate via slow calcium waves that modulate the
+    gain on surrounding synapses &mdash; boosting some connections,
+    dampening others, in response to local chemical context. When PEP
+    says &quot;a slow-timescale parameter rescales edge weights,&quot;
+    astrocytes are a major part of how that actually happens. They are
+    the biological implementation of state modulation. They also
+    regulate blood flow to active regions (neurovascular coupling),
+    which is why fMRI works &mdash; it measures the astrocytes&apos;
+    blood-flow response, not neuron firing directly.<br><br>
+
+    <b style="color:#4fc3f7">Oligodendrocytes &rarr; edge speed.</b>
+    These cells produce myelin, the fatty insulation sheath around
+    axons that speeds up signal transmission by 10-100x. Critically,
+    myelination is <em>experience-dependent</em> and continues into
+    your 30s. Pathways you use more get more myelin (faster signals);
+    pathways you do not use stay slow or get de-myelinated. In PEP
+    terms: edges have not just <b>weight</b> (how much signal) but
+    also <b>speed</b> (how fast the signal arrives). This is why a
+    practiced skill feels &quot;automatic&quot; &mdash; the pathway is
+    literally faster, not just stronger. And why new skills feel
+    effortful: the unmyelinated pathway is slow, consuming bandwidth
+    while you wait for the signal to travel. PEP&apos;s current model
+    does not explicitly model edge speed &mdash; this is one place
+    where the biological substrate suggests a refinement.<br><br>
+
+    <b style="color:#81c784">Microglia &rarr; pruning (haze implementation).</b>
+    The brain&apos;s immune and maintenance system. During waking hours,
+    microglia patrol the network. During sleep, they shift into pruning
+    mode &mdash; physically dismantling weak synapses, recycling the
+    components, clearing debris. This is the biological mechanism behind
+    PEP&apos;s haze primitive: when a node&apos;s opacity decays below the
+    reuse threshold and gets evicted, microglia are the crew doing the
+    actual dismantling. They are also why sleep deprivation causes
+    cognitive decline &mdash; without sleep, microglia cannot prune, so
+    the network accumulates noise (weak connections that should have
+    been removed), degrading signal-to-noise ratio across the board.
+    And they are why neuroinflammation (from chronic stress, infection,
+    or autoimmune conditions) causes &quot;brain fog&quot; &mdash;
+    inflamed microglia prune indiscriminately, removing useful
+    connections alongside weak ones.
+  </div>
+
+  <div class="info" style="border-left: 3px solid var(--accent2)">
+    <b style="color:var(--accent2)">Why this matters for Axona products</b><br><br>
+    &bull; <b>BCI SDK:</b> Electrode signals reflect neuron firing, but
+    the cognitive state those signals represent is shaped by astrocyte
+    modulation. Interpreting an EEG without accounting for glial
+    influence is like reading a transcript without knowing the tone of
+    voice.<br>
+    &bull; <b>Axona Clinic:</b> &quot;Brain fog&quot; complaints from
+    patients often reflect microglial dysfunction (chronic inflammation
+    → indiscriminate pruning), not neuron-level damage. The state-space
+    mapping should eventually incorporate inflammation markers.<br>
+    &bull; <b>Axona Learn:</b> Myelination is the biological substrate
+    of &quot;deep&quot; encoding. A concept that has been applied in
+    multiple contexts gets myelinated pathways; one that was only
+    studied gets weaker myelination. The encoding-depth distinction
+    (surface → integrated → deep) maps onto myelination levels.<br>
+    &bull; <b>Axona Edge:</b> Fatigue degrades astrocyte function
+    before it degrades neuron function. Bandwidth drops because the
+    state-modulation layer (astrocytes) is impaired, not because the
+    neurons themselves are broken. This is why a tired person can still
+    perform if they &quot;push through&quot; but the quality is degraded
+    &mdash; the neurons work, but the modulation is off.
+  </div>
+  </div>
+
+  <div class="sub-section">
   <h3 id="motor-errors">Motor Prediction Errors &mdash; Why You Bite Your Tongue and Stub Your Toe</h3>
   <p class="desc">
     The motor system runs on the same prediction engine as cognition.
@@ -10885,6 +10978,166 @@ function rehearseFire() {
   document.getElementById('rehearse-w').textContent = rehearseW.toFixed(2);
 }
 function rehearseReset() { rehearseW = 0.1; rehearseHist.length = 0; document.getElementById('rehearse-w').textContent = '0.10'; }
+
+// ═══════════════════════════════════════════════════════════════════════
+// Biological Substrate — neurons + glia mapped to PEP primitives
+// ═══════════════════════════════════════════════════════════════════════
+const substrateCanvas = document.getElementById('substrate-canvas');
+const substrateCtx = substrateCanvas.getContext('2d');
+let substrateFocusType = 'all';
+let substrateT = 0;
+function substrateFocus(t) { substrateFocusType = t; }
+
+function drawSubstrate() {
+  const W = 960, H = 480;
+  substrateCtx.fillStyle = themeBg(); substrateCtx.fillRect(0, 0, W, H);
+  substrateT++;
+  const focus = substrateFocusType;
+  const showAll = focus === 'all';
+
+  // Central synapse structure
+  const cx = W / 2, cy = H / 2 - 20;
+
+  // Three neurons forming a tripartite synapse
+  const neurons = [
+    { x: cx - 180, y: cy, label: 'Pre-synaptic\nneuron', r: 40 },
+    { x: cx + 180, y: cy, label: 'Post-synaptic\nneuron', r: 40 },
+    { x: cx, y: cy + 160, label: 'Downstream\nneuron', r: 35 },
+  ];
+
+  // Draw neurons (always visible but dim if not focused)
+  const neuronAlpha = (showAll || focus === 'neuron') ? 0.85 : 0.2;
+  neurons.forEach(function(n) {
+    substrateCtx.fillStyle = 'rgba(167,139,250,' + neuronAlpha + ')';
+    substrateCtx.beginPath(); substrateCtx.arc(n.x, n.y, n.r, 0, Math.PI * 2); substrateCtx.fill();
+    substrateCtx.strokeStyle = 'rgba(167,139,250,' + Math.min(1, neuronAlpha + 0.15) + ')';
+    substrateCtx.lineWidth = 2; substrateCtx.stroke();
+    substrateCtx.fillStyle = 'rgba(255,255,255,' + neuronAlpha + ')';
+    substrateCtx.font = '9px monospace'; substrateCtx.textAlign = 'center';
+    var lines = n.label.split('\n');
+    lines.forEach(function(line, i) { substrateCtx.fillText(line, n.x, n.y + (i - 0.5) * 12); });
+  });
+
+  // Axon connection (edge) between pre and post
+  var edgeAlpha = (showAll || focus === 'neuron' || focus === 'oligo') ? 0.7 : 0.15;
+  substrateCtx.strokeStyle = 'rgba(167,139,250,' + edgeAlpha + ')';
+  substrateCtx.lineWidth = 3;
+  substrateCtx.beginPath(); substrateCtx.moveTo(neurons[0].x + 40, neurons[0].y);
+  substrateCtx.lineTo(neurons[1].x - 40, neurons[1].y); substrateCtx.stroke();
+  // Second edge
+  substrateCtx.beginPath(); substrateCtx.moveTo(neurons[1].x, neurons[1].y + 40);
+  substrateCtx.lineTo(neurons[2].x + 35, neurons[2].y - 20); substrateCtx.stroke();
+
+  // Signal pulse along the edge (animated)
+  if (showAll || focus === 'neuron' || focus === 'oligo') {
+    var pulse = (substrateT % 120) / 120;
+    var px = neurons[0].x + 40 + pulse * (neurons[1].x - 40 - neurons[0].x - 40);
+    substrateCtx.fillStyle = 'rgba(167,139,250,0.9)';
+    substrateCtx.beginPath(); substrateCtx.arc(px, neurons[0].y, 5, 0, Math.PI * 2); substrateCtx.fill();
+  }
+
+  // ASTROCYTE — wrapping the synapse gap
+  var astroAlpha = (showAll || focus === 'astro') ? 0.75 : 0.1;
+  // Large irregular shape around the synapse
+  substrateCtx.fillStyle = 'rgba(186,104,200,' + (astroAlpha * 0.25) + ')';
+  substrateCtx.beginPath();
+  substrateCtx.ellipse(cx, cy - 5, 100, 55, 0, 0, Math.PI * 2);
+  substrateCtx.fill();
+  substrateCtx.strokeStyle = 'rgba(186,104,200,' + astroAlpha + ')';
+  substrateCtx.lineWidth = 1.5;
+  substrateCtx.setLineDash([3, 3]);
+  substrateCtx.beginPath();
+  substrateCtx.ellipse(cx, cy - 5, 100, 55, 0, 0, Math.PI * 2);
+  substrateCtx.stroke();
+  substrateCtx.setLineDash([]);
+  if (showAll || focus === 'astro') {
+    substrateCtx.fillStyle = 'rgba(186,104,200,' + astroAlpha + ')';
+    substrateCtx.font = 'bold 10px monospace'; substrateCtx.textAlign = 'center';
+    substrateCtx.fillText('ASTROCYTE', cx, cy - 50);
+    substrateCtx.font = '9px monospace';
+    substrateCtx.fillText('calcium waves → modulates edge gain', cx, cy - 36);
+    substrateCtx.fillText('PEP: STATE MODULATION', cx, cy + 46);
+    // Calcium wave animation
+    var wave = Math.sin(substrateT * 0.05) * 0.5 + 0.5;
+    substrateCtx.fillStyle = 'rgba(186,104,200,' + (wave * 0.5) + ')';
+    substrateCtx.beginPath(); substrateCtx.arc(cx, cy, 8, 0, Math.PI * 2); substrateCtx.fill();
+  }
+
+  // OLIGODENDROCYTE — myelin segments on the axon
+  var oligoAlpha = (showAll || focus === 'oligo') ? 0.8 : 0.1;
+  var myelinSegments = 5;
+  var axStart = neurons[0].x + 45, axEnd = neurons[1].x - 45;
+  for (var i = 0; i < myelinSegments; i++) {
+    var sx = axStart + (i / myelinSegments) * (axEnd - axStart) + 10;
+    var sw = ((axEnd - axStart) / myelinSegments) * 0.7;
+    substrateCtx.fillStyle = 'rgba(79,195,247,' + (oligoAlpha * 0.5) + ')';
+    substrateCtx.fillRect(sx, cy - 8, sw, 16);
+    substrateCtx.strokeStyle = 'rgba(79,195,247,' + oligoAlpha + ')';
+    substrateCtx.lineWidth = 1;
+    substrateCtx.strokeRect(sx, cy - 8, sw, 16);
+  }
+  if (showAll || focus === 'oligo') {
+    substrateCtx.fillStyle = 'rgba(79,195,247,' + oligoAlpha + ')';
+    substrateCtx.font = 'bold 10px monospace'; substrateCtx.textAlign = 'center';
+    substrateCtx.fillText('MYELIN (oligodendrocytes)', cx, cy - 72);
+    substrateCtx.font = '9px monospace';
+    substrateCtx.fillText('insulation → 10-100x signal speed', cx, cy - 58);
+    substrateCtx.fillText('PEP: EDGE SPEED (not yet modeled)', cx, cy + 60);
+  }
+
+  // MICROGLIA — small patrolling cells
+  var microAlpha = (showAll || focus === 'micro') ? 0.8 : 0.1;
+  var microPositions = [
+    { x: cx - 220, y: cy + 80 }, { x: cx + 230, y: cy + 90 },
+    { x: cx - 60, y: cy + 130 }, { x: cx + 100, y: cy - 80 },
+  ];
+  microPositions.forEach(function(m, i) {
+    var wobble = Math.sin(substrateT * 0.03 + i * 1.5) * 8;
+    substrateCtx.fillStyle = 'rgba(129,199,132,' + (microAlpha * 0.6) + ')';
+    substrateCtx.beginPath();
+    substrateCtx.arc(m.x + wobble, m.y, 10, 0, Math.PI * 2);
+    substrateCtx.fill();
+    // Branch-like processes
+    for (var a = 0; a < 5; a++) {
+      var angle = (a / 5) * Math.PI * 2 + substrateT * 0.01;
+      substrateCtx.strokeStyle = 'rgba(129,199,132,' + (microAlpha * 0.5) + ')';
+      substrateCtx.lineWidth = 1;
+      substrateCtx.beginPath();
+      substrateCtx.moveTo(m.x + wobble, m.y);
+      substrateCtx.lineTo(m.x + wobble + Math.cos(angle) * 18, m.y + Math.sin(angle) * 18);
+      substrateCtx.stroke();
+    }
+  });
+  if (showAll || focus === 'micro') {
+    substrateCtx.fillStyle = 'rgba(129,199,132,' + microAlpha + ')';
+    substrateCtx.font = 'bold 10px monospace'; substrateCtx.textAlign = 'left';
+    substrateCtx.fillText('MICROGLIA (pruning crew)', 30, H - 60);
+    substrateCtx.font = '9px monospace';
+    substrateCtx.fillText('patrol → prune weak synapses during sleep', 30, H - 46);
+    substrateCtx.fillText('PEP: HAZE PRIMITIVE (opacity decay + node eviction)', 30, H - 32);
+  }
+
+  // Legend at top-right
+  substrateCtx.font = '10px monospace'; substrateCtx.textAlign = 'right';
+  var legendItems = [
+    { color: '#a78bfa', label: 'Neurons → nodes + edges' },
+    { color: '#ba68c8', label: 'Astrocytes → state modulation' },
+    { color: '#4fc3f7', label: 'Oligodendrocytes → edge speed' },
+    { color: '#81c784', label: 'Microglia → pruning (haze)' },
+  ];
+  legendItems.forEach(function(l, i) {
+    var alpha = (showAll || focus === l.label.split(' ')[0].toLowerCase().slice(0, 5)) ? 1 : 0.3;
+    substrateCtx.fillStyle = 'rgba(255,255,255,' + alpha + ')';
+    substrateCtx.fillRect(W - 260, 20 + i * 20, 10, 10);
+    substrateCtx.fillStyle = l.color;
+    substrateCtx.fillRect(W - 260, 20 + i * 20, 10, 10);
+    substrateCtx.fillStyle = 'rgba(255,255,255,' + alpha + ')';
+    substrateCtx.fillText(l.label, W - 20, 29 + i * 20);
+  });
+
+  requestAnimationFrame(drawSubstrate);
+}
+drawSubstrate();
 
 // ═══════════════════════════════════════════════════════════════════════
 // Motor Prediction Errors — bite tongue / stub toe visualization
