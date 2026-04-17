@@ -525,7 +525,9 @@ updateCost();
              "The SDK exposes a runtime analyzer that scores generated prompts in real time. Useful for agent frameworks where the system prompt is composed dynamically — catch regressions before the agent burns tokens on a malformed prompt."),
         ],
         final_cta="Stop spending tokens to debug prompts. Start spending tokens to ship behavior.",
-        status_badge="WEDGE 4 · GTM FIRST",
+        status_badge="WEDGE 4 · GTM FIRST · LIVE ENGINE",
+        playground_url="/lingora/prompt/playground",
+        playground_description="Paste any prompt; the analyzer runs the real Lingora Prompt engine (structural tokenization, 10 antipattern checks, compression rewrite, cost forecast across 10 providers). No LLM calls, no inference spend — deterministic output.",
     )
 
 

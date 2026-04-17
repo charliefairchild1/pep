@@ -25,6 +25,8 @@ from pep.routes.product_pages import router as product_pages_router
 from pep.routes.vectora_dogfood import router as vectora_dogfood_router
 from pep.routes.vectora_playground import router as vectora_playground_router
 from pep.routes.vectora_product_apis import router as vectora_product_apis_router
+from pep.routes.lingora_prompt_api import router as lingora_prompt_api_router
+from pep.routes.lingora_prompt_playground import router as lingora_prompt_playground_router
 from pep.routes.strata import router as strata_router
 from pep.routes.strata_bridge import router as strata_bridge_router
 from pep.routes.vectora import router as vectora_router
@@ -79,6 +81,8 @@ app.include_router(product_pages_router)
 app.include_router(vectora_playground_router)
 app.include_router(vectora_dogfood_router)
 app.include_router(vectora_product_apis_router)
+app.include_router(lingora_prompt_api_router)
+app.include_router(lingora_prompt_playground_router)
 app.include_router(strata_router)
 app.include_router(strata_bridge_router)
 app.include_router(vectora_router)

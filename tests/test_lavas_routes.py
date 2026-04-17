@@ -258,6 +258,68 @@ def test_benchmark_page_loads(client: TestClient) -> None:
     assert "Vectora Benchmark" in resp.text
 
 
+# ── Lingora Prompt API tests ────────────────────────────────────────────
+def test_lingora_prompt_playground_loads(client: TestClient) -> None:
+    resp = client.get("/lingora/prompt/playground")
+    assert resp.status_code == 200
+    assert "Lingora Prompt" in resp.text
+
+
+def test_lingora_prompt_api_analyze(client: TestClient) -> None:
+    resp = client.post(
+        "/lingora/prompt-api/analyze",
+        json={"text": "Please make sure to be helpful and useful. Thanks.", "include_rewrite": True},
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    # The engine should find at least one antipattern in that text
+    assert len(data["findings"]) > 0
+    assert data["total_tokens"] > 0
+    assert data["rewrite"] is not None
+    assert data["rewrite"]["compressed_tokens"] <= data["rewrite"]["original_tokens"]
+
+
+def test_lingora_prompt_api_rewrite(client: TestClient) -> None:
+    resp = client.post(
+        "/lingora/prompt-api/rewrite",
+        json={"text": "Please make sure to answer concisely."},
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert "make sure to" not in data["compressed_text"].lower()
+
+
+def test_lingora_prompt_api_cost(client: TestClient) -> None:
+    resp = client.post(
+        "/lingora/prompt-api/cost",
+        json={"text": "Hello world.", "daily_requests": 1000, "output_tokens": 100},
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    assert len(data["costs"]) > 5  # multiple providers in the table
+
+
+def test_lingora_prompt_api_compare(client: TestClient) -> None:
+    resp = client.post(
+        "/lingora/prompt-api/compare",
+        json={"original": "Please please please be helpful.", "daily_requests": 10_000},
+    )
+    assert resp.status_code == 200
+    data = resp.json()
+    # Compressed should exist; savings may be 0 on short prompts but
+    # the structure should be valid
+    assert "compressed" in data
+    assert isinstance(data["per_provider"], list)
+
+
+def test_lingora_prompt_api_rejects_too_long(client: TestClient) -> None:
+    resp = client.post(
+        "/lingora/prompt-api/analyze",
+        json={"text": "x" * 60_000},
+    )
+    assert resp.status_code == 400
+
+
 def test_dogfood_unknown_app_404(client: TestClient) -> None:
     assert client.get("/vectora/neighbors/bogus/x").status_code == 404
     assert client.get("/vectora/seeds/bogus").status_code == 404
