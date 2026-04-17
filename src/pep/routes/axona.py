@@ -3468,6 +3468,45 @@ _PAGE = """\
     are not fighting the discount function &mdash; you are restructuring the
     decision so the discount function never gets to act on it.
   </div>
+  <div class="info" style="border-left: 3px solid #f06292">
+    <b style="color:#f06292">Procrastination &mdash; not laziness, prediction math</b><br><br>
+    Procrastination is temporal discounting + aversion combined. The
+    task has a cost (effort, boredom, anxiety) that is felt NOW, and a
+    reward (completion, grade, salary) that is felt LATER. The discount
+    function makes the future reward nearly invisible while the present
+    cost is fully weighted. Result: the math always says &quot;not
+    now&quot; until the deadline makes the cost of NOT doing it
+    immediate.<br><br>
+    &bull; <b>The deadline effect:</b> people finish the night before
+    not because of willpower but because the consequences of not
+    finishing (failing, getting fired) have become immediate. The
+    discount function now weights them fully. The math flipped.<br><br>
+    &bull; <b>Why &quot;just start&quot; works:</b> starting a task
+    shifts the prediction from &quot;the whole task is ahead of me&quot;
+    (large abstract cost) to &quot;I am doing this specific subtask
+    right now&quot; (small concrete cost). The discount function treats
+    the smaller present-moment cost more favorably.<br><br>
+    &bull; <b>Why anxiety makes procrastination worse:</b> anxiety
+    is a state modulator that amplifies threat signals. The task&apos;s
+    difficulty is a mild threat. Under anxiety, the mild threat gets
+    amplified into &quot;this will be terrible,&quot; making the present
+    cost feel even larger relative to the discounted future reward.<br><br>
+    &bull; <b>Why procrastinators are not lazy:</b> a lazy person does
+    not do the task and does not care. A procrastinator cares
+    intensely &mdash; they are in constant low-grade distress about the
+    task they are not doing. The bandwidth consumed by that distress is
+    ALSO a cost, which further narrows the bandwidth available for
+    actually starting. Procrastination is a bandwidth trap, not a
+    motivation deficit.<br><br>
+    <b>See also:</b>
+    <a href="#arousal-clarity">Arousal &amp; Clarity</a>
+    (drive states suppress frontal cortex the same way deadline panic
+    does &mdash; last-minute work is done under a drive modulator, which
+    is why it feels different from calm work),
+    <a href="#" onclick="document.querySelector('[data-panel=media-tab]').click();return false">Media &amp; Brain</a>
+    (short-form content raises the residual threshold, making the
+    non-stimulating task feel even more aversive by comparison).
+  </div>
   </div>
 
   <div class="sub-section">
@@ -5490,10 +5529,17 @@ _PAGE = """\
 
   <div class="info">
     <b>See also:</b>
-    <a href="#" onclick="document.querySelector('[data-panel=vec-live-tab]').click();return false">Axona &rarr; Live Vectora Retrieval</a>
+    <a href="#" onclick="document.querySelector('[data-panel=vec-live-tab]').click();return false">Vectora Live</a>
     (opacity attenuates activation in real time),
-    <a href="/pep">PEP &rarr; State Modulator</a> (haze is
-    node-level state modulation on a slow timescale).
+    <a href="#motor-errors">Motor Prediction Errors</a>
+    (spatial model haze causes stubs and trips),
+    <a href="#" onclick="document.querySelector('[data-panel=media-tab]').click();return false">Media &amp; Brain</a>
+    (no consolidation gap = no reinforcement = fast haze),
+    <a href="#bio-substrate">Biological Substrate</a>
+    (microglia are the pruning crew that implements haze),
+    <a href="#arousal-clarity">Arousal &amp; Clarity</a>
+    (drive states modulate the same opacity landscape),
+    <a href="/pep">PEP &rarr; State Modulator</a>.
   </div>
 </div>
 </div>
