@@ -8692,14 +8692,14 @@ function readStory(key) {
 function readStop() { readPattern = null; }
 function drawRead() {
   const W = 960, H = 340;
-  readCtx.fillStyle = '#0e0e12'; readCtx.fillRect(0, 0, W, H);
+  readCtx.fillStyle = themeBg(); readCtx.fillRect(0, 0, W, H);
   if (readPattern) {
     readTimer++;
-    if (readTimer >= 30 && readStep < readPattern.length) {
+    if (readTimer >= 20 && readStep < readPattern.length) {
       readTimer = 0;
       const w = readPattern[readStep];
       readLoad = w.load;
-      if (w.load > 0.3) {
+      if (w.load >= 0.2) {
         for (let i = 0; i < w.load * 25; i++) {
           readScene.push({
             x: 640 + (Math.random() - 0.5) * 480,
@@ -8745,6 +8745,12 @@ function drawRead() {
   readCtx.strokeRect(360, 40, 580, 260);
   readCtx.fillStyle = '#888'; readCtx.font = '11px monospace';
   readCtx.fillText('visual cortex rendering', 368, 32);
+  // Hint when empty
+  if (readScene.length === 0 && !readPattern) {
+    readCtx.fillStyle = '#555'; readCtx.font = '11px monospace'; readCtx.textAlign = 'center';
+    readCtx.fillText('click a text type to see imagery form', 650, 170);
+    readCtx.textAlign = 'left';
+  }
   // Draw scene particles within right box
   readScene = readScene.filter(p => p.life > 0.05);
   readScene.forEach(p => {
