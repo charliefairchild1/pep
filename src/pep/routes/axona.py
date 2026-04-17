@@ -5233,19 +5233,102 @@ _PAGE = """\
     attention is never rewarded.
   </div>
 
+  <div class="info" style="border-left: 3px solid #f06292">
+    <b style="color:#f06292">Why the brain craves short-form content</b><br><br>
+    The craving is not a willpower failure. It is the reward-prediction-
+    error loop doing exactly what it evolved to do:<br><br>
+    &bull; <b>Variable-ratio reinforcement.</b> You do not know which
+    scroll will be funny, shocking, or interesting. That unpredictability
+    is the slot-machine schedule &mdash; the most potent driver of
+    compulsive behavior in behavioral psychology. Each scroll is a pull
+    of the lever.<br><br>
+    &bull; <b>Residual spikes ARE the reward.</b> When the prediction
+    engine is surprised (a novel TikTok violates what you expected), the
+    residual spike fires a dopamine hit. Short-form content is
+    algorithmically engineered to maximize residual spikes per minute.
+    More spikes = more dopamine = stronger craving to keep scrolling.<br><br>
+    &bull; <b>Tolerance builds.</b> As the residual threshold rises from
+    exposure, the brain needs MORE novelty to produce the same hit. This
+    is literal neurological tolerance &mdash; the same mechanism as
+    substance tolerance. You crave more of what raised the threshold
+    because you now need it to feel baseline engagement.<br><br>
+    &bull; <b>Withdrawal is boredom.</b> When the short-form input stops
+    (you put the phone down), the threshold is still elevated but the
+    environment does not meet it. The gap between the elevated threshold
+    and the non-stimulating world is experienced as restlessness,
+    agitation, the urge to pick the phone back up. That is withdrawal.
+    Not dramatic, not painful &mdash; just a constant low-grade pull.<br><br>
+    <b>Books do not create this craving</b> because the reward is
+    delayed and predictable. The satisfaction comes from resolution of a
+    long prediction arc, not from moment-to-moment surprise. The
+    dopamine profile is lower-amplitude, longer-duration. That is less
+    addictive but more sustaining.
+  </div>
+
+  <div class="info" style="border-left: 3px solid #ffb74d">
+    <b style="color:#ffb74d">Beyond media &mdash; how training bleeds into the rest of life</b><br><br>
+    The prediction engine does not have a &quot;media mode&quot; and a
+    &quot;life mode.&quot; The timescale it trains on is the timescale
+    it uses for everything:<br><br>
+    <b style="color:#a78bfa">A book-trained brain:</b><br>
+    &bull; Can hold a long meeting without checking a phone<br>
+    &bull; Follows a complex argument across multiple turns of
+    conversation<br>
+    &bull; Works on a deep task for hours (the flow-state canvas
+    shows the same state)<br>
+    &bull; Plans ahead, thinks through consequences, holds multi-step
+    reasoning<br>
+    &bull; Finds richness in quiet environments, walks, conversations,
+    silence<br>
+    &bull; Learns from experience deeply because consolidation is
+    intact<br>
+    &bull; Makes creative connections across distant ideas because the
+    semantic network has depth<br><br>
+    <b style="color:#f06292">A short-form-trained brain:</b><br>
+    &bull; Cannot sit through a meeting without reaching for the phone<br>
+    &bull; Loses focus mid-conversation because the prediction window
+    is too short to hold a multi-turn exchange<br>
+    &bull; Struggles with any work task that does not deliver a reward
+    every few minutes<br>
+    &bull; Makes impulsive decisions because delayed gratification
+    requires a prediction window the brain no longer has<br>
+    &bull; Is bored by conversations, nature, silence, waiting rooms
+    &mdash; any environment that does not meet the elevated residual
+    threshold<br>
+    &bull; Does not learn from experience as deeply because there are
+    no consolidation gaps<br>
+    &bull; Thinks in shallower patterns because the semantic network
+    has been flattened to single-hop<br><br>
+    <b style="color:#81c784">The critical insight:</b> boredom is not a
+    bug. It is the brain&apos;s signal that processing capacity is
+    available and no new input is needed &mdash; this IS the
+    consolidation window. A person who is &quot;never bored&quot;
+    because they always have their phone is a person who never
+    consolidates. Eliminating boredom with constant media input
+    eliminates the window where deep encoding, integration, and
+    creative connection happen.
+  </div>
+
   <div class="info" style="border-left: 3px solid var(--accent2)">
-    <b style="color:var(--accent2)">The cross-training effect</b><br><br>
+    <b style="color:var(--accent2)">The cross-training asymmetry</b><br><br>
     Going back to books after months of short-form requires <em>retraining</em>
     the prediction engine, which feels effortful the same way returning
-    to exercise after months off feels effortful. The brain doesn't want
+    to exercise after months off feels effortful. The brain does not want
     to allocate bandwidth for an hour when it has learned that nothing
     rewards sustained attention beyond a few seconds.<br><br>
-    <b>The haze primitive explains why you can't remember what you
+    The asymmetry: <b>long-form training does not degrade short-form
+    capacity</b> (a book reader can still enjoy a TikTok), but
+    <b>short-form training degrades long-form capacity</b> (a TikTok
+    brain cannot sustain a book). The prediction engine scales DOWN
+    easily but scales UP with difficulty. This is why the degradation
+    is insidious &mdash; you do not notice you are losing the ability
+    to sustain attention until you try to use it and fail.<br><br>
+    <b>The haze primitive explains why you can&apos;t remember what you
     scrolled:</b> no consolidation gap means no reinforcement. The opacity
     of those nodes was never boosted. They were encoded weakly (low
     novelty per individual item, even though novelty-per-minute is high)
-    and decay fast. You binge a show, can't name episode 3. You scroll
-    for an hour and can't recall three posts. Same mechanism.
+    and decay fast. You binge a show, can&apos;t name episode 3. You
+    scroll for an hour and can&apos;t recall three posts. Same mechanism.
   </div>
 </div>
 </div>
