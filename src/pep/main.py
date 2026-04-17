@@ -20,7 +20,9 @@ from pep.routes.atria import router as atria_router
 from pep.routes.atria_bridge import router as atria_bridge_router
 from pep.routes.lingora import router as lingora_router
 from pep.routes.lingora_bridge import router as lingora_bridge_router
+from pep.routes.landing import router as landing_router
 from pep.routes.pep_home import router as pep_home_router
+from pep.routes.pto import router as pto_router
 from pep.routes.product_pages import router as product_pages_router
 from pep.routes.vectora_dogfood import router as vectora_dogfood_router
 from pep.routes.vectora_playground import router as vectora_playground_router
@@ -81,7 +83,9 @@ app.include_router(lingora_router)
 app.include_router(lingora_bridge_router)
 app.include_router(atria_router)
 app.include_router(atria_bridge_router)
+app.include_router(landing_router)
 app.include_router(pep_home_router)
+app.include_router(pto_router)
 app.include_router(product_pages_router)
 app.include_router(vectora_playground_router)
 app.include_router(vectora_dogfood_router)
@@ -100,9 +104,7 @@ app.include_router(vectora_bridge_router)
 app.include_router(ui_router)
 
 
-@app.get("/")
-async def root():
-    return RedirectResponse(url="/pep")
+# Root "/" is served by landing_router (the unified LAVAS landing page)
 
 
 @app.get("/health")
