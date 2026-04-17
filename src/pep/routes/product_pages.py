@@ -725,7 +725,9 @@ updateAtriaTune();
              "Detected cheaters get routed into a separate pool (similar to chess.com's anti-cheat matchmaking). The smurf detector handles unranked-skill mismatches; explicit cheat-detection signals from your anti-cheat system handle confirmed cases. Both modulate the graph rather than triggering bans."),
         ],
         final_cta="Stop tuning Elo. Start optimizing for rematch.",
-        status_badge="FIRST WEDGE · GAME STUDIOS",
+        status_badge="FIRST WEDGE · GAME STUDIOS · LIVE ENGINE",
+        playground_url="/atria/match/playground",
+        playground_description="Configure a seed player, generate a random pool, and watch Atria and Elo rank it side by side. The playground runs the real Atria Match engine (multi-objective scoring across 7 dimensions + rematch probability + explainability). Run the built-in 500-pair eval to see live AUC numbers — Atria vs Elo on labeled synthetic matches.",
     )
 
 
