@@ -2366,6 +2366,81 @@ _PAGE = """\
   </div>
   </div>
 
+  <div class="sub-section">
+  <h3 id="motor-errors">Motor Prediction Errors &mdash; Why You Bite Your Tongue and Stub Your Toe</h3>
+  <p class="desc">
+    The motor system runs on the same prediction engine as cognition.
+    Your jaw trajectory, tongue position, foot path, and hand
+    placement are all forecasted by dedicated motor predictors. When
+    two motor predictions desynchronize, the result is a bite, a stub,
+    a spill, or a stumble.
+  </p>
+  <div class="canvas-box">
+    <canvas id="motor-err-canvas" width="960" height="400"></canvas>
+  </div>
+  <div class="controls" style="flex-wrap:wrap;gap:8px">
+    <button onclick="motorScenario('tongue')">Bite tongue</button>
+    <button onclick="motorScenario('toe')">Stub toe</button>
+    <button onclick="motorScenario('spill')">Spill coffee</button>
+    <button onclick="motorScenario('trip')">Trip on stairs</button>
+    <label style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--dim);margin-left:auto">
+      <span>bandwidth:</span>
+      <input type="range" id="motor-bw" min="10" max="100" value="80" style="width:100px" oninput="document.getElementById('motor-bw-v').textContent=(this.value/100).toFixed(2)">
+      <span id="motor-bw-v" style="color:var(--accent);font-weight:bold">0.80</span>
+    </label>
+    <label style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--dim)">
+      <span>distraction:</span>
+      <input type="range" id="motor-dist" min="0" max="100" value="20" style="width:100px" oninput="document.getElementById('motor-dist-v').textContent=(this.value/100).toFixed(2)">
+      <span id="motor-dist-v" style="color:var(--accent);font-weight:bold">0.20</span>
+    </label>
+  </div>
+  <div class="info">
+    <b>What causes it:</b><br><br>
+    &bull; <b>Bandwidth depletion.</b> When cognitive bandwidth is low
+    (tired, stressed, multitasking), the motor predictor gets less
+    processing budget. Its position forecast becomes coarser. The jaw
+    expects the tongue elsewhere; the tongue is in the bite zone.
+    The foot predictor expects flat floor; there is a step edge.<br><br>
+    &bull; <b>Attention split.</b> Talking while eating, texting while
+    walking, thinking about something else while navigating stairs.
+    The motor system runs on autopilot with a degraded prediction
+    window. Autopilot works until the environment deviates &mdash;
+    then the error fires.<br><br>
+    &bull; <b>Novelty spike disrupts motor timing.</b> You start to say
+    something surprising, react to an unexpected stimulus, or encounter
+    a new texture (unfamiliar food &rarr; unusual chewing pattern &rarr;
+    tongue in the wrong place). Novelty in the cognitive system
+    interrupts motor timing because both share bandwidth.<br><br>
+    &bull; <b>Spatial model haze.</b> Your mental map of the house
+    fades when you have been away (vacation, rearranged furniture).
+    Coming home = temporarily hazier spatial model = higher stub risk.
+    Same reason you stub your toe at night: visual predictor is offline
+    (dark), motor system relies on the spatial model, which is stale.
+  </div>
+  <div class="info" style="border-left: 3px solid var(--accent2)">
+    <b style="color:var(--accent2)">Pain as a residual signal</b><br><br>
+    The pain response is itself a residual &mdash; the body saying
+    &quot;the prediction was VERY wrong; update the model.&quot;<br><br>
+    &bull; <b>Stubbing the same toe twice is rare.</b> The residual
+    from the first impact updated the spatial model.<br>
+    &bull; <b>Biting your tongue during familiar food is rare.</b>
+    The chewing motor plan is well-calibrated. Unfamiliar food
+    (new texture, different pattern) = higher bite risk because the
+    predictor is running a less-refined model.<br>
+    &bull; <b>Children are clumsy</b> because their motor predictors
+    are still calibrating. Every spill is a residual that updates the
+    model. Adults have decades of calibration; their error rate is low
+    because their <em>predictions</em> are better, not because they
+    are &quot;more careful.&quot;<br>
+    &bull; <b>Fatigue makes you clumsy</b> not because muscles are
+    weaker but because the motor predictor runs on reduced bandwidth.
+    Coarser predictions &rarr; larger errors.<br>
+    &bull; <b>Scrolling while walking is dangerous</b> for the same
+    reason texting while driving is: the motor predictor is starved
+    of bandwidth by the competing visual/attention task.
+  </div>
+  </div>
+
 </div>
 </div>
 
@@ -10810,6 +10885,140 @@ function rehearseFire() {
   document.getElementById('rehearse-w').textContent = rehearseW.toFixed(2);
 }
 function rehearseReset() { rehearseW = 0.1; rehearseHist.length = 0; document.getElementById('rehearse-w').textContent = '0.10'; }
+
+// ═══════════════════════════════════════════════════════════════════════
+// Motor Prediction Errors — bite tongue / stub toe visualization
+// ═══════════════════════════════════════════════════════════════════════
+const motorCanvas = document.getElementById('motor-err-canvas');
+const motorCtx = motorCanvas.getContext('2d');
+const MOTOR_SCENARIOS = {
+  tongue: {
+    label: 'BITING YOUR TONGUE',
+    predictor_a: 'Jaw trajectory predictor',
+    predictor_b: 'Tongue position predictor',
+    predicted: 'Tongue predicted at position A (safe)',
+    actual: 'Tongue actually at position B (bite zone)',
+    cause: 'Jaw motor plan fired before tongue repositioned',
+    color_a: '#f06292', color_b: '#a78bfa',
+    // Animation positions
+    obj_a: { label: 'JAW', y: 0.35 },
+    obj_b: { label: 'TONGUE', y: 0.65 },
+  },
+  toe: {
+    label: 'STUBBING YOUR TOE',
+    predictor_a: 'Foot trajectory predictor',
+    predictor_b: 'Spatial map (floor model)',
+    predicted: 'Floor predicted as flat/clear',
+    actual: 'Obstacle at toe height',
+    cause: 'Spatial model was stale or visual predictor was offline (dark)',
+    color_a: '#81c784', color_b: '#ffb74d',
+    obj_a: { label: 'FOOT', y: 0.4 },
+    obj_b: { label: 'OBSTACLE', y: 0.6 },
+  },
+  spill: {
+    label: 'SPILLING COFFEE',
+    predictor_a: 'Hand trajectory predictor',
+    predictor_b: 'Cup-tilt model',
+    predicted: 'Cup predicted level during reach',
+    actual: 'Hand accelerated; cup tilted past spill angle',
+    cause: 'Attention split — reaching while looking elsewhere',
+    color_a: '#4fc3f7', color_b: '#fbbf24',
+    obj_a: { label: 'HAND', y: 0.35 },
+    obj_b: { label: 'CUP', y: 0.65 },
+  },
+  trip: {
+    label: 'TRIPPING ON STAIRS',
+    predictor_a: 'Leg-lift predictor',
+    predictor_b: 'Step-height model',
+    predicted: 'Step height predicted from last stair',
+    actual: 'This step is slightly different height or is the top',
+    cause: 'Motor runs on autopilot; same leg-lift for every step until it misses one',
+    color_a: '#ba68c8', color_b: '#67e8f9',
+    obj_a: { label: 'FOOT LIFT', y: 0.4 },
+    obj_b: { label: 'STEP EDGE', y: 0.6 },
+  },
+};
+let motorActive = null;
+let motorT = 0;
+function motorScenario(key) { motorActive = key; motorT = 0; }
+function drawMotorErr() {
+  const W = 960, H = 400;
+  motorCtx.fillStyle = themeBg(); motorCtx.fillRect(0, 0, W, H);
+  const bw = parseInt(document.getElementById('motor-bw').value) / 100;
+  const dist = parseInt(document.getElementById('motor-dist').value) / 100;
+  if (!motorActive) {
+    motorCtx.fillStyle = '#666'; motorCtx.font = '11px monospace'; motorCtx.textAlign = 'center';
+    motorCtx.fillText('(pick a scenario)', W / 2, H / 2);
+    requestAnimationFrame(drawMotorErr); return;
+  }
+  motorT++;
+  const s = MOTOR_SCENARIOS[motorActive];
+  // Error probability scales with low bandwidth and high distraction
+  const errorProb = (1 - bw) * 0.6 + dist * 0.4;
+  // Title
+  motorCtx.fillStyle = s.color_a; motorCtx.font = 'bold 14px monospace'; motorCtx.textAlign = 'left';
+  motorCtx.fillText(s.label, 30, 30);
+  // Two prediction tracks
+  const trackY_a = H * s.obj_a.y;
+  const trackY_b = H * s.obj_b.y;
+  // Background tracks
+  motorCtx.strokeStyle = 'rgba(120,120,130,0.2)'; motorCtx.lineWidth = 1;
+  motorCtx.setLineDash([4, 4]);
+  motorCtx.beginPath(); motorCtx.moveTo(100, trackY_a); motorCtx.lineTo(W - 60, trackY_a); motorCtx.stroke();
+  motorCtx.beginPath(); motorCtx.moveTo(100, trackY_b); motorCtx.lineTo(W - 60, trackY_b); motorCtx.stroke();
+  motorCtx.setLineDash([]);
+  // Labels
+  motorCtx.fillStyle = s.color_a; motorCtx.font = 'bold 10px monospace'; motorCtx.textAlign = 'right';
+  motorCtx.fillText(s.obj_a.label, 90, trackY_a + 4);
+  motorCtx.fillStyle = s.color_b;
+  motorCtx.fillText(s.obj_b.label, 90, trackY_b + 4);
+  // Predictor labels
+  motorCtx.fillStyle = '#aaa'; motorCtx.font = '9px monospace'; motorCtx.textAlign = 'left';
+  motorCtx.fillText(s.predictor_a, 100, trackY_a - 14);
+  motorCtx.fillText(s.predictor_b, 100, trackY_b - 14);
+  // Animated objects — the "predicted" path vs the "actual" path
+  const phase = (motorT % 200) / 200;
+  const x = 100 + phase * (W - 200);
+  // Object A follows its predicted path
+  const wobble_a = Math.sin(phase * Math.PI * 4) * 8 * (1 - bw);
+  motorCtx.fillStyle = s.color_a + 'cc';
+  motorCtx.beginPath(); motorCtx.arc(x, trackY_a + wobble_a, 12, 0, Math.PI * 2); motorCtx.fill();
+  // Object B — diverges from predicted at the collision point
+  const divergePoint = 0.5 + (1 - errorProb) * 0.3;
+  let obj_b_y = trackY_b;
+  if (phase > divergePoint && phase < divergePoint + 0.15) {
+    // Collision zone — B drifts toward A
+    const collisionPhase = (phase - divergePoint) / 0.15;
+    obj_b_y = trackY_b + (trackY_a - trackY_b) * collisionPhase * errorProb;
+  }
+  motorCtx.fillStyle = s.color_b + 'cc';
+  motorCtx.beginPath(); motorCtx.arc(x, obj_b_y, 12, 0, Math.PI * 2); motorCtx.fill();
+  // Collision flash
+  if (phase > divergePoint + 0.1 && phase < divergePoint + 0.2 && errorProb > 0.3) {
+    const flashSize = 20 + errorProb * 30;
+    motorCtx.fillStyle = 'rgba(248,113,113,' + (0.8 * (1 - (phase - divergePoint - 0.1) * 10)).toFixed(3) + ')';
+    motorCtx.beginPath();
+    motorCtx.arc(x, (trackY_a + obj_b_y) / 2, flashSize, 0, Math.PI * 2);
+    motorCtx.fill();
+    motorCtx.fillStyle = '#fff'; motorCtx.font = 'bold 12px monospace'; motorCtx.textAlign = 'center';
+    motorCtx.fillText('PREDICTION ERROR', x, (trackY_a + obj_b_y) / 2 + 4);
+  }
+  // Predicted vs Actual text
+  motorCtx.fillStyle = '#aaa'; motorCtx.font = '10px monospace'; motorCtx.textAlign = 'left';
+  motorCtx.fillText('Predicted: ' + s.predicted, 30, H - 60);
+  motorCtx.fillText('Actual:    ' + s.actual, 30, H - 42);
+  motorCtx.fillStyle = '#f06292'; motorCtx.font = 'bold 10px monospace';
+  motorCtx.fillText('Cause: ' + s.cause, 30, H - 22);
+  // Error probability bar
+  motorCtx.fillStyle = '#666'; motorCtx.font = '10px monospace'; motorCtx.textAlign = 'right';
+  motorCtx.fillText('error probability: ' + (errorProb * 100).toFixed(0) + '%', W - 30, 30);
+  motorCtx.fillStyle = 'rgba(248,113,113,0.2)'; motorCtx.fillRect(W - 180, 36, 150, 10);
+  motorCtx.fillStyle = 'rgba(248,113,113,0.85)'; motorCtx.fillRect(W - 180, 36, 150 * errorProb, 10);
+  motorCtx.fillStyle = '#666'; motorCtx.textAlign = 'right';
+  motorCtx.fillText('bandwidth: ' + bw.toFixed(2) + '  distraction: ' + dist.toFixed(2), W - 30, 66);
+  requestAnimationFrame(drawMotorErr);
+}
+drawMotorErr();
 function drawRehearse() {
   const W = 960, H = 320;
   rehearseCtx.fillStyle = '#0e0e12'; rehearseCtx.fillRect(0, 0, W, H);
