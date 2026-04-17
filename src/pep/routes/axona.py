@@ -11000,9 +11000,9 @@ function drawSubstrate() {
 
   // Three neurons forming a tripartite synapse
   const neurons = [
-    { x: cx - 180, y: cy, label: 'Pre-synaptic\nneuron', r: 40 },
-    { x: cx + 180, y: cy, label: 'Post-synaptic\nneuron', r: 40 },
-    { x: cx, y: cy + 160, label: 'Downstream\nneuron', r: 35 },
+    { x: cx - 180, y: cy, label: 'Pre-synaptic neuron', r: 40 },
+    { x: cx + 180, y: cy, label: 'Post-synaptic neuron', r: 40 },
+    { x: cx, y: cy + 160, label: 'Downstream neuron', r: 35 },
   ];
 
   // Draw neurons (always visible but dim if not focused)
@@ -11014,8 +11014,7 @@ function drawSubstrate() {
     substrateCtx.lineWidth = 2; substrateCtx.stroke();
     substrateCtx.fillStyle = 'rgba(255,255,255,' + neuronAlpha + ')';
     substrateCtx.font = '9px monospace'; substrateCtx.textAlign = 'center';
-    var lines = n.label.split('\n');
-    lines.forEach(function(line, i) { substrateCtx.fillText(line, n.x, n.y + (i - 0.5) * 12); });
+    substrateCtx.fillText(n.label, n.x, n.y + 4);
   });
 
   // Axon connection (edge) between pre and post
