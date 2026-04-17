@@ -70,12 +70,25 @@ async def date_rank(seed_id: str, k: int = 6) -> dict[str, Any]:
 
 @router.get("/atria/date-api/seeds")
 async def date_seeds() -> dict[str, Any]:
-    return {"seeds": [{"id": p.id, "label": p.metadata.get("label", p.id)} for p in date.SEED_PROFILES]}
+    return {"seeds": [
+        {
+            "id": p.id,
+            "label": p.metadata.get("label", p.id),
+            "values": p.values,
+            "warmth": p.warmth,
+            "attachment": p.attachment,
+            "conflict_style": p.conflict_style,
+            "interests": p.interests,
+            "life_stage": p.life_stage,
+            "age": p.age,
+        }
+        for p in date.SEED_PROFILES
+    ]}
 
 
 @router.get("/atria/date/playground", response_class=HTMLResponse)
 async def date_playground() -> str:
-    return _playground("Atria Date", "date", "#ec4899", "232,72,153")
+    return _date_playground()
 
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -174,6 +187,154 @@ async def therapy_playground() -> str:
 # ═══════════════════════════════════════════════════════════════════════
 # Shared playground template
 # ═══════════════════════════════════════════════════════════════════════
+def _date_playground() -> str:
+    return """<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Atria Date Playground — live engine</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root { --bg: #100a10; --surface: #1c1220; --surface2: #170e1a;
+           --text: #eddce8; --dim: #8a6a80; --accent: #ec4899; --accent2: #a3e635; --border: #2e1a2a; }
+  body { font-family: 'SF Mono', monospace; background: var(--bg); color: var(--text); line-height: 1.6; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  nav { position: sticky; top: 0; background: var(--bg); padding: 10px 20px;
+        border-bottom: 1px solid var(--border); display: flex; gap: 14px;
+        align-items: center; flex-wrap: wrap; z-index: 10; }
+  .brand { font-size: 18px; font-weight: bold; color: var(--accent); }
+  .badge { font-size: 9px; color: var(--accent); background: rgba(236,72,153,0.15);
+           padding: 2px 8px; border-radius: 10px; letter-spacing: 0.05em; }
+  .links { margin-left: auto; display: flex; gap: 14px; font-size: 11px; }
+  .links a { color: var(--dim); }
+  .links a:hover { color: var(--accent); }
+  .layout { display: grid; grid-template-columns: 380px 1fr; min-height: calc(100vh - 50px); }
+  .sidebar { background: var(--surface); border-right: 1px solid var(--border); padding: 18px; overflow-y: auto; }
+  .main { padding: 18px 24px; overflow-y: auto; }
+  .label { font-size: 10px; color: var(--dim); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 8px; }
+  select { width: 100%; background: var(--surface2); color: var(--text); border: 1px solid var(--border);
+           border-radius: 4px; padding: 8px 10px; font-family: inherit; font-size: 11px; }
+  button.btn { padding: 8px 16px; border-radius: 4px; border: 1px solid var(--accent);
+               background: var(--accent); color: var(--bg); font-size: 11px;
+               cursor: pointer; font-family: inherit; font-weight: bold; width: 100%; margin-top: 14px; }
+  .profile-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 6px;
+                  padding: 14px; margin-top: 12px; font-size: 11px; }
+  .profile-card .attr { display: flex; justify-content: space-between; padding: 4px 0;
+                        border-bottom: 1px solid var(--border); }
+  .profile-card .attr:last-child { border-bottom: none; }
+  .profile-card .attr .k { color: var(--dim); }
+  .profile-card .attr .v { color: var(--text); font-weight: bold; }
+  .dim-legend { background: var(--surface2); border: 1px solid var(--border); border-radius: 6px;
+                padding: 12px 14px; margin-top: 14px; font-size: 10px; line-height: 1.8; }
+  .dim-legend b { color: var(--accent); }
+  .dim-legend .desc { color: var(--dim); }
+  .result { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--accent);
+            border-radius: 6px; padding: 14px 18px; margin-bottom: 10px; }
+  .result .header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+  .result .id { color: var(--accent); font-weight: bold; font-family: monospace; font-size: 13px; }
+  .result .label-text { color: var(--text); font-size: 11px; margin-left: 6px; }
+  .result .overall { color: var(--accent); font-weight: bold; font-size: 16px; }
+  .result .dims { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 16px; font-size: 10px; margin-top: 6px; }
+  .result .dim { display: flex; gap: 8px; align-items: center; }
+  .result .dim .name { color: var(--dim); min-width: 70px; }
+  .result .dim .bar-bg { flex: 1; height: 8px; background: var(--surface2); border-radius: 4px; overflow: hidden; }
+  .result .dim .bar-fill { height: 100%; border-radius: 4px; }
+  .result .dim .val { color: var(--text); min-width: 30px; text-align: right; font-weight: bold; }
+  .result .meta { font-size: 10px; color: var(--dim); margin-top: 8px; }
+  .empty { text-align: center; padding: 40px 20px; color: var(--dim); font-size: 12px; }
+  @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }
+</style></head><body>
+<nav>
+  <span class="brand">Atria Date</span><span class="badge">LIVE ENGINE</span>
+  <div class="links">
+    <a href="/atria/date">Product page</a>
+    <a href="/atria/match/playground">Match Playground</a>
+    <a href="/atria">Atria</a>
+    <a href="/pep">PEP</a>
+  </div>
+</nav>
+<div class="layout">
+  <div class="sidebar">
+    <div class="label">1. Pick your profile</div>
+    <select id="seed-select" onchange="showProfile()"><option>loading…</option></select>
+    <div id="profile-view" class="profile-card" style="display:none"></div>
+    <button class="btn" onclick="runRank()">Find matches</button>
+
+    <div class="label" style="margin-top:22px">What the dimensions mean</div>
+    <div class="dim-legend">
+      <div><b>values</b> <span class="desc">— overlap of core life values (family, adventure, career, independence, community, creativity). Higher = more shared values.</span></div>
+      <div><b>warmth</b> <span class="desc">— emotional expressiveness match. 0 = reserved, 1 = very warm. Similar warmth levels feel natural; large gaps feel overwhelming or cold.</span></div>
+      <div><b>attachment</b> <span class="desc">— attachment style compatibility. Secure (0.5) pairs well with everything. Avoidant + anxious is the hardest combination. Based on attachment theory.</span></div>
+      <div><b>conflict</b> <span class="desc">— how you handle disagreements. Compromise + compromise = best. Confronting + avoidant = worst. Based on Gottman's research.</span></div>
+      <div><b>interests</b> <span class="desc">— shared hobbies and activities. At least 1 shared interest is needed for a baseline score; 3+ approaches maximum.</span></div>
+      <div><b>life_stage</b> <span class="desc">— where you are in life (student / early-career / established / retired). Adjacent stages are compatible; 2+ gaps cause friction.</span></div>
+    </div>
+  </div>
+  <div class="main">
+    <h2 style="font-size:16px;color:var(--accent);margin-bottom:12px">Your matches</h2>
+    <div id="results"><div class="empty">Pick a profile and click <b>Find matches</b>.</div></div>
+  </div>
+</div>
+<script>
+let allSeeds = [];
+async function init() {
+  const r = await fetch('/atria/date-api/seeds');
+  const data = await r.json();
+  allSeeds = data.seeds;
+  const sel = document.getElementById('seed-select');
+  sel.innerHTML = allSeeds.map(s => `<option value="${s.id}">${s.id} — ${s.label}</option>`).join('');
+  showProfile();
+}
+function showProfile() {
+  const id = document.getElementById('seed-select').value;
+  const p = allSeeds.find(s => s.id === id);
+  const view = document.getElementById('profile-view');
+  if (!p) { view.style.display = 'none'; return; }
+  view.style.display = 'block';
+  const attachLabels = { '0': 'avoidant', '0.5': 'secure', '1': 'anxious' };
+  const attachLabel = p.attachment <= 0.25 ? 'avoidant' : p.attachment >= 0.65 ? 'anxious' : 'secure';
+  view.innerHTML = `
+    <div class="attr"><span class="k">age</span><span class="v">${p.age}</span></div>
+    <div class="attr"><span class="k">values</span><span class="v">${p.values.join(', ')}</span></div>
+    <div class="attr"><span class="k">warmth</span><span class="v">${p.warmth.toFixed(2)} (${p.warmth > 0.6 ? 'warm' : p.warmth < 0.4 ? 'reserved' : 'moderate'})</span></div>
+    <div class="attr"><span class="k">attachment</span><span class="v">${p.attachment.toFixed(2)} (${attachLabel})</span></div>
+    <div class="attr"><span class="k">conflict style</span><span class="v">${p.conflict_style}</span></div>
+    <div class="attr"><span class="k">interests</span><span class="v">${p.interests.join(', ')}</span></div>
+    <div class="attr"><span class="k">life stage</span><span class="v">${p.life_stage}</span></div>
+  `;
+}
+function esc(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+const DIM_COLORS = {
+  values: '#ec4899', warmth: '#f59e0b', attachment: '#a78bfa',
+  conflict: '#67e8f9', interests: '#a3e635', life_stage: '#f06292',
+};
+async function runRank() {
+  const seed = document.getElementById('seed-select').value;
+  const r = await fetch(`/atria/date-api/rank/${seed}?k=8`);
+  const data = await r.json();
+  const out = document.getElementById('results');
+  if (!data.results.length) { out.innerHTML = '<div class="empty">No matches.</div>'; return; }
+  out.innerHTML = data.results.map((r, i) => {
+    const label = r.metadata?.label ? `<span class="label-text">${esc(r.metadata.label)}</span>` : '';
+    const dims = Object.entries(r.dim_scores).map(([k, v]) => {
+      const col = DIM_COLORS[k] || '#ec4899';
+      return `<div class="dim"><span class="name">${k}</span><span class="bar-bg"><span class="bar-fill" style="width:${Math.round(v*100)}%;background:${col}"></span></span><span class="val">${(v*100).toFixed(0)}</span></div>`;
+    }).join('');
+    return `<div class="result">
+      <div class="header">
+        <div><span style="color:var(--dim)">${i+1}.</span> <span class="id">${esc(r.id)}</span>${label}</div>
+        <div class="overall">${(r.overall * 100).toFixed(0)}%</div>
+      </div>
+      <div style="font-size:11px;color:var(--accent);margin-bottom:6px">re-engagement: <b>${(r.reengagement_prob * 100).toFixed(0)}%</b> predicted</div>
+      <div class="dims">${dims}</div>
+      <div class="meta">strongest: <b style="color:var(--accent2)">${r.strongest}</b> · weakest: <b style="color:#fbbf24">${r.weakest}</b></div>
+    </div>`;
+  }).join('');
+}
+init();
+</script></body></html>"""
+
+
 def _playground(title: str, product: str, accent: str, accent_rgb: str) -> str:
     """Generate a playground page for one Atria product."""
     # Determine which API shape to use
