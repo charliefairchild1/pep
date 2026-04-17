@@ -1,97 +1,79 @@
 # PEP — Predictive Encoding and Preparation
 
 The core engine of the LAVAS suite. A mathematical and computational framework
-for weighted graphs, spreading activation, residual scoring, and state
-modulation. Every LAVAS app (Axona, Lingora, Atria, Vectora, Strata) is an
+for weighted graphs, spreading activation, residual scoring, state modulation,
+and opacity-based haze (the forgetting/reuse primitive). Every LAVAS app is an
 application of PEP to a specific domain.
 
-## What this is
-PEP is not a single algorithm; it is a small vocabulary of primitives that
-compose. The four canonical primitives are:
-- **Weighted graph** — nodes with multi-dimensional feature vectors, edges
-  weighted by typed compatibility measures.
-- **Spreading activation** — the native search primitive. Activation radiates
-  from a seed through weighted edges with decay, producing a neighborhood-
-  shaped region rather than a sorted window.
-- **Predictor + residual scorer** — a running forecast of the next input,
-  and a scorer for the gap between forecast and reality. The residual is
-  the learning signal.
-- **State modulation** — slow-timescale state (mood, behavior, context) that
-  shifts the weights and gains used by the other primitives on the fly.
+## Five primitives
+1. **Weighted graph** — nodes with feature vectors, edges weighted by typed
+   compatibility. Everything reduces to this.
+2. **Spreading activation** — the search primitive. Activation radiates from a
+   seed through weighted edges with decay.
+3. **Predictor + residual scorer** — a running forecast; the gap between
+   forecast and reality is the only learning signal.
+4. **State modulation** — slow-timescale parameters (mood, fatigue, context,
+   arousal) that rescale edge weights at runtime.
+5. **Opacity / haze** — every node has an encoding strength that decays over
+   time. Nodes below the reuse threshold can be overwritten. Forgetting is the
+   feature that makes capacity finite.
 
-Everything in Axona (cognition), Lingora (language), Atria (matching), and
-the unbuilt LAVAS projects reduces to some configuration of these four
-primitives.
+## Real engines shipped (Python packages inside PEP)
+- **`pep.vectora`** — Retrieval (spreading activation), Context (session
+  modulation), Watch (anomaly scoring), KG (typed edges), plus eval harness
+  and dogfood layer powering all LAVAS siblings.
+- **`pep.lingora.prompt`** — Structural prompt analysis: tokenizer, role
+  segmentation, 10 antipattern checks, compression pipeline, per-provider cost
+  forecasting.
+- **`pep.lingora.translate`** — Four-layer sentence decomposition (denotation,
+  pragmatic, register, cultural) with curated translation example bank.
+- **`pep.lingora.voice`** — Eight-mechanism voice analysis (POV, register,
+  irony, subtext, pacing, consistency, repetition, sound) with diagnostics.
+- **`pep.lingora.learn`** — Constellation-based vocabulary with haze-primitive
+  spaced repetition.
+- **`pep.atria.match`** — Multi-objective matchmaking: 7-dimension scorer,
+  rematch oracle, ObjectiveWeights presets, eval harness (AUC 0.977 vs Elo
+  0.655).
+- **`pep.atria.core`** — Generic multi-dimension matcher shared by Date, Hire,
+  Found, Therapy.
+- **`pep.atria.{date,hire,found,therapy}`** — Domain-specific compatibility
+  engines.
+- **`pep.axona.core`** — Cognitive state space (novelty/coherence/bandwidth/
+  valence) with quadrant detection and alert generation.
+- **`pep.axona.{bci,clinic,learn,wellness}`** — Domain-specific state-mapping
+  engines.
+- **`pep.strata.core`** — Universal unusual-score formula + classification.
+- **`pep.strata.{equities,crypto,fx,commodities,predict,bonds}`** — Per-
+  vertical asset seed data.
 
-## Live surfaces
-- **`/pep`** — PEP's own teaching page. Hero, four primitive demos, live mesh
-  dashboard (polls all five LAVAS siblings), theory, and cross-links.
-  Route at `pep/src/pep/routes/pep_home.py`.
-- **`/math`** — the math playground. Legacy; early demos.
-- **`/axona`** — Axona's ~60 canvases applying PEP to cognition.
-- **`/lingora`** — Lingora's ~70 canvases applying PEP to language.
-- **`/atria`** — Atria's ~20 canvases applying PEP to matching (plus Pitch,
-  Before/After Dashboard, Composer, Case Studies tabs).
-- **`/vectora`** — Vectora's canvases applying PEP to data organization and
-  retrieval (keyword vs semantic, embedding spaces, knowledge graphs,
-  anomaly detection, context-dependent retrieval, RAG pipeline, hybrid
-  reranker, multi-hop retrieval, pitch, recall benchmark).
-- **`/strata`** — Strata's canvases applying PEP to markets (correlation
-  graph, momentum spread, earnings residual, regime modulation, sector
-  rotation).
-- **`/chat`**, **`/ui`**, **`/openai/*`** — the conversational and API surfaces.
+## Live surfaces (all served by one FastAPI server)
+- **`/pep`** — the engine's teaching page + mesh dashboard
+- **`/axona`** — ~60 canvases on cognition (plus Haze, Media & Brain,
+  Motor Prediction Errors, Biological Substrate, Arousal & Clarity)
+- **`/lingora`** — ~70 canvases on language
+- **`/atria`** — ~20 canvases on matching
+- **`/vectora`** — 10 canvases on data retrieval
+- **`/strata`** — canvases on markets + 294-strategy library
+- **`/math`** — the original math playground
+
+## Products (19 total, each with engine + API + playground + product page)
+**Vectora:** Retrieval, Context, Watch, Graph
+**Lingora:** Prompt, Translate, Voice, Learn
+**Atria:** Match, Date, Hire, Found, Therapy
+**Axona:** Edge, BCI, Clinic, Learn, Wellness
+**Strata:** Equities, Crypto, FX, Commodities, Predict, Bonds
 
 ## The mesh
-PEP, Axona, Lingora, and Atria talk to each other through a shared event bus.
-Each LAVAS app has a bridge file (`{app}_bridge.py`) exposing
-`POST /{app}/event`, `GET /{app}/events`, and `GET /{app}/pep-state`. Each
-bridge cross-reads the other buffers so any surface can display recent events
-from the others. The `/pep` home page shows the full mesh in one dashboard.
+All LAVAS apps communicate through event bridges. Each has a `*_bridge.py`
+with POST/GET endpoints. The `/pep` mesh dashboard polls all five siblings.
+Vectora Retrieval is dogfooded across all four sibling apps — they call the
+real engine over HTTP for spreading-activation queries.
 
-## Package structure
-- `src/pep/core/` — core algorithms (graph, activation, residuals).
-- `src/pep/memory/` — the MemoryStore (runs, sessions, brightness tracking).
-- `src/pep/models/` — LLM client wrapper, embedder wrapper.
-- `src/pep/policies/` — policy modules used by the chat runner.
-- `src/pep/routes/` — FastAPI routes, including the LAVAS app pages and
-  their bridges.
-- `src/pep/analysis/` — offline analysis tools.
-- `src/pep/schemas/` — Pydantic schemas for PEPPackets, runs, events.
+## Development
+- Server: `cd ~/projects/pep && uv run pep serve --reload`
+- Tests: `uv run pytest tests/` — 370+ tests
+- No API keys needed — all engines use local/heuristic fallbacks
+- Git: 47+ commits tracking the full build history
 
-## The LAVAS siblings
-All five LAVAS sibling projects live as directories under `~/projects/`:
-- `axona/` — brain and cognition. Full interactive app (~60 canvases).
-- `lingora/` — language as a cognitive technology. Full interactive app
-  (~70 canvases).
-- `atria/` — matching, compatibility, relational alignment. Full
-  interactive app plus Pitch, Before/After Dashboard, Composer, and Case
-  Studies tabs targeting game-studio integration.
-- `vectora/` — data organization, pattern analysis, intelligent retrieval.
-  Scaffolded with depth: RAG pipeline, hybrid reranker, multi-hop
-  retrieval, pitch, recall benchmark.
-- `strata/` — markets, trading, financial decision-making. Research
-  sandbox with correlation/momentum/residual/regime/rotation canvases.
-
-Each sibling's live UI is served by PEP's FastAPI server at its route
-(`/axona`, `/lingora`, `/atria`, `/vectora`, `/strata`). The package at
-`~/projects/<name>/` holds the theory doc, CLAUDE.md, and scaffold. The
-real code lives in PEP's routes.
-
-## Development notes
-- Server run: `cd ~/projects/pep && uv run pep serve --reload`
-- Auto-reload is on — edits to the route files trigger a FastAPI restart.
-- No API keys are configured (`ANTHROPIC_API_KEY` and `VOYAGE_API_KEY`
-  unset) — the LLM client falls back to an Ollama stub; the embedder uses
-  pseudo-embeddings. All canvases are built to work without real API
-  responses.
-- The session-length strategy is: rely on CLAUDE.md files and the memory
-  system at `~/.claude/projects/-Users-adamsmith/memory/` for cross-session
-  continuity; never assume session-internal context persists.
-
-## Parent project
-PEP Labs LLC — the umbrella company. PEP is the engine; LAVAS is the applied
-suite; PEP Labs is the legal wrapper. Current pursuit order (from memory):
-PEP core → Vectora internally → Atria as first market-facing product →
-Strata as research sandbox → Lingora and Axona later. Axona and Lingora are
-ahead of that schedule because they are teaching surfaces rather than
-products; they got built first for demonstration value.
+## Parent
+PEP Labs LLC → LAVAS suite (Lingora, Atria, Vectora, Axona, Strata).

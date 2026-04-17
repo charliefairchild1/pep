@@ -6254,7 +6254,7 @@ function drawState() {
   const W = 960, H = 540;
   const { weights, intensity, dominant } = getState();
   const cx = stateX * W, cy = (1 - stateY) * H;
-  stateCtx.fillStyle = '#0e0e12'; stateCtx.fillRect(0, 0, W, H);
+  stateCtx.fillStyle = themeBg(); stateCtx.fillRect(0, 0, W, H);
 
   // Blended zone color from weighted palette
   let br = 0, bg = 0, bb = 0;
@@ -6792,7 +6792,7 @@ function predStep() {
 function drawPred() {
   predStep();
   const W = 960, H = 260;
-  predCtx.fillStyle = '#0e0e12'; predCtx.fillRect(0, 0, W, H);
+  predCtx.fillStyle = themeBg(); predCtx.fillRect(0, 0, W, H);
   predCtx.strokeStyle = 'rgba(186,104,200,0.12)'; predCtx.lineWidth = 1;
   predCtx.setLineDash([4,4]);
   predCtx.beginPath(); predCtx.moveTo(0, H/2); predCtx.lineTo(W, H/2); predCtx.stroke();
@@ -6878,7 +6878,7 @@ document.getElementById('attn-bw').addEventListener('input', (e) => {
 });
 function drawAttn() {
   const W = 960, H = 360;
-  attnCtx.fillStyle = '#0e0e12'; attnCtx.fillRect(0, 0, W, H);
+  attnCtx.fillStyle = themeBg(); attnCtx.fillRect(0, 0, W, H);
   const bw = parseInt(document.getElementById('attn-bw').value) / 100;
   attnNodes.forEach(n => {
     n.act *= 0.93;
@@ -7120,7 +7120,7 @@ function traumaTherapy() {
 function traumaReset() { traumaInit(); }
 function drawTrauma() {
   const W = 960, H = 380;
-  traumaCtx.fillStyle = '#0e0e12'; traumaCtx.fillRect(0, 0, W, H);
+  traumaCtx.fillStyle = themeBg(); traumaCtx.fillRect(0, 0, W, H);
   traumaNodes.forEach(n => { n.act *= 0.93; });
   // Pulse walks
   for (let p of traumaPulses) {
@@ -7185,7 +7185,7 @@ function bidirPulse(key) {
 document.getElementById('bidir-loops').textContent = bidirPairs.filter(p => p.returnPath).length;
 function drawBidir() {
   const W = 960, H = 340;
-  bidirCtx.fillStyle = '#0e0e12'; bidirCtx.fillRect(0, 0, W, H);
+  bidirCtx.fillStyle = themeBg(); bidirCtx.fillRect(0, 0, W, H);
   bidirCtx.font = '12px monospace';
   const x1 = 140, x2 = 640;
   bidirPairs.forEach(p => {
@@ -7329,7 +7329,7 @@ function constrExpand() {
 function constrReset() { constrInit(); }
 function drawConstr() {
   const W = 960, H = 340;
-  constrCtx.fillStyle = '#0e0e12'; constrCtx.fillRect(0, 0, W, H);
+  constrCtx.fillStyle = themeBg(); constrCtx.fillRect(0, 0, W, H);
   if (constrMode === 'constrained') {
     const grad = constrCtx.createLinearGradient(0, H/2 - 55, 0, H/2 + 55);
     grad.addColorStop(0, 'rgba(129,199,132,0)');
@@ -7374,7 +7374,7 @@ document.getElementById('time-nov').addEventListener('input', (e) => {
 });
 function drawTime() {
   const W = 960, H = 280;
-  timeCtx.fillStyle = '#0e0e12'; timeCtx.fillRect(0, 0, W, H);
+  timeCtx.fillStyle = themeBg(); timeCtx.fillRect(0, 0, W, H);
   timeFrame++;
   const nov = parseInt(document.getElementById('time-nov').value) / 100;
   if (timeFrame % 6 === 0) {
@@ -7460,7 +7460,7 @@ function wanderFocus() {
 function wanderReset() { wanderInit(); }
 function drawWander() {
   const W = 960, H = 320;
-  wanderCtx.fillStyle = '#0e0e12'; wanderCtx.fillRect(0, 0, W, H);
+  wanderCtx.fillStyle = themeBg(); wanderCtx.fillRect(0, 0, W, H);
   wanderFrame++;
   if (wanderMode === 'focused') {
     if (wanderFocal < 0 || wanderFrame % 200 === 0) {
@@ -7526,7 +7526,7 @@ function pygSet(v) { pygExpect = v; }
 function pygReset() { pygExpect = 0; pygConf = 0.5; pygPerf = 0.5; pygHistory.length = 0; }
 function drawPyg() {
   const W = 960, H = 320;
-  pygCtx.fillStyle = '#0e0e12'; pygCtx.fillRect(0, 0, W, H);
+  pygCtx.fillStyle = themeBg(); pygCtx.fillRect(0, 0, W, H);
   // Update
   const target = 0.5 + pygExpect * 0.42;
   pygConf += (target - pygConf) * 0.022;
@@ -7637,7 +7637,7 @@ function addictReset() {
 }
 function drawAddict() {
   const W = 960, H = 360;
-  addictCtx.fillStyle = '#0e0e12'; addictCtx.fillRect(0, 0, W, H);
+  addictCtx.fillStyle = themeBg(); addictCtx.fillRect(0, 0, W, H);
   addictNodes.forEach(n => { if (!n.center) n.act *= 0.975; });
   addictEdges.forEach(e => {
     const a = addictNodes[e.a], b = addictNodes[e.b];
@@ -7682,7 +7682,7 @@ for (let i = 0; i < 240; i++) {
 });
 function drawFlow() {
   const W = 960, H = 420;
-  flowCtx.fillStyle = '#0e0e12'; flowCtx.fillRect(0, 0, W, H);
+  flowCtx.fillStyle = themeBg(); flowCtx.fillRect(0, 0, W, H);
   const skill = parseInt(document.getElementById('flow-skill').value) / 100;
   const chal  = parseInt(document.getElementById('flow-chal').value) / 100;
   const fb    = parseInt(document.getElementById('flow-fb').value) / 100;
@@ -7903,7 +7903,7 @@ function metaReset() {
 }
 function drawMeta() {
   const W = 960, H = 360;
-  metaCtx.fillStyle = '#0e0e12'; metaCtx.fillRect(0, 0, W, H);
+  metaCtx.fillStyle = themeBg(); metaCtx.fillRect(0, 0, W, H);
   const m = metaState ? metaState.map : metaMappings['time-money'];
   const dim = !metaState;
   metaCtx.font = '11px monospace'; metaCtx.textAlign = 'center';
@@ -8013,7 +8013,7 @@ function dejaReset() {
 }
 function drawDeja() {
   const W = 960, H = 320;
-  dejaCtx.fillStyle = '#0e0e12'; dejaCtx.fillRect(0, 0, W, H);
+  dejaCtx.fillStyle = themeBg(); dejaCtx.fillRect(0, 0, W, H);
   dejaFlash *= 0.95;
   if (dejaFlash > 1) {
     dejaCtx.fillStyle = 'rgba(255,183,77,' + Math.min(0.15, dejaFlash / 200).toFixed(3) + ')';
@@ -8133,7 +8133,7 @@ function griefReset() { griefInit(); }
 let griefFrame = 0;
 function drawGrief() {
   const W = 960, H = 380;
-  griefCtx.fillStyle = '#0e0e12'; griefCtx.fillRect(0, 0, W, H);
+  griefCtx.fillStyle = themeBg(); griefCtx.fillRect(0, 0, W, H);
   griefFrame++;
   if (griefAutoOn && griefFrame % 30 === 0) griefStep();
   griefNodes.forEach(n => { if (!n.person) n.act *= 0.985; if (n.act < 0.2) n.act = 0.2; });
@@ -8214,7 +8214,7 @@ function helpReset() {
 }
 function drawHelp() {
   const W = 960, H = 360;
-  helpCtx.fillStyle = '#0e0e12'; helpCtx.fillRect(0, 0, W, H);
+  helpCtx.fillStyle = themeBg(); helpCtx.fillRect(0, 0, W, H);
   const selfX = 180, selfY = H/2;
   const actX = 480, actY = H/2;
   const rewX = 780, rewY = H/2;
@@ -8293,7 +8293,7 @@ function musicPlay(key) {
 function musicStop() { musicPattern = null; }
 function drawMusic() {
   const W = 960, H = 320;
-  musicCtx.fillStyle = '#0e0e12'; musicCtx.fillRect(0, 0, W, H);
+  musicCtx.fillStyle = themeBg(); musicCtx.fillRect(0, 0, W, H);
   if (musicPattern) {
     musicTimer++;
     if (musicTimer >= 14) {
@@ -8457,7 +8457,7 @@ function humorReset() {
 function drawHumor() {
   const W = 960, H = 300;
   humorT++;
-  humorCtx.fillStyle = '#0e0e12'; humorCtx.fillRect(0, 0, W, H);
+  humorCtx.fillStyle = themeBg(); humorCtx.fillRect(0, 0, W, H);
   if (humorLaughFlash > 1) {
     humorCtx.fillStyle = 'rgba(129,199,132,' + Math.min(0.12, humorLaughFlash / 150).toFixed(3) + ')';
     humorCtx.fillRect(0, 0, W, H);
@@ -8804,7 +8804,7 @@ function aphaPrompt(kind) {
 }
 function drawApha() {
   const W = 960, H = 320;
-  aphaCtx.fillStyle = '#0e0e12'; aphaCtx.fillRect(0, 0, W, H);
+  aphaCtx.fillStyle = themeBg(); aphaCtx.fillRect(0, 0, W, H);
   const strength = parseInt(document.getElementById('apha-strength').value) / 100;
   // Left: verbal/concept box (always alive)
   aphaCtx.fillStyle = '#16213e';
@@ -8878,7 +8878,7 @@ const curiHistory = [];
 for (let i = 0; i < 240; i++) curiHistory.push(0.5);
 function drawCuri() {
   const W = 960, H = 360;
-  curiCtx.fillStyle = '#0e0e12'; curiCtx.fillRect(0, 0, W, H);
+  curiCtx.fillStyle = themeBg(); curiCtx.fillRect(0, 0, W, H);
   const env = parseInt(document.getElementById('curi-env').value) / 100;
   const safe = parseInt(document.getElementById('curi-safe').value) / 100;
   const setpoint = 0.5;
@@ -9089,7 +9089,7 @@ function twosysInput(kind) {
 function twosysReset() { twosysActive = null; twosysS1 = 0.1; twosysS2 = 0.1; twosysAnswer = ''; }
 function drawTwosys() {
   const W = 960, H = 320;
-  twosysCtx.fillStyle = '#0e0e12'; twosysCtx.fillRect(0, 0, W, H);
+  twosysCtx.fillStyle = themeBg(); twosysCtx.fillRect(0, 0, W, H);
   if (twosysActive === 'hard' || twosysActive === 'trap') {
     twosysTimer++;
     if (twosysActive === 'hard' && twosysTimer > 30) {
@@ -9147,7 +9147,7 @@ const chunkGroups = [['H','G','T','V'],['F','B','I'],['C','I','A'],['P','C']];
 function chunkShow(mode) { chunkMode = mode; }
 function drawChunk() {
   const W = 960, H = 300;
-  chunkCtx.fillStyle = '#0e0e12'; chunkCtx.fillRect(0, 0, W, H);
+  chunkCtx.fillStyle = themeBg(); chunkCtx.fillRect(0, 0, W, H);
   chunkCtx.font = 'bold 22px monospace'; chunkCtx.textAlign = 'center';
   if (chunkMode === 'raw') {
     for (let i = 0; i < chunkItems.length; i++) {
@@ -9213,7 +9213,7 @@ function synTrigger(note) {
 }
 function drawSyn() {
   const W = 960, H = 320;
-  synCtx.fillStyle = '#0e0e12'; synCtx.fillRect(0, 0, W, H);
+  synCtx.fillStyle = themeBg(); synCtx.fillRect(0, 0, W, H);
   const soundX = 220, colorX = 720, cy = 160;
   synCtx.strokeStyle = 'rgba(186,104,200,0.4)'; synCtx.lineWidth = 2;
   synCtx.beginPath(); synCtx.arc(soundX, cy, 70, 0, Math.PI*2); synCtx.stroke();
@@ -9264,7 +9264,7 @@ function bindFire(mode) { bindMode = mode; bindT = 0; }
 function bindReset() { bindMode = 'idle'; bindT = 0; }
 function drawBind() {
   const W = 960, H = 340;
-  bindCtx.fillStyle = '#0e0e12'; bindCtx.fillRect(0, 0, W, H);
+  bindCtx.fillStyle = themeBg(); bindCtx.fillRect(0, 0, W, H);
   if (bindMode !== 'idle') bindT = Math.min(1.5, bindT + 0.015);
   const features = [
     { label: 'color',    x: 140, y: 80 },
@@ -9328,7 +9328,7 @@ function intuExpose() {
 function intuReset() { intuLevel = 0; intuConscious = false; }
 function drawIntu() {
   const W = 960, H = 320;
-  intuCtx.fillStyle = '#0e0e12'; intuCtx.fillRect(0, 0, W, H);
+  intuCtx.fillStyle = themeBg(); intuCtx.fillRect(0, 0, W, H);
   intuLevel *= 0.9985;
   const threshold = 0.7;
   const thresholdY = H - (threshold * (H - 80) + 40);
@@ -9376,7 +9376,7 @@ function primeSet(p) {
 function primeAmbig() { primeShown = true; }
 function drawPrime() {
   const W = 960, H = 300;
-  primeCtx.fillStyle = '#0e0e12'; primeCtx.fillRect(0, 0, W, H);
+  primeCtx.fillStyle = themeBg(); primeCtx.fillRect(0, 0, W, H);
   primeCtx.font = 'bold 28px monospace'; primeCtx.textAlign = 'center'; primeCtx.fillStyle = '#fff';
   primeCtx.fillText('BANK', W/2, 80);
   primeCtx.font = '11px monospace'; primeCtx.fillStyle = '#888';
@@ -9420,7 +9420,7 @@ function autismInject() {
 function autismReset() { autismEvents.length = 0; }
 function drawAutism() {
   const W = 960, H = 320;
-  autismCtx.fillStyle = '#0e0e12'; autismCtx.fillRect(0, 0, W, H);
+  autismCtx.fillStyle = themeBg(); autismCtx.fillRect(0, 0, W, H);
   const prec = parseInt(document.getElementById('autism-prec').value) / 100;
   // Threshold: at high precision, even small events exceed it
   const thr = 1 - prec;
@@ -9474,7 +9474,7 @@ function habitReset() {
 }
 function drawHabit() {
   const W = 960, H = 320;
-  habitCtx.fillStyle = '#0e0e12'; habitCtx.fillRect(0, 0, W, H);
+  habitCtx.fillStyle = themeBg(); habitCtx.fillRect(0, 0, W, H);
   // Threshold line
   const thrY = H - 60 - 0.85 * (H - 120);
   habitCtx.strokeStyle = 'rgba(129,199,132,0.5)'; habitCtx.lineWidth = 1.5;
@@ -9538,7 +9538,7 @@ function confirmStream() {
 function confirmReset() { confirmEncoded.length = 0; confirmRejected.length = 0; confirmPrior = 'neutral'; }
 function drawConfirm() {
   const W = 960, H = 340;
-  confirmCtx.fillStyle = '#0e0e12'; confirmCtx.fillRect(0, 0, W, H);
+  confirmCtx.fillStyle = themeBg(); confirmCtx.fillRect(0, 0, W, H);
   // Labels
   confirmCtx.font = '11px monospace'; confirmCtx.textAlign = 'left'; confirmCtx.fillStyle = '#aaa';
   confirmCtx.fillText('raw evidence stream', 100, 50);
@@ -9622,7 +9622,7 @@ function echoInjectOut() {
 function echoReset() { echoInit(); }
 function drawEcho() {
   const W = 960, H = 360;
-  echoCtx.fillStyle = '#0e0e12'; echoCtx.fillRect(0, 0, W, H);
+  echoCtx.fillStyle = themeBg(); echoCtx.fillRect(0, 0, W, H);
   echoNodes.forEach(n => { n.belief *= 0.993; if (n.belief < 0.15) n.belief = 0.15; });
   echoEdges.forEach(e => {
     const a = echoNodes[e.a], b = echoNodes[e.b];
@@ -9664,7 +9664,7 @@ function nostRecall() { nostRecallT = 1; }
 function nostReset() { nostCluster.forEach(n => n.act = 0.2); nostRecallT = 0; }
 function drawNost() {
   const W = 960, H = 340;
-  nostCtx.fillStyle = '#0e0e12'; nostCtx.fillRect(0, 0, W, H);
+  nostCtx.fillStyle = themeBg(); nostCtx.fillRect(0, 0, W, H);
   const mood = parseInt(document.getElementById('nost-mood').value) / 100;
   nostRecallT *= 0.995;
   nostCluster.forEach(n => {
@@ -9707,7 +9707,7 @@ function phantomMirror() { phantomMirrorActive = true; }
 function phantomReset() { phantomState = 'intact'; phantomAct = 0.3; phantomMirrorActive = false; }
 function drawPhantom() {
   const W = 960, H = 360;
-  phantomCtx.fillStyle = '#0e0e12'; phantomCtx.fillRect(0, 0, W, H);
+  phantomCtx.fillStyle = themeBg(); phantomCtx.fillRect(0, 0, W, H);
   if (phantomMirrorActive) phantomAct *= 0.985;
   else if (phantomState === 'gone') phantomAct = Math.max(0.4, phantomAct - 0.001 + Math.sin(Date.now()*0.003)*0.02);
   // Brain body map
@@ -9787,7 +9787,7 @@ function depMove() {
 function depReset() { depCursor = 0.2; document.getElementById('dep-sev').value = 0; document.getElementById('dep-sev-val').textContent = '0%'; }
 function drawDep() {
   const W = 960, H = 360;
-  depCtx.fillStyle = '#0e0e12'; depCtx.fillRect(0, 0, W, H);
+  depCtx.fillStyle = themeBg(); depCtx.fillRect(0, 0, W, H);
   const sev = parseInt(document.getElementById('dep-sev').value) / 100;
   const scale = 1 - sev * 0.97;
   const f = (x) => (Math.exp(-Math.pow((x - 0.2)*3, 2)) * 0.8 + Math.exp(-Math.pow((x - 0.5)*3, 2)) * 1.0 + Math.exp(-Math.pow((x - 0.8)*3, 2)) * 0.6) * scale;
@@ -9840,7 +9840,7 @@ function reconRecall(ctx) {
 function reconReset() { reconMem = null; reconT = 0; }
 function drawRecon() {
   const W = 960, H = 360;
-  reconCtx.fillStyle = '#0e0e12'; reconCtx.fillRect(0, 0, W, H);
+  reconCtx.fillStyle = themeBg(); reconCtx.fillRect(0, 0, W, H);
   reconT *= 0.98;
   if (reconMem) {
     const cx = W/2, cy = H/2;
@@ -9885,7 +9885,7 @@ const painCtx = painCanvas.getContext('2d');
 });
 function drawPain() {
   const W = 960, H = 340;
-  painCtx.fillStyle = '#0e0e12'; painCtx.fillRect(0, 0, W, H);
+  painCtx.fillStyle = themeBg(); painCtx.fillRect(0, 0, W, H);
   const noc = parseInt(document.getElementById('pain-noc').value) / 100;
   const att = parseInt(document.getElementById('pain-att').value) / 100;
   const expc = parseInt(document.getElementById('pain-exp').value) / 100;
@@ -9942,7 +9942,7 @@ function interpAct(kind) {
 function interpReset() { interpAction = null; interpT = 0; interpExplain = ''; }
 function drawInterp() {
   const W = 960, H = 360;
-  interpCtx.fillStyle = '#0e0e12'; interpCtx.fillRect(0, 0, W, H);
+  interpCtx.fillStyle = themeBg(); interpCtx.fillRect(0, 0, W, H);
   if (interpAction) interpT = Math.min(1.6, interpT + 0.015);
   // Two hemispheres
   const rhX = 220, lhX = 720, hemY = 160;
@@ -10028,7 +10028,7 @@ function inattReset() {
 }
 function drawInatt() {
   const W = 960, H = 360;
-  inattCtx.fillStyle = '#0e0e12'; inattCtx.fillRect(0, 0, W, H);
+  inattCtx.fillStyle = themeBg(); inattCtx.fillRect(0, 0, W, H);
   if (inattMode === 'task') {
     inattT++;
     inattBalls.forEach(b => {
@@ -10090,7 +10090,7 @@ function mcgurkFire(mode) { mcgurkMode = mode; mcgurkT = 0; }
 function mcgurkReset() { mcgurkMode = 'idle'; mcgurkT = 0; }
 function drawMcgurk() {
   const W = 960, H = 320;
-  mcgurkCtx.fillStyle = '#0e0e12'; mcgurkCtx.fillRect(0, 0, W, H);
+  mcgurkCtx.fillStyle = themeBg(); mcgurkCtx.fillRect(0, 0, W, H);
   if (mcgurkMode !== 'idle') mcgurkT = Math.min(1.2, mcgurkT + 0.02);
   const ayX = 200, viX = 500, peX = 800, y = 160;
   // Audio
@@ -10162,7 +10162,7 @@ function disResolve() {
 function disReset() { disA = null; disB = null; disResidual = 0; disResolved = false; disResolution = ''; }
 function drawDis() {
   const W = 960, H = 360;
-  disCtx.fillStyle = '#0e0e12'; disCtx.fillRect(0, 0, W, H);
+  disCtx.fillStyle = themeBg(); disCtx.fillRect(0, 0, W, H);
   const target = (disA && disB && !disResolved) ? 0.95 : 0.1;
   disResidual += (target - disResidual) * 0.04;
   // Belief A
@@ -10226,7 +10226,7 @@ function tomAdd() { tomCount = Math.min(8, tomCount + 1); }
 function tomReset() { tomCount = 1; }
 function drawTom() {
   const W = 960, H = 360;
-  tomCtx.fillStyle = '#0e0e12'; tomCtx.fillRect(0, 0, W, H);
+  tomCtx.fillStyle = themeBg(); tomCtx.fillRect(0, 0, W, H);
   const bw = parseInt(document.getElementById('tom-bw').value) / 100;
   // Self predictor at left
   const selfX = 180, selfY = 180;
@@ -10284,7 +10284,7 @@ function totLetGo() {
 function totReset() { totPtr = 0.85; totCnt = 0.1; totTrying = 0; totResolved = false; }
 function drawTot() {
   const W = 960, H = 320;
-  totCtx.fillStyle = '#0e0e12'; totCtx.fillRect(0, 0, W, H);
+  totCtx.fillStyle = themeBg(); totCtx.fillRect(0, 0, W, H);
   // Pointer circle
   totCtx.fillStyle = 'rgba(186,104,200,' + (0.2 + totPtr * 0.6).toFixed(3) + ')';
   totCtx.beginPath(); totCtx.arc(280, 160, 50 + totPtr * 30, 0, Math.PI*2); totCtx.fill();
@@ -10335,7 +10335,7 @@ function hyperInternal() { hyperLock *= 0.96; } // barely moves it
 function hyperReset() { hyperLock = 0; hyperPeripheral = 0; hyperExternalHit = false; }
 function drawHyper() {
   const W = 960, H = 340;
-  hyperCtx.fillStyle = '#0e0e12'; hyperCtx.fillRect(0, 0, W, H);
+  hyperCtx.fillStyle = themeBg(); hyperCtx.fillRect(0, 0, W, H);
   if (hyperLock > 0.3) hyperPeripheral += 0.002;
   // Focus target at center
   const cx = W/2, cy = 170;
@@ -10398,7 +10398,7 @@ function discChoose(when) { discChoice = when; }
 function discReset() { discChoice = null; }
 function drawDisc() {
   const W = 960, H = 340;
-  discCtx.fillStyle = '#0e0e12'; discCtx.fillRect(0, 0, W, H);
+  discCtx.fillStyle = themeBg(); discCtx.fillRect(0, 0, W, H);
   const rate = parseInt(document.getElementById('disc-rate').value) / 100;
   // Hyperbolic discount curve: v = V / (1 + k*t)
   const k = rate * 2;
@@ -10469,7 +10469,7 @@ function rumBreak() { rumActive = false; rumNodes.forEach(n => n.act = 0.2); rum
 function rumReset() { rumActive = false; rumReinf = 0; rumEscape = 0; rumNodes.forEach(n => n.act = 0.2); document.getElementById('rum-reinf').textContent = '0'; document.getElementById('rum-escape').textContent = '0'; }
 function drawRum() {
   const W = 960, H = 360;
-  rumCtx.fillStyle = '#0e0e12'; rumCtx.fillRect(0, 0, W, H);
+  rumCtx.fillStyle = themeBg(); rumCtx.fillRect(0, 0, W, H);
   rumFrame++;
   if (rumActive && rumFrame % 20 === 0) {
     // Propagate around the loop
@@ -10533,7 +10533,7 @@ function impEvent(kind) {
 function impReset() { impConf = 0.5; impEvents.length = 0; document.getElementById('imp-conf').textContent = '0.50'; }
 function drawImp() {
   const W = 960, H = 380;
-  impCtx.fillStyle = '#0e0e12'; impCtx.fillRect(0, 0, W, H);
+  impCtx.fillStyle = themeBg(); impCtx.fillRect(0, 0, W, H);
   // Confidence bar
   impCtx.fillStyle = '#888'; impCtx.font = '11px monospace'; impCtx.textAlign = 'left';
   impCtx.fillText('self-confidence (mode: ' + impMode_ + ')', 40, 26);
@@ -10582,7 +10582,7 @@ const sensesPulses = [];
 function sensesFire(key) { sensesPulses.push({ key, t: 0 }); }
 function drawSenses() {
   const W = 960, H = 400;
-  sensesCtx.fillStyle = '#0e0e12'; sensesCtx.fillRect(0, 0, W, H);
+  sensesCtx.fillStyle = themeBg(); sensesCtx.fillRect(0, 0, W, H);
   sensesCtx.fillStyle = '#888'; sensesCtx.font = '11px monospace'; sensesCtx.textAlign = 'center';
   sensesCtx.fillText('circle size = relative bandwidth · all channels feed the same integrated experience', W/2, 20);
   // Integrated percept node
@@ -10635,7 +10635,7 @@ function procDisease() { procDiseaseStage = 1; }
 function procReset() { procDecl = 0.5; procProc = 0.5; procDiseaseStage = 0; document.getElementById('proc-decl').textContent = '0.50'; document.getElementById('proc-proc').textContent = '0.50'; }
 function drawProc() {
   const W = 960, H = 400;
-  procCtx.fillStyle = '#0e0e12'; procCtx.fillRect(0, 0, W, H);
+  procCtx.fillStyle = themeBg(); procCtx.fillRect(0, 0, W, H);
   if (procDiseaseStage > 0 && procDiseaseStage < 1000) {
     procDiseaseStage++;
     if (procDiseaseStage % 30 === 0) {
@@ -10816,7 +10816,7 @@ function libetFire() {
 function libetReset() { libetFire(); libetFiring = false; libetRP = 0; libetDecidedAt = -1; libetActedAt = -1; libetT = 0; }
 function drawLibet() {
   const W = 960, H = 340;
-  libetCtx.fillStyle = '#0e0e12'; libetCtx.fillRect(0, 0, W, H);
+  libetCtx.fillStyle = themeBg(); libetCtx.fillRect(0, 0, W, H);
   // Timeline axes
   libetCtx.strokeStyle = 'rgba(186,104,200,0.3)'; libetCtx.lineWidth = 1;
   libetCtx.beginPath(); libetCtx.moveTo(60, H - 60); libetCtx.lineTo(W - 40, H - 60); libetCtx.stroke();
@@ -10883,7 +10883,7 @@ function rpeStage(s) { rpeStageName = s; rpeT = 0; }
 function rpeReset() { rpeStageName = 'idle'; rpeT = 0; }
 function drawRpe() {
   const W = 960, H = 360;
-  rpeCtx.fillStyle = '#0e0e12'; rpeCtx.fillRect(0, 0, W, H);
+  rpeCtx.fillStyle = themeBg(); rpeCtx.fillRect(0, 0, W, H);
   if (rpeStageName !== 'idle') rpeT = Math.min(260, rpeT + 1);
   // Timeline
   rpeCtx.strokeStyle = 'rgba(186,104,200,0.3)'; rpeCtx.lineWidth = 1;
@@ -10982,7 +10982,7 @@ function rubberThreaten() { if (rubberInc > 0.4) rubberFlinch = 30; }
 function rubberReset() { rubberInc = 0; rubberStrokeMode = 'idle'; rubberT = 0; rubberFlinch = 0; }
 function drawRubber() {
   const W = 960, H = 360;
-  rubberCtx.fillStyle = '#0e0e12'; rubberCtx.fillRect(0, 0, W, H);
+  rubberCtx.fillStyle = themeBg(); rubberCtx.fillRect(0, 0, W, H);
   rubberT++;
   if (rubberStrokeMode === 'sync') rubberInc = Math.min(1, rubberInc + 0.005);
   else if (rubberStrokeMode === 'async') rubberInc = Math.max(0, rubberInc - 0.003);
@@ -11048,7 +11048,7 @@ let langModeName = 'english';
 function langMode(m) { langModeName = m; }
 function drawLang() {
   const W = 960, H = 300;
-  langCtx.fillStyle = '#0e0e12'; langCtx.fillRect(0, 0, W, H);
+  langCtx.fillStyle = themeBg(); langCtx.fillRect(0, 0, W, H);
   // Draw a row of blues from light to dark
   const swatchCount = 20;
   const swW = 30, gap = 8;
@@ -11098,7 +11098,7 @@ function mirrorWatch() { mirrorMode = 'watch'; mirrorT = 0; mirrorSelf = 0.1; mi
 function mirrorReset() { mirrorSelf = 0; mirrorMir = 0; mirrorMode = 'idle'; }
 function drawMirror() {
   const W = 960, H = 320;
-  mirrorCtx.fillStyle = '#0e0e12'; mirrorCtx.fillRect(0, 0, W, H);
+  mirrorCtx.fillStyle = themeBg(); mirrorCtx.fillRect(0, 0, W, H);
   mirrorSelf *= 0.985;
   mirrorMir *= 0.985;
   // You
@@ -11153,7 +11153,7 @@ function subInput(kind) { subInputKind = kind; }
 function subReset() { subInputKind = 'eye'; }
 function drawSub() {
   const W = 960, H = 340;
-  subCtx.fillStyle = '#0e0e12'; subCtx.fillRect(0, 0, W, H);
+  subCtx.fillStyle = themeBg(); subCtx.fillRect(0, 0, W, H);
   // Source
   const srcX = 170, srcY = 170;
   const srcLabel = { eye: 'retina', tongue: 'tongue grid', skin: 'vibrating vest' }[subInputKind];
@@ -11504,7 +11504,7 @@ function drawMotorErr() {
 drawMotorErr();
 function drawRehearse() {
   const W = 960, H = 320;
-  rehearseCtx.fillStyle = '#0e0e12'; rehearseCtx.fillRect(0, 0, W, H);
+  rehearseCtx.fillStyle = themeBg(); rehearseCtx.fillRect(0, 0, W, H);
   rehearseCtx.strokeStyle = 'rgba(186,104,200,0.3)'; rehearseCtx.lineWidth = 1;
   rehearseCtx.beginPath(); rehearseCtx.moveTo(60, 40); rehearseCtx.lineTo(60, H - 60); rehearseCtx.lineTo(W - 30, H - 60); rehearseCtx.stroke();
   rehearseCtx.fillStyle = '#888'; rehearseCtx.font = '11px monospace'; rehearseCtx.textAlign = 'left';
@@ -11546,7 +11546,7 @@ function anchorEstimate() {
 function anchorReset() { anchorVal = null; anchorGuess = null; document.getElementById('anchor-guess').textContent = '—'; }
 function drawAnchor() {
   const W = 960, H = 340;
-  anchorCtx.fillStyle = '#0e0e12'; anchorCtx.fillRect(0, 0, W, H);
+  anchorCtx.fillStyle = themeBg(); anchorCtx.fillRect(0, 0, W, H);
   // Number line
   anchorCtx.strokeStyle = 'rgba(186,104,200,0.35)'; anchorCtx.lineWidth = 2;
   anchorCtx.beginPath(); anchorCtx.moveTo(60, H/2); anchorCtx.lineTo(W - 60, H/2); anchorCtx.stroke();
@@ -11597,7 +11597,7 @@ function moralTrolley() { moralTrolleyOn = true; moralActive = null; }
 function moralReset() { moralActive = null; moralTrolleyOn = false; }
 function drawMoral() {
   const W = 960, H = 380;
-  moralCtx.fillStyle = '#0e0e12'; moralCtx.fillRect(0, 0, W, H);
+  moralCtx.fillStyle = themeBg(); moralCtx.fillRect(0, 0, W, H);
   const emotions = [
     { key: 'disgust', label: 'DISGUST',  col: '129,199,132', x: 180, y: 140, desc: 'recoil · pathogen/social contaminant' },
     { key: 'shame',   label: 'SHAME',    col: '186,104,200', x: 440, y: 140, desc: 'hide · group saw my failure' },
@@ -11698,7 +11698,7 @@ function fearExtinguish() { fearExtW = Math.min(1, fearExtW + 0.15); fearLastEve
 function fearReset() { fearCond = 0; fearExtW = 0; fearLastEvent = null; fearFlash = 0; document.getElementById('fear-resp').textContent = '0.00'; document.getElementById('fear-ext').textContent = '0.00'; }
 function drawFear() {
   const W = 960, H = 360;
-  fearCtx.fillStyle = '#0e0e12'; fearCtx.fillRect(0, 0, W, H);
+  fearCtx.fillStyle = themeBg(); fearCtx.fillRect(0, 0, W, H);
   fearFlash *= 0.95;
   const response = Math.max(0, fearCond - fearExtW * 0.8);
   document.getElementById('fear-resp').textContent = response.toFixed(2);
@@ -11808,7 +11808,7 @@ sboxCanvas.addEventListener('click', (e) => {
 });
 function drawSbox() {
   const W = 960, H = 420;
-  sboxCtx.fillStyle = '#0e0e12'; sboxCtx.fillRect(0, 0, W, H);
+  sboxCtx.fillStyle = themeBg(); sboxCtx.fillRect(0, 0, W, H);
   const decay = parseInt(document.getElementById('sbox-decay').value) / 100;
   const spread = parseInt(document.getElementById('sbox-spread').value) / 100;
   // Spread activation to neighbors
