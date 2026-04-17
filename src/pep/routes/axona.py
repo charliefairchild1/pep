@@ -5091,6 +5091,7 @@ _PAGE = """\
       <span id="haze-halflife-v" style="color:var(--accent);font-weight:bold;min-width:48px">14 days</span>
     </label>
     <button onclick="hazeReinforce()" style="padding:4px 12px;border-radius:4px;border:1px solid var(--accent);background:var(--accent);color:var(--bg);font-size:11px;cursor:pointer;font-family:inherit;font-weight:bold">Reinforce random</button>
+    <button onclick="hazeOld()" style="padding:4px 12px;border-radius:4px;border:1px solid var(--accent2);background:transparent;color:var(--accent2);font-size:11px;cursor:pointer;font-family:inherit">Simulate 70-year-old</button>
     <button onclick="hazeReset()" style="padding:4px 12px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--text);font-size:11px;cursor:pointer;font-family:inherit">Reset</button>
   </div>
 
@@ -5107,7 +5108,56 @@ _PAGE = """\
     mechanism that makes capacity finite and therefore usable. A system
     that could not forget would eventually drown in stale encodings.
     Haze is how a finite-capacity predictor handles a stream of
-    novel input.<br><br>
+    novel input.
+  </div>
+
+  <div class="info" style="border-left: 3px solid var(--accent2)">
+    <b style="color:var(--accent2)">The reminiscence bump &mdash; why old people have vivid memories of their youth</b><br><br>
+    Click <b>Simulate 70-year-old</b> above. You will see a counter-
+    intuitive pattern: the oldest memories (from roughly ages 15-25)
+    are the brightest ones on the board. Memories from ages 40-60 are
+    dimmer. The decades from 25 to 45 almost vanish. This is the
+    <em>reminiscence bump</em>, a well-documented empirical finding
+    (Rubin &amp; Schulkind 1997, Conway 2005), and it falls out of the
+    haze primitive without needing a special case:<br><br>
+    &bull; <b>High opacity at encoding.</b> Ages 15-25 are when
+    identity crystallizes and first-times cluster &mdash; first love,
+    first job, first independence, first loss. First-times are
+    inherently high-novelty, and high novelty in PEP's predictor
+    produces high residuals, which means strong initial encoding
+    (high <code>opacity</code>).<br>
+    &bull; <b>Repeated reinforcement.</b> These are the memories you
+    tell and re-tell across your lifetime &mdash; in conversation, on
+    anniversaries, through photos, in therapy, as origin stories.
+    Every retelling fires <code>reinforce()</code>, resetting
+    <code>encoded_at</code> to now. A memory reinforced once a year
+    for fifty years has its effective decay clock reset fifty times.
+    Its effective opacity stays bright despite the calendar.<br>
+    &bull; <b>Identity nodes are hubs.</b> Youth memories get wired
+    into the identity subgraph (&quot;this is who I am&quot;). Hub
+    nodes are touched by every related retrieval, so they get
+    constant indirect reinforcement. Every time you think about who
+    you are, the graph walks through those nodes.<br>
+    &bull; <b>Cognitive sharpness at encoding.</b> Working-memory
+    capacity and processing speed peak in the 20s. Memories encoded
+    then start with a higher baseline opacity than memories encoded
+    under age-related bandwidth decline.<br>
+    &bull; <b>Graph competition was lower.</b> A young person&apos;s
+    semantic graph is smaller. Memories encoded into a sparse region
+    have fewer competing neighbors, so their activation is not
+    diluted the way later memories are. The graph&apos;s center of
+    mass is literally where the person was when they were young.<br><br>
+    The middle decades fade because those memories were encoded with
+    lower novelty (you had seen life before), rehearsed less (they
+    are not identity-defining), and land in a dense, competitive
+    graph region. Recent memories (last 1-2 years) stay bright for a
+    different reason: not enough time has passed for the exponential
+    decay to bite. So the lifespan curve has two peaks &mdash; a tall
+    one at youth and a shorter one at &quot;recent,&quot; with a
+    valley in the middle. That is the reminiscence bump.
+  </div>
+
+  <div class="info">
     <b>See also:</b>
     <a href="#" onclick="document.querySelector('[data-panel=vec-live-tab]').click();return false">Axona &rarr; Live Vectora Retrieval</a>
     (opacity attenuates activation in real time),
@@ -11041,6 +11091,54 @@ function hazeReset() {
   document.getElementById('haze-time').value = 0;
   document.getElementById('haze-time-v').textContent = '0 days';
 }
+function hazeOld() {
+  // Simulate a 70-year-old's memory landscape. Scale: 1 unit = 1 year.
+  // Total lifespan: 70 years. Use half-life of 8 years so raw decay is
+  // visible; youth memories get heavy reinforcement to simulate decades
+  // of retelling; middle decades get minimal reinforcement; recent
+  // years stay bright simply because they haven't decayed yet.
+  // We store encodedDaysAgo in "years" here since the unit is symbolic.
+  // Set half-life slider so the math lines up visually.
+  document.getElementById('haze-halflife').value = 8;
+  document.getElementById('haze-halflife-v').textContent = '8 days';
+  document.getElementById('haze-time').value = 0;
+  document.getElementById('haze-time-v').textContent = '0 days';
+  hazeNodes.forEach((n, i) => {
+    // Distribute the 24 nodes across the 70-year lifespan
+    // cluster 1: ages 15-25 (youth / reminiscence bump) — 8 nodes
+    // cluster 2: ages 25-55 (middle decades) — 10 nodes
+    // cluster 3: ages 60-70 (recent) — 6 nodes
+    let ageAtEncoding, reinforced;
+    if (i < 8) {
+      // Youth — encoded ~45-55 years ago, reinforced many times
+      ageAtEncoding = 15 + (i / 8) * 10;
+      const yearsAgo = 70 - ageAtEncoding;
+      // Repeated reinforcement means the effective encoded_at is much
+      // more recent than the first encoding. Simulate: pull encodedDaysAgo
+      // forward by a large fraction.
+      n.encodedDaysAgo = yearsAgo * 0.15;  // 85% of the decay time was erased by retelling
+      n.baseOpacity = 0.95;
+      n.reinforcedYouth = true;
+    } else if (i < 18) {
+      // Middle decades — encoded ~15-45 years ago, minimal reinforcement
+      ageAtEncoding = 25 + ((i - 8) / 10) * 30;
+      const yearsAgo = 70 - ageAtEncoding;
+      n.encodedDaysAgo = yearsAgo * 0.9;  // almost full decay
+      n.baseOpacity = 0.75;
+      delete n.reinforcedYouth;
+    } else {
+      // Recent years — encoded ~0-10 years ago, no reinforcement needed
+      ageAtEncoding = 60 + ((i - 18) / 6) * 10;
+      const yearsAgo = 70 - ageAtEncoding;
+      n.encodedDaysAgo = yearsAgo;
+      n.baseOpacity = 0.85;
+      delete n.reinforcedYouth;
+    }
+    n.ageLabel = Math.round(ageAtEncoding);
+    delete n.reinforced;
+  });
+  pepSend('haze.reminiscence_bump', {});
+}
 ['haze-time','haze-halflife'].forEach(id => {
   const el = document.getElementById(id);
   if (!el) return;
@@ -11090,6 +11188,13 @@ function drawHaze() {
     hazeCtx.fillStyle = `rgba(200, 200, 200, ${Math.max(0.3, op).toFixed(3)})`;
     hazeCtx.font = 'bold 10px monospace';
     hazeCtx.fillText(op.toFixed(2), n.x, n.y + 3);
+    // Age-at-encoding label (only in 70-year-old mode)
+    if (n.ageLabel !== undefined) {
+      const col = n.reinforcedYouth ? '163, 230, 53' : '138, 122, 142';
+      hazeCtx.fillStyle = `rgba(${col}, ${Math.max(0.5, op).toFixed(3)})`;
+      hazeCtx.font = '9px monospace';
+      hazeCtx.fillText(`age ${n.ageLabel}`, n.x, n.y + r + 26);
+    }
   });
   // Footer
   hazeCtx.fillStyle = '#aaa'; hazeCtx.font = '11px monospace'; hazeCtx.textAlign = 'left';
