@@ -189,6 +189,16 @@ EXAMPLES: dict[str, dict[str, str]] = {
         "lingora": "Pues qué bien... (irónico)",
         "explanation": "Ironic understatement. MT takes it at face value. Lingora preserves the irony marker.",
     },
+    "under the weather": {
+        "mt": "Bajo el clima.",
+        "lingora": "No me siento bien. / Estoy pachucho.",
+        "explanation": "English idiom for 'feeling ill.' MT produces a literal weather reference. Lingora maps to the Spanish colloquial equivalent.",
+    },
+    "spill the beans": {
+        "mt": "Derramar los frijoles.",
+        "lingora": "Soltar la sopa.",
+        "explanation": "English idiom for 'reveal a secret.' MT translates the literal beans. Lingora uses the Spanish equivalent idiom 'soltar la sopa' (spill the soup).",
+    },
 }
 
 
@@ -197,9 +207,17 @@ def translate(text: str, target_lang: str = "es") -> TranslationAnalysis:
     for unknown text, produces the layer decomposition + generic scores."""
     layers = analyze_layers(text)
     lower = text.lower().strip().rstrip(".!?")
+    # Normalize: strip apostrophes for more forgiving matching
+    normalized = lower.replace("'", "").replace("\u2019", "")
 
-    # Check example bank
+    # Check example bank (try exact, then without apostrophes)
     example = EXAMPLES.get(lower)
+    if not example:
+        # Try matching with apostrophes stripped from both sides
+        for key, val in EXAMPLES.items():
+            if key.replace("'", "").replace("\u2019", "") == normalized:
+                example = val
+                break
     if example:
         mt_out = example["mt"]
         lin_out = example["lingora"]
