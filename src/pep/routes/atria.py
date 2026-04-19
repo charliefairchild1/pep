@@ -2167,17 +2167,37 @@ _PAGE = """\
     slot becomes available for fresh matching. Without haze, the pool
     calcifies into whoever matched first, and the system can't keep up
     with people changing. Opacity decay is what lets a matching
-    platform stay current across years of user evolution.
+    platform stay current across years of user evolution. See
+    <a href="#" onclick="document.querySelector('[data-panel=matchdecay-tab]').click();return false">Match Decay</a>
+    for the live surface &mdash; reclaimable slot detection +
+    load-bearing-stale flags so you don't archive invested pairs.
+  </div>
+
+  <div class="info">
+    <b>6. Beyond pairwise &mdash; extensions on the core primitives.</b><br>
+    Atria's existing core is symmetric and pairwise. Two extensions
+    are important enough to call out:<br>
+    &bull; <b>Group matching</b> &mdash; n-person teams with
+    complementarity (not just homogeneous fit). Same weighted-graph
+    primitive, optimized over a set rather than a pair. See
+    <a href="#" onclick="document.querySelector('[data-panel=teamform-tab]').click();return false">Team Formation</a>.<br>
+    &bull; <b>Asymmetric matching</b> &mdash; mentors, therapists,
+    teachers. Directed edges: "A is good for B" &ne; "B is good for A."
+    Both directions have to score above threshold. No commercial
+    platform does this well. See
+    <a href="#" onclick="document.querySelector('[data-panel=mentor-tab]').click();return false">Mentor Match</a>.
   </div>
 
   <div class="info" style="border-left:3px solid #4fc3f7">
     <b>The pattern.</b> Compatibility is not its own thing. It is
     what happens when the five primitives run on a substrate of
     person-nodes with multi-dimensional attributes. Every Atria
-    vertical (Date, Hire, Found, Therapy) keeps the primitives the
-    same and swaps the dimensions: romantic compatibility shares the
-    scorer with hiring fit, co-founder alignment, and therapist
-    match. Same engine, same primitives, different edges.
+    vertical (Date, Hire, Found, Therapy, Teams, Mentors) keeps the
+    primitives the same and swaps the dimensions or the edge
+    directionality: romantic compatibility shares the scorer with
+    hiring fit, co-founder alignment, therapist match, team
+    assembly, and mentor pairing. Same engine, same primitives,
+    different edges.
   </div>
 </div>
 </div>

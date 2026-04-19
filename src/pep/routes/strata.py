@@ -1215,7 +1215,26 @@ _PAGE = """\
     the strategy library from calcifying into backtest-overfit
     shapes. Stale patterns have to be reclaimable for fresh ones to
     find a slot; otherwise the library becomes a museum of strategies
-    that used to work.
+    that used to work. See
+    <a href="#" onclick="document.querySelector('[data-panel=stratdecay-tab]').click();return false">Strategy Decay</a>
+    for the live surface &mdash; retire candidates (paper-only, stale)
+    vs deallocate review (capital on stale strategy) with dollar-at-risk
+    surfaced.
+  </div>
+
+  <div class="info">
+    <b>6. Cross-app wedges on the asset substrate.</b><br>
+    Asset signal isn't purely numerical. Earnings calls carry a
+    pragmatic layer that number-only signal engines miss &mdash; the
+    gap between stated sentiment (lexicon of words) and pragmatic
+    sentiment (hedge density, deflection, passive subject-drop,
+    register shift) is alpha single-substrate shops can't extract. See
+    <a href="#" onclick="document.querySelector('[data-panel=pragmatic-tab]').click();return false">Earnings Pragmatics</a>
+    &mdash; Strata consuming Lingora's pragmatic analyzer. This is the
+    kind of wedge only a multi-substrate engine can produce; a
+    number-only signal shop can't build it without building the
+    language side, and a language-analysis shop doesn't have the
+    signal infrastructure to close the loop.
   </div>
 
   <div class="info" style="border-left:3px solid #e879f9">

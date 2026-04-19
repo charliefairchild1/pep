@@ -943,7 +943,10 @@ _PAGE = """\
     forever without retrieval cost growing with it. This is why
     <code>pep.vectora.Document</code> carries opacity, encoded_at,
     half_life_seconds, reinforce(), and is_reusable() as
-    first-class fields.
+    first-class fields. See
+    <a href="#" onclick="canvasSelect('orgopacity-tab');return false">Org Opacity</a>
+    for the institutional-scale live surface (load-bearing-stale
+    detection, decay velocity, archive candidates).
   </div>
 
   <div class="info" style="border-left:3px solid #38bdf8">

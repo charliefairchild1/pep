@@ -835,6 +835,29 @@ _PAGE = """\
     which predictor shape. New primitives are a last resort, and the
     absence of them is what makes the suite cohere.
   </div>
+  <div class="info" style="border-left:3px solid #a78bfa">
+    <b>Recently-shipped verticals &amp; canvases.</b><br>
+    Each of the five siblings now has a canvas for every primitive,
+    plus several cross-app wedges. Quick index:<br><br>
+    &bull; <b>Haze (primitive #5) across all substrates:</b>
+    <a href="/axona#haze-tab">Axona Memory Haze</a> (episodic),
+    <a href="/vectora#orgopacity-tab">Vectora Org Opacity</a> (institutional),
+    <a href="/atria#matchdecay-tab">Atria Match Decay</a> (relational),
+    <a href="/strata#stratdecay-tab">Strata Strategy Decay</a> (signal library).
+    Same math, four substrates.<br>
+    &bull; <b>Atria extensions:</b>
+    <a href="/atria#teamform-tab">Team Formation</a> (n-person, complementarity)
+    and <a href="/atria#mentor-tab">Mentor Match</a> (directed / asymmetric compatibility).<br>
+    &bull; <b>Cross-app wedges:</b>
+    <a href="/strata#pragmatic-tab">Earnings Pragmatics</a> (Strata consuming
+    Lingora), <a href="/lingora#story-tab">Story Translation</a> (Lingora
+    scaled from sentence to narrative).<br>
+    &bull; <b>Meta-tool:</b>
+    <a href="#" onclick="document.querySelector('[data-panel=combinator-tab]').click();return false">Combinator</a>
+    &mdash; the engine eating its own dogfood to surface candidate
+    apps from spreading activation over
+    {primitive &times; substrate &times; pain &times; population}.
+  </div>
 </div>
 </div>
 

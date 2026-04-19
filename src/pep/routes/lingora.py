@@ -4221,6 +4221,19 @@ _PAGE = """\
     <a href="#" onclick="canvasSelect('aphasia-tab');return false">Aphasia</a>.
   </div>
 
+  <div class="info">
+    <b>6. Cross-app wedges on the language substrate.</b><br>
+    Language compounds with other substrates in ways single-app
+    competitors can't replicate. Translation at story scale preserves
+    voice and cultural anchors across paragraphs &mdash; see the
+    <a href="#" onclick="canvasSelect('story-tab');return false">Story Translation Workbench</a>
+    in the Workbench group. Earnings-call pragmatic analysis feeds the
+    pragmatic layer into a trading signal &mdash; see
+    <a href="/strata#pragmatic-tab">Strata &rarr; Earnings Pragmatics</a>.
+    Both prove the same point: language is an input primitive the
+    other siblings consume, not a standalone.
+  </div>
+
   <div class="info" style="border-left:3px solid #4fc3f7">
     <b>The pattern.</b> Language is not its own thing. It is what
     happens when the five primitives run on a substrate of
