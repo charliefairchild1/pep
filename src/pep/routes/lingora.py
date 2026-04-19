@@ -3611,6 +3611,7 @@ _PAGE = """\
   <div class="controls" style="margin-bottom:16px">
     <button onclick="storyPick(0)">Spanish — Sobremesa</button>
     <button onclick="storyPick(1)">Japanese — Amai</button>
+    <button onclick="storyPick(2)">French — Vouvoyer</button>
   </div>
   <div id="story-view" style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:0"></div>
   <div class="canvas-box" style="margin-top:16px">
@@ -8475,6 +8476,60 @@ const STORY_DATA = [
           '"yakuwari" translates as "role" but carries the sense of *assigned position within a structure*, not a chosen part. "place... shaped differently" preserves the sense that this was done to her, not by her. The sentence is about social position, not job description.',
           '"chigau dake da" (is-different only) is a classic Japanese closing of acceptance-with-resignation. MT\u2019s "is different" is flat; Lingora\u2019s "was shaped differently" carries the backward-looking weight of a conclusion.',
           'Final paragraph preserves the arc: the narrator has moved from reporting (\u00b61\u20132), to reflecting (\u00b63), to negotiating with the reader (\u00b64), to resolution (\u00b65). MT flattens every paragraph to the same register; Lingora modulates.',
+        ],
+      },
+    ],
+  },
+  {
+    title: 'Vouvoyer',
+    srcLang: 'French',
+    srcLangTag: 'fr',
+    blurb: 'A grandfather\u2019s use of formal and informal address across generations. The entire story pivots on the tu/vous distinction \u2014 which English has no grammatical equivalent for. The punchline is invisible in standard MT.',
+    paragraphs: [
+      {
+        src: 'Quand j\u2019\u00e9tais enfant, mon grand-p\u00e8re me vouvoyait toujours. Ma m\u00e8re, sa fille, il la tutoyait. Cette asym\u00e9trie me paraissait normale ; c\u2019\u00e9tait l\u2019usage dans la famille.',
+        mt:  'When I was a child, my grandfather always spoke to me formally. My mother, his daughter, he spoke to informally. This asymmetry seemed normal to me; it was the custom in the family.',
+        lin: 'When I was a child, my grandfather always used *vous* with me. My mother \u2014 his daughter \u2014 he called *tu*. The asymmetry felt normal to me; that was just the family\u2019s way.',
+        mtPreserve: 0.40,
+        linPreserve: 0.88,
+        annotation: [
+          'The French verbs "vouvoyer" / "tutoyer" have no English equivalent \u2014 they mean "to address using vous/tu." MT flattens them to "formally/informally," which is denotationally right but loses the <em>grammatical</em> asymmetry that is the whole story. Lingora keeps the French pronouns.',
+          '"l\u2019usage" in French names a social convention, not the act of using something. "The family\u2019s way" catches the sense better than MT\u2019s generic "custom."',
+          'Semicolon + "c\u2019\u00e9tait l\u2019usage" is a classic French reflective register \u2014 the narrator stepping back to name a pattern. Lingora rephrases as a trailing clause to match the English version of that move.',
+        ],
+      },
+      {
+        src: 'Un jour, j\u2019ai compris qu\u2019il me donnait, avec ce \u00ab vous \u00bb, une distance qu\u2019il ne savait pas comment me demander autrement. Il ne voulait pas me manquer de respect \u2014 il voulait que je sois, moi aussi, une personne respect\u00e9e.',
+        mt:  'One day, I understood that he was giving me, with this "you," a distance that he did not know how to ask me for otherwise. He did not want to lack respect for me \u2014 he wanted me to be, also, a respected person.',
+        lin: 'One day I understood: with that *vous*, he was giving me a distance he didn\u2019t know how else to ask for. He wasn\u2019t failing to respect me \u2014 he was letting me be, too, someone worthy of respect.',
+        mtPreserve: 0.30,
+        linPreserve: 0.85,
+        annotation: [
+          'MT renders \u00ab vous \u00bb as "this \u2018you\u2019" \u2014 which in English is meaningless, since "you" covers both registers. Lingora keeps *vous* and lets the French word do the work.',
+          '"me manquer de respect" is an idiomatic reflexive \u2014 "to fail to show me respect," not "to lack respect for me." MT\u2019s literal phrasing inverts the direction of the action.',
+          'Subjunctive "que je sois" carries a sense of <em>wanting-into-being</em> that English\u2019s flat infinitive "to be" loses. Lingora rephrases as "letting me be... someone worthy of respect" to capture the volitive meaning.',
+        ],
+      },
+      {
+        src: 'Quand il est mort, j\u2019ai h\u00e9rit\u00e9 de sa biblioth\u00e8que. Dans les marges des livres, en crayon, il avait \u00e9crit : \u00ab Lis \u00e7a, tu comprendras. \u00bb Il me tutoyait, dans l\u2019\u00e9criture.',
+        mt:  'When he died, I inherited his library. In the margins of the books, in pencil, he had written: "Read this, you will understand." He spoke to me informally, in writing.',
+        lin: 'When he died, I inherited his library. In the margins of the books, in pencil, he had written: \u00ab Lis \u00e7a, tu comprendras. \u00bb *Tu.* He called me *tu* \u2014 in writing.',
+        mtPreserve: 0.20,
+        linPreserve: 0.92,
+        annotation: [
+          'THE PIVOT. The grandfather\u2019s shift from *vous* to *tu* is carried entirely by the imperative form "Lis" (familiar) and the pronoun "tu" \u2014 both of which collapse into English "you." MT loses the whole story\u2019s reversal. Lingora keeps the French quote plus an emphatic "*Tu.*" to make the register shift visible to an English reader.',
+          '"dans l\u2019\u00e9criture" is a phrase that treats writing as a register of its own, separate from speech. MT\u2019s "in writing" is correct denotationally but misses the cultural treatment of writing as a literary register with its own grammar of intimacy.',
+        ],
+      },
+      {
+        src: 'Voil\u00e0 toute la diff\u00e9rence entre un homme qui parle et un homme qui \u00e9crit.',
+        mt:  'There is the whole difference between a man who speaks and a man who writes.',
+        lin: 'There \u2014 that\u2019s the whole difference between a man who speaks and a man who writes.',
+        mtPreserve: 0.55,
+        linPreserve: 0.82,
+        annotation: [
+          '"Voil\u00e0" is a French discourse marker that gestures at presenting a conclusion, almost physically \u2014 "here, see this." MT\u2019s "There is" is grammatically fine but carries none of the revelation-move. Lingora\u2019s "There \u2014 that\u2019s" captures the oral-storytelling pause.',
+          'The parallel structure "un homme qui parle / un homme qui \u00e9crit" is preserved in both versions. This sentence is the one where MT does the least damage \u2014 but only because the previous paragraph did most of the work, and the punchline has already landed.',
         ],
       },
     ],
