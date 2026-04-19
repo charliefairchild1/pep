@@ -130,7 +130,7 @@ _PAGE = """\
       <div class="tab" data-panels="elo-tab rps-tab residual-tab multi-tab">Thesis</div>
       <div class="tab" data-panels="pool-tab oracle-tab queue-tab coldstart-tab confidence-tab ladder-tab vec-live-tab vec-kg-tab">Matchmaker</div>
       <div class="tab" data-panels="behavior-tab smurf-tab toxcascade-tab">Behavior</div>
-      <div class="tab" data-panels="party-tab chemistry-tab draft-tab">Groups</div>
+      <div class="tab" data-panels="party-tab chemistry-tab draft-tab teamform-tab">Groups</div>
       <div class="tab" data-panels="crossgame-tab engagement-tab transparency-tab domain-tab">Beyond</div>
       <div class="tab" data-panel="pitch-tab">Pitch</div>
       <div class="tab" data-panel="products-tab">Products</div>
@@ -946,6 +946,88 @@ _PAGE = """\
     to inform matching. Team A's available comp space versus Team B's
     available comp space determines the quality ceiling of the
     upcoming match. Elo rating does not capture this at all.
+  </div>
+</div>
+</div>
+
+<!-- ═══ Team Formation ═════════════════════════════════════════ -->
+<div class="panel" id="teamform-tab">
+<div class="container">
+  <h2>Team Formation &mdash; Group Matching With Complementarity</h2>
+  <p class="desc">
+    Dating and hiring are pairwise. Co-founder teams, project squads,
+    juries, and bands are n &gt;= 3 &mdash; AND you don't want homogeneity.
+    Four visionaries is a worse team than one visionary + two builders
+    + one skeptic. This canvas picks from a candidate pool of 12 and
+    greedily assembles a team of configurable size against a role target
+    profile. The scorer rewards <em>complementarity</em> alongside
+    pairwise compatibility &mdash; same-tempo helps, diverse-risk helps,
+    same-everything is penalized.
+  </p>
+  <div class="controls" style="flex-wrap:wrap">
+    <label style="display:flex;align-items:center;gap:6px">
+      <span>team size:</span>
+      <input type="range" id="tf-size" min="3" max="7" value="4" style="width:80px">
+      <span class="stat-val" id="tf-size-val">4</span>
+    </label>
+    <label style="display:flex;align-items:center;gap:6px">
+      <span>visionary:</span>
+      <input type="range" id="tf-vis" min="0" max="50" value="20" style="width:80px">
+      <span class="stat-val" id="tf-vis-val">0.20</span>
+    </label>
+    <label style="display:flex;align-items:center;gap:6px">
+      <span>builder:</span>
+      <input type="range" id="tf-bui" min="0" max="50" value="30" style="width:80px">
+      <span class="stat-val" id="tf-bui-val">0.30</span>
+    </label>
+    <label style="display:flex;align-items:center;gap:6px">
+      <span>skeptic:</span>
+      <input type="range" id="tf-ske" min="0" max="50" value="20" style="width:80px">
+      <span class="stat-val" id="tf-ske-val">0.20</span>
+    </label>
+    <label style="display:flex;align-items:center;gap:6px">
+      <span>operator:</span>
+      <input type="range" id="tf-ope" min="0" max="50" value="20" style="width:80px">
+      <span class="stat-val" id="tf-ope-val">0.20</span>
+    </label>
+    <label style="display:flex;align-items:center;gap:6px">
+      <span>community:</span>
+      <input type="range" id="tf-com" min="0" max="50" value="10" style="width:80px">
+      <span class="stat-val" id="tf-com-val">0.10</span>
+    </label>
+    <button onclick="tfOptimize()">Optimize team</button>
+    <button onclick="tfReshufflePool()">New candidate pool</button>
+  </div>
+  <div class="canvas-box">
+    <canvas id="teamform-canvas" width="960" height="380"></canvas>
+  </div>
+  <div id="tf-output" style="margin-top:14px;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:14px 16px;min-height:220px">
+    <div style="color:var(--dim);font-size:12px;padding:30px 0;text-align:center">adjust role targets and click Optimize team</div>
+  </div>
+  <div class="info">
+    <b>What you are watching.</b> Left panel: all 12 candidates in the
+    pool as colored dots positioned by role archetype. Right panel: the
+    optimized team as a role-coverage radar overlaid on the target
+    profile (the dotted shape). Below: the greedy pick order with
+    marginal score delta each step, and flags for redundancy / gaps /
+    homogeneity.<br><br>
+    <b>Why PEP.</b> Team formation is the weighted-graph primitive (#1)
+    composed with the state-modulator primitive (#4): the graph carries
+    per-person compatibility; the modulator (team target-profile + role
+    constraints) rescales which candidates light up. Without the
+    modulator you maximize pairwise fit and end up with a homogeneous
+    team; with it, you get a differentiated team shaped to purpose.<br><br>
+    <b>Engine module:</b> <code>pep.atria.teams</code> &mdash;
+    Candidate, pair_compat, score_team, optimize_team, simulate_pool.
+    Same module scales from 4-person startup teams to 12-person juries
+    to 100-person org-chart assembly (the greedy step is O(n*k) — fine
+    at that scale).<br><br>
+    <b>See also:</b>
+    <a href="#" onclick="document.querySelector('[data-panel=party-tab]').click();return false">Atria &rarr; Party</a>
+    (gaming team formation),
+    <a href="#" onclick="document.querySelector('[data-panel=chemistry-tab]').click();return false">Atria &rarr; Chemistry</a>
+    (emergent synergy),
+    <a href="#" onclick="document.querySelector('[data-panel=whypep-tab]').click();return false">Why PEP</a>.
   </div>
 </div>
 </div>
@@ -4187,6 +4269,284 @@ function masterApply() {
     el.addEventListener('mouseleave', () => { tooltip.style.display = 'none'; });
   });
 })();
+
+// ═══════════════════════════════════════════════════════════════════════
+// Team Formation — mirrors pep.atria.teams in the browser
+// ═══════════════════════════════════════════════════════════════════════
+const TF_ROLES = ['visionary','builder','skeptic','operator','community'];
+const TF_DIMS = ['tempo','risk','communication','ambition','curiosity'];
+const TF_NAMES = ['Amaya','Ben','Chinonye','Darío','Esin','Felix','Giri','Hana','Inez','Jamal','Kai','Lena'];
+let tfPoolSeed = 11;
+function tfRandSeeded(seed) {
+  let s = seed;
+  return () => { s = (s * 1664525 + 1013904223) % 4294967296; return s / 4294967296; };
+}
+function tfBuildPool(seed) {
+  const rng = tfRandSeeded(seed);
+  const archetypes = [
+    {visionary:0.6,builder:0.1,skeptic:0.1,operator:0.1,community:0.1},
+    {visionary:0.1,builder:0.7,skeptic:0.1,operator:0.05,community:0.05},
+    {visionary:0.1,builder:0.1,skeptic:0.6,operator:0.1,community:0.1},
+    {visionary:0.05,builder:0.15,skeptic:0.1,operator:0.65,community:0.05},
+    {visionary:0.1,builder:0.1,skeptic:0.1,operator:0.1,community:0.6},
+    {visionary:0.3,builder:0.3,skeptic:0.2,operator:0.1,community:0.1},
+    {visionary:0.2,builder:0.4,skeptic:0.2,operator:0.1,community:0.1},
+  ];
+  const pool = [];
+  for (let i = 0; i < 12; i++) {
+    const base = archetypes[i % archetypes.length];
+    const pert = {};
+    let sum = 0;
+    TF_ROLES.forEach(k => { pert[k] = Math.max(0, base[k] + (rng() - 0.5) * 0.15); sum += pert[k]; });
+    const role = {};
+    TF_ROLES.forEach(k => role[k] = pert[k] / sum);
+    const dims = {};
+    TF_DIMS.forEach(k => dims[k] = rng());
+    pool.push({id: 'cand-' + i, name: TF_NAMES[i % TF_NAMES.length], role, dims});
+  }
+  return pool;
+}
+let tfPool = tfBuildPool(tfPoolSeed);
+let tfTeam = [], tfPickLog = [], tfScore = null;
+function tfReadRequired() {
+  const raw = {};
+  TF_ROLES.forEach(k => {
+    const v = parseInt(document.getElementById('tf-' + k.slice(0,3)).value, 10) / 100;
+    raw[k] = v;
+  });
+  const s = TF_ROLES.reduce((a, k) => a + raw[k], 0) || 1;
+  const norm = {};
+  TF_ROLES.forEach(k => norm[k] = raw[k] / s);
+  return norm;
+}
+function tfPairCompat(a, b) {
+  const close = (x, y) => 1 - Math.abs(x - y);
+  const apart = (x, y) => Math.abs(x - y);
+  const tempo = close(a.dims.tempo, b.dims.tempo);
+  const amb = close(a.dims.ambition, b.dims.ambition);
+  const risk = apart(a.dims.risk, b.dims.risk);
+  const cur = apart(a.dims.curiosity, b.dims.curiosity);
+  const comm = 0.5 + 0.5 * close(a.dims.communication, b.dims.communication);
+  return Math.max(0, Math.min(1, 0.25*tempo + 0.25*amb + 0.20*risk + 0.15*cur + 0.15*comm));
+}
+function tfRoleTotals(team) {
+  const t = {}; TF_ROLES.forEach(k => t[k] = 0);
+  team.forEach(c => TF_ROLES.forEach(k => t[k] += c.role[k] || 0));
+  return t;
+}
+function tfScoreTeam(team, required) {
+  if (team.length === 0) return { pair:0, coverage:0, diversity:0, overall:0, warnings:[], totals:{} };
+  const pairs = [];
+  for (let i = 0; i < team.length; i++) for (let j = i+1; j < team.length; j++) pairs.push(tfPairCompat(team[i], team[j]));
+  const pair = pairs.length ? pairs.reduce((a,b) => a+b, 0) / pairs.length : 0.5;
+  const totals = tfRoleTotals(team);
+  const sizeTotal = TF_ROLES.reduce((a, k) => a + totals[k], 0) || 1;
+  const teamDist = {}; TF_ROLES.forEach(k => teamDist[k] = totals[k] / sizeTotal);
+  let l1 = 0; TF_ROLES.forEach(k => l1 += Math.abs(teamDist[k] - (required[k] || 0)));
+  const coverage = Math.max(0, 1 - l1 / 2);
+  let avgVar = 0;
+  TF_ROLES.forEach(k => {
+    const vals = team.map(c => c.role[k] || 0);
+    const mean = vals.reduce((a,b) => a+b, 0) / vals.length;
+    avgVar += vals.reduce((a,v) => a + (v-mean)*(v-mean), 0) / vals.length;
+  });
+  avgVar /= TF_ROLES.length;
+  const diversity = Math.min(1, avgVar / 0.15);
+  const overall = 0.40*pair + 0.35*coverage + 0.25*diversity;
+  const warnings = [];
+  const distTotal = TF_ROLES.reduce((a, k) => a + totals[k], 0) || 1;
+  TF_ROLES.forEach(k => {
+    const share = totals[k] / distTotal;
+    const target = required[k] || 0;
+    if (share > target + 0.2 && totals[k] > 1.2) warnings.push(`${k} oversupplied (${Math.round(share*100)}% vs ${Math.round(target*100)}% target)`);
+    else if (target > 0.1 && share < target - 0.12) warnings.push(`${k} undersupplied (${Math.round(share*100)}% vs ${Math.round(target*100)}% target)`);
+  });
+  if (diversity < 0.25) warnings.push('team is homogeneous — low role variance; add a counterweight');
+  if (pair < 0.45) warnings.push('pairwise compatibility low — tempo/ambition mismatches');
+  return { pair, coverage, diversity, overall, warnings, totals };
+}
+function tfOptimize() {
+  const req = tfReadRequired();
+  const size = parseInt(document.getElementById('tf-size').value, 10);
+  const remaining = tfPool.slice();
+  const seedFit = c => TF_ROLES.reduce((a, k) => a + Math.min(c.role[k], req[k]), 0);
+  const seed = remaining.reduce((a, b) => seedFit(b) > seedFit(a) ? b : a);
+  const team = [seed];
+  remaining.splice(remaining.indexOf(seed), 1);
+  const pickLog = [{ cand: seed, delta: 0 }];
+  while (team.length < size && remaining.length) {
+    const prev = tfScoreTeam(team, req).overall;
+    let best = null, bestDelta = -Infinity;
+    remaining.forEach(c => {
+      const s = tfScoreTeam(team.concat([c]), req).overall;
+      const d = s - prev;
+      if (d > bestDelta) { bestDelta = d; best = c; }
+    });
+    if (!best) break;
+    team.push(best);
+    remaining.splice(remaining.indexOf(best), 1);
+    pickLog.push({ cand: best, delta: bestDelta });
+  }
+  tfTeam = team; tfPickLog = pickLog; tfScore = tfScoreTeam(team, req);
+  tfRenderOutput(req);
+  pepSend('teamform.optimize', { size });
+}
+function tfReshufflePool() {
+  tfPoolSeed = (tfPoolSeed * 2 + 7) & 0xffff;
+  tfPool = tfBuildPool(tfPoolSeed);
+  tfTeam = []; tfPickLog = []; tfScore = null;
+  document.getElementById('tf-output').innerHTML =
+    '<div style="color:var(--dim);font-size:12px;padding:30px 0;text-align:center">new pool loaded — click Optimize team</div>';
+}
+function tfEsc(s) { return String(s).replace(/</g,'&lt;'); }
+['tf-size','tf-vis','tf-bui','tf-ske','tf-ope','tf-com'].forEach(id => {
+  const el = document.getElementById(id); if (!el) return;
+  el.addEventListener('input', (e) => {
+    const v = parseInt(e.target.value, 10);
+    const out = document.getElementById(id + '-val');
+    if (!out) return;
+    out.textContent = id === 'tf-size' ? String(v) : (v / 100).toFixed(2);
+  });
+});
+function tfRenderOutput(req) {
+  if (!tfScore) return;
+  const roles = TF_ROLES.map(k => {
+    const target = Math.round((req[k] || 0) * 100);
+    const actualShare = (tfScore.totals[k] || 0) / (TF_ROLES.reduce((a, kk) => a + (tfScore.totals[kk] || 0), 0) || 1);
+    const actual = Math.round(actualShare * 100);
+    const delta = actual - target;
+    const col = Math.abs(delta) <= 8 ? '#81c784' : Math.abs(delta) <= 18 ? '#f6d35c' : '#f06292';
+    return `<div style="display:flex;gap:10px;align-items:center;font-size:11px;padding:3px 0"><span style="min-width:90px;color:var(--dim)">${k}</span><span style="min-width:44px;color:${col};font-family:monospace">${actual}% / ${target}%</span></div>`;
+  }).join('');
+  const picks = tfPickLog.map((p, i) => {
+    const deltaStr = i === 0 ? 'seed' : (p.delta >= 0 ? '+' : '') + p.delta.toFixed(3);
+    return `<div style="display:flex;gap:10px;align-items:center;font-size:11px;padding:3px 0"><span style="color:var(--dim);min-width:26px">#${i+1}</span><span style="color:var(--text);min-width:90px;font-weight:bold">${tfEsc(p.cand.name)}</span><span style="color:var(--dim);font-family:monospace">Δ ${deltaStr}</span></div>`;
+  }).join('');
+  const warnings = tfScore.warnings.length
+    ? tfScore.warnings.map(w => `<div style="font-size:11px;color:#f6d35c;padding:2px 0">&middot; ${tfEsc(w)}</div>`).join('')
+    : '<div style="font-size:11px;color:#81c784;padding:2px 0">&middot; no redundancy or gap flags</div>';
+  document.getElementById('tf-output').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px">
+      <div>
+        <div style="color:var(--dim);font-size:11px;letter-spacing:0.12em;margin-bottom:6px">PICK ORDER</div>
+        ${picks}
+      </div>
+      <div>
+        <div style="color:var(--dim);font-size:11px;letter-spacing:0.12em;margin-bottom:6px">ROLE COVERAGE (actual / target)</div>
+        ${roles}
+      </div>
+      <div>
+        <div style="color:var(--dim);font-size:11px;letter-spacing:0.12em;margin-bottom:6px">SCORES &middot; WARNINGS</div>
+        <div style="font-size:11px;padding:3px 0"><span style="color:var(--dim);min-width:90px;display:inline-block">pairwise</span><span style="color:#81c784;font-family:monospace">${tfScore.pair.toFixed(3)}</span></div>
+        <div style="font-size:11px;padding:3px 0"><span style="color:var(--dim);min-width:90px;display:inline-block">coverage</span><span style="color:#81c784;font-family:monospace">${tfScore.coverage.toFixed(3)}</span></div>
+        <div style="font-size:11px;padding:3px 0"><span style="color:var(--dim);min-width:90px;display:inline-block">diversity</span><span style="color:#81c784;font-family:monospace">${tfScore.diversity.toFixed(3)}</span></div>
+        <div style="font-size:12px;padding:5px 0;border-top:1px solid var(--border);margin-top:6px"><span style="color:var(--accent);min-width:90px;display:inline-block">OVERALL</span><span style="color:#81c784;font-weight:bold;font-family:monospace">${tfScore.overall.toFixed(3)}</span></div>
+        <div style="margin-top:10px">${warnings}</div>
+      </div>
+    </div>
+  `;
+}
+const tfCanvas = document.getElementById('teamform-canvas');
+const tfCtx = tfCanvas.getContext('2d');
+function drawTeamForm() {
+  const W = 960, H = 380;
+  tfCtx.fillStyle = themeBg(); tfCtx.fillRect(0, 0, W, H);
+  // Left half: pool grid
+  tfCtx.fillStyle = '#dce4ed'; tfCtx.font = 'bold 12px monospace'; tfCtx.textAlign = 'left';
+  tfCtx.fillText('Candidate pool (12)', 20, 20);
+  const cols = 3, cellW = 140, cellH = 58;
+  const startX = 20, startY = 38;
+  tfPool.forEach((c, i) => {
+    const col = i % cols, row = Math.floor(i / cols);
+    const x = startX + col * cellW, y = startY + row * cellH;
+    // Dominant role determines color
+    const roleMax = TF_ROLES.reduce((a, k) => c.role[k] > c.role[a] ? k : a, 'visionary');
+    const colorMap = {visionary:'167,139,250', builder:'56,189,248', skeptic:'240,98,146', operator:'129,199,132', community:'246,211,92'};
+    const cc = colorMap[roleMax];
+    const inTeam = tfTeam.includes(c);
+    tfCtx.fillStyle = `rgba(${cc},${inTeam ? 0.9 : 0.25})`;
+    tfCtx.fillRect(x, y, cellW - 8, cellH - 8);
+    tfCtx.strokeStyle = inTeam ? `rgba(${cc},1)` : `rgba(${cc},0.5)`;
+    tfCtx.lineWidth = inTeam ? 2 : 1;
+    tfCtx.strokeRect(x, y, cellW - 8, cellH - 8);
+    tfCtx.fillStyle = inTeam ? '#fff' : '#dce4ed';
+    tfCtx.font = 'bold 11px monospace';
+    tfCtx.fillText(c.name, x + 6, y + 16);
+    tfCtx.fillStyle = inTeam ? 'rgba(255,255,255,0.85)' : '#aaa';
+    tfCtx.font = '9px monospace';
+    tfCtx.fillText(roleMax + ' ' + (c.role[roleMax] * 100 | 0) + '%', x + 6, y + 30);
+    tfCtx.fillText('tempo ' + (c.dims.tempo * 100 | 0) + ' · risk ' + (c.dims.risk * 100 | 0), x + 6, y + 42);
+    if (inTeam) {
+      tfCtx.fillStyle = '#fff'; tfCtx.font = 'bold 10px monospace';
+      tfCtx.fillText('✓', x + cellW - 22, y + 16);
+    }
+  });
+  // Right half: role coverage radar
+  const cx = W - 200, cy = 190, r = 120;
+  const req = tfReadRequired();
+  const pointAngle = i => -Math.PI / 2 + (i / TF_ROLES.length) * 2 * Math.PI;
+  // Radar frame
+  tfCtx.strokeStyle = 'rgba(140,150,170,0.25)';
+  [0.33, 0.66, 1.0].forEach(frac => {
+    tfCtx.beginPath();
+    TF_ROLES.forEach((k, i) => {
+      const a = pointAngle(i);
+      const px = cx + Math.cos(a) * r * frac;
+      const py = cy + Math.sin(a) * r * frac;
+      if (i === 0) tfCtx.moveTo(px, py); else tfCtx.lineTo(px, py);
+    });
+    tfCtx.closePath(); tfCtx.stroke();
+  });
+  // Spokes + labels
+  TF_ROLES.forEach((k, i) => {
+    const a = pointAngle(i);
+    tfCtx.strokeStyle = 'rgba(140,150,170,0.2)';
+    tfCtx.beginPath(); tfCtx.moveTo(cx, cy); tfCtx.lineTo(cx + Math.cos(a) * r, cy + Math.sin(a) * r); tfCtx.stroke();
+    tfCtx.fillStyle = '#dce4ed'; tfCtx.font = 'bold 10px monospace';
+    tfCtx.textAlign = 'center';
+    tfCtx.fillText(k, cx + Math.cos(a) * (r + 16), cy + Math.sin(a) * (r + 16) + 3);
+  });
+  // Target polygon (dotted)
+  tfCtx.strokeStyle = 'rgba(129,199,132,0.7)'; tfCtx.lineWidth = 1.5; tfCtx.setLineDash([4, 3]);
+  tfCtx.beginPath();
+  TF_ROLES.forEach((k, i) => {
+    const a = pointAngle(i);
+    const frac = Math.min(1, (req[k] || 0) * 3);  // scale for visibility
+    const px = cx + Math.cos(a) * r * frac;
+    const py = cy + Math.sin(a) * r * frac;
+    if (i === 0) tfCtx.moveTo(px, py); else tfCtx.lineTo(px, py);
+  });
+  tfCtx.closePath(); tfCtx.stroke();
+  tfCtx.setLineDash([]);
+  // Actual polygon (filled)
+  if (tfScore) {
+    const dist = {};
+    const sizeTotal = TF_ROLES.reduce((a, k) => a + (tfScore.totals[k] || 0), 0) || 1;
+    TF_ROLES.forEach(k => dist[k] = (tfScore.totals[k] || 0) / sizeTotal);
+    tfCtx.strokeStyle = 'rgba(79,195,247,0.95)'; tfCtx.lineWidth = 2;
+    tfCtx.fillStyle = 'rgba(79,195,247,0.2)';
+    tfCtx.beginPath();
+    TF_ROLES.forEach((k, i) => {
+      const a = pointAngle(i);
+      const frac = Math.min(1, dist[k] * 3);
+      const px = cx + Math.cos(a) * r * frac;
+      const py = cy + Math.sin(a) * r * frac;
+      if (i === 0) tfCtx.moveTo(px, py); else tfCtx.lineTo(px, py);
+    });
+    tfCtx.closePath(); tfCtx.fill(); tfCtx.stroke();
+  }
+  // Legend for radar
+  tfCtx.fillStyle = '#dce4ed'; tfCtx.font = 'bold 12px monospace'; tfCtx.textAlign = 'left';
+  tfCtx.fillText('Role coverage', cx - 75, 20);
+  tfCtx.font = '10px monospace'; tfCtx.textAlign = 'left';
+  tfCtx.strokeStyle = 'rgba(129,199,132,0.7)'; tfCtx.lineWidth = 1.5; tfCtx.setLineDash([4,3]);
+  tfCtx.beginPath(); tfCtx.moveTo(cx - 80, 40); tfCtx.lineTo(cx - 60, 40); tfCtx.stroke();
+  tfCtx.setLineDash([]); tfCtx.fillStyle = '#81c784'; tfCtx.fillText('target', cx - 56, 43);
+  tfCtx.fillStyle = 'rgba(79,195,247,0.8)'; tfCtx.fillRect(cx - 20, 34, 18, 10);
+  tfCtx.fillStyle = '#4fc3f7'; tfCtx.fillText('actual', cx + 2, 43);
+  requestAnimationFrame(drawTeamForm);
+}
+drawTeamForm();
 
 </script>
 </body>
