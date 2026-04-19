@@ -131,6 +131,7 @@ _PAGE = """\
       <div class="tab" data-panels="pool-tab oracle-tab queue-tab coldstart-tab confidence-tab ladder-tab vec-live-tab vec-kg-tab">Matchmaker</div>
       <div class="tab" data-panels="behavior-tab smurf-tab toxcascade-tab">Behavior</div>
       <div class="tab" data-panels="party-tab chemistry-tab draft-tab teamform-tab">Groups</div>
+      <div class="tab" data-panel="matchdecay-tab">Match Decay</div>
       <div class="tab" data-panels="crossgame-tab engagement-tab transparency-tab domain-tab">Beyond</div>
       <div class="tab" data-panel="pitch-tab">Pitch</div>
       <div class="tab" data-panel="products-tab">Products</div>
@@ -1028,6 +1029,74 @@ _PAGE = """\
     <a href="#" onclick="document.querySelector('[data-panel=chemistry-tab]').click();return false">Atria &rarr; Chemistry</a>
     (emergent synergy),
     <a href="#" onclick="document.querySelector('[data-panel=whypep-tab]').click();return false">Why PEP</a>.
+  </div>
+</div>
+</div>
+
+<!-- ═══ Match Decay — haze primitive applied to matching ══════ -->
+<div class="panel" id="matchdecay-tab">
+<div class="container">
+  <h2>Match Decay &mdash; People Change Faster Than Profiles Do</h2>
+  <p class="desc">
+    A pair matched two years ago that hasn't interacted in eighteen
+    months is no longer a current match &mdash; the people have changed,
+    the context has changed. If the matching pool treats the old match
+    as a live edge, new matches can't claim that slot and the graph
+    calcifies. This canvas applies PEP's haze primitive to match-level
+    state: every match carries opacity + half-life + interaction count;
+    below the reuse threshold a match slot is reclaimable unless it's
+    load-bearing (exclusive / heavily invested).
+  </p>
+  <div class="controls" style="flex-wrap:wrap">
+    <label style="display:flex;align-items:center;gap:8px">
+      <span>time forward:</span>
+      <input type="range" id="md-time" min="0" max="180" value="0" style="width:140px">
+      <span class="stat-val" id="md-time-val">0 d</span>
+    </label>
+    <label style="display:flex;align-items:center;gap:8px">
+      <span>reuse threshold:</span>
+      <input type="range" id="md-thresh" min="5" max="30" value="12" style="width:100px">
+      <span class="stat-val" id="md-thresh-val">0.12</span>
+    </label>
+    <button onclick="mdReinforceRandom()">reinforce random 5 matches</button>
+    <button onclick="mdReset()">reset pool</button>
+  </div>
+  <div class="canvas-box">
+    <canvas id="matchdecay-canvas" width="960" height="340"></canvas>
+  </div>
+  <div style="margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:14px">
+    <div id="md-archive" style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:14px 16px;min-height:220px">
+      <div style="color:#81c784;font-size:11px;letter-spacing:0.12em;margin-bottom:8px">RECLAIMABLE &mdash; safe to close</div>
+      <div style="color:var(--dim);font-size:12px">&mdash;</div>
+    </div>
+    <div id="md-stale" style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:14px 16px;min-height:220px">
+      <div style="color:#f06292;font-size:11px;letter-spacing:0.12em;margin-bottom:8px">LOAD-BEARING STALE &mdash; invested but cold</div>
+      <div style="color:var(--dim);font-size:12px">&mdash;</div>
+    </div>
+  </div>
+  <div class="info">
+    <b>What a dating / hiring / co-founder matching product gets.</b><br>
+    &bull; <b>Reclaimable match slots</b> &mdash; pairs that have gone
+    cold, freeing capacity for fresh matching. This is the mechanism
+    that keeps a mature platform from becoming a graveyard of stale
+    matches.<br>
+    &bull; <b>Load-bearing stale</b> &mdash; matches that are cold but
+    have real investment (exclusive relationships, long interaction
+    history). These should <em>not</em> be archived; they should be
+    surfaced back to the user for re-engagement or explicit closure.<br>
+    &bull; <b>Fresh-but-unreinforced</b> &mdash; new matches with zero
+    interactions. These are at risk of becoming stale without ever
+    producing a signal. Surface them for a nudge.<br><br>
+    <b>Why PEP.</b> This is primitive #5 (opacity + haze) applied to
+    the people-as-nodes substrate. Same math as Vectora's
+    <a href="/vectora#orgopacity-tab">Org Opacity</a>
+    and Axona's <a href="/axona#haze-tab">Memory Haze</a> &mdash;
+    different substrate, identical mechanism. The module
+    <code>pep.atria.match_decay</code> is the engine.<br><br>
+    <b>See also:</b>
+    <a href="#" onclick="document.querySelector('[data-panel=teamform-tab]').click();return false">Atria &rarr; Team Formation</a>,
+    <a href="#" onclick="document.querySelector('[data-panel=whypep-tab]').click();return false">Why PEP</a>,
+    <a href="/vectora#orgopacity-tab">Vectora &rarr; Org Opacity</a>.
   </div>
 </div>
 </div>
@@ -4547,6 +4616,148 @@ function drawTeamForm() {
   requestAnimationFrame(drawTeamForm);
 }
 drawTeamForm();
+
+// ═══════════════════════════════════════════════════════════════════════
+// Match Decay — mirrors pep.atria.match_decay in the browser
+// ═══════════════════════════════════════════════════════════════════════
+let mdRngState = 7;
+function mdRng() { mdRngState = (mdRngState * 1664525 + 1013904223) % 4294967296; return mdRngState / 4294967296; }
+function mdExp(mean) { return -Math.log(1 - mdRng()) * mean; }
+let mdPool = [];
+function mdBuildPool(n) {
+  mdRngState = 7;
+  const pool = [];
+  for (let i = 0; i < n; i++) {
+    const mix = mdRng();
+    let age;
+    if (mix < 0.4) age = mdExp(30);
+    else if (mix < 0.8) age = mdExp(120);
+    else age = mdExp(400);
+    age = Math.min(age, 2 * 365);
+    const strength = 0.7 + mdRng() * 0.3;
+    const exclusive = mdRng() < 0.08;
+    let interactions;
+    if (exclusive) interactions = 12 + Math.floor(mdRng() * 28);
+    else if (age < 30) interactions = 1 + Math.floor(mdRng() * 7);
+    else interactions = Math.floor(mdRng() * 4);
+    const halfLife = [40, 60, 90][Math.floor(mdRng() * 3)];
+    pool.push({
+      id: 'm-' + String(i).padStart(4,'0'),
+      userA: 'u-' + String((i * 7) % 100).padStart(3,'0'),
+      userB: 'u-' + String((i * 11 + 3) % 100).padStart(3,'0'),
+      strength, age, halfLife, interactions, exclusive,
+    });
+  }
+  return pool;
+}
+function mdEffective(m, t) {
+  const total = Math.max(0, m.age + t);
+  return Math.max(0.03, m.strength * Math.pow(0.5, total / m.halfLife));
+}
+function mdLoadBearing(m) { return m.exclusive || m.interactions >= 12; }
+function mdTime() { return parseFloat(document.getElementById('md-time').value); }
+function mdThresh() { return parseFloat(document.getElementById('md-thresh').value) / 100; }
+function mdReport() {
+  const t = mdTime(), th = mdThresh();
+  const hist = new Array(10).fill(0);
+  let recl = 0, fresh = 0, freshU = 0;
+  const arch = [], stale = [];
+  mdPool.forEach(m => {
+    const s = mdEffective(m, t);
+    hist[Math.min(9, Math.floor(s * 10))]++;
+    if (s < th) {
+      recl++;
+      if (mdLoadBearing(m)) stale.push({ m, s }); else arch.push({ m, s });
+    } else {
+      fresh++; if (m.interactions === 0) freshU++;
+    }
+  });
+  arch.sort((a, b) => a.s - b.s);
+  stale.sort((a, b) => (b.m.interactions - a.m.interactions) || (a.s - b.s));
+  return { hist, reclaimable: recl, arch, stale, fresh, freshU, total: mdPool.length };
+}
+function mdReinforceRandom() {
+  for (let i = 0; i < 5; i++) {
+    const idx = Math.floor(Math.random() * mdPool.length);
+    const m = mdPool[idx];
+    const cur = mdEffective(m, mdTime());
+    m.strength = Math.min(1, cur + 0.5);
+    m.age = -mdTime();
+    m.interactions++;
+  }
+  pepSend('matchdecay.reinforce', {});
+}
+function mdReset() {
+  mdPool = mdBuildPool(80);
+  document.getElementById('md-time').value = 0;
+  document.getElementById('md-time-val').textContent = '0 d';
+}
+['md-time','md-thresh'].forEach(id => {
+  const el = document.getElementById(id); if (!el) return;
+  el.addEventListener('input', (e) => {
+    const v = parseFloat(e.target.value);
+    const out = document.getElementById(id + '-val');
+    if (!out) return;
+    out.textContent = id === 'md-thresh' ? (v / 100).toFixed(2) : v + ' d';
+  });
+});
+mdPool = mdBuildPool(80);
+const mdCanvas = document.getElementById('matchdecay-canvas');
+const mdCtx = mdCanvas.getContext('2d');
+function mdEsc(s) { return String(s).replace(/</g,'&lt;'); }
+function mdRenderLists(rep) {
+  const arch = document.getElementById('md-archive');
+  const stale = document.getElementById('md-stale');
+  const archRows = rep.arch.slice(0, 8).map(x =>
+    `<div style="display:flex;gap:10px;align-items:center;padding:4px 0;font-size:11px;border-bottom:1px solid rgba(255,255,255,0.04)"><span style="color:#81c784;min-width:44px;font-family:monospace">${x.s.toFixed(3)}</span><span style="color:var(--text);min-width:60px">${mdEsc(x.m.id)}</span><span style="color:var(--dim)">${mdEsc(x.m.userA)} ↔ ${mdEsc(x.m.userB)}</span><span style="color:var(--dim);margin-left:auto">${x.m.interactions} interact</span></div>`
+  ).join('');
+  arch.innerHTML = `<div style="color:#81c784;font-size:11px;letter-spacing:0.12em;margin-bottom:8px">RECLAIMABLE &middot; ${rep.arch.length} total &middot; showing top 8</div>${archRows || '<div style="color:var(--dim);font-size:12px;padding:30px 0;text-align:center">nothing reclaimable yet</div>'}`;
+  const staleRows = rep.stale.slice(0, 8).map(x =>
+    `<div style="display:flex;gap:10px;align-items:center;padding:4px 0;font-size:11px;border-bottom:1px solid rgba(255,255,255,0.04)"><span style="color:#f06292;min-width:44px;font-family:monospace">${x.s.toFixed(3)}</span><span style="color:var(--text);min-width:60px">${mdEsc(x.m.id)}</span><span style="color:var(--dim)">${mdEsc(x.m.userA)} ↔ ${mdEsc(x.m.userB)}</span><span style="color:${x.m.exclusive ? '#e879f9' : 'var(--dim)'};margin-left:auto">${x.m.exclusive ? 'EXCL · ' : ''}${x.m.interactions} interact</span></div>`
+  ).join('');
+  stale.innerHTML = `<div style="color:#f06292;font-size:11px;letter-spacing:0.12em;margin-bottom:8px">LOAD-BEARING STALE &middot; ${rep.stale.length} total</div>${staleRows || '<div style="color:var(--dim);font-size:12px;padding:30px 0;text-align:center">no invested matches are cold (healthy)</div>'}`;
+}
+function drawMatchDecay() {
+  const W = 960, H = 340;
+  mdCtx.fillStyle = themeBg(); mdCtx.fillRect(0, 0, W, H);
+  const rep = mdReport();
+  const padL = 60, padR = 20, padT = 48, padB = 60;
+  const plotW = W - padL - padR, plotH = H - padT - padB;
+  const maxCount = Math.max(1, ...rep.hist);
+  rep.hist.forEach((c, i) => {
+    const bw = plotW / 10;
+    const bh = (c / maxCount) * plotH;
+    const x = padL + i * bw + bw * 0.1;
+    const y = padT + plotH - bh;
+    const w = bw * 0.8;
+    const bucketMid = (i + 0.5) / 10;
+    const inReuse = bucketMid < mdThresh();
+    mdCtx.fillStyle = inReuse ? 'rgba(240,98,146,0.85)' : `rgba(129,199,132,${(0.3 + bucketMid * 0.5).toFixed(3)})`;
+    mdCtx.fillRect(x, y, w, bh);
+    mdCtx.fillStyle = '#aaa'; mdCtx.font = '10px monospace'; mdCtx.textAlign = 'center';
+    if (c > 0) mdCtx.fillText(String(c), x + w / 2, y - 4);
+    mdCtx.fillText(((i) / 10).toFixed(1) + '-' + ((i + 1) / 10).toFixed(1), x + w / 2, padT + plotH + 14);
+  });
+  const thX = padL + (mdThresh() * 10) * (plotW / 10);
+  mdCtx.strokeStyle = 'rgba(248, 113, 113, 0.7)'; mdCtx.setLineDash([4, 4]);
+  mdCtx.lineWidth = 1.5;
+  mdCtx.beginPath(); mdCtx.moveTo(thX, padT); mdCtx.lineTo(thX, padT + plotH); mdCtx.stroke();
+  mdCtx.setLineDash([]);
+  mdCtx.fillStyle = '#f87171'; mdCtx.font = 'bold 10px monospace'; mdCtx.textAlign = 'left';
+  mdCtx.fillText('← reuse threshold', thX + 6, padT + 10);
+  const pct = rep.total ? (100 * rep.reclaimable / rep.total).toFixed(1) : '0.0';
+  mdCtx.fillStyle = '#dce4ed'; mdCtx.font = 'bold 13px monospace'; mdCtx.textAlign = 'left';
+  mdCtx.fillText(`${rep.reclaimable} of ${rep.total} match slots reclaimable  (${pct}%)`, padL, 22);
+  mdCtx.fillStyle = '#aaa'; mdCtx.font = '11px monospace'; mdCtx.textAlign = 'right';
+  mdCtx.fillText(`fresh: ${rep.fresh}  ·  unreinforced-fresh: ${rep.freshU}  (at risk of going cold)`, W - 20, 22);
+  mdCtx.fillStyle = '#aaa'; mdCtx.font = '10px monospace'; mdCtx.textAlign = 'left';
+  mdCtx.fillText('match count', 20, padT + 4);
+  mdCtx.textAlign = 'center';
+  mdCtx.fillText('match strength bucket', padL + plotW / 2, H - 8);
+  mdRenderLists(rep);
+  requestAnimationFrame(drawMatchDecay);
+}
+drawMatchDecay();
 
 </script>
 </body>
