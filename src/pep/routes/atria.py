@@ -132,6 +132,7 @@ _PAGE = """\
       <div class="tab" data-panels="behavior-tab smurf-tab toxcascade-tab">Behavior</div>
       <div class="tab" data-panels="party-tab chemistry-tab draft-tab teamform-tab">Groups</div>
       <div class="tab" data-panel="matchdecay-tab">Match Decay</div>
+      <div class="tab" data-panel="mentor-tab">Mentor Match</div>
       <div class="tab" data-panels="crossgame-tab engagement-tab transparency-tab domain-tab">Beyond</div>
       <div class="tab" data-panel="pitch-tab">Pitch</div>
       <div class="tab" data-panel="products-tab">Products</div>
@@ -1028,6 +1029,64 @@ _PAGE = """\
     (gaming team formation),
     <a href="#" onclick="document.querySelector('[data-panel=chemistry-tab]').click();return false">Atria &rarr; Chemistry</a>
     (emergent synergy),
+    <a href="#" onclick="document.querySelector('[data-panel=whypep-tab]').click();return false">Why PEP</a>.
+  </div>
+</div>
+</div>
+
+<!-- ═══ Mentor Match — asymmetric compatibility scoring ═══════ -->
+<div class="panel" id="mentor-tab">
+<div class="container">
+  <h2>Mentor Match &mdash; Directed Edges, Asymmetric Compatibility</h2>
+  <p class="desc">
+    Dating and hiring are symmetric: A-fit-for-B has the same structure
+    as B-fit-for-A. Mentorship is not. A senior mentor might be an
+    incredible fit for a junior engineer in the abstract &mdash; but the
+    junior isn't a fit for the mentor if the mentor has no bandwidth or
+    finds early-career questions draining. Atria's existing scorer is
+    symmetric; this vertical extends the engine with <em>directed</em>
+    edges: mentor-fit-for-mentee and mentee-fit-for-mentor are scored
+    separately. Both have to be above threshold for the match to be
+    viable. The combinator flagged this as a non-obvious wedge because
+    no commercial mentorship platform scores the second direction.
+  </p>
+  <div class="controls" style="flex-wrap:wrap">
+    <label style="display:flex;align-items:center;gap:8px">
+      <span>min viable:</span>
+      <input type="range" id="mm-threshold" min="30" max="70" value="40" style="width:120px">
+      <span class="stat-val" id="mm-threshold-val">0.40</span>
+    </label>
+    <button onclick="mmOptimize()">Optimize assignments</button>
+    <button onclick="mmReshuffle()">New pool</button>
+  </div>
+  <div class="canvas-box">
+    <canvas id="mentor-canvas" width="960" height="460"></canvas>
+  </div>
+  <div id="mm-output" style="margin-top:14px;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:14px 16px;min-height:220px">
+    <div style="color:var(--dim);font-size:12px;padding:30px 0;text-align:center">click Optimize assignments to see the pairings</div>
+  </div>
+  <div class="info">
+    <b>What you are watching.</b> Left grid: 8 mentors (rows) &times; 12
+    mentees (columns). Each cell is the balanced score (harmonic combo
+    of the two directions). Brighter = better. Dashed cells are
+    non-viable &mdash; at least one direction is below threshold, so the
+    pair shouldn't match. Right panel: per-mentor assignment list after
+    greedy bandwidth-constrained optimization, with both directional
+    scores shown separately.<br><br>
+    <b>Why the two-direction scoring matters.</b> A pair can score 0.8
+    mentor-to-mentee and 0.3 mentee-to-mentor. The symmetric scorer
+    averages to 0.55 — matched. But the mentor quickly disengages,
+    stops scheduling, the mentee gets confused. PEP's directed-edge
+    scoring sees the 0.3 side directly and flags it before the match
+    is made.<br><br>
+    <b>Engine module:</b> <code>pep.atria.mentor_match</code> —
+    Mentor, Mentee, score_mentor_to_mentee, score_mentee_to_mentor,
+    pair_score, optimize_pool.<br>
+    <b>See also:</b>
+    <a href="#" onclick="document.querySelector('[data-panel=teamform-tab]').click();return false">Atria &rarr; Team Formation</a>
+    (group-level extension),
+    <a href="#" onclick="document.querySelector('[data-panel=oracle-tab]').click();return false">Atria &rarr; Rematch Oracle</a>
+    (residual-scoring on match outcomes),
     <a href="#" onclick="document.querySelector('[data-panel=whypep-tab]').click();return false">Why PEP</a>.
   </div>
 </div>
@@ -4758,6 +4817,210 @@ function drawMatchDecay() {
   requestAnimationFrame(drawMatchDecay);
 }
 drawMatchDecay();
+
+// ═══════════════════════════════════════════════════════════════════════
+// Mentor Match — mirrors pep.atria.mentor_match in the browser
+// ═══════════════════════════════════════════════════════════════════════
+const MM_FOCUS = ['engineering','product','design','research','ops','career-navigation','management','communication','entrepreneurship'];
+const MM_STAGES = ['intern','junior','mid','senior','staff','principal','exec'];
+const MM_STAGE_IDX = Object.fromEntries(MM_STAGES.map((s,i)=>[s,i]));
+const MM_MENTOR_NAMES = ['Priya','Wen','Sofía','Ade','Noor','Mikkel','Kenji','Rhea'];
+const MM_MENTEE_NAMES = ['Ari','Jo','Tali','Max','Yui','Dev','Nia','Sam','Rin','Ezra','Kaia','Ode'];
+let mmRngS = 21;
+function mmR() { mmRngS = (mmRngS * 1664525 + 1013904223) % 4294967296; return mmRngS / 4294967296; }
+function mmPickN(arr, n, rng) {
+  const copy = arr.slice(); const out = [];
+  while (out.length < n && copy.length) out.push(copy.splice(Math.floor(rng() * copy.length), 1)[0]);
+  return out;
+}
+function mmBuildMentors() {
+  mmRngS = 21;
+  return MM_MENTOR_NAMES.map((name, i) => {
+    const stage = ['senior','staff','principal','exec'][Math.floor(mmR()*4)];
+    const focus = {}; MM_FOCUS.forEach(k => focus[k] = +(mmR() * 0.4).toFixed(3));
+    mmPickN(MM_FOCUS, 2, mmR).forEach(k => focus[k] = +(0.7 + mmR() * 0.3).toFixed(3));
+    return {
+      id: 'mentor-' + String(i).padStart(2,'0'), name, stage, focus,
+      teachStyle: +mmR().toFixed(3),
+      maxMentees: [2,3,3,4][Math.floor(mmR()*4)],
+      energy: +(0.4 + mmR() * 0.6).toFixed(3),
+      minGap: [2,2,3][Math.floor(mmR()*3)],
+    };
+  });
+}
+function mmBuildMentees() {
+  mmRngS = 31;
+  return MM_MENTEE_NAMES.map((name, i) => {
+    const stage = ['intern','junior','mid','senior'][Math.floor(mmR()*4)];
+    const focus = {}; MM_FOCUS.forEach(k => focus[k] = +(mmR() * 0.3).toFixed(3));
+    mmPickN(MM_FOCUS, 2, mmR).forEach(k => focus[k] = +(0.6 + mmR() * 0.4).toFixed(3));
+    return {
+      id: 'mentee-' + String(i).padStart(2,'0'), name, stage, focus,
+      learnStyle: +mmR().toFixed(3),
+      readiness: +(0.3 + mmR() * 0.7).toFixed(3),
+      cadence: +mmR().toFixed(3),
+    };
+  });
+}
+let mmMentors = mmBuildMentors();
+let mmMentees = mmBuildMentees();
+function mmFocusOverlap(a, b) {
+  let dot = 0, na = 0, nb = 0;
+  MM_FOCUS.forEach(k => { dot += (a[k]||0) * (b[k]||0); na += (a[k]||0) ** 2; nb += (b[k]||0) ** 2; });
+  return dot / (Math.sqrt(na * nb) || 1);
+}
+function mmGap(m, e) { return MM_STAGE_IDX[m.stage] - MM_STAGE_IDX[e.stage]; }
+function mmScoreM2E(m, e) {
+  const focus = mmFocusOverlap(m.focus, e.focus);
+  const g = mmGap(m, e);
+  let stageFit;
+  if (g <= 0) stageFit = 0.1;
+  else if (g === 1) stageFit = 0.55;
+  else if (g <= 3) stageFit = 1.0;
+  else if (g <= 5) stageFit = 0.7;
+  else stageFit = 0.45;
+  const style = 1.0 - Math.abs(m.teachStyle - e.learnStyle) * 0.8;
+  return Math.max(0, Math.min(1, 0.5*focus + 0.3*stageFit + 0.2*style));
+}
+function mmScoreE2M(e, m) {
+  const focus = mmFocusOverlap(m.focus, e.focus);
+  const g = mmGap(m, e);
+  let gapFit;
+  if (g < m.minGap) gapFit = 0.15;
+  else if (g <= m.minGap + 3) gapFit = 1.0;
+  else gapFit = 0.55;
+  const readiness = e.readiness;
+  const energy = m.energy;
+  const cadenceGap = Math.abs(e.cadence - 0.5);
+  const cadence = Math.max(0, 1 - cadenceGap * 1.3);
+  return Math.max(0, Math.min(1, 0.30*focus + 0.25*gapFit + 0.20*readiness + 0.15*energy + 0.10*cadence));
+}
+function mmPair(m, e) {
+  const m2e = mmScoreM2E(m, e);
+  const e2m = mmScoreE2M(e, m);
+  const prod = m2e * e2m;
+  const bal = (m2e + e2m) > 0 ? 2 * prod / (m2e + e2m) : 0;
+  const thr = parseFloat(document.getElementById('mm-threshold').value) / 100;
+  return { m2e, e2m, balanced: bal, viable: m2e > thr && e2m > thr };
+}
+let mmAssign = [];
+function mmOptimize() {
+  const scored = [];
+  mmMentors.forEach(m => mmMentees.forEach(e => {
+    const s = mmPair(m, e);
+    if (s.viable) scored.push({ m, e, s });
+  }));
+  scored.sort((a, b) => b.s.balanced - a.s.balanced);
+  const load = {}; const usedMentees = new Set();
+  const out = [];
+  scored.forEach(x => {
+    if (usedMentees.has(x.e.id)) return;
+    if ((load[x.m.id] || 0) >= x.m.maxMentees) return;
+    load[x.m.id] = (load[x.m.id] || 0) + 1;
+    usedMentees.add(x.e.id);
+    out.push(x);
+  });
+  mmAssign = out;
+  mmRenderOutput();
+  pepSend('mentormatch.optimize', { assignments: out.length });
+}
+function mmReshuffle() {
+  mmMentors = mmBuildMentors().map(m => ({...m, teachStyle: Math.random(), energy: 0.4 + Math.random() * 0.6}));
+  mmMentees = mmBuildMentees().map(e => ({...e, learnStyle: Math.random(), readiness: 0.3 + Math.random() * 0.7, cadence: Math.random()}));
+  mmAssign = [];
+  document.getElementById('mm-output').innerHTML =
+    '<div style="color:var(--dim);font-size:12px;padding:30px 0;text-align:center">new pool — click Optimize assignments</div>';
+}
+function mmEsc(s) { return String(s).replace(/</g,'&lt;'); }
+function mmRenderOutput() {
+  if (!mmAssign.length) {
+    document.getElementById('mm-output').innerHTML =
+      '<div style="color:var(--dim);font-size:12px;padding:30px 0;text-align:center">no viable pairs above threshold — try lowering min viable</div>';
+    return;
+  }
+  const unpaired = mmMentees.filter(e => !mmAssign.find(a => a.e.id === e.id));
+  const idle = mmMentors.filter(m => !mmAssign.find(a => a.m.id === m.id));
+  const rows = mmAssign.map(a => {
+    const m2eCol = a.s.m2e > 0.65 ? '#81c784' : a.s.m2e > 0.45 ? '#f6d35c' : '#f06292';
+    const e2mCol = a.s.e2m > 0.65 ? '#81c784' : a.s.e2m > 0.45 ? '#f6d35c' : '#f06292';
+    return `<div style="display:grid;grid-template-columns:100px 100px 80px 80px 80px;gap:10px;padding:5px 0;font-size:11px;align-items:center;border-bottom:1px solid rgba(255,255,255,0.04)">
+      <span style="color:var(--text);font-weight:bold">${mmEsc(a.m.name)}</span>
+      <span style="color:var(--text)">${mmEsc(a.e.name)}</span>
+      <span style="color:${m2eCol};font-family:monospace">M→E ${a.s.m2e.toFixed(2)}</span>
+      <span style="color:${e2mCol};font-family:monospace">E→M ${a.s.e2m.toFixed(2)}</span>
+      <span style="color:#4fc3f7;font-family:monospace">bal ${a.s.balanced.toFixed(2)}</span>
+    </div>`;
+  }).join('');
+  const unpairedStr = unpaired.length
+    ? `<div style="margin-top:10px;color:var(--dim);font-size:11px">Unmatched mentees (no viable mentor): ${unpaired.map(e => mmEsc(e.name)).join(', ')}</div>`
+    : '<div style="margin-top:10px;color:#81c784;font-size:11px">All mentees matched.</div>';
+  const idleStr = idle.length
+    ? `<div style="color:var(--dim);font-size:11px">Idle mentors (no viable mentee): ${idle.map(m => mmEsc(m.name)).join(', ')}</div>`
+    : '';
+  document.getElementById('mm-output').innerHTML = `
+    <div style="color:var(--dim);font-size:11px;letter-spacing:0.12em;margin-bottom:8px">ASSIGNMENTS &middot; ${mmAssign.length} viable pairings</div>
+    <div style="display:grid;grid-template-columns:100px 100px 80px 80px 80px;gap:10px;padding:4px 0;border-bottom:1px solid var(--border);font-size:10px;color:var(--dim);letter-spacing:0.08em">
+      <span>MENTOR</span><span>MENTEE</span><span>MENTOR→MENTEE</span><span>MENTEE→MENTOR</span><span>BALANCED</span>
+    </div>
+    ${rows}
+    ${unpairedStr}
+    ${idleStr}
+  `;
+}
+document.getElementById('mm-threshold').addEventListener('input', (e) => {
+  document.getElementById('mm-threshold-val').textContent = (parseInt(e.target.value)/100).toFixed(2);
+});
+const mmCanvas = document.getElementById('mentor-canvas');
+const mmCtx = mmCanvas.getContext('2d');
+function drawMentorMatch() {
+  const W = 960, H = 460;
+  mmCtx.fillStyle = themeBg(); mmCtx.fillRect(0, 0, W, H);
+  const padL = 120, padT = 60;
+  const cellW = 55, cellH = 36;
+  // Header labels (mentees on top)
+  mmMentees.forEach((e, i) => {
+    mmCtx.fillStyle = '#aaa'; mmCtx.font = '10px monospace'; mmCtx.textAlign = 'center';
+    mmCtx.fillText(e.name, padL + (i + 0.5) * cellW, padT - 24);
+    mmCtx.fillStyle = '#778'; mmCtx.font = '8px monospace';
+    mmCtx.fillText(e.stage, padL + (i + 0.5) * cellW, padT - 12);
+  });
+  // Row labels (mentors on left) and cells
+  mmMentors.forEach((m, r) => {
+    mmCtx.fillStyle = '#dce4ed'; mmCtx.font = 'bold 10px monospace'; mmCtx.textAlign = 'right';
+    mmCtx.fillText(m.name, padL - 8, padT + r * cellH + cellH * 0.6);
+    mmCtx.fillStyle = '#778'; mmCtx.font = '8px monospace';
+    mmCtx.fillText(m.stage + ' · cap ' + m.maxMentees, padL - 8, padT + r * cellH + cellH * 0.6 + 11);
+    mmMentees.forEach((e, c) => {
+      const s = mmPair(m, e);
+      const x = padL + c * cellW, y = padT + r * cellH;
+      // Cell background by balanced score
+      const alpha = 0.1 + s.balanced * 0.8;
+      const col = s.viable ? `rgba(79,195,247,${alpha.toFixed(3)})` : `rgba(120,120,120,0.12)`;
+      mmCtx.fillStyle = col;
+      mmCtx.fillRect(x + 1, y + 1, cellW - 2, cellH - 2);
+      // Dashed border if non-viable
+      if (!s.viable) {
+        mmCtx.strokeStyle = 'rgba(248,113,113,0.4)'; mmCtx.setLineDash([3, 3]); mmCtx.lineWidth = 1;
+        mmCtx.strokeRect(x + 1, y + 1, cellW - 2, cellH - 2);
+        mmCtx.setLineDash([]);
+      }
+      // Assignment marker
+      if (mmAssign.find(a => a.m.id === m.id && a.e.id === e.id)) {
+        mmCtx.strokeStyle = '#81c784'; mmCtx.lineWidth = 2;
+        mmCtx.strokeRect(x + 1, y + 1, cellW - 2, cellH - 2);
+      }
+      // Score text
+      mmCtx.fillStyle = s.balanced > 0.5 ? '#fff' : '#aaa';
+      mmCtx.font = '9px monospace'; mmCtx.textAlign = 'center';
+      mmCtx.fillText(s.balanced.toFixed(2), x + cellW / 2, y + cellH / 2 + 3);
+    });
+  });
+  // Title
+  mmCtx.fillStyle = '#dce4ed'; mmCtx.font = 'bold 12px monospace'; mmCtx.textAlign = 'left';
+  mmCtx.fillText('Balanced score per pair  (green outline = assigned, red dashed = non-viable)', 20, 30);
+  requestAnimationFrame(drawMentorMatch);
+}
+drawMentorMatch();
 
 </script>
 </body>
