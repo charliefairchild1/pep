@@ -123,7 +123,7 @@ _PAGE = """\
     <div class="tabs" id="tabs">
       <div class="tab active" data-panel="home-tab">Home</div>
       <div class="tab" data-panels="keyword-tab embed-tab rerank-tab multihop-tab context-tab">Retrieval</div>
-      <div class="tab" data-panels="kg-tab anomaly-tab orgopacity-tab">Structure</div>
+      <div class="tab" data-panels="kg-tab anomaly-tab orgopacity-tab contradict-tab">Structure</div>
       <div class="tab" data-panel="rag-tab">Pipeline</div>
       <div class="tab" data-panels="pitch-tab bench-tab">Pitch</div>
       <div class="tab" data-panel="products-tab">Products</div>
@@ -452,6 +452,73 @@ _PAGE = """\
     <a href="#" onclick="canvasSelect('whypep-tab');return false">Why PEP</a>,
     <a href="/axona#haze-tab">Axona &rarr; Memory Haze</a> (same
     primitive, episodic-memory substrate).
+  </div>
+</div>
+</div>
+
+<!-- ═══ Contradiction Surfacing ═════════════════════════════════ -->
+<div class="panel" id="contradict-tab">
+<div class="container">
+  <h2>Contradiction Surfacing &mdash; Two Live Docs That Disagree</h2>
+  <p class="desc">
+    Classic RAG failure: a query returns top-k similar documents, two
+    of which assert mutually incompatible things. The LLM picks one at
+    random (or hallucinates a reconciliation) and the user gets a wrong
+    answer without any flag. This canvas runs contradiction detection
+    across a 12-doc curated policy corpus &mdash; numerical mismatches,
+    polarity flips (permit vs prohibit), and exemption carve-outs that
+    collide with requirements. Residual scoring on document pairs.
+  </p>
+  <div class="controls" style="flex-wrap:wrap">
+    <label style="display:flex;align-items:center;gap:8px">
+      <span>topic overlap min:</span>
+      <input type="range" id="cd-overlap" min="3" max="25" value="8" style="width:100px">
+      <span class="stat-val" id="cd-overlap-val">0.08</span>
+    </label>
+    <label style="display:flex;align-items:center;gap:8px">
+      <span>min confidence:</span>
+      <input type="range" id="cd-conf" min="30" max="85" value="50" style="width:100px">
+      <span class="stat-val" id="cd-conf-val">0.50</span>
+    </label>
+    <button onclick="cdScan()">Scan for contradictions</button>
+  </div>
+  <div id="cd-results" style="margin-top:14px">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:24px;text-align:center;color:var(--dim);font-size:12px">
+      click Scan to find contradictions in the simulated policy corpus
+    </div>
+  </div>
+  <div class="info">
+    <b>What the detector flags.</b><br>
+    &bull; <b>Numerical contradictions</b> &mdash; same unit, different
+    value. "Remote work 3 days/week" vs "Ops must be in-office 4
+    days/week" &mdash; different docs, different teams, same domain,
+    incompatible values.<br>
+    &bull; <b>Polarity contradictions</b> &mdash; same topic, opposite
+    direction. "Sabbaticals are permitted" vs "Sabbaticals are not
+    offered."<br>
+    &bull; <b>Exemption contradictions</b> &mdash; one doc requires,
+    another exempts. "All engineers must rotate on-call" vs "Platform
+    is exempt."<br><br>
+    <b>Resolution hints.</b> For each contradiction, the engine
+    suggests a precedence rule: newer-wins (by version_date),
+    authority-wins (by formal policy weight), or flag-for-human-review
+    when no clear winner exists. The UI surfaces this as the
+    <em>suggested next step</em> for the compliance / KM lead.<br><br>
+    <b>Why PEP.</b> This is the predictor + residual primitive (#3)
+    applied to pairs of retrieved documents: the gap between two
+    retrieved assertions IS the residual. Same math as Strata's
+    unusual-score formula, Axona's prediction-error canvases, and
+    Lingora's garden-path residual &mdash; different substrate
+    (document pairs instead of asset returns or sentence predictions).<br><br>
+    <b>Engine module:</b> <code>pep.vectora.contradiction</code>
+    &mdash; PolicyDoc, detect(), extract_values, polarity,
+    SAMPLE_CORPUS.<br>
+    <b>See also:</b>
+    <a href="#" onclick="canvasSelect('anomaly-tab');return false">Anomaly Detection</a>
+    (same primitive, single-doc scope),
+    <a href="#" onclick="canvasSelect('orgopacity-tab');return false">Org Opacity</a>
+    (haze, corpus-wide),
+    <a href="#" onclick="canvasSelect('whypep-tab');return false">Why PEP</a>.
   </div>
 </div>
 </div>
@@ -1770,6 +1837,154 @@ function drawOrgOpacity() {
   requestAnimationFrame(drawOrgOpacity);
 }
 drawOrgOpacity();
+
+// ═══════════════════════════════════════════════════════════════════════
+// Contradiction Surfacing — mirrors pep.vectora.contradiction in browser
+// ═══════════════════════════════════════════════════════════════════════
+const CD_CORPUS = [
+  { id:'p-001', title:'Remote Work Policy v2.3', body:'All employees are permitted to work remotely up to 3 days per week. Teams may set tighter limits by mutual agreement.', team:'hr', versionDate:'2025-11-12', authority:0.85 },
+  { id:'p-002', title:'In-Office Expectations (Ops)', body:'Ops staff must be in-office 4 days per week. This applies to the entire Ops organization.', team:'ops', versionDate:'2024-06-01', authority:0.65 },
+  { id:'p-003', title:'Vacation Policy', body:'Employees may take up to 20 vacation days per year. Sabbaticals are permitted after 5 years of service.', team:'hr', versionDate:'2025-01-15', authority:0.9 },
+  { id:'p-004', title:'Leave Handbook (Finance)', body:'Finance employees may take 15 vacation days per year. Sabbaticals are not offered at this time.', team:'finance', versionDate:'2023-04-22', authority:0.55 },
+  { id:'p-005', title:'Production Deploy Review', body:'All production deploys must undergo security review before release. No exceptions for any team.', team:'security', versionDate:'2025-08-30', authority:0.95 },
+  { id:'p-006', title:'Hotfix Deployment Guide', body:'Hotfix deploys are exempt from the standard security review gate to allow rapid remediation of critical issues.', team:'platform', versionDate:'2024-03-18', authority:0.6 },
+  { id:'p-007', title:'On-Call Rotation Policy', body:'All engineers are required to participate in the on-call rotation. Rotation duration is 1 week.', team:'platform', versionDate:'2025-09-01', authority:0.8 },
+  { id:'p-008', title:'Platform Team On-Call', body:'The Platform team is exempt from the standard on-call rotation and runs its own 2-week rotation.', team:'platform', versionDate:'2025-09-02', authority:0.8 },
+  { id:'p-009', title:'Fiscal Year (Legacy)', body:'The fiscal year begins on April 1 and ends March 31 of the following year.', team:'finance', versionDate:'2022-02-10', authority:0.5 },
+  { id:'p-010', title:'Fiscal Year Change (Post-Reorg)', body:'Effective January 2025, the fiscal year begins on January 1 and aligns with the calendar year.', team:'finance', versionDate:'2024-11-01', authority:0.9 },
+  { id:'p-011', title:'Code Review Requirements', body:'All merges to main require at least 2 approvals from code owners. Direct commits are prohibited.', team:'eng', versionDate:'2025-10-05', authority:0.85 },
+  { id:'p-012', title:'Emergency Merge Procedure', body:'During declared incidents, single-approval merges are permitted to accelerate remediation.', team:'eng', versionDate:'2024-07-20', authority:0.6 },
+];
+const CD_STOP = new Set(['the','a','an','is','are','was','were','be','been','being','to','of','and','or','but','in','on','at','for','with','from','by','this','that','these','those','it','its','as','all','any','some','every','each','other','have','has','had','will','shall','may','can','not','no','do','does','did']);
+function cdTokens(t) {
+  return (t.match(/[a-zA-Z][a-zA-Z\-]+/g) || []).map(w => w.toLowerCase()).filter(w => w.length > 3 && !CD_STOP.has(w));
+}
+function cdTopicOverlap(a, b) {
+  const ta = new Set(cdTokens(a.body + ' ' + a.title));
+  const tb = new Set(cdTokens(b.body + ' ' + b.title));
+  const shared = [...ta].filter(x => tb.has(x));
+  if (!ta.size || !tb.size) return { overlap: 0, shared: [] };
+  const union = new Set([...ta, ...tb]);
+  return { overlap: shared.length / union.size, shared: shared.sort((a, b) => b.length - a.length).slice(0, 6) };
+}
+function cdExtractValues(body) {
+  const out = [];
+  const re = /(\d+(?:\.\d+)?)\s*(%|percent|days?|weeks?|months?|years?|hours?)/gi;
+  let m;
+  while ((m = re.exec(body)) !== null) {
+    out.push({ val: parseFloat(m[1]), unit: m[2].toLowerCase().replace(/s$/,'') });
+  }
+  return out;
+}
+function cdPolarity(body) {
+  const low = body.toLowerCase();
+  const permit = (low.match(/\b(allowed|permitted|may|can|eligible|includes?|will|shall)\b/g) || []).length;
+  const require = (low.match(/\b(required|must|mandatory|needed? to|obligated)\b/g) || []).length;
+  const prohibit = (low.match(/\b(not|no|prohibited|forbidden|never|cannot|may not|must not|don't)\b/g) || []).length;
+  const exempt = (low.match(/\b(exempt|excluded|waived|excepted|except for|skipp?ed?)\b/g) || []).length;
+  const pos = permit + require;
+  const neg = prohibit + exempt;
+  if (pos > neg + 1) return 1;
+  if (neg > pos + 1) return -1;
+  return 0;
+}
+function cdNumConflict(a, b) {
+  const va = cdExtractValues(a.body), vb = cdExtractValues(b.body);
+  for (const x of va) for (const y of vb) {
+    if (x.unit === y.unit && Math.abs(x.val - y.val) > 0.01) {
+      return { conflict: true, detail: `value differs: ${x.val}${x.unit} vs ${y.val}${y.unit}` };
+    }
+  }
+  return { conflict: false, detail: '' };
+}
+function cdResolutionHint(a, b) {
+  if (a.versionDate && b.versionDate) {
+    if (a.versionDate > b.versionDate) return `newer wins: "${a.title}" is more recent (${a.versionDate} > ${b.versionDate})`;
+    if (b.versionDate > a.versionDate) return `newer wins: "${b.title}" is more recent (${b.versionDate} > ${a.versionDate})`;
+  }
+  if (Math.abs(a.authority - b.authority) > 0.2) {
+    const w = a.authority > b.authority ? a : b;
+    return `authority wins: "${w.title}" has higher formal weight`;
+  }
+  return 'flag for human review: no clear precedence between the two';
+}
+function cdDetect(overlapThresh, confThresh) {
+  const exemptPat = /\b(exempt|excluded|waived|excepted|except for|skipp?ed?)\b/i;
+  const requirePat = /\b(required|must|mandatory|needed? to|obligated)\b/i;
+  const out = [];
+  for (let i = 0; i < CD_CORPUS.length; i++) {
+    for (let j = i + 1; j < CD_CORPUS.length; j++) {
+      const a = CD_CORPUS[i], b = CD_CORPUS[j];
+      const { overlap, shared } = cdTopicOverlap(a, b);
+      if (overlap < overlapThresh) continue;
+      const num = cdNumConflict(a, b);
+      if (num.conflict) {
+        const conf = Math.min(1, 0.55 + overlap * 2);
+        if (conf >= confThresh) out.push({ a, b, kind:'numerical', overlap, shared, confidence: conf, details: num.detail, hint: cdResolutionHint(a, b) });
+        continue;
+      }
+      const pa = cdPolarity(a.body), pb = cdPolarity(b.body);
+      if (pa !== 0 && pb !== 0 && pa !== pb) {
+        const conf = Math.min(1, 0.4 + overlap * 3);
+        if (conf >= confThresh) out.push({ a, b, kind:'polarity', overlap, shared, confidence: conf, details: `opposite direction: A=${pa>0?'allows/requires':'prohibits'}, B=${pb>0?'allows/requires':'prohibits'}`, hint: cdResolutionHint(a, b) });
+        continue;
+      }
+      const ea = exemptPat.test(a.body), eb = exemptPat.test(b.body);
+      const ra = requirePat.test(a.body), rb = requirePat.test(b.body);
+      if ((ea && rb) || (eb && ra)) {
+        const conf = Math.min(1, 0.5 + overlap * 2);
+        if (conf >= confThresh) out.push({ a, b, kind:'exemption', overlap, shared, confidence: conf, details: 'one doc states a requirement, the other carves an exemption', hint: cdResolutionHint(a, b) });
+      }
+    }
+  }
+  out.sort((a, b) => b.confidence - a.confidence);
+  return out;
+}
+function cdEsc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function cdScan() {
+  const ov = parseFloat(document.getElementById('cd-overlap').value) / 100;
+  const cf = parseFloat(document.getElementById('cd-conf').value) / 100;
+  const found = cdDetect(ov, cf);
+  const target = document.getElementById('cd-results');
+  if (!found.length) {
+    target.innerHTML = '<div style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:24px;text-align:center;color:#81c784;font-size:12px">✓ no contradictions above threshold — try lowering the thresholds</div>';
+    return;
+  }
+  const kindColor = { numerical:'#f6d35c', polarity:'#f06292', exemption:'#a78bfa' };
+  target.innerHTML = found.map(c => {
+    const col = kindColor[c.kind];
+    return `
+      <div style="background:var(--surface);border:1px solid var(--border);border-left:3px solid ${col};border-radius:6px;padding:14px 16px;margin-bottom:10px">
+        <div style="display:flex;gap:14px;align-items:center;margin-bottom:10px">
+          <span style="color:${col};font-size:11px;font-weight:bold;letter-spacing:0.12em">${c.kind.toUpperCase()} CONTRADICTION</span>
+          <span style="color:var(--dim);font-size:10px;font-family:monospace">confidence ${c.confidence.toFixed(2)} · overlap ${c.overlap.toFixed(2)}</span>
+          <span style="color:var(--dim);font-size:10px;margin-left:auto">shared: ${c.shared.map(cdEsc).join(', ')}</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px">
+          <div style="padding:10px;background:var(--surface2);border-radius:4px">
+            <div style="font-size:11px;color:var(--accent);font-weight:bold">${cdEsc(c.a.title)}</div>
+            <div style="font-size:10px;color:var(--dim);margin-bottom:6px">${cdEsc(c.a.team)} · ${cdEsc(c.a.versionDate)} · authority ${c.a.authority}</div>
+            <div style="font-size:11px;line-height:1.55">${cdEsc(c.a.body)}</div>
+          </div>
+          <div style="padding:10px;background:var(--surface2);border-radius:4px">
+            <div style="font-size:11px;color:var(--accent);font-weight:bold">${cdEsc(c.b.title)}</div>
+            <div style="font-size:10px;color:var(--dim);margin-bottom:6px">${cdEsc(c.b.team)} · ${cdEsc(c.b.versionDate)} · authority ${c.b.authority}</div>
+            <div style="font-size:11px;line-height:1.55">${cdEsc(c.b.body)}</div>
+          </div>
+        </div>
+        <div style="font-size:11px;color:#dce4ed;margin-bottom:4px"><b>conflict:</b> ${cdEsc(c.details)}</div>
+        <div style="font-size:11px;color:#81c784"><b>resolution hint:</b> ${cdEsc(c.hint)}</div>
+      </div>
+    `;
+  }).join('');
+  pepSend('contradiction.scan', { found: found.length });
+}
+['cd-overlap','cd-conf'].forEach(id => {
+  const el = document.getElementById(id); if (!el) return;
+  el.addEventListener('input', (e) => {
+    document.getElementById(id+'-val').textContent = (parseFloat(e.target.value)/100).toFixed(2);
+  });
+});
 
 </script>
 </body>
