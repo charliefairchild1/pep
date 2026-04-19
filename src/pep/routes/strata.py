@@ -138,6 +138,7 @@ _PAGE = """\
       <div class="tab" data-panels="pitch-tab bench-tab">Pitch</div>
       <div class="tab" data-panel="products-tab">Products</div>
       <div class="tab" data-panel="theory-tab">Theory</div>
+      <div class="tab" data-panel="whypep-tab">Why PEP</div>
       <div class="tab" data-panel="bridge-tab">PEP &harr; Strata</div>
     </div>
   </div>
@@ -1011,6 +1012,83 @@ _PAGE = """\
   <div class="info"><b>6. Sector rotation as graph walk.</b> Capital flows around the business cycle. The current activation position tells you where the market thinks it is.</div>
   <div class="info"><b>7. Risk as network fragility.</b> Diversification evaporates when correlations spike. Stress-test the graph, not the portfolio variance.</div>
   <div class="info"><b>8. Strata as research sandbox.</b> Validate PEP's primitives on market data. If they produce useful insights, Strata becomes a product.</div>
+</div>
+</div>
+
+<!-- ═══ Why PEP ═════════════════════════════════════════════════ -->
+<div class="panel" id="whypep-tab">
+<div class="container">
+  <h2>Why PEP &mdash; How the Engine Applies to Markets</h2>
+  <p class="desc">
+    Strata is not a stand-alone idea. It is PEP's five primitives
+    applied to markets. Equities, Crypto, FX, Commodities, Bonds, and
+    Predict are six instantiations of the same primitives over
+    different asset classes. Here is the mapping.
+  </p>
+
+  <div class="info">
+    <b>1. Weighted graph &mdash; the substrate.</b><br>
+    Assets are nodes. Correlations, sector membership, supply-chain
+    dependencies, factor exposures, and issuer relationships are typed
+    edges. The portfolio universe <em>is</em> the weighted graph. The
+    same graph primitive that holds Vectora's documents holds Strata's
+    assets &mdash; the semantics of the edges change, the mechanism
+    doesn't.
+  </div>
+
+  <div class="info">
+    <b>2. Spreading activation &mdash; the search primitive.</b><br>
+    Momentum spillover is spreading activation from a mover through
+    correlation edges. When one asset moves, activation radiates to
+    its neighbors with decay. Sector rotation is this primitive at
+    scale. Strata's 294-strategy library uses spreading-activation
+    over the correlation graph as its core seed-expansion mechanic
+    &mdash; every "find similar assets to X" query is the primitive
+    running to a budget.
+  </div>
+
+  <div class="info">
+    <b>3. Predictor + residual scorer &mdash; the learning signal.</b><br>
+    Per-asset predictor for next return. The residual is the surprise.
+    Strata's unusual-score formula <em>is</em> the residual scorer
+    &mdash; it measures how much an asset's move deviates from its
+    expected distribution. Options-vol spikes, earnings-surprise
+    alerts, and regime-break detectors are all residual-scoring
+    signals at different scales.
+  </div>
+
+  <div class="info">
+    <b>4. State modulator &mdash; runtime gain control.</b><br>
+    Regime awareness. Bull / bear / crisis regimes rescale edge gains
+    at runtime &mdash; correlation edges widen in crisis (everything
+    moves together), narrow in calm (sector-specific). VIX regime,
+    rates regime, liquidity regime: each is a slow-timescale
+    modulator. Same graph, different runtime gain. Strata's
+    regime-classifier is this primitive exposed directly.
+  </div>
+
+  <div class="info">
+    <b>5. Opacity + haze &mdash; reclaimable capacity.</b><br>
+    Strategies with stale signal decay. A strategy that hasn't
+    produced residual in months drops below the reuse threshold
+    &mdash; capacity reallocates to newer signal. Haze is what keeps
+    the strategy library from calcifying into backtest-overfit
+    shapes. Stale patterns have to be reclaimable for fresh ones to
+    find a slot; otherwise the library becomes a museum of strategies
+    that used to work.
+  </div>
+
+  <div class="info" style="border-left:3px solid #e879f9">
+    <b>The pattern.</b> Markets are not their own thing. They are
+    what happens when the five primitives run on a substrate of
+    asset-nodes with correlation and factor edges. Every Strata
+    vertical (Equities, Crypto, FX, Commodities, Bonds, Predict)
+    keeps the primitives the same and swaps the edges and node
+    features. The same engine that pools compatible people at Atria
+    and surfaces anomalous documents at Vectora detects
+    unusual-moves at Strata. The substrate changes; the mechanism
+    is the same.
+  </div>
 </div>
 </div>
 

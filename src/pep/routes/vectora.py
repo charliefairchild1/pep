@@ -123,11 +123,12 @@ _PAGE = """\
     <div class="tabs" id="tabs">
       <div class="tab active" data-panel="home-tab">Home</div>
       <div class="tab" data-panels="keyword-tab embed-tab rerank-tab multihop-tab context-tab">Retrieval</div>
-      <div class="tab" data-panels="kg-tab anomaly-tab">Structure</div>
+      <div class="tab" data-panels="kg-tab anomaly-tab orgopacity-tab">Structure</div>
       <div class="tab" data-panel="rag-tab">Pipeline</div>
       <div class="tab" data-panels="pitch-tab bench-tab">Pitch</div>
       <div class="tab" data-panel="products-tab">Products</div>
       <div class="tab" data-panel="theory-tab">Theory</div>
+      <div class="tab" data-panel="whypep-tab">Why PEP</div>
       <div class="tab" data-panel="bridge-tab">PEP &harr; Vectora</div>
     </div>
   </div>
@@ -382,6 +383,75 @@ _PAGE = """\
     <a href="/pep">PEP &rarr; State Modulator</a>,
     <a href="/lingora">Lingora &rarr; Ambiguity Resolution</a>
     (the same mechanism applied to word meaning).
+  </div>
+</div>
+</div>
+
+<!-- ═══ Organizational Opacity ═════════════════════════════════════ -->
+<div class="panel" id="orgopacity-tab">
+<div class="container">
+  <h2>Organizational Opacity &mdash; Haze Applied to Institutional Knowledge</h2>
+  <p class="desc">
+    Every company has a long tail of docs, wikis, and runbooks nobody
+    reads anymore but nobody can confidently delete. Apply PEP's haze
+    primitive to the corpus: each doc carries opacity + last-access +
+    half-life + incoming-references. Below the reuse threshold, a doc is
+    safe to archive &mdash; <em>unless</em> it's load-bearing for other
+    live content. This canvas runs the full audit on a simulated
+    140-doc org corpus; swap the adapter for a real corpus and the same
+    code works.
+  </p>
+  <div class="controls" style="flex-wrap:wrap">
+    <label style="display:flex;align-items:center;gap:8px">
+      <span>time forward:</span>
+      <input type="range" id="oo-time" min="0" max="180" value="0" style="width:140px">
+      <span class="stat-val" id="oo-time-val">0 d</span>
+    </label>
+    <label style="display:flex;align-items:center;gap:8px">
+      <span>reuse threshold:</span>
+      <input type="range" id="oo-thresh" min="5" max="30" value="12" style="width:100px">
+      <span class="stat-val" id="oo-thresh-val">0.12</span>
+    </label>
+    <button onclick="ooReinforceRandom()">reinforce random 5 docs</button>
+    <button onclick="ooReset()">reset corpus</button>
+  </div>
+  <div class="canvas-box">
+    <canvas id="orgopacity-canvas" width="960" height="340"></canvas>
+  </div>
+  <div style="margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:14px">
+    <div id="oo-archive" style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:14px 16px;min-height:220px">
+      <div style="color:#81c784;font-size:11px;letter-spacing:0.12em;margin-bottom:8px">ARCHIVE CANDIDATES &mdash; safe to move to cold storage</div>
+      <div style="color:var(--dim);font-size:12px">&mdash;</div>
+    </div>
+    <div id="oo-stale" style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:14px 16px;min-height:220px">
+      <div style="color:#f06292;font-size:11px;letter-spacing:0.12em;margin-bottom:8px">LOAD-BEARING STALE &mdash; don't archive, reinforce</div>
+      <div style="color:var(--dim);font-size:12px">&mdash;</div>
+    </div>
+  </div>
+  <div class="info">
+    <b>What a CKO / platform ops / KM lead gets out of this.</b><br>
+    &bull; <b>"What % of your knowledge is below reuse threshold?"</b>
+    Answer at top of canvas, updating as you slide time forward.<br>
+    &bull; <b>"What should we archive?"</b> The green panel &mdash; ranked
+    by lowest opacity, not load-bearing, not regulated.<br>
+    &bull; <b>"What's load-bearing but decaying?"</b> The pink panel.
+    These are the docs other live content depends on, but nobody's
+    reinforcing. This is where the <em>real</em> org risk is &mdash; not
+    in what you archive but in what's quietly becoming inaccessible.<br>
+    &bull; <b>"What's our decay velocity?"</b> Bottom line of the canvas:
+    how many docs/week are crossing the reuse threshold. A high number
+    means your corpus is accelerating its turnover; a low number means
+    it's crystallized and ready for a sweep.<br><br>
+    <b>Why PEP.</b> This is the haze primitive (#5) at institutional
+    scale. Same opacity + half-life + reinforce model that
+    <code>pep.vectora.Document</code> uses per-retrieval, just applied
+    to the corpus as a whole and surfaced as operational signals.
+    <code>pep.vectora.org_opacity</code> is the engine module.<br><br>
+    <b>See also:</b>
+    <a href="#" onclick="canvasSelect('anomaly-tab');return false">Vectora &rarr; Anomaly</a>,
+    <a href="#" onclick="canvasSelect('whypep-tab');return false">Why PEP</a>,
+    <a href="/axona#haze-tab">Axona &rarr; Memory Haze</a> (same
+    primitive, episodic-memory substrate).
   </div>
 </div>
 </div>
@@ -807,6 +877,85 @@ _PAGE = """\
     <b>8. Vectora as infrastructure.</b> The internal layer the other
     LAVAS siblings consume. Build the retrieval primitive once; let
     every sibling call it.
+  </div>
+</div>
+</div>
+
+<!-- ═══ Why PEP ═════════════════════════════════════════════════ -->
+<div class="panel" id="whypep-tab">
+<div class="container">
+  <h2>Why PEP &mdash; How the Engine Applies to Retrieval</h2>
+  <p class="desc">
+    Vectora is not a stand-alone idea. It is PEP's five primitives
+    applied to data organization and retrieval. Vectora is also the
+    engine the other LAVAS siblings dogfood &mdash; every Axona,
+    Lingora, Atria, and Strata retrieval call ultimately lands here.
+    Here is the mapping.
+  </p>
+
+  <div class="info">
+    <b>1. Weighted graph &mdash; the substrate.</b><br>
+    Documents (or chunks) are nodes. Embedding similarity, keyword
+    overlap, knowledge-graph relations, citation links, authorship, and
+    metadata are typed edges. The knowledge base <em>is</em> the graph.
+    Vectora's dogfood layer is what exposes this graph over HTTP so
+    every sibling app can treat its own domain-specific corpus as a
+    PEP graph without reimplementing the primitive.
+  </div>
+
+  <div class="info">
+    <b>2. Spreading activation &mdash; the search primitive.</b><br>
+    Retrieval is spreading activation from a query seed through typed
+    edges with decay. BM25, embedding search, and knowledge-graph walks
+    are all shapes of this same primitive; multi-hop retrieval is the
+    primitive running to a larger budget. The reranker is activation
+    concentrating after the first wave. "Hybrid search" is not a
+    separate algorithm; it's spreading activation over multiple edge
+    types simultaneously with a single budget.
+  </div>
+
+  <div class="info">
+    <b>3. Predictor + residual scorer &mdash; the learning signal.</b><br>
+    Vectora Watch is the predictor-plus-residual applied to a corpus.
+    The predictor forecasts "expected content for this context";
+    residuals flag documents that deviate. Anomaly surfacing, drift
+    detection, and unusual-content alerts are residual scoring at
+    corpus scale. The same primitive that drives Strata's
+    unusual-move detector drives Vectora's unusual-document detector.
+  </div>
+
+  <div class="info">
+    <b>4. State modulator &mdash; runtime gain control.</b><br>
+    Session context and user intent rescale retrieval. Same query,
+    different conversation history, different documents surface.
+    Recency weights, relevance priors, per-user affinity, and
+    domain-mode toggles are all runtime modulators on the same
+    underlying graph. Vectora Context is this primitive exposed as a
+    product &mdash; it's the session-modulator for retrieval.
+  </div>
+
+  <div class="info">
+    <b>5. Opacity + haze &mdash; reclaimable capacity.</b><br>
+    Every document has opacity in [0, 1]. Reinforced retrievals push
+    opacity up; unretrieved documents decay. Below the reuse threshold
+    a document becomes eligible for eviction. Finite index,
+    reclaimable slots &mdash; the only way a knowledge base can grow
+    forever without retrieval cost growing with it. This is why
+    <code>pep.vectora.Document</code> carries opacity, encoded_at,
+    half_life_seconds, reinforce(), and is_reusable() as
+    first-class fields.
+  </div>
+
+  <div class="info" style="border-left:3px solid #38bdf8">
+    <b>The pattern.</b> Retrieval is not its own thing. It is what
+    happens when the five primitives run on a substrate of
+    document-nodes with typed edges. Vectora is the cleanest
+    expression of PEP because it sits at the base of the stack:
+    every sibling's domain problem (cognition, language, matching,
+    markets) reduces, at some step, to "find the relevant nodes in
+    the graph." That step is Vectora. Which means PEP's engine
+    primitives are not an abstraction layered over retrieval &mdash;
+    retrieval is one of their direct specializations.
   </div>
 </div>
 </div>
@@ -1460,6 +1609,164 @@ function drawContext() {
   requestAnimationFrame(drawContext);
 }
 drawContext();
+
+// ═══════════════════════════════════════════════════════════════════════
+// Organizational Opacity — mirrors pep.vectora.org_opacity in the browser
+// ═══════════════════════════════════════════════════════════════════════
+const OO_TEAMS = ['platform','eng','product','design','ops','hr','legal','finance'];
+const OO_STEMS = ['Runbook: ','RFC #','Spec: ','Memo — ','Q-plan ','Playbook: ','Retro — ','Design doc: ','Proposal: ','Policy: ','Guide: ','Strategy memo — ','Onboarding: ','Architecture — ','Review: '];
+const OO_TOPICS = ['service migration','deploy safety','data retention','compensation bands','vendor onboarding','incident response','feature flags','privacy review','growth plan','metrics dashboard','hiring loop','security audit','design system','customer interview','tech debt','content moderation','api versioning','capacity planning'];
+function ooExp(mean, rng) { return -Math.log(1 - rng()) * mean; }
+let ooRngState = 42;
+function ooRng() { ooRngState = (ooRngState * 1664525 + 1013904223) % 4294967296; return ooRngState / 4294967296; }
+let ooDocs = [];
+function ooBuildCorpus(n) {
+  ooRngState = 42;
+  const docs = [];
+  for (let i = 0; i < n; i++) {
+    const team = OO_TEAMS[Math.floor(ooRng() * OO_TEAMS.length)];
+    const stem = OO_STEMS[Math.floor(ooRng() * OO_STEMS.length)];
+    const topic = OO_TOPICS[Math.floor(ooRng() * OO_TOPICS.length)];
+    const mix = ooRng();
+    let age;
+    if (mix < 0.4) age = ooExp(40, ooRng);
+    else if (mix < 0.8) age = ooExp(180, ooRng);
+    else age = ooExp(720, ooRng);
+    age = Math.min(age, 4 * 365);
+    const base = 0.6 + ooRng() * 0.4;
+    const isLoadBearing = ooRng() < 0.12;
+    const refs = isLoadBearing ? 3 + Math.floor(ooRng() * 12) : 0;
+    const criticality = 0.2 + ooRng() * 0.7;
+    const regulated = ooRng() < 0.08;
+    const halfLife = [60, 90, 120, 180][Math.floor(ooRng() * 4)];
+    docs.push({
+      id: 'doc-' + String(i).padStart(4, '0'),
+      title: stem + topic + ' (' + team + ')',
+      team, opacity: base, encodedDaysAgo: age,
+      halfLife, refs, criticality, regulated,
+    });
+  }
+  return docs;
+}
+function ooEffective(d, tElapsed) {
+  const total = Math.max(0, d.encodedDaysAgo + tElapsed);
+  const decayed = d.opacity * Math.pow(0.5, total / d.halfLife);
+  return Math.max(0.02, decayed);
+}
+function ooLoadBearing(d) { return d.refs >= 3 || d.criticality >= 0.7 || d.regulated; }
+function ooTime()   { return parseFloat(document.getElementById('oo-time').value); }
+function ooThresh() { return parseFloat(document.getElementById('oo-thresh').value) / 100; }
+function ooReport() {
+  const t = ooTime(), th = ooThresh();
+  const hist = new Array(10).fill(0);
+  let reusable = 0;
+  const arch = [], stale = [];
+  const byTeam = {};
+  ooDocs.forEach(d => {
+    const op = ooEffective(d, t);
+    hist[Math.min(9, Math.floor(op * 10))]++;
+    const te = byTeam[d.team] || (byTeam[d.team] = { total: 0, reusable: 0 });
+    te.total++;
+    if (op < th) {
+      reusable++; te.reusable++;
+      if (ooLoadBearing(d)) stale.push({ d, op }); else arch.push({ d, op });
+    }
+  });
+  let willCross = 0;
+  ooDocs.forEach(d => {
+    const cur = ooEffective(d, t);
+    if (cur >= th && cur < 2 * th && ooEffective(d, t + 14) < th) willCross++;
+  });
+  const velocity = willCross / 14 * 7;
+  arch.sort((a, b) => a.op - b.op);
+  stale.sort((a, b) => (b.d.refs - a.d.refs) || (a.op - b.op));
+  return { hist, reusable, arch, stale, byTeam, total: ooDocs.length, velocity };
+}
+function ooReinforceRandom() {
+  for (let i = 0; i < 5; i++) {
+    const idx = Math.floor(Math.random() * ooDocs.length);
+    const d = ooDocs[idx];
+    const op = ooEffective(d, ooTime());
+    d.opacity = Math.min(1, op + 0.5);
+    d.encodedDaysAgo = -ooTime();
+  }
+  pepSend('orgopacity.reinforce', {});
+}
+function ooReset() {
+  ooDocs = ooBuildCorpus(140);
+  document.getElementById('oo-time').value = 0;
+  document.getElementById('oo-time-val').textContent = '0 d';
+}
+['oo-time','oo-thresh'].forEach(id => {
+  const el = document.getElementById(id); if (!el) return;
+  el.addEventListener('input', (e) => {
+    const v = parseFloat(e.target.value);
+    const out = document.getElementById(id + '-val');
+    if (!out) return;
+    out.textContent = id === 'oo-thresh' ? (v / 100).toFixed(2) : v + ' d';
+  });
+});
+ooDocs = ooBuildCorpus(140);
+const ooCanvas = document.getElementById('orgopacity-canvas');
+const ooCtx = ooCanvas.getContext('2d');
+function ooEsc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function ooRenderLists(rep) {
+  const archPanel = document.getElementById('oo-archive');
+  const stalePanel = document.getElementById('oo-stale');
+  const archRows = rep.arch.slice(0, 10).map(x =>
+    `<div style="display:flex;gap:10px;align-items:center;padding:4px 0;font-size:11px;border-bottom:1px solid rgba(255,255,255,0.04)"><span style="color:#81c784;min-width:44px;font-family:monospace">${x.op.toFixed(3)}</span><span style="color:var(--text);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${ooEsc(x.d.title)}</span></div>`
+  ).join('');
+  archPanel.innerHTML = `<div style="color:#81c784;font-size:11px;letter-spacing:0.12em;margin-bottom:8px">ARCHIVE CANDIDATES &middot; ${rep.arch.length} total &middot; showing top 10</div>${archRows || '<div style="color:var(--dim);font-size:12px;padding:30px 0;text-align:center">nothing below threshold yet</div>'}`;
+  const staleRows = rep.stale.slice(0, 10).map(x =>
+    `<div style="display:flex;gap:10px;align-items:center;padding:4px 0;font-size:11px;border-bottom:1px solid rgba(255,255,255,0.04)"><span style="color:#f06292;min-width:44px;font-family:monospace">${x.op.toFixed(3)}</span><span style="color:var(--dim);min-width:34px;font-size:10px">${x.d.refs}ref</span><span style="color:var(--text);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${ooEsc(x.d.title)}${x.d.regulated ? ' <span style=\"color:#e879f9;font-size:9px\">REG</span>' : ''}</span></div>`
+  ).join('');
+  stalePanel.innerHTML = `<div style="color:#f06292;font-size:11px;letter-spacing:0.12em;margin-bottom:8px">LOAD-BEARING STALE &middot; ${rep.stale.length} total &middot; showing top 10</div>${staleRows || '<div style="color:var(--dim);font-size:12px;padding:30px 0;text-align:center">no load-bearing docs are decayed (good)</div>'}`;
+}
+function drawOrgOpacity() {
+  const W = 960, H = 340;
+  ooCtx.fillStyle = themeBg(); ooCtx.fillRect(0, 0, W, H);
+  const rep = ooReport();
+  const padL = 60, padR = 20, padT = 48, padB = 60;
+  const plotW = W - padL - padR, plotH = H - padT - padB;
+  const maxCount = Math.max(1, ...rep.hist);
+  // Bars
+  rep.hist.forEach((c, i) => {
+    const bw = plotW / 10;
+    const bh = (c / maxCount) * plotH;
+    const x = padL + i * bw + bw * 0.1;
+    const y = padT + plotH - bh;
+    const w = bw * 0.8;
+    const bucketMid = (i + 0.5) / 10;
+    const inReuse = bucketMid < ooThresh();
+    ooCtx.fillStyle = inReuse ? 'rgba(240,98,146,0.85)' : `rgba(79,195,247,${(0.3 + bucketMid * 0.5).toFixed(3)})`;
+    ooCtx.fillRect(x, y, w, bh);
+    ooCtx.fillStyle = '#aaa'; ooCtx.font = '10px monospace'; ooCtx.textAlign = 'center';
+    if (c > 0) ooCtx.fillText(String(c), x + w / 2, y - 4);
+    ooCtx.fillText(((i) / 10).toFixed(1) + '-' + ((i + 1) / 10).toFixed(1), x + w / 2, padT + plotH + 14);
+  });
+  // Threshold line
+  const thX = padL + (ooThresh() * 10) * (plotW / 10);
+  ooCtx.strokeStyle = 'rgba(248, 113, 113, 0.7)'; ooCtx.setLineDash([4, 4]);
+  ooCtx.lineWidth = 1.5;
+  ooCtx.beginPath(); ooCtx.moveTo(thX, padT); ooCtx.lineTo(thX, padT + plotH); ooCtx.stroke();
+  ooCtx.setLineDash([]);
+  ooCtx.fillStyle = '#f87171'; ooCtx.font = 'bold 10px monospace'; ooCtx.textAlign = 'left';
+  ooCtx.fillText('← reuse threshold', thX + 6, padT + 10);
+  // Title row: reusable % + velocity
+  const pct = rep.total ? (100 * rep.reusable / rep.total).toFixed(1) : '0.0';
+  ooCtx.fillStyle = '#dce4ed'; ooCtx.font = 'bold 13px monospace'; ooCtx.textAlign = 'left';
+  ooCtx.fillText(`${rep.reusable} of ${rep.total} docs below threshold  (${pct}% reclaimable)`, padL, 22);
+  ooCtx.fillStyle = '#aaa'; ooCtx.font = '11px monospace'; ooCtx.textAlign = 'right';
+  ooCtx.fillText(`decay velocity: ${rep.velocity.toFixed(1)} docs/week crossing threshold`, W - 20, 22);
+  // Axis labels
+  ooCtx.fillStyle = '#aaa'; ooCtx.font = '10px monospace'; ooCtx.textAlign = 'left';
+  ooCtx.fillText('doc count', 20, padT + 4);
+  ooCtx.textAlign = 'center';
+  ooCtx.fillText('opacity bucket', padL + plotW / 2, H - 8);
+  ooRenderLists(rep);
+  requestAnimationFrame(drawOrgOpacity);
+}
+drawOrgOpacity();
 
 </script>
 </body>

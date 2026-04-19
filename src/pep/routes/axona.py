@@ -147,6 +147,7 @@ _PAGE = """\
       <div class="tab" data-panel="products-tab">Products</div>
       <div class="tab" data-panel="bench-tab">Benchmark</div>
       <div class="tab" data-panel="gallery-tab">Gallery</div>
+      <div class="tab" data-panel="whypep-tab">Why PEP</div>
       <div class="tab" data-panel="pep-link-tab">PEP &harr; Axona</div>
     </div>
   </div>
@@ -846,6 +847,106 @@ _PAGE = """\
     capacity &mdash; every cycle is spent trying to keep track of yesterday's mess. This is
     why sleep deprivation kills creativity before it kills anything else: the engine cannot
     run when the buffer is full.
+  </div>
+
+  <h3 style="margin-top:24px">Dreams &mdash; Prediction Without Sensory Tether</h3>
+  <p class="desc">
+    A dream is the prediction engine running forward with the external input
+    channel shut. No camera, no ears, no skin &mdash; the predictor keeps
+    predicting, and whatever it predicts becomes the experience. The machinery
+    is identical to waking perception. What changes is which side of the
+    loop is driving.
+  </p>
+  <div class="info">
+    <b>The prediction-engine view.</b> When you're awake, the predictor
+    forecasts the next moment and the senses constrain it &mdash; the residual
+    is the gap, and the gap is the only place learning happens. In REM sleep,
+    the thalamic gate on sensory input closes. The predictor keeps running,
+    but now there's nothing outside to pull it back. The forecast becomes
+    the experience. Your visual cortex still paints; your motor cortex still
+    rehearses; your limbic system still scores &mdash; just untethered. That's
+    why dreams feel visually real. The same substrate is firing as when you
+    see. There is no "dream mode" of the brain distinct from perception mode;
+    there's only a mode where the residual is never cashed out against the
+    world.
+  </div>
+  <div class="info">
+    <b>Why they're useful: replay and recombination.</b> Hippocampal replay
+    during sleep is well-documented &mdash; the same neurons that fired during
+    the day's navigation fire again, sped up, often backward. In PEP terms,
+    the system is re-running recent trajectories through the Residual Scorer
+    and the Updater, deciding what survives. REM adds something deep sleep
+    doesn't: it <em>recombines</em>. It stitches fragments from distant parts
+    of the graph using long-range edges that would be gated off in waking.
+    This is why novel solutions arrive overnight. Deep sleep prunes;
+    REM bridges. The network that wakes up is not the network that fell
+    asleep.
+  </div>
+  <div class="info">
+    <b>Why they're weird.</b> Two reasons.
+    First, the prefrontal brake is off &mdash; the "does this make sense?"
+    check doesn't run, so implausible stitches are allowed to stand. A horse
+    with your grandmother's face is fine; the sanity check that would reject
+    it is offline. Second, the state modulator is wide open: salience gain
+    is high and can land on anything, so emotional weight attaches to
+    arbitrary graph regions. The result is experience that is <em>internally
+    consistent in the moment</em> (the predictor never contradicts itself
+    turn-to-turn) but globally incoherent (no external constraint, no
+    prefrontal audit).
+  </div>
+  <div class="info">
+    <b>Why you forget them.</b> The consolidation machinery that binds
+    waking episodes to durable memory runs on norepinephrine, serotonin,
+    and histamine &mdash; all of which are suppressed during REM. So the
+    dream <em>happens</em> fully (the predictor runs, the experience is
+    lived) but the binding signal isn't there. Most dreams don't make it
+    past the first minute of waking. The ones you remember are the ones
+    you re-encoded within about ninety seconds of waking &mdash; usually
+    because you reviewed them consciously before getting out of bed.
+    Dream journals work by forcing that re-encoding window open.
+  </div>
+  <div class="info">
+    <b>Nightmares and emotional metabolization.</b> Frightening dreams are
+    not a bug. Under the prediction-engine view, they are the system
+    running failure-mode simulations with the amygdala's gain dialed up.
+    A day with unresolved threat sets the residual scorer to treat
+    threat-adjacent content as high-priority for replay. REM replays it,
+    often in exaggerated or recombined form, and each replay without real
+    harm is a small extinction event. This is part of why poor REM sleep
+    tracks with unprocessed trauma: the metabolization step never
+    finishes. Nightmares feel like malfunction; mechanically they're the
+    opposite.
+  </div>
+  <div class="info">
+    <b>Lucid dreams and targeted manipulation.</b> Lucidity happens when
+    the prefrontal cortex partially re-engages during REM &mdash; the
+    auditor wakes up while the sensory paint keeps flowing. The dreamer
+    can now steer the predictor the way a waking person steers a thought.
+    External cues (sound, smell, mild vibration) can also inject into a
+    running dream: MIT Media Lab's Targeted Dream Incubation uses
+    sleep-onset audio to bias content, and subjects who dream about a
+    problem then solve it better the next day. Same prediction engine;
+    different operator in the driver's seat. See
+    <a href="#bci-tab">Neural Interface &rarr; Dreams</a> for the
+    engineering frontier.
+  </div>
+  <div class="info">
+    <b>PEP module mapping.</b><br>
+    &bull; <b>Predictor</b> &mdash; runs continuously; during REM it runs
+    without sensory constraint, so its output becomes the experience.<br>
+    &bull; <b>Residual Scorer</b> &mdash; gates which memories re-fire for
+    replay based on the day's surprise mass.<br>
+    &bull; <b>State Modulator</b> &mdash; loosens on long-range-edge gating
+    during REM, tightens during deep sleep. The same knob that drives
+    focus during the day picks what gets bridged at night.<br>
+    &bull; <b>Opacity / Haze</b> &mdash; actively edited during sleep.
+    Weak nodes decay past reuse; strong nodes get reinforced and rebound
+    in strength. This is why a fact you half-knew at 11pm is often crisp
+    or gone by morning.<br>
+    &bull; <b>Weighted Graph</b> &mdash; rewires. New edges form across
+    clusters that REM visited together. Old edges below threshold get
+    dropped. The graph that wakes up is structurally different from the
+    one that fell asleep &mdash; not just in activation, in topology.
   </div>
   </div>
 
@@ -4900,6 +5001,83 @@ _PAGE = """\
   </div>
   </div>
 
+  <div class="sub-section">
+  <h3 id="alzheimers">Alzheimer&apos;s &amp; Dementia &mdash; The Haze Primitive in Overdrive</h3>
+  <p class="desc">
+    Alzheimer&apos;s disease is what happens when the mechanisms PEP
+    describes &mdash; opacity decay, microglial pruning, edge loss &mdash;
+    run in overdrive. Not a different mechanism from normal aging. The
+    same mechanism, accelerated past the point of compensability.
+  </p>
+  <div class="info">
+    <b>The mechanism through PEP primitives:</b><br><br>
+    &bull; <b>Amyloid plaques trigger chronic microglial inflammation.</b>
+    Normal microglia prune weak synapses during sleep (the haze
+    primitive). In Alzheimer&apos;s, amyloid protein builds up between
+    neurons and triggers the microglia into a chronic inflammatory state.
+    Inflamed microglia prune <em>indiscriminately</em> &mdash; removing
+    useful connections alongside weak ones. This is &quot;brain fog&quot;
+    at its most extreme: the pruning crew has gone rogue.<br><br>
+    &bull; <b>Tau tangles destroy the transport system.</b> Inside
+    neurons, tau protein normally stabilizes the microtubules that
+    transport nutrients along the axon. In Alzheimer&apos;s, tau
+    detaches and forms tangles, collapsing the transport system.
+    In PEP terms: the edges still exist but can no longer carry
+    signal. The graph is structurally intact but functionally dead
+    in affected regions.<br><br>
+    &bull; <b>Opacity decays faster than reinforcement can compensate.</b>
+    Normal aging: nodes lose opacity gradually, but rehearsal and
+    daily use keep the most-used nodes above threshold. Alzheimer&apos;s:
+    the decay rate accelerates past what any amount of reinforcement
+    can match. Nodes drop below the reuse threshold faster than the
+    person can access them. Recent memories go first because they had
+    the least reinforcement history.<br><br>
+    &bull; <b>The reminiscence bump is the last thing standing.</b>
+    Youth memories (ages 15-25) were reinforced thousands of times
+    across a lifetime. Their opacity started high and was boosted
+    repeatedly. Even under accelerated decay, those nodes have the
+    most buffer before they cross the threshold. This is why
+    Alzheimer&apos;s patients lose yesterday first, last year second,
+    and childhood last. The decay is uniform; the starting opacity
+    is not.
+  </div>
+
+  <div class="info" style="border-left: 3px solid #f06292">
+    <b style="color:#f06292">Why it&apos;s not just &quot;forgetting&quot;</b><br><br>
+    &bull; <b>Spatial disorientation</b> = the spatial model haze that
+    causes healthy people to stub their toe in the dark, but at
+    catastrophic scale. The entire spatial graph is losing nodes.
+    Familiar rooms become unfamiliar because the spatial model is
+    below threshold.<br><br>
+    &bull; <b>Not recognizing family</b> = the face-recognition nodes
+    have lost opacity. The face is physically seen (visual cortex
+    works) but the identity node it should activate has decayed below
+    retrievability. The person is literally a stranger to the
+    patient&apos;s graph.<br><br>
+    &bull; <b>Personality changes</b> = the self-node cluster (see the
+    Self as Predicted Node canvas) is decaying. The stable self-model
+    that modulates behavior is losing coherence. What looks like
+    &quot;personality change&quot; is the self-prediction becoming
+    noisier as the self-node loses edges.<br><br>
+    &bull; <b>Procedural memory persists longest</b> = motor-skill
+    pathways are heavily myelinated (oligodendrocytes from the
+    Biological Substrate canvas) and run through a different brain
+    region (cerebellum + basal ganglia) than declarative memory
+    (hippocampus). The regions that Alzheimer&apos;s attacks first
+    (hippocampus → cortex) are not the regions that store
+    piano-playing or walking. This is why an Alzheimer&apos;s patient
+    who cannot remember their name can still play a piece they
+    learned 50 years ago.<br><br>
+    <b>See also:</b>
+    <a href="#" onclick="document.querySelector('[data-panel=haze-tab]').click();return false">Memory Haze</a>
+    (the underlying opacity mechanism),
+    <a href="#bio-substrate">Biological Substrate</a>
+    (microglia + oligodendrocytes),
+    <a href="#" onclick="document.querySelector('[data-panel=haze-tab]').click();return false">Reminiscence Bump</a>
+    (why youth memories survive longest).
+  </div>
+  </div>
+
 </div>
 </div>
 
@@ -5702,6 +5880,278 @@ _PAGE = """\
     and decay fast. You binge a show, can&apos;t name episode 3. You
     scroll for an hour and can&apos;t recall three posts. Same mechanism.
   </div>
+
+  <h3 id="reading-early" style="margin-top:32px">Reading Early &mdash; The Compounding Advantage</h3>
+  <p class="desc">
+    If books pack more information per minute than any other medium, then
+    the age at which you start reading heavily is the age at which your
+    prediction engine starts training on its highest-bandwidth input.
+    That timing has measurable downstream effects on vocabulary, working
+    memory, and every test score that rewards long-window context.
+    "IQ gain from reading" is a fuzzy headline &mdash; here is what the
+    mechanism actually looks like under PEP.
+  </p>
+  <div class="info">
+    <b>Information density and what gets trained.</b> A page of prose
+    carries ~250 words. At a moderate reading pace that's three to four
+    minutes of input covering roughly what a TV scene covers in eight
+    minutes, a podcast covers in ten, or a short-form feed covers never
+    (it covers one beat and moves on). But the density is only half the
+    story. The <em>shape</em> of the density matters: books are nested
+    sentences embedded in paragraphs embedded in chapters embedded in a
+    whole argument. The predictor has to hold state across all four
+    layers at once to make sense of the next sentence. That is a
+    multi-scale prediction task. The Residual Scorer fires when an
+    argument turns on you in chapter nine and you realize the setup in
+    chapter two meant something else. Nothing else trains that hold.
+  </div>
+  <div class="info">
+    <b>The Matthew effect in reading.</b> Kids who read early read more;
+    kids who read more learn more words; more words means each new book
+    is easier, because the predictor has more priors to compress with.
+    By age ten the gap between a child who reads thirty minutes a day
+    and one who reads five is on the order of a million words of
+    cumulative exposure per year &mdash; Cunningham and Stanovich's
+    classic finding. That gap compounds: the high-exposure child enters
+    middle school with a denser semantic graph, which makes every
+    subsequent subject (history, science, math word problems) cheaper
+    to learn, because comprehension is dominated by the vocabulary you
+    bring to it. Rich-get-richer is not a metaphor here; it's the
+    reinforcement math.
+  </div>
+  <div class="info">
+    <b>Vocabulary as compression primitives.</b> Every word you know is
+    a compressed concept &mdash; one token standing in for a whole
+    region of the semantic graph. A reader with a 50K-word vocabulary
+    thinks in larger chunks than a reader with 20K. The predictor
+    works at the same clock rate but covers more ground per cycle,
+    because each symbol on the page unpacks into richer structure. This
+    is why vocabulary is the single strongest correlate of reading
+    comprehension, and why comprehension is the single strongest
+    correlate of academic performance across every subject. The
+    pipeline is: more words &rarr; denser graph &rarr; cheaper
+    prediction &rarr; more capacity left over for the hard thing the
+    text is actually trying to say.
+  </div>
+  <div class="info">
+    <b>What "IQ gain" actually is.</b> IQ tests measure a mix of
+    <em>g</em> (general processing capacity) and crystallized
+    knowledge. Reading unambiguously raises the crystallized part
+    &mdash; vocabulary subtests are effectively reading-exposure
+    subtests. What is contested is whether reading raises <em>g</em>.
+    The conservative reading of the evidence: it raises the machinery
+    that <em>g</em> tests probe &mdash; working-memory span, attention
+    control, holding multi-clause structure &mdash; even if the
+    underlying scalar capacity doesn't move. For practical purposes
+    this distinction doesn't matter. If you can hold a longer window
+    and compress more per symbol, you will perform better on every
+    task that rewards those abilities. The test says that is higher IQ;
+    the mechanism says it is a better-trained predictor.
+  </div>
+  <div class="info">
+    <b>Why reading beats video for the same content.</b> Video runs at
+    the speaker's pace, usually ~150 words per minute. Text runs at
+    yours &mdash; 250 to 400 words per minute for fluent readers, with
+    instantaneous re-read, skip, and look-back. That is three things
+    the video medium cannot do: <em>self-pacing</em> (you slow down
+    when the signal is hard), <em>random access</em> (you can re-check
+    chapter two when chapter nine gets interesting), and <em>silent
+    sub-vocalization</em> (you're generating the audio yourself, which
+    couples the language predictor more tightly than passive listening).
+    Same raw content, dramatically more learning per unit time. The
+    Residual Scorer gets more signal because the reader invests more
+    metacognitive overhead per passage.
+  </div>
+  <div class="info">
+    <b>The attention transfer.</b> A child who reads a novel at age
+    nine is running the predictor in sustained mode for an hour at a
+    stretch. That capacity is not a book-specific skill &mdash; it's a
+    generic bandwidth allocation pattern that now transfers to every
+    other prediction task: listening to a teacher, following a proof,
+    tracking a conversation. The <a href="#" onclick="document.querySelector('[data-panel=state-space]').click();return false">Cognitive
+    State</a> tab's bandwidth dimension is the live version of this: a
+    brain with a reader's bandwidth default has more of it available,
+    more of the time. Short-form-trained brains have the dial stuck
+    low and pay more effort to raise it.
+  </div>
+  <div class="info">
+    <b>Critical-period leverage.</b> Before roughly age twelve the
+    language network is still consolidating. Heavy reading during that
+    window shapes how much cortical real estate the orthographic and
+    semantic systems end up with. After that window the network is
+    still plastic but less so &mdash; an adult who starts reading
+    heavily at forty gains real ground, but not as cheaply as the
+    same exposure would have bought at nine. This is not "it's too
+    late"; it's "the returns-per-hour are higher earlier, so earlier
+    is the highest-leverage intervention available." Hazed nodes can
+    be rebuilt; the default configuration they rebuild into is easier
+    to set than to reset.
+  </div>
+  <div class="info">
+    <b>Caveats honest enough to keep.</b> Reading correlates with
+    later IQ and with parental IQ and with household income, so
+    disentangling causation is hard. The RCT-style evidence (dialogic
+    reading interventions, shared book reading) shows real causal
+    effect but smaller than the raw correlation. The Flynn effect
+    complicates everything further: raw IQ scores rose for a century
+    as schooling and print saturation rose, then stalled or reversed
+    as short-form media took over. The causal story points the same
+    direction as the correlational one; the magnitude is contested.
+    The mechanism &mdash; denser input, longer prediction windows,
+    richer compression primitives &mdash; is not.
+  </div>
+  <div class="info">
+    <b>PEP module mapping.</b><br>
+    &bull; <b>Predictor</b> &mdash; trained to forecast over long
+    windows (sentences &rarr; paragraphs &rarr; chapters &rarr;
+    arguments). Early heavy reading sets the default window wider.<br>
+    &bull; <b>Residual Scorer</b> &mdash; gets more signal per unit
+    time because density is high and the reader is actively predicting
+    ahead.<br>
+    &bull; <b>State Modulator</b> &mdash; bandwidth allocation
+    default is shifted higher; the dial starts closer to the
+    "sustained" end of its range.<br>
+    &bull; <b>Weighted Graph</b> &mdash; vocabulary entries are nodes;
+    semantic relations are edges. Early heavy reading builds a denser
+    graph, which makes every subsequent retrieval cheaper (spreading
+    activation finds second- and third-hop neighbors faster in a dense
+    graph than a sparse one).<br>
+    &bull; <b>Opacity / Haze</b> &mdash; vocabulary encountered once
+    decays fast; vocabulary encountered across many texts gets
+    reinforced past the reuse threshold and sticks. Volume matters
+    for exactly this reason.<br><br>
+    <b>See also:</b>
+    <a href="#" onclick="document.querySelector('[data-panel=state-space]').click();return false">Cognitive State &rarr; Bandwidth</a>,
+    <a href="#" onclick="document.querySelector('[data-panel=haze-tab]').click();return false">Memory Haze</a> (why vocabulary sticks with volume),
+    <a href="#" onclick="document.querySelector('[data-panel=mind-tab]').click();return false">How the Mind Works</a> (the prediction engine this is training).
+  </div>
+
+  <h3 id="self-media" style="margin-top:32px">Seeing Yourself &mdash; The Brain's Newest Training Regime</h3>
+  <p class="desc">
+    For all of evolution, the self-model was calibrated from the inside:
+    proprioception, motor copy, bone-conducted voice, mirrors if you
+    were lucky. Then 150 years of photography, 70 of film, 20 of
+    front-facing cameras. The prediction engine now gets a ground-truth
+    feed of itself &mdash; and the self-model has never been trained on
+    this much external data. Every canvas in this tab was about how a
+    medium retrains the brain. This one is about what happens when you
+    are the subject.
+  </p>
+  <div class="info">
+    <b>Mirror-self vs camera-self: the flip asymmetry.</b> You have
+    watched yourself in a mirror thirty years &mdash; horizontally
+    flipped. That image is what the visual predictor built the self-model
+    from. A photo or a front-camera view is un-flipped: the cheek that
+    was higher is now lower, the smile lands a millimeter wrong, the hair
+    parts the other way. The residual is small but constant. This is
+    why most people like themselves in mirrors and dislike themselves in
+    photos &mdash; not because one is more honest, but because one
+    matches the predictor's prior and one violates it. The brain rounds
+    "violates my self-model" up to "looks wrong."
+  </div>
+  <div class="info">
+    <b>Voice recordings work the same way.</b> Your voice, heard from the
+    inside, is filtered through bone conduction &mdash; bassier, warmer,
+    richer. A recording strips that out. The predictor trained on three
+    decades of the bone-conducted version hears the recording and flags a
+    residual: <em>that is not what I sound like</em>. It is what you
+    sound like. The predictor is the one that is wrong. But the
+    predictor is older and will keep winning the argument until you
+    deliberately retrain it, which takes roughly a few weeks of
+    regular exposure.
+  </div>
+  <div class="info">
+    <b>Zoom fatigue is a prediction-engine overload.</b> In person,
+    you predict <em>them</em>. On a video call with self-view on, you
+    predict them <em>and</em> yourself simultaneously &mdash; a
+    continuous self-audit layered onto the social task. The self-prediction
+    loop (am I making the face I think I'm making?) runs as a background
+    process the brain is not designed to run for eight hours a day. The
+    state modulator ramps up salience-gain on the self-view because
+    <em>faces are high-priority</em>, and your face is the one it has the
+    least external constraint on. Hiding self-view reduces fatigue by
+    closing that loop. Every study that has looked has confirmed this.
+  </div>
+  <div class="info">
+    <b>The selfie-filter feedback loop.</b> A beauty filter applies a
+    small correction. The brain sees it, the residual says "that's
+    close-ish to me." After thousands of repetitions the <em>self-model
+    drifts toward the filter</em>: the filtered version starts to feel
+    baseline, and the un-filtered face now looks wrong by the same
+    mechanism that makes photos look wrong to mirror-trained people.
+    This is not vanity. This is the predictor updating on its training
+    data, which happens to include a daily-curated-by-software version of
+    the face. "Snapchat dysmorphia" is that drift made clinical: people
+    seek cosmetic surgery to match the filter because the filter has
+    become their self-prior. The Residual Scorer cannot tell that the
+    training data is systematically biased; it only sees consistent
+    input and updates.
+  </div>
+  <div class="info">
+    <b>Deliberate self-viewing as training: athletes, dancers, speakers.</b>
+    The productive use of the same mechanism. An athlete watching game
+    film sees the gap between their motor-model's claim and the external
+    footage &mdash; <em>I thought my elbow was here; it was six inches
+    off</em>. The residual is exactly what the motor predictor needs. A
+    dancer watching rehearsal video recalibrates body schema. A speaker
+    watching a recording updates the vocal and gestural predictor. This is
+    why the coaching loop "record &rarr; review &rarr; adjust" works. The
+    medium that causes drift when you watch yourself passively causes
+    rapid skill acquisition when you watch yourself with intent. Same
+    input, opposite sign, because attention is the gating variable.
+  </div>
+  <div class="info">
+    <b>Body dysmorphic disorder: a stuck residual.</b> In BDD the
+    mismatch between the self-model and the external view doesn't
+    resolve. The state modulator keeps the gain on that specific residual
+    high; every mirror, every photo, every reflection in a window
+    re-fires it. The prediction engine is doing what it's supposed to do
+    &mdash; flagging a discrepancy &mdash; but the flag never clears,
+    because the gain-setting that should down-weight it after enough
+    exposure has itself become the thing under scrutiny. In PEP terms
+    this is a pathological fixed point: the State Modulator's weighting
+    of its own output is the bug. Treatment usually works by targeting
+    the state modulator (attention retraining, exposure) rather than the
+    self-model directly.
+  </div>
+  <div class="info">
+    <b>The first generation raised with themselves on video.</b> Nobody
+    born before 2000 saw themselves in continuous video during
+    self-model formation. Nobody born after 2015 hasn't. A three-year-old
+    watching themselves on a phone is doing something no three-year-old
+    has ever done. The self-model is calibrating on <em>external</em>
+    footage as a primary source for the first time in the species'
+    history. What this produces we do not yet know. Some plausible
+    predictions: stronger explicit self-representation earlier; weaker
+    mirror-self asymmetry (since these kids have been un-flipped from
+    day one); elevated baseline self-monitoring load; and novel failure
+    modes if filter-mediated self-views dominate the training data. This
+    is an open experiment being run on one cohort, live, globally.
+  </div>
+  <div class="info">
+    <b>PEP module mapping.</b><br>
+    &bull; <b>Predictor</b> &mdash; maintains the self-model (face,
+    voice, body schema, motor trajectory). Media of self provides
+    external ground truth it was never historically exposed to.<br>
+    &bull; <b>Residual Scorer</b> &mdash; fires on the gap between
+    predicted-self and observed-self. Small-and-frequent = drift signal;
+    large-and-sticky = discomfort; chronic-and-unclearing = BDD.<br>
+    &bull; <b>State Modulator</b> &mdash; allocates salience to
+    self-monitoring. Up-regulated by social context, self-view feeds,
+    appearance-focused environments. The variable that turns seeing
+    yourself from recalibration into rumination.<br>
+    &bull; <b>Weighted Graph</b> &mdash; stores the self-schema. Every
+    photo seen, every video watched, every filter applied nudges edges.
+    Thousands of micro-updates compound.<br>
+    &bull; <b>Opacity / Haze</b> &mdash; old self-views decay; recent
+    ones dominate. This is why your self-image updates to a recent
+    haircut in days but your voice takes weeks &mdash; different
+    modalities, different reinforcement rates.<br><br>
+    <b>See also:</b>
+    <a href="#motor-errors" onclick="document.querySelector('[data-panel=mind-tab]').click();">Motor Prediction Errors</a> (the same predictor, different target),
+    <a href="#" onclick="document.querySelector('[data-panel=haze-tab]').click();return false">Memory Haze</a> (why old self-images fade),
+    <a href="#" onclick="document.querySelector('[data-panel=conditions-tab]').click();return false">Conditions</a> (where BDD lives clinically).
+  </div>
 </div>
 </div>
 
@@ -6091,6 +6541,96 @@ _PAGE = """\
   </div>
   <div id="gallery-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px">
     <span style="color:var(--dim)">building…</span>
+  </div>
+</div>
+</div>
+
+<!-- ═══ Why PEP ═════════════════════════════════════════════════ -->
+<div class="panel" id="whypep-tab">
+<div class="container">
+  <h2>Why PEP &mdash; How the Engine Applies to Cognition</h2>
+  <p class="desc">
+    Axona is not a stand-alone idea. It is PEP's five primitives
+    applied to cognitive state. Of the LAVAS siblings, Axona is the
+    most direct application &mdash; the primitives were designed to
+    model minds, and Axona is minds. BCI, Clinic, Learn, and Wellness
+    are four instantiations over different populations. Here is the
+    mapping.
+  </p>
+
+  <div class="info">
+    <b>1. Weighted graph &mdash; the substrate.</b><br>
+    Concepts, percepts, memories, and cognitive states are nodes.
+    Semantic associations, co-activation history, and contextual
+    proximity are edges. The cognitive graph <em>is</em> the mind's
+    representation &mdash; not a model of the mind, the substrate on
+    which the mind's computations run. Every Axona canvas that shows
+    an activation pattern or concept network is this primitive
+    exposed directly. See
+    <a href="#" onclick="document.querySelector('[data-panel=mind-tab]').click();return false">How the Mind Works</a>.
+  </div>
+
+  <div class="info">
+    <b>2. Spreading activation &mdash; the search primitive.</b><br>
+    Attention is spreading activation. When a cue arrives, activation
+    radiates from the seed concept through weighted edges with decay.
+    The attentional spotlight is just the high-activation region at a
+    given moment. Free association is this primitive running unbounded;
+    focused attention is the primitive running with a narrow beam.
+    Memory retrieval, priming effects, and semantic satiation are all
+    shapes of spreading activation in different regimes. See
+    <a href="#" onclick="document.querySelector('[data-panel=state-space]').click();return false">Cognitive State</a>.
+  </div>
+
+  <div class="info">
+    <b>3. Predictor + residual scorer &mdash; the learning signal.</b><br>
+    The brain is a prediction engine. Every percept is scored against
+    the running forecast; the residual (actual minus expected) is the
+    signal that updates the graph. Prediction vs reality canvases
+    expose this directly. Surprise, attention capture, and the "aha"
+    moment of insight are all residual spikes at different timescales.
+    Karl Friston's free-energy framing, predictive coding, and
+    Bayesian brain hypotheses are all versions of this primitive.
+  </div>
+
+  <div class="info">
+    <b>4. State modulator &mdash; runtime gain control.</b><br>
+    Mood, fatigue, arousal, attention, placebo expectancy, social
+    context, drug state &mdash; all are slow-timescale modulators that
+    rescale edge gains without changing the underlying graph. The same
+    concept network produces radically different cognition under
+    different neuromodulator levels. Placebo effects are the modulator
+    primitive made visible: the belief rescales the gain, and the
+    rescaled computation produces a different output. See
+    <a href="#" onclick="document.querySelector('[data-panel=influence-tab]').click();return false">What Changes It</a>.
+  </div>
+
+  <div class="info">
+    <b>5. Opacity + haze &mdash; reclaimable capacity.</b><br>
+    Every memory has opacity: its current encoding strength. Opacity
+    decays toward a floor; reinforcement resets it. Below the reuse
+    threshold, the slot becomes reclaimable &mdash; which is the only
+    mechanism that lets finite neural capacity carry a lifetime of
+    experience. Pathology is haze gone wrong: Alzheimer's is
+    D_rec &rarr; D_irr transitions happening faster than reinforcement
+    can replace anchors; PTSD is haze <em>failing</em> on specific
+    traumatic traces. See
+    <a href="#" onclick="document.querySelector('[data-panel=haze-tab]').click();return false">Memory Haze</a>,
+    <a href="#" onclick="document.querySelector('[data-panel=media-tab]').click();return false">Media &amp; Brain</a>.
+  </div>
+
+  <div class="info" style="border-left:3px solid #a3e635">
+    <b>The pattern.</b> Cognition is not its own thing. It is what
+    the five primitives look like when they run on a neural
+    substrate &mdash; with real neurons holding the graph, real
+    synapses carrying the edges, real neuromodulators doing the
+    state modulation, real protein synthesis implementing the
+    opacity decay. Axona's Biological Substrate canvas makes this
+    explicit: it maps each primitive onto specific cell types and
+    molecular mechanisms. The other LAVAS apps run the same
+    primitives on different substrates &mdash; words (Lingora),
+    people (Atria), documents (Vectora), assets (Strata). Axona is
+    where the primitives are what they were designed for.
   </div>
 </div>
 </div>

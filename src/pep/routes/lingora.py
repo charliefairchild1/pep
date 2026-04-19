@@ -138,10 +138,11 @@ _PAGE = """\
       <div class="tab" data-panels="codeswitch-tab translation-tab sign-tab pidgin-tab diglossia-tab animal-tab emoji-tab">Cross-Language</div>
       <div class="tab" data-panels="prompt-tab llm-tab aidetect-tab">Machines</div>
       <div class="tab" data-panels="sandbox-tab analyze-tab gallery-tab citations-tab">Tools</div>
-      <div class="tab" data-panels="workbench-tab voice-analyze-tab">Workbench</div>
+      <div class="tab" data-panels="workbench-tab story-tab voice-analyze-tab">Workbench</div>
       <div class="tab" data-panels="pitch-tab bench-tab cases-tab">Pitch</div>
       <div class="tab" data-panel="products-tab">Products</div>
       <div class="tab" data-panel="theory-tab">Theory</div>
+      <div class="tab" data-panel="whypep-tab">Why PEP</div>
       <div class="tab" data-panel="bridge-tab">PEP &harr; Lingora</div>
     </div>
   </div>
@@ -3435,6 +3436,51 @@ _PAGE = """\
     communication system. Whether any non-human system has them is
     an open empirical question &mdash; but the answer, so far, is no.
   </div>
+
+  <div class="info" style="border-left: 3px solid var(--accent2)">
+    <b style="color:var(--accent2)">Dogs pressing buttons &mdash; what the viral videos show through PEP</b><br><br>
+    Recent videos of dogs (Bunny, Stella, Billi) using soundboard
+    buttons to &quot;talk&quot; have captivated the internet. A dog
+    presses &quot;outside&quot; and the owner opens the door. The dog
+    presses &quot;play&quot; and the owner throws the ball. Some dogs
+    have learned 50-100 buttons.<br><br>
+    Through PEP: the dog is building a small weighted graph where
+    button-nodes connect to experience-nodes via spreading activation.
+    &quot;Outside&quot; is not a word the dog &quot;knows English&quot;
+    for &mdash; it is a node whose activation pattern includes the
+    door opening, the leash appearing, the grass smell, the walk.
+    The dog learned it the same way Saffran&apos;s 1996 infants
+    found word boundaries: statistical learning. Press button &rarr;
+    consequence. Repeat. The association strengthens. Same mechanism.<br><br>
+    <b>The interesting question:</b> does the dog have a prediction
+    engine? If pressing &quot;outside&quot; when it&apos;s raining
+    produces a different outcome, does the model update? The viral
+    videos suggest yes &mdash; some dogs have learned to press
+    &quot;outside&quot; + &quot;water&quot; to indicate they want water,
+    not a walk. That is a <em>two-node query</em> on a compatibility
+    graph. Same primitive Vectora uses for multi-hop retrieval,
+    Atria uses for multi-objective matching. Simpler graph, same
+    structure.<br><br>
+    <b>What the dogs are NOT doing:</b> recursion, displacement (no
+    button-pressing about yesterday&apos;s walk), metalinguistic
+    awareness, syntax. The button vocabulary is an association
+    system &mdash; the same level as the signing apes, but with a
+    more accessible interface (pressing is easier than signing).
+    The interesting scientific question is whether any dog will
+    spontaneously combine buttons in a way that requires genuine
+    syntax, not just sequential association. So far, the evidence
+    is ambiguous. The viral clips are selected for the most
+    impressive moments; the thousands of random/meaningless presses
+    are not filmed.<br><br>
+    <b>What this tells us about language:</b> the spreading-activation
+    primitive for association is deeply conserved across species. Dogs,
+    apes, parrots, and human infants all build associations the same
+    way. What makes human language different is not the association
+    mechanism (which is shared) but the <em>recursive combinatorial
+    engine</em> that sits on top of it. The buttons show where the
+    shared floor is. Human language shows how far above that floor
+    our species built.
+  </div>
 </div>
 </div>
 
@@ -3546,6 +3592,56 @@ _PAGE = """\
     <a href="#" onclick="canvasSelect('translation-tab');return false">Lingora &rarr; Translation Gap</a>,
     <a href="#" onclick="canvasSelect('subtext-tab');return false">Lingora &rarr; Subtext</a>,
     <a href="#" onclick="canvasSelect('politeness-tab');return false">Lingora &rarr; Politeness</a>.
+  </div>
+</div>
+</div>
+
+<!-- ═══ Story Translation Workbench ══════════════════════════════ -->
+<div class="panel" id="story-tab">
+<div class="container">
+  <h2>Story Translation &mdash; How Layer Losses Compound Across a Narrative</h2>
+  <p class="desc">
+    A single sentence can lose an idiom. A short story loses coherence.
+    Pick a passage; watch how standard MT degrades paragraph by paragraph
+    as pragmatic, register, and cultural cues accumulate and interact.
+    Lingora's layer-aware translation is stitched against the same
+    source to show what preservation looks like when narrative voice
+    has to stay consistent across a whole text.
+  </p>
+  <div class="controls" style="margin-bottom:16px">
+    <button onclick="storyPick(0)">Spanish — Sobremesa</button>
+    <button onclick="storyPick(1)">Japanese — Amai</button>
+  </div>
+  <div id="story-view" style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:0"></div>
+  <div class="canvas-box" style="margin-top:16px">
+    <canvas id="story-drift-canvas" width="960" height="220"></canvas>
+  </div>
+  <div class="info">
+    <b>What you are watching.</b> Each paragraph of the source appears in
+    three columns: the original, the baseline machine translation
+    (naive denotation-preserving), and the Lingora layer-aware
+    translation. Below each paragraph, an annotation row calls out
+    specifically what the MT lost &mdash; dropped subjects, benefactive
+    auxiliaries, register shifts, honorifics, aspect markers, cultural
+    anchors &mdash; and how the layer-aware version recovers it.<br><br>
+    <b>The drift chart.</b> Each point is per-paragraph preservation
+    score (how much of the source's combined pragmatic + register +
+    cultural layer survives the translation). MT drops as layers
+    compound; Lingora holds because it translates each layer explicitly
+    and recomposes. The gap widens over the course of the story, not
+    within a single sentence.<br><br>
+    <b>Why this matters beyond sentence-scale.</b> Sentence-level MT can
+    get lucky on a single idiom. Narrative coherence requires that the
+    same character address the same other character the same way across
+    ten paragraphs, that register not drift between reported speech
+    and narration, that cultural anchors established early keep their
+    weight later. No current commercial MT does this; every one of them
+    resets to defaults per sentence.<br><br>
+    <b>See also:</b>
+    <a href="#" onclick="canvasSelect('workbench-tab');return false">Lingora &rarr; Translation Workbench</a>,
+    <a href="#" onclick="canvasSelect('translation-tab');return false">Lingora &rarr; Translation Gap</a>,
+    <a href="#" onclick="canvasSelect('politeness-tab');return false">Lingora &rarr; Politeness</a>,
+    <a href="#" onclick="canvasSelect('anaphora-tab');return false">Lingora &rarr; Anaphora</a>.
   </div>
 </div>
 </div>
@@ -4047,6 +4143,94 @@ _PAGE = """\
     model's forecast distribution toward the desired region &mdash; the same
     operation a skilled writer runs on a human reader. The substrate differs.
     The mechanism is the same.
+  </div>
+</div>
+</div>
+
+<!-- ═══ Why PEP ═════════════════════════════════════════════════ -->
+<div class="panel" id="whypep-tab">
+<div class="container">
+  <h2>Why PEP &mdash; How the Engine Applies to Language</h2>
+  <p class="desc">
+    Lingora is not a stand-alone idea. It is PEP's five primitives
+    applied to language. Every canvas in this app is one or more of
+    these primitives exposed in a linguistic frame. Here is the mapping.
+  </p>
+
+  <div class="info">
+    <b>1. Weighted graph &mdash; the substrate.</b><br>
+    Words are nodes. Co-occurrence, semantic similarity, phonological
+    similarity, and typed relations (synonym, antonym, collocation,
+    register-sibling) are edges. A speaker's lexicon <em>is</em> the
+    weighted graph, and two speakers' graphs are never identical &mdash;
+    which is the origin of the principle that "shared meaning is always
+    partial." Every Lingora canvas that shows a network of words is
+    this primitive in its most direct form.
+  </div>
+
+  <div class="info">
+    <b>2. Spreading activation &mdash; the search primitive.</b><br>
+    Hearing a word spreads activation to its neighborhood. Listener
+    reconstruction &mdash; what you actually do to make sense of a
+    sentence &mdash; is bounded spreading activation from the heard
+    words to their semantic clusters. The recipient's reconstruction
+    can only use <em>their</em> edges, never the speaker's. See
+    <a href="#" onclick="canvasSelect('word-tab');return false">Word Constellation</a>,
+    <a href="#" onclick="canvasSelect('listener-tab');return false">Listener Reconstruction</a>,
+    <a href="#" onclick="canvasSelect('ambig-tab');return false">Ambiguity</a>.
+  </div>
+
+  <div class="info">
+    <b>3. Predictor + residual scorer &mdash; the learning signal.</b><br>
+    Each word narrows the forecast of the next. Comprehension is the
+    predictor settling. Jokes, garden-path sentences, poetry, and good
+    prose all engineer residual spikes at chosen moments &mdash; the
+    "click" of surprise that makes a sentence land. Residuals are
+    where meaning gets updated, not where the model fails. See
+    <a href="#" onclick="canvasSelect('sentence-tab');return false">Sentence Prediction</a>,
+    <a href="#" onclick="canvasSelect('humor-tab');return false">Humor</a>,
+    <a href="#" onclick="canvasSelect('poetry-tab');return false">Poetry</a>.
+  </div>
+
+  <div class="info">
+    <b>4. State modulator &mdash; runtime gain control.</b><br>
+    Register, formality, taboo, audience, mood, code-switching context &mdash;
+    all rescale which edges are eligible at runtime. Taboo words have
+    their edge gain zeroed in polite contexts; sarcasm markers flip the
+    valence of otherwise-positive edges; formal register suppresses the
+    casual half of the lexicon. The same word graph produces radically
+    different outputs under different social modulators. See
+    <a href="#" onclick="canvasSelect('taboo-tab');return false">Taboo</a>,
+    <a href="#" onclick="canvasSelect('politeness-tab');return false">Politeness</a>,
+    <a href="#" onclick="canvasSelect('codeswitch-tab');return false">Code-Switching</a>,
+    <a href="#" onclick="canvasSelect('irony-tab');return false">Irony</a>.
+  </div>
+
+  <div class="info">
+    <b>5. Opacity + haze &mdash; reclaimable capacity.</b><br>
+    Vocabulary you don't use fades. Spaced-repetition (Lingora Learn)
+    is an explicit scheduling of reinforcement against the decay curve.
+    Forgetting rare words is the feature that lets finite working
+    memory support new-language learning &mdash; old senses have to be
+    reclaimable for new ones to land. Aphasia is haze gone
+    pathological (anchors decay faster than reinforcement replaces
+    them). See
+    <a href="#" onclick="canvasSelect('vocab-tab');return false">Vocabulary</a>,
+    <a href="#" onclick="canvasSelect('acquisition-tab');return false">Acquisition</a>,
+    <a href="#" onclick="canvasSelect('aphasia-tab');return false">Aphasia</a>.
+  </div>
+
+  <div class="info" style="border-left:3px solid #4fc3f7">
+    <b>The pattern.</b> Language is not its own thing. It is what
+    happens when the five primitives run on a substrate of
+    word-nodes, listener-reconstructions, and social context. Every
+    linguistic phenomenon Lingora studies &mdash; idioms, translation
+    gaps, humor, irony, politeness, register drift, acquisition,
+    aphasia &mdash; is one or more primitives behaving in a specific
+    regime. This is why the same engine runs Atria (people as
+    nodes), Vectora (documents as nodes), Strata (assets as nodes),
+    and Axona (cognitive states as nodes). The substrate changes;
+    the mechanism is the same.
   </div>
 </div>
 </div>
@@ -8168,6 +8352,267 @@ function wrapText(ctx, text, x, y, maxW, lineH) {
   if (line) ctx.fillText(line.trim(), x, yy);
 }
 drawWorkbench();
+
+// ═══════════════════════════════════════════════════════════════════════
+// Story Translation Workbench
+// ═══════════════════════════════════════════════════════════════════════
+const STORY_DATA = [
+  {
+    title: 'Sobremesa',
+    srcLang: 'Spanish',
+    srcLangTag: 'es',
+    blurb: 'A grandchild\u2019s memory of the Saturday market. The single Spanish word "sobremesa" names a social ritual English has no noun for.',
+    paragraphs: [
+      {
+        src: 'Cuando era ni\u00f1a, mi abuela me llevaba al mercado los s\u00e1bados.',
+        mt:  'When I was a girl, my grandmother took me to the market on Saturdays.',
+        lin: 'When I was a girl, my grandmother used to take me to the market every Saturday.',
+        mtPreserve: 0.45,
+        linPreserve: 0.90,
+        annotation: [
+          '"era" / "llevaba" are imperfect \u2014 habitual, repeated. MT\u2019s simple past ("took") loses the recurrence. Lingora: "used to take."',
+          '"los s\u00e1bados" is Spanish for a recurring pattern, not a specific day-list. English needs "every Saturday," not "on Saturdays."',
+        ],
+      },
+      {
+        src: 'Siempre se quedaba media hora extra para la sobremesa con don Miguel, el verdulero.',
+        mt:  'She always stayed an extra half hour for after-meal with Mr. Miguel, the vegetable seller.',
+        lin: 'She\u2019d always linger an extra half-hour for the sobremesa \u2014 the slow talk after the meal \u2014 with Don Miguel, our greengrocer.',
+        mtPreserve: 0.25,
+        linPreserve: 0.88,
+        annotation: [
+          '"sobremesa" has no English noun. MT\u2019s "after-meal" is not a word. Lingora keeps the Spanish term and inlines a gloss (cultural anchor preserved by naming, not substituting).',
+          '"don" is an honorific of familiar respect, not a social title. "Mr. Miguel" reads as American formality; "Don Miguel" keeps the relational register.',
+          '"el verdulero" is occupation-as-identity inside a familiar community. "the vegetable seller" is transactional; "our greengrocer" preserves the relational possessive ("el" \u2248 "ours" in context).',
+        ],
+      },
+      {
+        src: 'Yo no entend\u00eda por qu\u00e9 no se iban \u2014 la comida ya se hab\u00eda acabado.',
+        mt:  'I did not understand why they did not leave \u2014 the food had already been finished.',
+        lin: 'I didn\u2019t understand why they wouldn\u2019t just leave; the food was already gone.',
+        mtPreserve: 0.55,
+        linPreserve: 0.85,
+        annotation: [
+          'MT uses full forms ("did not," "had been finished") which read as formal/written. The narrator voice is reflective/spoken. Lingora contracts to match register.',
+          '"se iban" with imperfect is not just "did not leave" \u2014 it is "refused to leave / wouldn\u2019t leave." Lingora recovers the modal nuance.',
+          '"se hab\u00eda acabado" is passive-reflexive; "was already gone" preserves the sense that the food vanishing happened without an agent.',
+        ],
+      },
+      {
+        src: 'Ahora, treinta a\u00f1os despu\u00e9s, me doy cuenta de que la sobremesa nunca era por la comida.',
+        mt:  'Now, thirty years later, I realize that the after-meal was never about the food.',
+        lin: 'Thirty years on, I see it: the sobremesa was never about the food.',
+        mtPreserve: 0.50,
+        linPreserve: 0.90,
+        annotation: [
+          '"Ahora... treinta a\u00f1os despu\u00e9s" opens in the narrator\u2019s reflective register. MT\u2019s literal word order reads as a timestamp; Lingora\u2019s "Thirty years on, I see it:" is a storyteller\u2019s beat (register preserved).',
+          '"me doy cuenta" (reflexive: give-oneself-account-of) is idiomatically "realize," but in a reflective context closer to "I see it." Lingora preserves the pacing of the arrived-at insight.',
+          'The closing "sobremesa" stays untranslated for continuity with earlier sentence \u2014 narrative consistency across paragraphs. MT switches to "the after-meal" again, breaking cohesion.',
+        ],
+      },
+    ],
+  },
+  {
+    title: 'Amai',
+    srcLang: 'Japanese',
+    srcLangTag: 'ja',
+    blurb: 'An older sister\u2019s reflection on family roles. Japanese drops subjects, uses benefactive auxiliaries, and carries an entire social logic in the single adjective "amai."',
+    paragraphs: [
+      {
+        src: '\u6bcd\u306f\u3044\u3064\u3082\u5f1f\u306b\u7518\u3044\u3002  (Haha wa itsumo ot\u014dto ni amai.)',
+        mt:  'Mother is always sweet to my younger brother.',
+        lin: 'My mother has always been softer on my little brother.',
+        mtPreserve: 0.35,
+        linPreserve: 0.85,
+        annotation: [
+          '"amai" literally means "sweet" (of taste), but applied to a parent\u2019s treatment of a child it means "lenient / too easy on." MT\u2019s "sweet to" reads as affection; the Japanese meaning is mild disapproval of the mother\u2019s leniency.',
+          '"Haha" without a possessive is "Mother" as an in-family reference; in English, "My mother" is required to sound natural \u2014 otherwise "Mother" reads as addressing her.',
+          '"ot\u014dto" is "younger brother" and carries relational weight. "my little brother" preserves the younger-relative meaning better than "my younger brother" in this register.',
+        ],
+      },
+      {
+        src: '\u79c1\u304c\u4f55\u304b\u5931\u6557\u3059\u308b\u3068\u3001\u300c\u3057\u3063\u304b\u308a\u3057\u306a\u3055\u3044\u300d\u3068\u53f1\u3089\u308c\u308b\u3002  (Watashi ga nani ka shippai suru to, "shikkari shinasai" to shikarareru.)',
+        mt:  'When I fail at something, I am scolded, "Be strong."',
+        lin: 'When I mess something up, I get the \u201cpull yourself together\u201d \u2014 the sharp version.',
+        mtPreserve: 0.30,
+        linPreserve: 0.82,
+        annotation: [
+          '"shikarareru" is the passive of "scold" \u2014 specifically the Japanese *suffering passive*, which marks the subject as the one on the receiving end of an unwanted action. English passive is emotionally flat; "I get the..." preserves the sense of something arriving at the speaker.',
+          '"shikkari shinasai" is imperative, maternal-stern register. "Be strong" is a translation of the words; "pull yourself together" is a translation of the social act.',
+          'MT drops the stakes. Lingora adds "the sharp version" to preserve the emotional weight the Japanese carries via register and passive voicing.',
+        ],
+      },
+      {
+        src: '\u3067\u3082\u5f1f\u304c\u540c\u3058\u3053\u3068\u3092\u3059\u308c\u3070\u3001\u300c\u5927\u4e08\u592b\u3088\u300d\u3068\u7b11\u3063\u3066\u304f\u308c\u307e\u3057\u305f\u3002  (Demo ot\u014dto ga onaji koto o sureba, "daij\u014dbu yo" to waratte kuremashita.)',
+        mt:  'But when my younger brother does the same thing, she laughs and says, "It\u2019s okay."',
+        lin: 'When he does the same thing, she laughs and says "don\u2019t worry about it" \u2014 and she means it as a kindness to him.',
+        mtPreserve: 0.20,
+        linPreserve: 0.92,
+        annotation: [
+          '"kuremashita" is the *benefactive auxiliary* \u2014 it marks that the action was done *as a favor / kindness to someone*. This is half the sentence\u2019s meaning in Japanese. MT drops it entirely. Lingora adds the explicit "as a kindness to him" because English has no grammatical slot for this.',
+          'Subject drop: the Japanese sentence never names "my mother." Context carries it. MT has to re-supply "she." Lingora uses "he" (for the brother) plus "she" (for mother) to keep the contrast sharp.',
+          '"daij\u014dbu yo" with the sentence-final particle "yo" is soft-reassurance register, not neutral. "don\u2019t worry about it" matches; "It\u2019s okay" reads as a statement of fact.',
+        ],
+      },
+      {
+        src: '\u3053\u308c\u306f\u4e0d\u516c\u5e73\u3067\u306f\u306a\u3044\u3002  (Kore wa fuk\u014dhei de wa nai.)',
+        mt:  'This is not unfair.',
+        lin: 'I\u2019m not saying it\u2019s unfair.',
+        mtPreserve: 0.45,
+        linPreserve: 0.80,
+        annotation: [
+          'The Japanese sentence is a bare declaration with no hedging particles \u2014 but in context (after two paragraphs of implicit complaint) it reads as the narrator *preemptively blocking* the reader\u2019s inference. English "This is not unfair" reads as an assertion. "I\u2019m not saying it\u2019s unfair" preserves the meta-move \u2014 the narrator is negotiating with the reader.',
+          'This is pragmatic preservation, not denotational: the words translate cleanly, but the *speech act* does not. MT only translates the words.',
+        ],
+      },
+      {
+        src: '\u305f\u3060\u3001\u5bb6\u65cf\u306e\u4e2d\u3067\u79c1\u306e\u5f79\u5272\u304c\u9055\u3046\u3060\u3051\u3060\u3002  (Tada, kazoku no naka de watashi no yakuwari ga chigau dake da.)',
+        mt:  'It\u2019s just that my role in the family is different.',
+        lin: 'It\u2019s just that my place in the family was shaped differently.',
+        mtPreserve: 0.45,
+        linPreserve: 0.85,
+        annotation: [
+          '"yakuwari" translates as "role" but carries the sense of *assigned position within a structure*, not a chosen part. "place... shaped differently" preserves the sense that this was done to her, not by her. The sentence is about social position, not job description.',
+          '"chigau dake da" (is-different only) is a classic Japanese closing of acceptance-with-resignation. MT\u2019s "is different" is flat; Lingora\u2019s "was shaped differently" carries the backward-looking weight of a conclusion.',
+          'Final paragraph preserves the arc: the narrator has moved from reporting (\u00b61\u20132), to reflecting (\u00b63), to negotiating with the reader (\u00b64), to resolution (\u00b65). MT flattens every paragraph to the same register; Lingora modulates.',
+        ],
+      },
+    ],
+  },
+];
+let storyActive = null;
+function storyPick(i) {
+  storyActive = i;
+  pepSend('story.pick', { i, title: STORY_DATA[i].title });
+  storyRender();
+}
+function escHTML(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+function storyRender() {
+  const view = document.getElementById('story-view');
+  if (!view) return;
+  if (storyActive == null) {
+    view.innerHTML = '<div style="padding:40px;text-align:center;color:var(--dim)">pick a story above</div>';
+    return;
+  }
+  const d = STORY_DATA[storyActive];
+  const header = `
+    <div style="padding:14px 18px;border-bottom:1px solid var(--border);background:var(--surface2)">
+      <div style="font-size:11px;color:var(--dim);letter-spacing:0.15em">${escHTML(d.srcLang.toUpperCase())} &middot; STORY TRANSLATION</div>
+      <div style="font-size:18px;font-weight:bold;margin-top:2px">${escHTML(d.title)}</div>
+      <div style="font-size:12px;color:var(--dim);margin-top:6px">${escHTML(d.blurb)}</div>
+    </div>
+  `;
+  const colHeader = `
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;padding:12px 18px;border-bottom:1px solid var(--border);font-size:11px;letter-spacing:0.15em">
+      <div style="color:var(--dim)">ORIGINAL (${escHTML(d.srcLangTag)})</div>
+      <div style="color:#a78bfa">STANDARD MT</div>
+      <div style="color:#4fc3f7">LINGORA LAYER-AWARE</div>
+    </div>
+  `;
+  const rows = d.paragraphs.map((p, i) => {
+    const ann = p.annotation.map(a => `<div style="margin-top:4px;padding-left:12px;border-left:2px solid rgba(186,104,200,0.4)">${escHTML(a)}</div>`).join('');
+    return `
+      <div style="padding:14px 18px;border-bottom:1px solid var(--border)">
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;font-size:13px;line-height:1.55">
+          <div style="color:#dce4ed">${escHTML(p.src)}</div>
+          <div style="color:#c7b8f0">${escHTML(p.mt)}</div>
+          <div style="color:#7cd0f5">${escHTML(p.lin)}</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:10px;font-size:11px;color:var(--dim)">
+          <div>
+            <div style="color:#a78bfa;font-weight:bold;letter-spacing:0.1em">MT PRESERVES &nbsp;${(p.mtPreserve * 100).toFixed(0)}%</div>
+          </div>
+          <div>
+            <div style="color:#4fc3f7;font-weight:bold;letter-spacing:0.1em">LINGORA PRESERVES &nbsp;${(p.linPreserve * 100).toFixed(0)}%</div>
+          </div>
+        </div>
+        <div style="margin-top:10px;font-size:11px;color:#aaa;line-height:1.55">
+          <div style="color:#aaa;font-weight:bold;letter-spacing:0.1em;margin-bottom:4px">WHAT CHANGED &nbsp;\u00b6${i + 1}</div>
+          ${ann}
+        </div>
+      </div>
+    `;
+  }).join('');
+  view.innerHTML = header + colHeader + rows;
+}
+storyRender();
+const storyDriftCanvas = document.getElementById('story-drift-canvas');
+const storyDriftCtx = storyDriftCanvas.getContext('2d');
+function drawStoryDrift() {
+  const W = 960, H = 220;
+  storyDriftCtx.fillStyle = themeBg(); storyDriftCtx.fillRect(0, 0, W, H);
+  if (storyActive == null) {
+    storyDriftCtx.fillStyle = '#778'; storyDriftCtx.font = '11px monospace'; storyDriftCtx.textAlign = 'center';
+    storyDriftCtx.fillText('(pick a story to see per-paragraph preservation drift)', W / 2, H / 2);
+    requestAnimationFrame(drawStoryDrift); return;
+  }
+  const d = STORY_DATA[storyActive];
+  const padL = 60, padR = 20, padT = 36, padB = 36;
+  const plotW = W - padL - padR, plotH = H - padT - padB;
+  const n = d.paragraphs.length;
+  const x2px = i => padL + (n === 1 ? plotW / 2 : (i / (n - 1)) * plotW);
+  const y2px = v => padT + (1 - v) * plotH;
+  // Title
+  storyDriftCtx.fillStyle = '#dce4ed'; storyDriftCtx.font = 'bold 12px monospace'; storyDriftCtx.textAlign = 'left';
+  storyDriftCtx.fillText('Per-paragraph preservation \u2014 how much of pragmatic + register + cultural layers survives', padL, 18);
+  // Axes
+  storyDriftCtx.strokeStyle = 'rgba(150,150,150,0.4)'; storyDriftCtx.lineWidth = 1;
+  storyDriftCtx.beginPath();
+  storyDriftCtx.moveTo(padL, padT); storyDriftCtx.lineTo(padL, padT + plotH); storyDriftCtx.lineTo(padL + plotW, padT + plotH);
+  storyDriftCtx.stroke();
+  // Y ticks
+  [0, 0.25, 0.5, 0.75, 1.0].forEach(v => {
+    storyDriftCtx.strokeStyle = 'rgba(150,150,150,0.12)';
+    storyDriftCtx.beginPath(); storyDriftCtx.moveTo(padL, y2px(v)); storyDriftCtx.lineTo(padL + plotW, y2px(v)); storyDriftCtx.stroke();
+    storyDriftCtx.fillStyle = '#778'; storyDriftCtx.font = '10px monospace'; storyDriftCtx.textAlign = 'right';
+    storyDriftCtx.fillText(v.toFixed(2), padL - 6, y2px(v) + 3);
+  });
+  // X ticks
+  d.paragraphs.forEach((_, i) => {
+    storyDriftCtx.fillStyle = '#778'; storyDriftCtx.font = '10px monospace'; storyDriftCtx.textAlign = 'center';
+    storyDriftCtx.fillText('\u00b6' + (i + 1), x2px(i), padT + plotH + 14);
+  });
+  // MT line
+  storyDriftCtx.strokeStyle = '#a78bfa'; storyDriftCtx.lineWidth = 2;
+  storyDriftCtx.beginPath();
+  d.paragraphs.forEach((p, i) => {
+    const x = x2px(i), y = y2px(p.mtPreserve);
+    if (i === 0) storyDriftCtx.moveTo(x, y); else storyDriftCtx.lineTo(x, y);
+  });
+  storyDriftCtx.stroke();
+  d.paragraphs.forEach((p, i) => {
+    storyDriftCtx.fillStyle = '#a78bfa';
+    storyDriftCtx.beginPath(); storyDriftCtx.arc(x2px(i), y2px(p.mtPreserve), 4, 0, Math.PI * 2); storyDriftCtx.fill();
+  });
+  // Lingora line
+  storyDriftCtx.strokeStyle = '#4fc3f7'; storyDriftCtx.lineWidth = 2;
+  storyDriftCtx.beginPath();
+  d.paragraphs.forEach((p, i) => {
+    const x = x2px(i), y = y2px(p.linPreserve);
+    if (i === 0) storyDriftCtx.moveTo(x, y); else storyDriftCtx.lineTo(x, y);
+  });
+  storyDriftCtx.stroke();
+  d.paragraphs.forEach((p, i) => {
+    storyDriftCtx.fillStyle = '#4fc3f7';
+    storyDriftCtx.beginPath(); storyDriftCtx.arc(x2px(i), y2px(p.linPreserve), 4, 0, Math.PI * 2); storyDriftCtx.fill();
+  });
+  // Legend
+  storyDriftCtx.font = '10px monospace'; storyDriftCtx.textAlign = 'left';
+  storyDriftCtx.fillStyle = '#a78bfa';
+  storyDriftCtx.fillRect(padL + plotW - 220, 10, 10, 10);
+  storyDriftCtx.fillText('Standard MT', padL + plotW - 205, 19);
+  storyDriftCtx.fillStyle = '#4fc3f7';
+  storyDriftCtx.fillRect(padL + plotW - 110, 10, 10, 10);
+  storyDriftCtx.fillText('Lingora layer-aware', padL + plotW - 95, 19);
+  // Gap annotation
+  const mtAvg = d.paragraphs.reduce((a, p) => a + p.mtPreserve, 0) / n;
+  const linAvg = d.paragraphs.reduce((a, p) => a + p.linPreserve, 0) / n;
+  storyDriftCtx.fillStyle = '#81c784'; storyDriftCtx.font = 'bold 11px monospace';
+  storyDriftCtx.textAlign = 'right';
+  storyDriftCtx.fillText('gap: +' + ((linAvg - mtAvg) * 100).toFixed(0) + ' pts preservation', padL + plotW, padT + plotH + 28);
+  requestAnimationFrame(drawStoryDrift);
+}
+drawStoryDrift();
 
 // ═══════════════════════════════════════════════════════════════════════
 // Writing Voice Analyzer

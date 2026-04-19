@@ -139,6 +139,7 @@ _PAGE = """\
       <div class="tab" data-panel="cases-tab">Case Studies</div>
       <div class="tab" data-panel="gallery-tab">Gallery</div>
       <div class="tab" data-panel="theory-tab">Theory</div>
+      <div class="tab" data-panel="whypep-tab">Why PEP</div>
       <div class="tab" data-panel="bridge-tab">PEP &harr; Atria</div>
     </div>
   </div>
@@ -1893,6 +1894,80 @@ _PAGE = """\
     loop is fast and the rematch signal is cheap. The same machinery
     generalizes to teams, dating, hiring, co-founders, and anywhere two or
     more people need to be aligned for a shared experience.
+  </div>
+</div>
+</div>
+
+<!-- ═══ Why PEP ═════════════════════════════════════════════════ -->
+<div class="panel" id="whypep-tab">
+<div class="container">
+  <h2>Why PEP &mdash; How the Engine Applies to Matching</h2>
+  <p class="desc">
+    Atria is not a stand-alone idea. It is PEP's five primitives
+    applied to compatibility and matching. Date, Hire, Found, and
+    Therapy are four instantiations of the same primitives over
+    different relational domains. Here is the mapping.
+  </p>
+
+  <div class="info">
+    <b>1. Weighted graph &mdash; the substrate.</b><br>
+    People (or candidates) are nodes. Successful interactions are
+    edges. Compatibility dimensions &mdash; values, tempo, attachment
+    style, goal alignment, communication register &mdash; are node
+    attributes; their pairwise distances become edge weights. The
+    matching pool is a weighted graph that evolves with every
+    interaction. Atria's 7-dimension scorer is the concrete distance
+    function on top of this substrate.
+  </div>
+
+  <div class="info">
+    <b>2. Spreading activation &mdash; the search primitive.</b><br>
+    Pool formation is spreading activation from a seed player through
+    compatibility edges with decay. Who ends up in your match pool is
+    who was reachable within the activation budget. A restrictive
+    profile gives a narrow neighborhood; a broad profile explores
+    further hops. The same primitive that drives Vectora's multi-hop
+    retrieval drives Atria's multi-hop pool expansion.
+  </div>
+
+  <div class="info">
+    <b>3. Predictor + residual scorer &mdash; the learning signal.</b><br>
+    For every candidate pair, a running forecast: "will this match
+    succeed?" The residual &mdash; actual outcome minus forecast &mdash;
+    is the only learning signal Atria uses. The rematch oracle is this
+    primitive exposed directly: it predicts compatibility, and when the
+    prediction is violated, the graph updates. Atria's eval harness
+    reports AUC 0.977 against Elo's 0.655 because the residual-scoring
+    loop ingests richer signal than win/loss.
+  </div>
+
+  <div class="info">
+    <b>4. State modulator &mdash; runtime gain control.</b><br>
+    A player's confidence, recent-loss streak, availability, mood, and
+    chosen objective (Date / Hire / Found / Therapy) all rescale the
+    candidate pool at runtime. Same player, different state, different
+    matches. ObjectiveWeights presets are pre-packaged state
+    modulators. Behavior Modulation canvas shows this live.
+  </div>
+
+  <div class="info">
+    <b>5. Opacity + haze &mdash; reclaimable capacity.</b><br>
+    Stale matches and stale profiles decay. A pair that hasn't
+    interacted in months drops below the reuse threshold &mdash; the
+    slot becomes available for fresh matching. Without haze, the pool
+    calcifies into whoever matched first, and the system can't keep up
+    with people changing. Opacity decay is what lets a matching
+    platform stay current across years of user evolution.
+  </div>
+
+  <div class="info" style="border-left:3px solid #4fc3f7">
+    <b>The pattern.</b> Compatibility is not its own thing. It is
+    what happens when the five primitives run on a substrate of
+    person-nodes with multi-dimensional attributes. Every Atria
+    vertical (Date, Hire, Found, Therapy) keeps the primitives the
+    same and swaps the dimensions: romantic compatibility shares the
+    scorer with hiring fit, co-founder alignment, and therapist
+    match. Same engine, same primitives, different edges.
   </div>
 </div>
 </div>

@@ -91,7 +91,22 @@ _PAGE = """\
   .lavas-switch a { color: var(--accent); padding: 2px 4px; border-radius: 3px; }
   .lavas-switch a:hover { background: var(--surface); }
   .lavas-switch .lavas-current { color: var(--text); font-weight: bold; padding: 2px 4px; opacity: 0.7; }
+  .wizard { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 14px; margin-top: 4px; }
+  .wizard label { display: flex; flex-direction: column; gap: 4px; font-size: 11px; color: var(--dim); }
+  .wizard label.span-2 { grid-column: span 2; }
+  .wizard input[type="text"], .wizard input[type="number"], .wizard select, .wizard textarea {
+    background: var(--surface2); border: 1px solid var(--border); color: var(--text);
+    padding: 6px 8px; border-radius: 4px; font-family: inherit; font-size: 11px;
+  }
+  .wizard input[type="range"] { width: 100%; }
+  .wizard textarea { resize: vertical; }
+  .wizard .row-with-val { display: grid; grid-template-columns: 1fr 44px; gap: 8px; align-items: center; }
+  .wizard .row-with-val .val { color: var(--accent); font-weight: bold; text-align: right; }
+  .prereg-out { background: var(--surface2); border: 1px solid var(--border); padding: 10px 12px;
+                border-radius: 4px; font-size: 11px; color: var(--text); line-height: 1.6;
+                white-space: pre-wrap; overflow-x: auto; margin: 0; font-family: inherit; }
   @media (max-width: 700px) {
+    .wizard { grid-template-columns: 1fr; }
     .two-col { grid-template-columns: 1fr; }
     .readout { grid-template-columns: 1fr; }
     .container { padding: 12px; }
@@ -501,6 +516,34 @@ _PAGE = """\
     split is how PEP avoids both.
   </p>
 
+  <h3>Live: watch D_rec silently become D_irr</h3>
+  <div class="canvas-box">
+    <div class="controls">
+      <label>decay rate λ <input id="z-lam" type="range" min="0.005" max="0.08" step="0.005" value="0.025"><span class="val" id="z-lam-v">0.025</span></label>
+      <label>reuse threshold θ <input id="z-th" type="range" min="0.05" max="0.6" step="0.05" value="0.2"><span class="val" id="z-th-v">0.20</span></label>
+      <label>reconstruct-from-k <input id="z-k" type="range" min="1" max="5" step="1" value="2"><span class="val" id="z-k-v">2</span></label>
+      <label>time t <input id="z-t" type="range" min="0" max="200" step="1" value="0"><span class="val" id="z-t-v">0</span></label>
+      <button class="nav-btn" id="z-play">Play</button>
+      <button class="nav-btn" id="z-reset">Reset</button>
+    </div>
+    <canvas id="haze-canvas" height="300"></canvas>
+    <div class="readout">
+      <div class="box"><div class="lbl">target encoding</div><div class="val2" id="z-target">—</div></div>
+      <div class="box"><div class="lbl">anchors above θ</div><div class="val2" id="z-survivors">—</div></div>
+      <div class="box"><div class="lbl">state</div><div class="val2" id="z-state">—</div></div>
+    </div>
+  </div>
+  <div class="info">
+    Six neighbor nodes surround a target memory. All decay at rate λ, each
+    reinforced at a different recent time so their strengths differ.
+    Target below θ <em>and</em> ≥k neighbors still above θ → <b style="color:var(--warn)">D_rec</b>
+    (haze; reconstructible from surviving anchors). Target below θ
+    <em>and</em> fewer than k neighbors alive → <b style="color:var(--danger)">D_irr</b>
+    (the reconstruction path is gone; no external anchor can bring it back).
+    The <em>moment of transition</em> is the honesty event drift-tracking has
+    to catch — and there is no alarm for it intrinsic to the graph.
+  </div>
+
   <h3>When does D_rec become D_irr?</h3>
   <p>
     When the reconstruction path is gone. If a node's neighbors are all also
@@ -532,6 +575,32 @@ _PAGE = """\
     queries can I answer well from my current index? is a reachable-utility
     question.
   </p>
+
+  <div class="canvas-box">
+    <div class="controls">
+      <label>horizon H <input id="c-H" type="range" min="1" max="18" step="1" value="6"><span class="val" id="c-H-v">6</span></label>
+      <label>control effort u <input id="c-u" type="range" min="0.3" max="1.5" step="0.05" value="1.0"><span class="val" id="c-u-v">1.00</span></label>
+      <label>state x <input id="c-x" type="range" min="0" max="29" step="1" value="8"><span class="val" id="c-x-v">8</span></label>
+      <label>state y <input id="c-y" type="range" min="0" max="19" step="1" value="10"><span class="val" id="c-y-v">10</span></label>
+    </div>
+    <canvas id="capacity-canvas" height="280"></canvas>
+    <div class="readout">
+      <div class="box"><div class="lbl">reachable cells</div><div class="val2" id="c-vol">—</div></div>
+      <div class="box"><div class="lbl">Σ μ (total utility)</div><div class="val2" id="c-util">—</div></div>
+      <div class="box"><div class="lbl">C = ∫<sub>R</sub> μ dy</div><div class="val2" id="c-C">—</div></div>
+    </div>
+  </div>
+  <div class="info">
+    Brighter cells have higher utility μ (three Gaussian bumps).
+    The accent-outlined region is the reachable set
+    R<sub>H</sub>(x) — cells within Manhattan distance H·u of state x.
+    C is the utility integral over that set. Move x around: C changes
+    with <em>position</em>, not just horizon. Near-peak x has high C at
+    modest H; off-peak x needs a larger H to even see a peak. This is why
+    PTO says <b>present transformation shapes future capacity</b> — the
+    policy that moves you toward utility-rich terrain raises C without
+    raising H.
+  </div>
 
   <h3>(b) Predictive mutual information</h3>
   <div class="math">
@@ -633,6 +702,60 @@ _PAGE = """\
     as unfinished.
   </p>
 
+  <div class="info" style="border-left: 3px solid var(--warn); margin-top: 8px">
+    <h3 style="color:var(--warn);margin:0 0 4px">Pre-registration wizard</h3>
+    <p style="font-size:11px;margin-bottom:12px;line-height:1.7;color:var(--text)">
+      Commit to β, H, C form, and persistence metric <b>before</b> measurement.
+      Generates a copy-ready block you can paste into a repo README, eval spec,
+      or preprint appendix. The spec hash is deterministic from the inputs —
+      its only job is to let reviewers confirm the block wasn't altered after
+      results came in.
+    </p>
+    <div class="wizard">
+      <label class="span-2">Substrate
+        <input type="text" id="w-sub" placeholder="e.g. chat session, trading agent, retrieval graph">
+      </label>
+      <label>C form
+        <select id="w-C">
+          <option value="reachable-utility volume">(a) reachable-utility volume</option>
+          <option value="predictive mutual information">(b) predictive mutual information</option>
+        </select>
+      </label>
+      <label>Persistence metric
+        <select id="w-pm">
+          <option>session retention</option>
+          <option>uptime</option>
+          <option>benchmark-longevity</option>
+          <option>user-reported utility @ N weeks</option>
+          <option>other (describe in notes)</option>
+        </select>
+      </label>
+      <label>β (capacity-investment rate)
+        <div class="row-with-val">
+          <input type="range" id="w-beta" min="0" max="1" step="0.01" value="0.3">
+          <span class="val" id="w-beta-v">0.30</span>
+        </div>
+      </label>
+      <label>H (horizon, substrate-native units)
+        <input type="text" id="w-H" placeholder="e.g. 50 turns, 30 days, 1000 ticks">
+      </label>
+      <label>Ensemble size N (≥ 10)
+        <input type="number" id="w-N" min="10" value="30">
+      </label>
+      <label>Dominant Δq weights (optional)
+        <input type="text" id="w-w" placeholder="e.g. w_pred=0.5, w_cmp=0.3">
+      </label>
+      <label class="span-2">Notes (ablations, confounders, what would falsify)
+        <textarea id="w-notes" rows="2" placeholder="If J_H does not correlate with the persistence metric at p&lt;0.05, PTO fails on this substrate."></textarea>
+      </label>
+    </div>
+    <pre id="w-out" class="prereg-out" style="margin-top:12px"></pre>
+    <div style="margin-top:8px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+      <button class="nav-btn" id="w-copy">Copy pre-registration</button>
+      <span id="w-copy-status" style="color:var(--accent2);font-size:11px"></span>
+    </div>
+  </div>
+
   <h3 style="color:var(--danger)">"Why does PEP need PTO? Can't the engine stand alone?"</h3>
   <p>The engine can run without PTO. The <em>design decisions</em> cannot. Why split D into D_irr and D_rec? Why have haze at all? Why evaluate over sessions rather than per-turn? Each answer lives in PTO. Strip PTO out and PEP still works, but every future choice loses its spine.</p>
 </div></div>
@@ -648,6 +771,10 @@ document.querySelectorAll('.tab').forEach(tab => {
     const el = document.getElementById(id);
     if (el) el.classList.add('active');
     window.scrollTo(0, 0);
+    // Canvases in hidden panels have zero client width; redraw when their tab activates.
+    if (id === 'horizon-tab') drawHorizon();
+    if (id === 'haze-tab') drawHaze();
+    if (id === 'capacity-tab') drawCapacity();
   });
 });
 
@@ -657,7 +784,7 @@ function toggleLight() {
   const btn = document.getElementById('light-btn');
   if (btn) btn.textContent = isLight ? 'Dark Mode' : 'Light Mode';
   try { localStorage.setItem('pto-theme', isLight ? 'light' : 'dark'); } catch (e) {}
-  drawPipeline(); drawHorizon();
+  drawPipeline(); drawHorizon(); drawHaze(); drawCapacity();
 }
 (function restoreTheme() {
   try {
@@ -842,6 +969,309 @@ function drawHorizon() {
 });
 window.addEventListener('resize', () => { drawHorizon(); });
 setTimeout(drawHorizon, 60);
+
+// ═══ Haze demo ═══════════════════════════════════════════════════════
+const hazeCanvas = document.getElementById('haze-canvas');
+let hazePlaying = false;
+let hazeTimer = null;
+let hazeNeighbors = null;
+
+function initHazeNeighbors() {
+  const N = 6;
+  hazeNeighbors = [];
+  for (let i = 0; i < N; i++) {
+    hazeNeighbors.push({
+      angle: (i / N) * Math.PI * 2 - Math.PI / 2,
+      t0: Math.random() * 40,          // last reinforcement, varied
+      s0: 0.75 + Math.random() * 0.25,
+    });
+  }
+}
+initHazeNeighbors();
+
+function hazeNeighborStrength(t, node, lam) {
+  const dt = Math.max(0, t - node.t0);
+  return node.s0 * Math.exp(-lam * dt);
+}
+function hazeTargetStrength(t, lam) {
+  const dt = Math.max(0, t - 15);      // target reinforced at t=15
+  return 1.0 * Math.exp(-lam * dt);
+}
+
+function drawHaze() {
+  if (!hazeCanvas || hazeCanvas.clientWidth === 0) return;
+  const { w, h, ctx } = resizeCanvas(hazeCanvas);
+  ctx.clearRect(0, 0, w, h);
+  const accent = cssVar('--accent'), accent2 = cssVar('--accent2'),
+        dim = cssVar('--dim'), text = cssVar('--text'), border = cssVar('--border'),
+        warn = cssVar('--warn'), danger = cssVar('--danger'), surf2 = cssVar('--surface2');
+  const t = parseFloat(document.getElementById('z-t').value);
+  const lam = parseFloat(document.getElementById('z-lam').value);
+  const th = parseFloat(document.getElementById('z-th').value);
+  const k = parseInt(document.getElementById('z-k').value, 10);
+  document.getElementById('z-lam-v').textContent = lam.toFixed(3);
+  document.getElementById('z-th-v').textContent = th.toFixed(2);
+  document.getElementById('z-k-v').textContent = k;
+  document.getElementById('z-t-v').textContent = t.toFixed(0);
+
+  const cx = w / 2, cy = h / 2;
+  const R = Math.min(w, h) * 0.33;
+  const tgtS = hazeTargetStrength(t, lam);
+  const nstr = hazeNeighbors.map(n => hazeNeighborStrength(t, n, lam));
+  const survivors = nstr.filter(s => s >= th).length;
+
+  let state = 'alive', stateColor = accent2;
+  if (tgtS < th && survivors >= k) { state = 'D_rec'; stateColor = warn; }
+  else if (tgtS < th && survivors < k) { state = 'D_irr'; stateColor = danger; }
+
+  // edges
+  hazeNeighbors.forEach((n, i) => {
+    const nx = cx + Math.cos(n.angle) * R;
+    const ny = cy + Math.sin(n.angle) * R;
+    const alive = nstr[i] >= th;
+    ctx.strokeStyle = alive ? accent : border;
+    ctx.globalAlpha = 0.25 + 0.55 * nstr[i];
+    ctx.lineWidth = 1 + 1.3 * nstr[i];
+    ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(nx, ny); ctx.stroke();
+  });
+  ctx.globalAlpha = 1;
+
+  // neighbor nodes
+  hazeNeighbors.forEach((n, i) => {
+    const nx = cx + Math.cos(n.angle) * R;
+    const ny = cy + Math.sin(n.angle) * R;
+    const s = nstr[i];
+    const alive = s >= th;
+    ctx.fillStyle = surf2;
+    ctx.strokeStyle = alive ? accent2 : (s >= th * 0.5 ? warn : danger);
+    ctx.globalAlpha = 0.45 + 0.55 * s;
+    ctx.lineWidth = 2;
+    ctx.beginPath(); ctx.arc(nx, ny, 18, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = text;
+    ctx.font = '10px monospace'; ctx.textAlign = 'center';
+    ctx.fillText(s.toFixed(2), nx, ny + 3);
+  });
+
+  // target
+  ctx.fillStyle = surf2;
+  ctx.strokeStyle = stateColor;
+  ctx.lineWidth = 3;
+  ctx.globalAlpha = 0.55 + 0.45 * tgtS;
+  ctx.beginPath(); ctx.arc(cx, cy, 30, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+  ctx.globalAlpha = 1;
+  ctx.fillStyle = stateColor;
+  ctx.font = 'bold 10px monospace'; ctx.textAlign = 'center';
+  ctx.fillText('TARGET', cx, cy - 2);
+  ctx.fillStyle = text;
+  ctx.font = '10px monospace';
+  ctx.fillText(tgtS.toFixed(2), cx, cy + 12);
+
+  // legend
+  ctx.font = '10px monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = accent2; ctx.fillText('●  s ≥ θ  (alive)', 12, h - 40);
+  ctx.fillStyle = warn;    ctx.fillText('●  D_rec  (below θ, anchors alive)', 12, h - 24);
+  ctx.fillStyle = danger;  ctx.fillText('●  D_irr  (reconstruction path gone)', 12, h - 8);
+
+  document.getElementById('z-target').textContent = tgtS.toFixed(2);
+  document.getElementById('z-survivors').textContent = survivors + ' / ' + hazeNeighbors.length;
+  const el = document.getElementById('z-state');
+  el.textContent = state;
+  el.style.color = stateColor;
+}
+
+function hazeStep() {
+  if (!hazePlaying) return;
+  const tEl = document.getElementById('z-t');
+  const max = parseInt(tEl.max, 10);
+  const next = Math.min(max, parseFloat(tEl.value) + 1);
+  tEl.value = next;
+  drawHaze();
+  if (next >= max) {
+    hazePlaying = false;
+    document.getElementById('z-play').textContent = 'Play';
+    return;
+  }
+  hazeTimer = setTimeout(hazeStep, 70);
+}
+
+['z-lam','z-th','z-k','z-t'].forEach(id => {
+  document.getElementById(id).addEventListener('input', drawHaze);
+});
+document.getElementById('z-play').addEventListener('click', () => {
+  hazePlaying = !hazePlaying;
+  document.getElementById('z-play').textContent = hazePlaying ? 'Pause' : 'Play';
+  if (hazePlaying) hazeStep();
+  else if (hazeTimer) clearTimeout(hazeTimer);
+});
+document.getElementById('z-reset').addEventListener('click', () => {
+  hazePlaying = false;
+  if (hazeTimer) clearTimeout(hazeTimer);
+  document.getElementById('z-play').textContent = 'Play';
+  document.getElementById('z-t').value = 0;
+  initHazeNeighbors();
+  drawHaze();
+});
+window.addEventListener('resize', () => { drawHaze(); });
+setTimeout(drawHaze, 70);
+
+// ═══ Capacity demo ════════════════════════════════════════════════════
+const capCanvas = document.getElementById('capacity-canvas');
+const CAP_W = 30, CAP_H = 20;
+const capBumps = [
+  { x: 6,  y: 5,  A: 1.0, sig: 3.8 },
+  { x: 20, y: 7,  A: 0.9, sig: 4.6 },
+  { x: 13, y: 15, A: 0.85, sig: 3.2 },
+  { x: 26, y: 16, A: 0.55, sig: 2.4 },
+  { x: 2,  y: 14, A: 0.5,  sig: 2.4 },
+];
+function capUtil(i, j) {
+  let u = 0;
+  for (const b of capBumps) {
+    const d2 = (i - b.x) * (i - b.x) + (j - b.y) * (j - b.y);
+    u += b.A * Math.exp(-d2 / (2 * b.sig * b.sig));
+  }
+  return u;
+}
+
+function drawCapacity() {
+  if (!capCanvas || capCanvas.clientWidth === 0) return;
+  const { w, h, ctx } = resizeCanvas(capCanvas);
+  ctx.clearRect(0, 0, w, h);
+  const accent = cssVar('--accent'), accent2 = cssVar('--accent2'),
+        dim = cssVar('--dim'), text = cssVar('--text'), border = cssVar('--border');
+  const H = parseInt(document.getElementById('c-H').value, 10);
+  const u = parseFloat(document.getElementById('c-u').value);
+  const sx = parseInt(document.getElementById('c-x').value, 10);
+  const sy = parseInt(document.getElementById('c-y').value, 10);
+  document.getElementById('c-H-v').textContent = H;
+  document.getElementById('c-u-v').textContent = u.toFixed(2);
+  document.getElementById('c-x-v').textContent = sx;
+  document.getElementById('c-y-v').textContent = sy;
+
+  const effH = H * u;
+  const cw = w / CAP_W, ch = h / CAP_H;
+  const isLight = document.body.classList.contains('light');
+
+  let reach = 0, util = 0;
+  for (let i = 0; i < CAP_W; i++) {
+    for (let j = 0; j < CAP_H; j++) {
+      const utl = capUtil(i, j);
+      const clamp = Math.min(1, utl);
+      ctx.fillStyle = isLight
+        ? 'rgba(109, 40, 217, ' + (0.05 + clamp * 0.55) + ')'
+        : 'rgba(167, 139, 250, ' + (0.06 + clamp * 0.55) + ')';
+      ctx.fillRect(i * cw, j * ch, cw + 0.6, ch + 0.6);
+      const d = Math.abs(i - sx) + Math.abs(j - sy);
+      if (d <= effH) { reach++; util += utl; }
+    }
+  }
+
+  // reachable-set outline (diamond boundary in Manhattan metric)
+  ctx.strokeStyle = accent2;
+  ctx.lineWidth = 2;
+  for (let i = 0; i < CAP_W; i++) {
+    for (let j = 0; j < CAP_H; j++) {
+      const d = Math.abs(i - sx) + Math.abs(j - sy);
+      if (d > effH) continue;
+      const ns = [[i+1,j,'right'],[i-1,j,'left'],[i,j+1,'bottom'],[i,j-1,'top']];
+      for (const [ni, nj, side] of ns) {
+        const nd = Math.abs(ni - sx) + Math.abs(nj - sy);
+        if (nd <= effH) continue;
+        ctx.beginPath();
+        if (side === 'right')  { ctx.moveTo((i+1)*cw, j*ch);     ctx.lineTo((i+1)*cw, (j+1)*ch); }
+        if (side === 'left')   { ctx.moveTo(i*cw,     j*ch);     ctx.lineTo(i*cw,     (j+1)*ch); }
+        if (side === 'bottom') { ctx.moveTo(i*cw,     (j+1)*ch); ctx.lineTo((i+1)*cw, (j+1)*ch); }
+        if (side === 'top')    { ctx.moveTo(i*cw,     j*ch);     ctx.lineTo((i+1)*cw, j*ch);     }
+        ctx.stroke();
+      }
+    }
+  }
+
+  // current state marker
+  ctx.fillStyle = accent;
+  ctx.beginPath();
+  ctx.arc(sx * cw + cw / 2, sy * ch + ch / 2, Math.min(cw, ch) * 0.42, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = text; ctx.lineWidth = 1;
+  ctx.stroke();
+
+  document.getElementById('c-vol').textContent = reach;
+  document.getElementById('c-util').textContent = util.toFixed(2);
+  document.getElementById('c-C').textContent = util.toFixed(2);
+}
+
+['c-H','c-u','c-x','c-y'].forEach(id => {
+  document.getElementById(id).addEventListener('input', drawCapacity);
+});
+window.addEventListener('resize', () => { drawCapacity(); });
+setTimeout(drawCapacity, 80);
+
+// ═══ Pre-registration wizard ══════════════════════════════════════════
+function wizardHash(s) {
+  // djb2-xor; not cryptographic, just a deterministic fingerprint
+  let h = 5381;
+  for (let i = 0; i < s.length; i++) h = (((h << 5) + h) ^ s.charCodeAt(i)) >>> 0;
+  return h.toString(16).padStart(8, '0');
+}
+
+function updateWizard() {
+  const sub   = document.getElementById('w-sub').value.trim() || '(unspecified)';
+  const Cf    = document.getElementById('w-C').value;
+  const beta  = parseFloat(document.getElementById('w-beta').value);
+  const H     = document.getElementById('w-H').value.trim() || '(unspecified)';
+  const pm    = document.getElementById('w-pm').value;
+  const N     = document.getElementById('w-N').value;
+  const ws    = document.getElementById('w-w').value.trim() || '(default equal weights)';
+  const notes = document.getElementById('w-notes').value.trim();
+  document.getElementById('w-beta-v').textContent = beta.toFixed(2);
+
+  const date = new Date().toISOString().slice(0, 10);
+  const canonical = [sub, Cf, beta.toFixed(2), H, pm, N, ws, notes].join('|');
+  const hash = wizardHash(canonical);
+
+  const out =
+'PTO pre-registration (A7)\n' +
+'=========================\n' +
+'substrate             : ' + sub + '\n' +
+'C form                : ' + Cf + '\n' +
+'β  (investment rate)  : ' + beta.toFixed(2) + '\n' +
+'H  (horizon)          : ' + H + '\n' +
+'persistence metric    : ' + pm + '\n' +
+'ensemble size N       : ' + N + '\n' +
+'Δq weights            : ' + ws + '\n' +
+'registered            : ' + date + '\n' +
+'spec fingerprint      : ' + hash + '\n' +
+'\n' +
+'Claim (pre-registered):\n' +
+'  Across an ensemble of N ≥ ' + N + ' systems sharing the stated substrate,\n' +
+'  J_H[u] computed with the stated C form and β will correlate positively with\n' +
+'  the stated persistence metric. Neither β, H, nor C form will be adjusted\n' +
+'  after measurement. A null or negative correlation falsifies PTO for this\n' +
+'  substrate at the stated horizon.\n' +
+'\n' +
+'Notes: ' + (notes || '(none)');
+  document.getElementById('w-out').textContent = out;
+}
+
+['w-sub','w-C','w-beta','w-H','w-pm','w-N','w-w','w-notes'].forEach(id => {
+  document.getElementById(id).addEventListener('input', updateWizard);
+});
+document.getElementById('w-copy').addEventListener('click', () => {
+  const text = document.getElementById('w-out').textContent;
+  const status = document.getElementById('w-copy-status');
+  const done = (msg) => { status.textContent = msg; setTimeout(() => { status.textContent = ''; }, 1400); };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(() => done('copied')).catch(() => done('copy failed'));
+  } else {
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = text; document.body.appendChild(ta); ta.select();
+      document.execCommand('copy'); document.body.removeChild(ta); done('copied');
+    } catch (e) { done('copy failed'); }
+  }
+});
+updateWizard();
 </script>
 </body>
 </html>
