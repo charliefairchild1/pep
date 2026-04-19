@@ -131,6 +131,7 @@ _PAGE = """\
       <div class="tab" data-panel="earnings-tab">Earnings Residual</div>
       <div class="tab" data-panel="pragmatic-tab">Earnings Pragmatics</div>
       <div class="tab" data-panel="regime-tab">Regime Modulation</div>
+      <div class="tab" data-panel="stratdecay-tab">Strategy Decay</div>
       <div class="tab" data-panel="rotation-tab">Sector Rotation</div>
       <div class="tab" data-panel="vec-live-tab">Vectora Live</div>
       <div class="tab" data-panel="vec-watch-tab">Vectora Watch</div>
@@ -366,6 +367,80 @@ _PAGE = """\
     <a href="/pep">PEP &rarr; State Modulator</a>,
     <a href="/axona">Axona &rarr; Cognitive Bandwidth</a>,
     <a href="/atria">Atria &rarr; Behavior Modulation</a>.
+  </div>
+</div>
+</div>
+
+<!-- ═══ Strategy Decay — haze primitive for the strategy library ══ -->
+<div class="panel" id="stratdecay-tab">
+<div class="container">
+  <h2>Strategy Decay &mdash; Backtest-Overfit Strategies Go Stale</h2>
+  <p class="desc">
+    A strategy library calcifies if winning backtest shapes never fade.
+    A strategy that produced alpha in 2019 but hasn't generated residual
+    in eighteen months isn't a current strategy &mdash; the regime
+    changed, the edge got arbitraged, the assumption no longer holds. If
+    the library still treats it as live, newer signal can't claim the
+    capacity. This canvas applies PEP's haze primitive to the 60-strategy
+    library: each strategy carries opacity + half-life + residual
+    count; below the reuse threshold a strategy's slot is reclaimable
+    unless live capital is allocated (in which case it needs human
+    deallocation review rather than silent archive).
+  </p>
+  <div class="controls" style="flex-wrap:wrap">
+    <label style="display:flex;align-items:center;gap:8px">
+      <span>time forward:</span>
+      <input type="range" id="sd-time" min="0" max="180" value="0" style="width:140px">
+      <span class="stat-val" id="sd-time-val">0 d</span>
+    </label>
+    <label style="display:flex;align-items:center;gap:8px">
+      <span>reuse threshold:</span>
+      <input type="range" id="sd-thresh" min="5" max="30" value="12" style="width:100px">
+      <span class="stat-val" id="sd-thresh-val">0.12</span>
+    </label>
+    <button onclick="sdReinforceRandom()">reinforce random 5 strategies</button>
+    <button onclick="sdResetLib()">reset library</button>
+  </div>
+  <div class="canvas-box">
+    <canvas id="stratdecay-canvas" width="960" height="340"></canvas>
+  </div>
+  <div style="margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:14px">
+    <div id="sd-retire" style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:14px 16px;min-height:220px">
+      <div style="color:#81c784;font-size:11px;letter-spacing:0.12em;margin-bottom:8px">RETIRE CANDIDATES &mdash; no capital, stale signal</div>
+      <div style="color:var(--dim);font-size:12px">&mdash;</div>
+    </div>
+    <div id="sd-dealloc" style="background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:14px 16px;min-height:220px">
+      <div style="color:#f06292;font-size:11px;letter-spacing:0.12em;margin-bottom:8px">DEALLOCATE REVIEW &mdash; capital on stale strategy</div>
+      <div style="color:var(--dim);font-size:12px">&mdash;</div>
+    </div>
+  </div>
+  <div class="info">
+    <b>What a PM / quant head gets.</b><br>
+    &bull; <b>Retire candidates</b> &mdash; paper-only strategies with
+    no capital allocated and no recent residual. Safe to archive,
+    freeing capacity in the library for new research.<br>
+    &bull; <b>Deallocate review</b> &mdash; strategies that have real
+    capital deployed but no recent residual. <em>These are the risky
+    ones.</em> Money sitting on a stale edge is worse than paper-only
+    overfit; review and either reinforce (why does this still work?) or
+    deallocate (cut the position).<br>
+    &bull; <b>Never-produced</b> &mdash; strategies that never generated
+    a residual. Failed experiments kept in the library. Graveyard pruning
+    target.<br>
+    &bull; <b>Decay velocity</b> &mdash; accelerating crossings mean
+    regime shift and the library needs a refresh cycle.<br><br>
+    <b>Why PEP.</b> Primitive #5 (opacity + haze) on the
+    asset/strategy substrate. Same math as Vectora
+    <a href="/vectora#orgopacity-tab">Org Opacity</a>,
+    Atria <a href="/atria#matchdecay-tab">Match Decay</a>,
+    and Axona <a href="/axona#haze-tab">Memory Haze</a>.<br><br>
+    <b>Engine module:</b> <code>pep.strata.strategy_decay</code>
+    &mdash; Strategy, build_synthetic_library, decay_report,
+    recommend_retire.<br>
+    <b>See also:</b>
+    <a href="#" onclick="document.querySelector('[data-panel=regime-tab]').click();return false">Strata &rarr; Regime Modulation</a>
+    (why regime shifts produce these stalenesses),
+    <a href="#" onclick="document.querySelector('[data-panel=whypep-tab]').click();return false">Why PEP</a>.
   </div>
 </div>
 </div>
@@ -2468,6 +2543,154 @@ function drawPragmatic() {
   requestAnimationFrame(drawPragmatic);
 }
 drawPragmatic();
+
+// ═══════════════════════════════════════════════════════════════════════
+// Strategy Decay — mirrors pep.strata.strategy_decay in the browser
+// ═══════════════════════════════════════════════════════════════════════
+const SD_FAMILIES = ['momentum','mean-reversion','pairs','sector-rotation','earnings-drift','volatility-carry','risk-parity','breakout','calendar','statistical-arbitrage'];
+let sdRng = 3;
+function sdR() { sdRng = (sdRng * 1664525 + 1013904223) % 4294967296; return sdRng / 4294967296; }
+function sdExp(mean) { return -Math.log(1 - sdR()) * mean; }
+let sdLib = [];
+function sdBuildLibrary(n) {
+  sdRng = 3;
+  const out = [];
+  for (let i = 0; i < n; i++) {
+    const family = SD_FAMILIES[Math.floor(sdR() * SD_FAMILIES.length)];
+    const mix = sdR();
+    let age;
+    if (mix < 0.35) age = sdExp(20);
+    else if (mix < 0.8) age = sdExp(80);
+    else age = sdExp(300);
+    age = Math.min(age, 3 * 365);
+    const strength = 0.55 + sdR() * 0.45;
+    const halfLife = [30, 45, 60, 90][Math.floor(sdR() * 4)];
+    let residuals;
+    if (age < 30) residuals = 5 + Math.floor(sdR() * 26);
+    else if (age < 120) residuals = Math.floor(sdR() * 11);
+    else residuals = Math.floor(sdR() * 4);
+    if (sdR() < 0.15) residuals = 0;
+    let capital = 0;
+    if (residuals >= 8 && sdR() < 0.35) capital = +(0.6 + sdR() * 17.4).toFixed(2);
+    const regulated = sdR() < 0.06;
+    out.push({
+      id: 'strat-' + String(i).padStart(4,'0'),
+      name: family.toUpperCase() + '-' + String(i).padStart(2,'0'),
+      family, strength, age, halfLife, residuals, capital, regulated,
+    });
+  }
+  return out;
+}
+function sdEff(s, t) {
+  const total = Math.max(0, s.age + t);
+  return Math.max(0.03, s.strength * Math.pow(0.5, total / s.halfLife));
+}
+function sdLoadBearing(s) { return s.capital > 0.5 || s.regulated; }
+function sdTime() { return parseFloat(document.getElementById('sd-time').value); }
+function sdThresh() { return parseFloat(document.getElementById('sd-thresh').value) / 100; }
+function sdReport() {
+  const t = sdTime(), th = sdThresh();
+  const hist = new Array(10).fill(0);
+  let recl = 0, prod = 0;
+  const retire = [], dealloc = [], never = [];
+  let sumStr = 0;
+  sdLib.forEach(s => {
+    const e = sdEff(s, t);
+    sumStr += e;
+    hist[Math.min(9, Math.floor(e * 10))]++;
+    if (e < th) {
+      recl++;
+      if (sdLoadBearing(s)) dealloc.push({ s, e }); else retire.push({ s, e });
+    } else prod++;
+    if (s.residuals === 0) never.push({ s, e });
+  });
+  retire.sort((a, b) => a.e - b.e);
+  dealloc.sort((a, b) => b.s.capital - a.s.capital);
+  never.sort((a, b) => b.s.age - a.s.age);
+  return { hist, reclaimable: recl, producing: prod, retire, dealloc, never, total: sdLib.length, mean: sumStr / (sdLib.length || 1) };
+}
+function sdReinforceRandom() {
+  for (let i = 0; i < 5; i++) {
+    const idx = Math.floor(Math.random() * sdLib.length);
+    const s = sdLib[idx];
+    const cur = sdEff(s, sdTime());
+    s.strength = Math.min(1, cur + 0.4);
+    s.age = -sdTime();
+    s.residuals++;
+  }
+  pepSend('stratdecay.reinforce', {});
+}
+function sdResetLib() {
+  sdLib = sdBuildLibrary(60);
+  document.getElementById('sd-time').value = 0;
+  document.getElementById('sd-time-val').textContent = '0 d';
+}
+['sd-time','sd-thresh'].forEach(id => {
+  const el = document.getElementById(id); if (!el) return;
+  el.addEventListener('input', (e) => {
+    const v = parseFloat(e.target.value);
+    const out = document.getElementById(id + '-val');
+    if (!out) return;
+    out.textContent = id === 'sd-thresh' ? (v / 100).toFixed(2) : v + ' d';
+  });
+});
+sdLib = sdBuildLibrary(60);
+const sdCanvas = document.getElementById('stratdecay-canvas');
+const sdCtx = sdCanvas.getContext('2d');
+function sdEsc(s) { return String(s).replace(/</g,'&lt;'); }
+function sdRenderLists(rep) {
+  const retire = document.getElementById('sd-retire');
+  const dealloc = document.getElementById('sd-dealloc');
+  const retireRows = rep.retire.slice(0, 8).map(x =>
+    `<div style="display:flex;gap:10px;align-items:center;padding:4px 0;font-size:11px;border-bottom:1px solid rgba(255,255,255,0.04)"><span style="color:#81c784;min-width:44px;font-family:monospace">${x.e.toFixed(3)}</span><span style="color:var(--text);min-width:150px">${sdEsc(x.s.name)}</span><span style="color:var(--dim);margin-left:auto">${x.s.residuals} residuals · ${Math.round(x.s.age)}d ago</span></div>`
+  ).join('');
+  retire.innerHTML = `<div style="color:#81c784;font-size:11px;letter-spacing:0.12em;margin-bottom:8px">RETIRE CANDIDATES &middot; ${rep.retire.length} total &middot; top 8</div>${retireRows || '<div style="color:var(--dim);font-size:12px;padding:30px 0;text-align:center">nothing paper-only below threshold</div>'}`;
+  const deallocRows = rep.dealloc.slice(0, 8).map(x =>
+    `<div style="display:flex;gap:10px;align-items:center;padding:4px 0;font-size:11px;border-bottom:1px solid rgba(255,255,255,0.04)"><span style="color:#f06292;min-width:44px;font-family:monospace">${x.e.toFixed(3)}</span><span style="color:var(--text);min-width:150px">${sdEsc(x.s.name)}</span><span style="color:${x.s.regulated ? '#e879f9' : '#f6d35c'};margin-left:auto;font-weight:bold">$${x.s.capital.toFixed(1)}M${x.s.regulated ? ' · REG' : ''}</span></div>`
+  ).join('');
+  dealloc.innerHTML = `<div style="color:#f06292;font-size:11px;letter-spacing:0.12em;margin-bottom:8px">DEALLOCATE REVIEW &middot; ${rep.dealloc.length} total &middot; $${rep.dealloc.reduce((a, x) => a + x.s.capital, 0).toFixed(1)}M at risk</div>${deallocRows || '<div style="color:var(--dim);font-size:12px;padding:30px 0;text-align:center">no deployed capital on stale strategies (healthy)</div>'}`;
+}
+function drawStratDecay() {
+  const W = 960, H = 340;
+  sdCtx.fillStyle = themeBg(); sdCtx.fillRect(0, 0, W, H);
+  const rep = sdReport();
+  const padL = 60, padR = 20, padT = 48, padB = 60;
+  const plotW = W - padL - padR, plotH = H - padT - padB;
+  const maxCount = Math.max(1, ...rep.hist);
+  rep.hist.forEach((c, i) => {
+    const bw = plotW / 10;
+    const bh = (c / maxCount) * plotH;
+    const x = padL + i * bw + bw * 0.1;
+    const y = padT + plotH - bh;
+    const w = bw * 0.8;
+    const bucketMid = (i + 0.5) / 10;
+    const inReuse = bucketMid < sdThresh();
+    sdCtx.fillStyle = inReuse ? 'rgba(240,98,146,0.85)' : `rgba(232,121,249,${(0.3 + bucketMid * 0.5).toFixed(3)})`;
+    sdCtx.fillRect(x, y, w, bh);
+    sdCtx.fillStyle = '#aaa'; sdCtx.font = '10px monospace'; sdCtx.textAlign = 'center';
+    if (c > 0) sdCtx.fillText(String(c), x + w / 2, y - 4);
+    sdCtx.fillText(((i) / 10).toFixed(1) + '-' + ((i + 1) / 10).toFixed(1), x + w / 2, padT + plotH + 14);
+  });
+  const thX = padL + (sdThresh() * 10) * (plotW / 10);
+  sdCtx.strokeStyle = 'rgba(248,113,113,0.7)'; sdCtx.setLineDash([4, 4]);
+  sdCtx.lineWidth = 1.5;
+  sdCtx.beginPath(); sdCtx.moveTo(thX, padT); sdCtx.lineTo(thX, padT + plotH); sdCtx.stroke();
+  sdCtx.setLineDash([]);
+  sdCtx.fillStyle = '#f87171'; sdCtx.font = 'bold 10px monospace'; sdCtx.textAlign = 'left';
+  sdCtx.fillText('← reuse threshold', thX + 6, padT + 10);
+  const pct = rep.total ? (100 * rep.reclaimable / rep.total).toFixed(1) : '0.0';
+  sdCtx.fillStyle = '#dce4ed'; sdCtx.font = 'bold 13px monospace'; sdCtx.textAlign = 'left';
+  sdCtx.fillText(`${rep.reclaimable} of ${rep.total} strategies reclaimable  (${pct}%)  ·  mean strength ${rep.mean.toFixed(2)}`, padL, 22);
+  sdCtx.fillStyle = '#aaa'; sdCtx.font = '11px monospace'; sdCtx.textAlign = 'right';
+  sdCtx.fillText(`producing: ${rep.producing}  ·  never-produced: ${rep.never.length}`, W - 20, 22);
+  sdCtx.fillStyle = '#aaa'; sdCtx.font = '10px monospace'; sdCtx.textAlign = 'left';
+  sdCtx.fillText('strategy count', 20, padT + 4);
+  sdCtx.textAlign = 'center';
+  sdCtx.fillText('strength bucket', padL + plotW / 2, H - 8);
+  sdRenderLists(rep);
+  requestAnimationFrame(drawStratDecay);
+}
+drawStratDecay();
 
 </script>
 </body>
