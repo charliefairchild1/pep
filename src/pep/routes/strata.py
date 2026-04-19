@@ -129,6 +129,7 @@ _PAGE = """\
       <div class="tab" data-panel="corr-tab">Correlation Graph</div>
       <div class="tab" data-panel="momentum-tab">Momentum Spread</div>
       <div class="tab" data-panel="earnings-tab">Earnings Residual</div>
+      <div class="tab" data-panel="pragmatic-tab">Earnings Pragmatics</div>
       <div class="tab" data-panel="regime-tab">Regime Modulation</div>
       <div class="tab" data-panel="rotation-tab">Sector Rotation</div>
       <div class="tab" data-panel="vec-live-tab">Vectora Live</div>
@@ -273,6 +274,70 @@ _PAGE = """\
     <a href="/pep">PEP &rarr; Predictor + Residual</a>,
     <a href="/axona">Axona &rarr; Reward Prediction Error</a>,
     <a href="/atria">Atria &rarr; Residual Heatmap</a>.
+  </div>
+</div>
+</div>
+
+<!-- ═══ Earnings Pragmatics ═════════════════════════════════════ -->
+<div class="panel" id="pragmatic-tab">
+<div class="container">
+  <h2>Earnings-Call Pragmatics &mdash; The Gap Between What They Say and What They Signal</h2>
+  <p class="desc">
+    Executives are trained to mask pragmatic content. They say positive
+    words while hedge density, passive subject-drop, register shifts,
+    and deflection patterns give the real story away. The gap between
+    <em>stated sentiment</em> (lexicon of the words) and <em>pragmatic
+    sentiment</em> (what the language is actually signaling) is alpha
+    number-only engines don't see. This canvas runs the Lingora voice +
+    translate analyzer on curated fictional excerpts showing canonical
+    patterns &mdash; click any row to see the rationale.
+  </p>
+  <div class="controls" style="margin-bottom:10px">
+    <button onclick="prPick(0)">Clean positive</button>
+    <button onclick="prPick(1)">Hedged</button>
+    <button onclick="prPick(2)">Deflection</button>
+    <button onclick="prPick(3)">Register shift</button>
+    <button onclick="prPick(4)">Passive subject drop</button>
+    <button onclick="prPick(5)">CEO confidence</button>
+    <button onclick="prPick(6)">Defensive formal</button>
+    <button onclick="prAnalyzeAll()">Analyze entire transcript</button>
+  </div>
+  <div class="canvas-box">
+    <canvas id="pragmatic-canvas" width="960" height="360"></canvas>
+  </div>
+  <div id="pr-detail" style="margin-top:14px;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:14px 16px;min-height:200px">
+    <div style="color:var(--dim);font-size:12px;padding:30px 0;text-align:center">pick an excerpt above</div>
+  </div>
+  <div class="info">
+    <b>What the signal means.</b><br>
+    &bull; <b>CONFIRM</b> &mdash; stated and pragmatic agree. The number
+    story and the language story point the same direction. High
+    confidence.<br>
+    &bull; <b>WARNING / FADE / STRONG FADE</b> &mdash; positive stated
+    but pragmatic markers (hedge, deflection, passive, register shift)
+    discount it. The bigger the gap, the more the language is
+    concealing. Trade: fade or wait for the shoe to drop next quarter.<br>
+    &bull; <b>REINFORCE</b> &mdash; pragmatic is <em>more</em> positive
+    than stated (rare). Usually a CEO who's been burned and is
+    under-promising to set up over-delivery. Buy signal.<br>
+    &bull; <b>NEUTRAL</b> &mdash; no material markers either way; trust
+    the numbers.<br><br>
+    <b>Why PEP.</b> This is the predictor + residual primitive (#3)
+    composed with the state-modulator primitive (#4), running on
+    language-as-substrate. The predictor is "what the words literally
+    say"; the residual is what the pragmatic layer is adding or
+    subtracting. The state modulator (register, hedge density, deflection
+    rate) rescales the predictor's output. It's Strata (the asset-signal
+    app) consuming Lingora (the language-analysis app) &mdash; a pure
+    cross-app wedge that single-substrate competitors can't replicate
+    without building both halves.<br><br>
+    <b>Engine module:</b> <code>pep.lingora.earnings_pragmatic</code>
+    &mdash; regex + lexicon heuristics, LLM-free.
+    <b>See also:</b>
+    <a href="#" onclick="document.querySelector('[data-panel=earnings-tab]').click();return false">Strata &rarr; Earnings Residual</a>
+    (the numerical side),
+    <a href="/lingora#voice-tab">Lingora &rarr; Voice</a> (the analyzer primitives),
+    <a href="/lingora#subtext-tab">Lingora &rarr; Subtext</a> (pragmatic layer in general).
   </div>
 </div>
 </div>
@@ -2226,6 +2291,183 @@ function drawSd() {
 drawSd();
 
 setTimeout(() => { catalogRender(); populateStrategyDropdown(); }, 80);
+
+// ═══════════════════════════════════════════════════════════════════════
+// Earnings Pragmatics — mirrors pep.lingora.earnings_pragmatic in the browser
+// ═══════════════════════════════════════════════════════════════════════
+const PR_POS = ['strong','grew','growth','expanded','expanding','outperformed','beat','beats','record','momentum','accelerated','accelerating','raised','raising','confident','pleased','robust','healthy','leading','leadership','advance','improving','improved','reiterating','encouraged','encouraging'];
+const PR_NEG = ['declined','decline','weakness','softer','soft','challenge','challenges','pressure','pressured','impacted','headwinds','miss','missed','disappointing','writedown','impairment','restructuring','layoffs','reduction','downward'];
+const PR_HEDGE = ['we remain','we continue to','we believe','to some extent','broadly speaking','directionally','on balance','on the whole','taking a measured approach','dynamic macro','near-term','certain','some','in certain regions','in certain markets','measured approach','prudent','in the context of','over time','over the long term','long-term thesis'];
+const PR_DEFLECT = ['great question',"i'd point you to",'i would point you to',"we're really focused on","what we've been focused on",'the broader','the bigger picture','at a high level',"we'll talk more about",'we plan to address that at'];
+const PR_PASSIVE = [/\bdecisions were made\b/i,/\blessons have been learned\b/i,/\bactions are being taken\b/i,/\bmitigations are being implemented\b/i,/\bsteps are being taken\b/i,/\bit (?:was|has been) determined\b/i];
+const PR_CASUAL = [/\byeah\b/i,/\byou know\b/i,/\blook,?\b/i,/\bfrankly\b/i,/\bnot a big deal\b/i,/\bat the end of the day\b/i,/\bhonestly\b/i,/\bkinda\b/i];
+const PR_FORMAL = [/\bwith respect to\b/i,/\bquantum of\b/i,/\bas disclosed\b/i,/\bas previously communicated\b/i,/\bas referenced\b/i,/\bin accordance with\b/i,/\bpursuant to\b/i,/\bon a constant-currency basis\b/i,/\binvestment community\b/i];
+const PR_HEAVY = ['writedown','impairment','restructuring','sec','investigation','litigation','breach','outage','miss','shortfall','accelerated','goodwill','european operations','layoffs','reduction'];
+const PR_TRANSCRIPT = [
+  "Revenue came in at $420M, up 18% year-over-year, driven by strong growth in our Enterprise segment. Gross margin expanded 150 basis points. We're reiterating guidance for the full year and raising our share buyback authorization.",
+  "We're encouraged by the trajectory we're seeing, and while there have been some near-term headwinds in certain regions, we remain confident in the long-term thesis. We're taking a measured approach to guidance given the dynamic macro environment.",
+  "That's a great question. What we've been really focused on is the broader platform story, and we're seeing tremendous engagement across all our key verticals. I'd point you to the disclosures in the 10-Q for the specific metrics.",
+  "Yeah, so, look — we took a look at the carrying value of the European operations and, you know, felt it was prudent to adjust. Honestly it's not a big deal in the context of the overall business.",
+  "Certain strategic decisions were made regarding the European operations that in hindsight could have been executed differently. Lessons have been learned, and mitigations are being implemented.",
+  "We grew. We shipped. We expanded. Three things happened this quarter, and they're all in the right direction.",
+  "With respect to the accelerated amortization of the prior-period adjustment, and as disclosed on page 42 of the supplementary deck, the quantum of impact is within the range previously communicated to the investment community.",
+];
+function prCountLiteral(t, list) { const s = t.toLowerCase(); return list.reduce((a, m) => a + (s.includes(m) ? 1 : 0), 0); }
+function prCountRegex(t, list) { return list.reduce((a, r) => a + (r.test(t) ? 1 : 0), 0); }
+function prLexicon(t) {
+  const s = t.toLowerCase();
+  const pos = PR_POS.reduce((a, w) => a + ((new RegExp(`\\b${w}\\b`)).test(s) ? 1 : 0), 0);
+  const neg = PR_NEG.reduce((a, w) => a + ((new RegExp(`\\b${w}\\b`)).test(s) ? 1 : 0), 0);
+  if (pos + neg === 0) return 0;
+  return Math.max(-1, Math.min(1, ((pos - neg) / (pos + neg)) * 0.9));
+}
+function prContext(t) {
+  const s = t.toLowerCase();
+  return PR_HEAVY.some(w => s.includes(w)) ? 'heavy' : 'normal';
+}
+function prAnalyze(text) {
+  const wc = Math.max(1, text.split(/\s+/).length);
+  const stated = prLexicon(text);
+  const hedgeN = prCountLiteral(text, PR_HEDGE);
+  const hedgeDensity = Math.min(1, hedgeN / Math.max(5, wc / 20));
+  const defN = prCountLiteral(text, PR_DEFLECT);
+  const passN = prCountRegex(text, PR_PASSIVE);
+  const casN = prCountRegex(text, PR_CASUAL);
+  const forN = prCountRegex(text, PR_FORMAL);
+  const ctx = prContext(text);
+  let regShift = 0;
+  if (ctx === 'heavy' && casN >= 1) regShift = Math.min(1, 0.4 + 0.2 * casN);
+  else if (ctx === 'normal' && forN >= 2) regShift = Math.min(1, 0.3 + 0.15 * (forN - 1));
+  let prag = stated;
+  prag -= 0.45 * hedgeDensity;
+  prag -= 0.20 * defN;
+  prag -= 0.20 * passN;
+  prag -= 0.35 * regShift;
+  prag = Math.max(-1, Math.min(1, prag));
+  const gap = stated - prag;
+  let signal;
+  if (Math.abs(gap) < 0.15 && stated > 0.3) signal = 'CONFIRM';
+  else if (Math.abs(gap) < 0.15 && stated < -0.2) signal = 'CONFIRM (bear)';
+  else if (Math.abs(gap) < 0.1) signal = 'NEUTRAL';
+  else if (gap > 0.5) signal = 'STRONG FADE';
+  else if (gap > 0.25) signal = 'FADE';
+  else if (gap > 0.1) signal = 'WARNING';
+  else if (gap < -0.15) signal = 'REINFORCE';
+  else signal = 'NEUTRAL';
+  const rationale = [];
+  if (hedgeN) rationale.push(`${hedgeN} hedging marker(s) — density ${hedgeDensity.toFixed(2)}`);
+  if (defN) rationale.push(`${defN} deflection marker(s) — not answering the question asked`);
+  if (passN) rationale.push(`${passN} passive subject-drop — who did what is being hidden`);
+  if (regShift > 0) rationale.push(`register shift (${ctx} topic, ${casN ? 'casual' : 'formal'} tone) — ${regShift.toFixed(2)}`);
+  if (!rationale.length) rationale.push('no significant pragmatic markers — stated sentiment likely reliable');
+  return { text, stated, hedgeDensity, defN, passN, regShift, pragmatic: prag, gap, signal, rationale };
+}
+let prActive = null;
+let prAll = null;
+function prPick(i) {
+  prActive = i; prAll = null;
+  prRenderDetail(prAnalyze(PR_TRANSCRIPT[i]), i);
+  pepSend('pragmatic.pick', { i });
+}
+function prAnalyzeAll() {
+  prAll = PR_TRANSCRIPT.map(prAnalyze);
+  prActive = null;
+  document.getElementById('pr-detail').innerHTML =
+    '<div style="color:var(--dim);font-size:11px;letter-spacing:0.12em;margin-bottom:10px">TRANSCRIPT SCAN</div>' +
+    prAll.map((a, i) => {
+      const sigCol = prSignalColor(a.signal);
+      return `<div style="padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04);display:grid;grid-template-columns:28px 1fr 90px 90px 100px;gap:10px;font-size:11px;align-items:center">
+        <span style="color:var(--dim)">#${i}</span>
+        <span style="color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${prEsc(a.text)}">${prEsc(a.text.slice(0, 90))}${a.text.length > 90 ? '…' : ''}</span>
+        <span style="color:${a.stated >= 0 ? '#81c784' : '#f06292'};font-family:monospace">stated ${a.stated.toFixed(2)}</span>
+        <span style="color:${a.pragmatic >= 0 ? '#81c784' : '#f06292'};font-family:monospace">prag ${a.pragmatic.toFixed(2)}</span>
+        <span style="color:${sigCol};font-weight:bold">${a.signal}</span>
+      </div>`;
+    }).join('');
+  pepSend('pragmatic.scan_all', {});
+}
+function prSignalColor(sig) {
+  if (sig.startsWith('CONFIRM')) return '#81c784';
+  if (sig === 'REINFORCE') return '#38bdf8';
+  if (sig === 'STRONG FADE') return '#f87171';
+  if (sig === 'FADE') return '#f06292';
+  if (sig === 'WARNING') return '#f6d35c';
+  return '#aaa';
+}
+function prEsc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function prRenderDetail(a, i) {
+  const detail = document.getElementById('pr-detail');
+  const sigCol = prSignalColor(a.signal);
+  detail.innerHTML = `
+    <div style="color:var(--dim);font-size:11px;letter-spacing:0.12em;margin-bottom:8px">EXCERPT #${i}</div>
+    <div style="font-size:13px;line-height:1.6;margin-bottom:14px;color:#dce4ed;font-style:italic">"${prEsc(a.text)}"</div>
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:14px;font-size:11px">
+      <div><div style="color:var(--dim);letter-spacing:0.1em">STATED</div><div style="color:${a.stated >= 0 ? '#81c784' : '#f06292'};font-size:16px;font-family:monospace">${a.stated.toFixed(2)}</div></div>
+      <div><div style="color:var(--dim);letter-spacing:0.1em">PRAGMATIC</div><div style="color:${a.pragmatic >= 0 ? '#81c784' : '#f06292'};font-size:16px;font-family:monospace">${a.pragmatic.toFixed(2)}</div></div>
+      <div><div style="color:var(--dim);letter-spacing:0.1em">GAP</div><div style="color:${a.gap > 0.15 ? '#f87171' : a.gap < -0.1 ? '#38bdf8' : '#aaa'};font-size:16px;font-family:monospace">${a.gap >= 0 ? '+' : ''}${a.gap.toFixed(2)}</div></div>
+      <div><div style="color:var(--dim);letter-spacing:0.1em">HEDGE DENSITY</div><div style="font-size:16px;font-family:monospace;color:#f6d35c">${a.hedgeDensity.toFixed(2)}</div></div>
+      <div><div style="color:var(--dim);letter-spacing:0.1em">SIGNAL</div><div style="color:${sigCol};font-size:15px;font-weight:bold">${a.signal}</div></div>
+    </div>
+    <div style="background:rgba(167,139,250,0.06);border-left:3px solid #a78bfa;padding:10px 12px;border-radius:4px">
+      <div style="color:#a78bfa;font-size:10px;letter-spacing:0.15em;margin-bottom:6px">RATIONALE</div>
+      ${a.rationale.map(r => `<div style="font-size:12px;color:#dce4ed;margin:3px 0">&middot; ${prEsc(r)}</div>`).join('')}
+    </div>`;
+}
+const prCanvas = document.getElementById('pragmatic-canvas');
+const prCtx = prCanvas.getContext('2d');
+function drawPragmatic() {
+  const W = 960, H = 360;
+  prCtx.fillStyle = themeBg(); prCtx.fillRect(0, 0, W, H);
+  const data = prAll || PR_TRANSCRIPT.map(prAnalyze);
+  const padL = 60, padR = 30, padT = 40, padB = 50;
+  const plotW = W - padL - padR, plotH = H - padT - padB;
+  prCtx.fillStyle = '#dce4ed'; prCtx.font = 'bold 13px monospace'; prCtx.textAlign = 'left';
+  prCtx.fillText('Stated vs Pragmatic sentiment per excerpt  (gap = alpha signal)', padL, 22);
+  // Y axis
+  prCtx.strokeStyle = 'rgba(150,150,150,0.4)'; prCtx.lineWidth = 1;
+  prCtx.beginPath(); prCtx.moveTo(padL, padT); prCtx.lineTo(padL, padT + plotH); prCtx.lineTo(padL + plotW, padT + plotH); prCtx.stroke();
+  // Zero line
+  const zeroY = padT + plotH / 2;
+  prCtx.strokeStyle = 'rgba(150,150,150,0.25)'; prCtx.setLineDash([3, 3]);
+  prCtx.beginPath(); prCtx.moveTo(padL, zeroY); prCtx.lineTo(padL + plotW, zeroY); prCtx.stroke();
+  prCtx.setLineDash([]);
+  prCtx.fillStyle = '#aaa'; prCtx.font = '10px monospace'; prCtx.textAlign = 'right';
+  prCtx.fillText('+1.0', padL - 6, padT + 4);
+  prCtx.fillText('0.0', padL - 6, zeroY + 3);
+  prCtx.fillText('-1.0', padL - 6, padT + plotH + 3);
+  // Bars: stated + pragmatic side by side
+  const slotW = plotW / data.length;
+  data.forEach((a, i) => {
+    const cx = padL + (i + 0.5) * slotW;
+    const barW = slotW * 0.32;
+    const sY = zeroY - (a.stated * plotH / 2);
+    prCtx.fillStyle = a.stated >= 0 ? 'rgba(129,199,132,0.85)' : 'rgba(240,98,146,0.85)';
+    prCtx.fillRect(cx - barW - 2, Math.min(zeroY, sY), barW, Math.abs(sY - zeroY));
+    const pY = zeroY - (a.pragmatic * plotH / 2);
+    prCtx.fillStyle = a.pragmatic >= 0 ? 'rgba(56,189,248,0.85)' : 'rgba(248,113,113,0.85)';
+    prCtx.fillRect(cx + 2, Math.min(zeroY, pY), barW, Math.abs(pY - zeroY));
+    // Gap arrow / annotation
+    if (Math.abs(a.gap) > 0.1) {
+      prCtx.strokeStyle = a.gap > 0 ? 'rgba(248,113,113,0.7)' : 'rgba(56,189,248,0.7)';
+      prCtx.lineWidth = 1.5;
+      prCtx.beginPath(); prCtx.moveTo(cx - barW / 2, sY); prCtx.lineTo(cx + barW / 2 + 4, pY); prCtx.stroke();
+    }
+    // Signal label
+    prCtx.fillStyle = prSignalColor(a.signal);
+    prCtx.font = 'bold 9px monospace'; prCtx.textAlign = 'center';
+    prCtx.fillText(a.signal, cx, padT + plotH + 14);
+    prCtx.fillStyle = '#aaa'; prCtx.font = '9px monospace';
+    prCtx.fillText('#' + i, cx, padT + plotH + 26);
+  });
+  // Legend
+  prCtx.textAlign = 'left'; prCtx.font = '10px monospace';
+  prCtx.fillStyle = 'rgba(129,199,132,0.85)'; prCtx.fillRect(W - 230, 12, 10, 10);
+  prCtx.fillStyle = '#aaa'; prCtx.fillText('stated (lexicon)', W - 214, 21);
+  prCtx.fillStyle = 'rgba(56,189,248,0.85)'; prCtx.fillRect(W - 120, 12, 10, 10);
+  prCtx.fillStyle = '#aaa'; prCtx.fillText('pragmatic', W - 104, 21);
+  requestAnimationFrame(drawPragmatic);
+}
+drawPragmatic();
 
 </script>
 </body>
