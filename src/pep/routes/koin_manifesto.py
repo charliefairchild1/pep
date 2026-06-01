@@ -83,7 +83,7 @@ a{color:var(--accent2)}
   .kicker{page-break-before:always}
   @page{margin:0.75in 0.85in;
         @bottom-right{content:counter(page);font-family:'SF Mono',monospace;font-size:9pt;color:#666}
-        @bottom-left{content:"Koin · the manifesto · v0.3";font-family:'SF Mono',monospace;font-size:9pt;color:#666}}
+        @bottom-left{content:"Koin · the manifesto · v0.6";font-family:'SF Mono',monospace;font-size:9pt;color:#666}}
   @page:first{@bottom-right{content:""}@bottom-left{content:""}}
 }
 """
@@ -97,7 +97,7 @@ _PAGE = r"""<!doctype html><html><head>
 <button class="print-btn" onclick="window.print()">⎙ Print / PDF</button>
 <div class="wrap">
 
-<div class="eyebrow">Koin · the manifesto · v0.5</div>
+<div class="eyebrow">Koin · the manifesto · v0.6</div>
 <h1>Money is the wrong instrument.<br><em>We finally have the right one.</em></h1>
 <p class="sub">A draft of the case that the economy is, before anything else, a verdict on what each person contributed — that money has always rendered that verdict badly — and that the technology to render it honestly just arrived.</p>
 
@@ -669,7 +669,27 @@ $0.40  →  the lineage fund (unallocated residuum routed to commons)
 
 <blockquote>An economy is a verdict. The verdict can now be honest. Build it before someone closes it.</blockquote>
 
-<p class="signature">— Koin Labs<br>Draft v0.5 · This document is itself entered into Koin.</p>
+<hr style="margin:64px 0">
+
+<h2 style="text-align:center;font-style:italic"><span class="num" style="text-align:center">Coda</span>A morning in 2050</h2>
+
+<div class="scene">
+<p>A girl opens her eyes in 2050. She is six.</p>
+
+<p>She has had a Koin account since the day she was born. Her balance is small — not because the world undervalues children, but because most of her contributions are still in the local graph: questions asked at her grandmother's kitchen table, drawings taped to refrigerators, the way she made her uncle laugh last Tuesday with a sentence she does not remember saying.</p>
+
+<p>The school she will start next month is funded directly by its graduates. Every adult its classrooms shaped pays a small ongoing flow back to the institution; the institution distributes it across its teachers, current and retired, in proportion to the cognitive shape they gave the alumni. Her first-grade teacher, paid this way, can afford to be a first-grade teacher. The school's founder, dead for fifteen years, is the third-highest-paid teacher in the building.</p>
+
+<p>Her grandmother died last winter. Her grandmother's Koin balance still pays. The streams flow from the lives her grandmother touched — fifty-five years of nursing, five children, twelve grandchildren, thousands of small conversations — into a lineage fund that her grandmother had named: a community library three towns over. Visitors who do not know the woman's name read books that her work, indirectly, paid for.</p>
+
+<p>The world in 2050 is not utopia. There is still inequality. There is still injustice. There is still the long argument about what should be measured and what should not be — every year a fresh fight at the local Koin council about whether some new domain should be added to the ledger, and every year the fight is decided by people whose work the ledger sees, alongside people whose work it doesn't. But the breakfast conversation she will overhear in a few minutes is not the one her grandmother heard at her age. The unmeasured work of caring for one another, the parenting, the friendship, the quiet shaping — in the realm where measurement was useful, it has been measured. The contribution is visible. The teachers can be teachers. The healers can be healers. The thinkers can think.</p>
+
+<p>She does not know that any of this was once unusual. She was born after.</p>
+
+<p><em>The verdict, at last, finds the cook.</em></p>
+</div>
+
+<p class="signature">— Koin Labs<br>Draft v0.6 · This document is itself entered into Koin.</p>
 
 <!-- ===================== APPENDIX ===================== -->
 <div class="part">
