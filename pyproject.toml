@@ -13,7 +13,6 @@ dependencies = [
     "voyageai>=0.3",
     "httpx>=0.27",
     "streamlit>=1.56.0",
-    "pyjwt[crypto]>=2.8",
 ]
 
 [project.optional-dependencies]

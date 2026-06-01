@@ -2,15 +2,6 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# Build deps for cryptography + general compile tools (needed by pyjwt[crypto])
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    libffi-dev \
-    libssl-dev \
-    curl \
-    ca-certificates \
- && rm -rf /var/lib/apt/lists/*
-
 # Install uv
 RUN pip install --no-cache-dir uv
 
