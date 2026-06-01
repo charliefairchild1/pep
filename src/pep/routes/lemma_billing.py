@@ -21,7 +21,7 @@ import json
 import os
 import secrets as _secrets
 import sqlite3
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from typing import Any
 
 import stripe
@@ -38,6 +38,8 @@ router = APIRouter()
 # ---------------------------------------------------------------------------
 # Pricing — single source of truth
 # ---------------------------------------------------------------------------
+
+TRIAL_DAYS = 14  # auto-given to every new signup; uses Pro Solo features
 
 TIERS: dict[str, dict[str, Any]] = {
     "free": {
@@ -161,14 +163,17 @@ def get_subscription(teacher_id: int) -> dict[str, Any]:
         ).fetchone()
         if row:
             return dict(row)
-        # default free
+        # NEW SIGNUP: give them a Pro Solo trial. They get AI grading for
+        # TRIAL_DAYS, then auto-downgrade to free. No credit card required.
+        trial_end = (datetime.now(timezone.utc) + timedelta(days=TRIAL_DAYS)).isoformat(timespec="seconds")
         c.execute(
-            "INSERT INTO subscriptions (teacher_id, plan, status, updated_at) VALUES (?, 'free', 'active', ?)",
-            (teacher_id, _now()),
+            "INSERT INTO subscriptions (teacher_id, plan, status, current_period_end, updated_at) "
+            "VALUES (?, 'solo', 'trialing', ?, ?)",
+            (teacher_id, trial_end, _now()),
         )
-        return {"teacher_id": teacher_id, "plan": "free", "status": "active",
+        return {"teacher_id": teacher_id, "plan": "solo", "status": "trialing",
                 "stripe_customer_id": None, "stripe_subscription_id": None,
-                "current_period_start": None, "current_period_end": None,
+                "current_period_start": None, "current_period_end": trial_end,
                 "cancel_at_period_end": 0, "updated_at": _now()}
 
 
@@ -218,9 +223,20 @@ def get_total_classes(teacher_id: int) -> int:
 # Feature gates
 # ---------------------------------------------------------------------------
 
+def is_trial_active(sub: dict[str, Any]) -> bool:
+    if sub.get("status") != "trialing":
+        return False
+    end = sub.get("current_period_end") or ""
+    return bool(end) and end > _now()
+
+
 def can_use_ai_grading(teacher_id: int) -> tuple[bool, str | None]:
     """Returns (allowed, reason_if_not). Reason is shown to the teacher."""
     sub = get_subscription(teacher_id)
+    # If trial has expired, demote to free automatically
+    if sub.get("status") == "trialing" and not is_trial_active(sub):
+        update_subscription(teacher_id, plan="free", status="active")
+        sub = get_subscription(teacher_id)
     tier = get_tier(sub["plan"])
     if sub["status"] not in ("active", "trialing"):
         return False, f"Your subscription is {sub['status']}. Reactivate to use AI grading."
