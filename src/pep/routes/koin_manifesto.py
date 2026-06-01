@@ -121,13 +121,23 @@ _PAGE = r"""<!doctype html><html><head>
 
 <p>The dead get paid into the work of their descendants. (Where the descendants are biological, this is inheritance. Where they are intellectual, this is the academy as it has always wished it could be.)</p>
 
-<h2><span class="num">IX — The implementation</span></h2>
+<h2><span class="num">IX — A worked example: the recipe</span></h2>
+
+<p>A chef writes down a recipe. Under the old economy, three things can happen to it. She can <em>cook it herself</em> — selling one plate at a time, capped by her own hands and time. She can <em>sell the rights</em> to a restaurant or a packaged-food company — a single check, after which she watches the dish become someone else's revenue. She can <em>publish it in a book</em> — a 10% royalty on each copy of the book, but no royalty at all on the millions of dinners cooked from the page.</p>
+
+<p>None of these track the value she created. The value is not the plate, not the rights, not the book. The value is the moment her idea — the proportions, the technique, the resting time, the unexpected ingredient — runs in another mind and becomes a meal that did not exist before.</p>
+
+<p>Now imagine the recipe is submitted to a system. An AI-driven kitchen reads it and executes it: a worker preps measured ingredients into labeled bowls; the machine combines, heats, times, finishes, packages. The chef does not have to be present. The recipe runs <em>anywhere a kitchen runs it</em>. And every unit sold pays a royalty — small, automatic, continuous — back to the chef. Her income is no longer bounded by her stove or her time; it is bounded by how many people are improved by her idea. <em>This is what compensation looks like when it tracks value at its origin.</em></p>
+
+<p>The recipe is the simplest possible case because the trace is unambiguous: this recipe produced this plate produced this transaction. Generalize the pattern. The lesson plan that produced the student's grade. The diagnostic protocol that produced the patient's recovery. The proof technique that produced the engineer's design. The argument that produced the voter's choice. The melody that produced the album that paid for the singer's house — and the unnamed nursery rhyme inside the melody that paid for nothing. Every artifact in the world is a recipe being run. Koin pays the recipe.</p>
+
+<h2><span class="num">X — The implementation</span></h2>
 
 <p>Koin runs on PEP. PEP gives Koin the substrate: a weighted graph of minds and ideas; spreading activation that finds upstream contributors when a benefit is paid; opacity / haze that lets old contributions decay if the world stops finding them useful; state modulation that lets the same contribution be worth different amounts in different contexts.</p>
 
 <p>The chain of provenance is not a blockchain — it is a graph, queried by activation, the same primitive a brain uses to remember. Each transaction is an integration over paths through that graph. The system does not need to know who you are; it needs to know what moved you.</p>
 
-<h2><span class="num">X — The world it builds</span></h2>
+<h2><span class="num">XI — The world it builds</span></h2>
 
 <p>Every human becomes an economic agent the moment they have an idea worth absorbing, regardless of whether they sold anything, started anything, owned anything. The barrier between thinking and being-compensated-for-thinking — the barrier that destroys most thinkers — comes down. The economy stops being a downstream pipeline of consumption and becomes a graph of influence, transacted continuously.</p>
 
@@ -137,13 +147,13 @@ _PAGE = r"""<!doctype html><html><head>
 
 <hr>
 
-<h2><span class="num">XI — Why now</span></h2>
+<h2><span class="num">XII — Why now</span></h2>
 
 <p>Three things just became possible at once. Models that can read the world and tell us, with reasonable fidelity, what influenced what. Graphs that can hold billions of contributions and route activation through them in real time. Payment rails that can settle micro-transactions across borders without a bank deciding to allow it.</p>
 
 <p>The infrastructure caught up to the truth.</p>
 
-<h2><span class="num">XII — The ask</span></h2>
+<h2><span class="num">XIII — The ask</span></h2>
 
 <p>Build with Koin, even at small scale. Build a classroom where the student's question is logged and her later success credits the question. Build a writing tool that watches what you read and, when you publish, traces the influence. Build a village where the residents pay each other in proportion to how much each one's thinking shows up in the others'. None of this is hard, anymore. All of it is being prototyped, today, inside PEP.</p>
 
