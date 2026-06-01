@@ -48,40 +48,44 @@ _PAGE = r"""<!doctype html><html><head>
 <div class="wrap">
 
 <div class="eyebrow">Koin · the manifesto · v0.1</div>
-<h1>Money tracks the wrong thing.<br><em>Ideas are the economy.</em></h1>
-<p class="sub">A draft of the case that compensation should flow to whoever changed your mind, not whoever sold you the product.</p>
+<h1>Money is the wrong instrument.<br><em>We finally have the right one.</em></h1>
+<p class="sub">A draft of the case that the economy is, before anything else, a verdict on what each person contributed — that money has always rendered that verdict badly — and that the technology to render it honestly just arrived.</p>
 
 <hr>
 
-<h2><span class="num">I — The mismeasurement</span>Currency measures custody, not value.</h2>
+<h2><span class="num">I — The judge problem</span>An economy is, before anything else, a verdict.</h2>
 
-<p>When you pay for a book, the money goes to the publisher, to the platform that shipped it, to the printer. A sliver reaches the author. Almost none reaches the people whose thinking the author absorbed, synthesized, transcribed. The librarian who shaped the author at fifteen receives nothing. The friend who, in a bar one night, said the sentence that became the book's central argument receives nothing. The dead philosopher whose framework gave the book its shape receives nothing.</p>
+<p>Every dollar that changes hands is a small judgment: this person contributed something worth that much. Every paycheck is a verdict. Every market price is a verdict. The aggregate of all those verdicts — that is what we mean by the economy.</p>
 
-<p>Money tracks who held the contract at the moment of exchange. It does not track who produced the value being exchanged. This is not a flaw to be fixed at the edges — it is the central design choice of every economic system since the invention of accounting. It is the reason most people who have lived have died poorer than the world made them.</p>
+<p>For all of history, we have rendered those verdicts with the crudest possible instrument: money. Money does not see contribution; it sees custody. It records who held the contract at the moment of exchange, not who produced the value being exchanged. When you pay for a book, the money goes to the publisher, to the platform, to the printer. A sliver reaches the author. <em>Nothing</em> reaches the librarian who shaped the author at fifteen, the friend whose sentence became the central argument, the dead philosopher whose framework gave the book its shape. Money cannot see them. It was never designed to.</p>
 
-<blockquote>The accountant follows the paper. The paper does not follow the thought.</blockquote>
+<p>The wild proxies have produced a world where a teacher who shaped a thousand minds earns less than a consultant who reshuffled the same money between two corporations. A nurse who held a dying patient's hand earns less than the man who traded the hospital's debt. A philosopher whose framework underwrites half a century of policy earns less than the marketer of an energy drink. These are not anomalies to be patched. They are the system functioning exactly as designed — because the system was never designed to judge contribution. It was designed to clear transactions.</p>
 
-<h2><span class="num">II — The unit</span>An idea is the only atom that moves.</h2>
+<blockquote>We never had a judge. We had a bookkeeper. We confused them because we had no choice.</blockquote>
 
-<p>Watch what actually happens when one human improves another. A sentence is said, written, drawn, played. It enters a second mind. That mind is changed. The change persists. Later, the changed mind does something that mind would not have done — writes another sentence, designs a bridge, comforts a child, cures a disease. Trace the bridge back through the work that made it possible, through the teachers, through the textbooks, through the lineages of mathematicians who handed down the calculus. <em>Every artifact is a delta on top of a graph of prior minds.</em></p>
+<h2><span class="num">II — The substrate</span>Contribution, not currency, is the thing.</h2>
 
-<p>The atom of economic activity is not the dollar, not the product, not the labor hour. It is the idea-transfer. Everything else is a fossil left behind by an idea-transfer that already happened.</p>
+<p>What does someone <em>actually</em> contribute? Sometimes a thing — a meal, a chair, a roof. Sometimes a service — a haircut, a diagnosis, an hour of patience. Sometimes a piece of attention — a glance that caught a falling child, an answer to a stranger's question. Sometimes an idea — a recipe, a method, a sentence that lodged in a friend's head and became, ten years later, a company.</p>
 
-<h2><span class="num">III — Provenance is the missing infrastructure</span></h2>
+<p>The substrate of the economy is not money. It is the universe of these contributions, most of which are invisible because we have never had instruments fine enough to see them. Money is what condensed out of the substrate when the substrate became too complicated to track by memory. <em>We have been mistaking the condensation for the thing.</em></p>
 
-<p>We have no infrastructure for provenance. We have citations, which are unpaid debts the academy accepted as currency among its own members. We have copyright, which is a blunt instrument that protects the form and ignores the substance. We have patents, which are a temporary monopoly granted for disclosure — a workaround for the absence of a real provenance ledger.</p>
+<p>The most invisible contributions are the upstream ones — the teaching, the influence, the framework, the example. They produce nothing the bookkeeper can see; they produce only changed minds. And changed minds are where every other contribution comes from.</p>
 
-<p>What's missing is the ability to ask, of any benefit anyone receives, <em>who produced this?</em> — and to have an answer that is not zero, not one, not the brand on the package, but a weighted graph of contributions reaching back as far as the evidence allows.</p>
+<h2><span class="num">III — Why we never measured it</span></h2>
 
-<p>This is a technical problem. It used to be intractable. It is no longer.</p>
+<p>It was technologically impossible. To judge a contribution accurately you have to trace its effects — through the people it touched, the work they did, the people <em>they</em> touched, recursively. Until very recently this was a labor only history could perform, and only in retrospect, and only for the people history happened to remember. Every contribution that fell outside history's narrow attention was lost.</p>
 
-<h2><span class="num">IV — Koin is that ledger</span></h2>
+<p>So we fell back on proxies. Whoever got paid was, by definition, the contributor — because we could see the payment and we could not see the contribution. Whoever wrote their name on the patent was the inventor — because we could see the patent and we could not see the lab tech who actually made the apparatus work. Whoever's name was on the cover was the author — because we could see the cover and we could not see the editor, the friend who heard every draft, the silent collaborator in the next chair.</p>
 
-<p>Koin is not a token. Koin is not a layer of payments slapped on top of the existing economy. Koin is the proposal that <em>the ledger of who-influenced-whom can become the ledger of who-is-owed-whom.</em></p>
+<p>These were not lies. They were the best honest answer the bookkeeping could give. We knew it was rough. We had no choice.</p>
 
-<p>Every time a mind absorbs an idea — reads, listens, encounters — the encounter is recorded. Every time the changed mind produces something — a decision, a product, a sentence, a payment — the production is traced back across the absorption graph. The benefit, whatever quantity it carries, is split across the lineage according to how much each contribution moved the resulting mind.</p>
+<h2><span class="num">IV — Why we can measure it now</span></h2>
 
-<p>The originator gets paid <em>by everyone who benefited from her idea</em>, in proportion to how much it moved them. Not once. Not in a lump sum. <em>Continuously, for as long as her idea keeps doing work in the world.</em></p>
+<p>Three things just became possible at once. Models that can read text, audio, and behavior and infer with reasonable fidelity <em>what influenced what</em>. Graph databases that can hold billions of contributions and route activation through them in real time. Settlement rails that can transact pennies across borders without a bank deciding to allow it.</p>
+
+<p>What used to take a historian working for a decade can now be done in the runtime of a request. The judgment is no longer guesswork. The judgment can be <em>computed</em>, from the evidence, with the same rigor we now apply to weather and protein folding.</p>
+
+<p>Koin is the proposal that we use this capability for what it was always for: <em>render an honest verdict on what each person contributed, and let the economy clear on the basis of that verdict instead of the proxies we used while we waited.</em></p>
 
 <h2><span class="num">V — What this is not</span></h2>
 
@@ -121,15 +125,15 @@ _PAGE = r"""<!doctype html><html><head>
 
 <p>The dead get paid into the work of their descendants. (Where the descendants are biological, this is inheritance. Where they are intellectual, this is the academy as it has always wished it could be.)</p>
 
-<h2><span class="num">IX — A worked example: the recipe</span></h2>
+<h2><span class="num">IX — Where the judgment is already accurate: the recipe</span></h2>
 
-<p>A chef writes down a recipe. Under the old economy, three things can happen to it. She can <em>cook it herself</em> — selling one plate at a time, capped by her own hands and time. She can <em>sell the rights</em> to a restaurant or a packaged-food company — a single check, after which she watches the dish become someone else's revenue. She can <em>publish it in a book</em> — a 10% royalty on each copy of the book, but no royalty at all on the millions of dinners cooked from the page.</p>
+<p>To see what an accurate verdict looks like, take the smallest case where it is actually achievable today. A chef writes down a recipe. Under the old economy, three things can happen to it. She can <em>cook it herself</em> — selling one plate at a time, capped by her own hands and time. She can <em>sell the rights</em> to a restaurant or a packaged-food company — a single check, after which she watches the dish become someone else's revenue. She can <em>publish it in a book</em> — a 10% royalty on each copy of the book, but no royalty at all on the millions of dinners cooked from the page.</p>
 
-<p>None of these track the value she created. The value is not the plate, not the rights, not the book. The value is the moment her idea — the proportions, the technique, the resting time, the unexpected ingredient — runs in another mind and becomes a meal that did not exist before.</p>
+<p>All three are bad verdicts. The recipe did the work — every plate is a re-running of her idea — but the verdict her income reflects has almost nothing to do with how many of those plates the world ate.</p>
 
-<p>Now imagine the recipe is submitted to a system. An AI-driven kitchen reads it and executes it: a worker preps measured ingredients into labeled bowls; the machine combines, heats, times, finishes, packages. The chef does not have to be present. The recipe runs <em>anywhere a kitchen runs it</em>. And every unit sold pays a royalty — small, automatic, continuous — back to the chef. Her income is no longer bounded by her stove or her time; it is bounded by how many people are improved by her idea. <em>This is what compensation looks like when it tracks value at its origin.</em></p>
+<p>Now imagine the recipe is submitted to a system. An AI-driven kitchen reads it and executes it: a worker preps measured ingredients into labeled bowls; the machine combines, heats, times, finishes, packages. The chef does not have to be present. The recipe runs <em>anywhere a kitchen runs it</em>. And every unit sold pays a royalty — small, automatic, continuous — back to the chef. Her income is no longer bounded by her stove or her time; it is bounded by <em>how many people her idea fed</em>. The judgment is accurate because the trace is unambiguous: this recipe produced this plate produced this transaction. The economy gets the verdict right, mechanically, every meal.</p>
 
-<p>The recipe is the simplest possible case because the trace is unambiguous: this recipe produced this plate produced this transaction. Generalize the pattern. The lesson plan that produced the student's grade. The diagnostic protocol that produced the patient's recovery. The proof technique that produced the engineer's design. The argument that produced the voter's choice. The melody that produced the album that paid for the singer's house — and the unnamed nursery rhyme inside the melody that paid for nothing. Every artifact in the world is a recipe being run. Koin pays the recipe.</p>
+<p>This is the entire Koin thesis at small scale. Make the trace visible; the verdict follows. Generalize the pattern: the lesson plan that produced the student's grade. The diagnostic protocol that produced the patient's recovery. The proof technique that produced the engineer's design. The argument that produced the voter's choice. The melody that produced the album that paid for the singer's house — and the unnamed nursery rhyme inside the melody that paid for nothing. <em>Every artifact in the world is a recipe being run. Koin is the apparatus that lets the verdict find the cook.</em></p>
 
 <h2><span class="num">X — The implementation</span></h2>
 
@@ -147,13 +151,7 @@ _PAGE = r"""<!doctype html><html><head>
 
 <hr>
 
-<h2><span class="num">XII — Why now</span></h2>
-
-<p>Three things just became possible at once. Models that can read the world and tell us, with reasonable fidelity, what influenced what. Graphs that can hold billions of contributions and route activation through them in real time. Payment rails that can settle micro-transactions across borders without a bank deciding to allow it.</p>
-
-<p>The infrastructure caught up to the truth.</p>
-
-<h2><span class="num">XIII — The ask</span></h2>
+<h2><span class="num">XII — The ask</span></h2>
 
 <p>Build with Koin, even at small scale. Build a classroom where the student's question is logged and her later success credits the question. Build a writing tool that watches what you read and, when you publish, traces the influence. Build a village where the residents pay each other in proportion to how much each one's thinking shows up in the others'. None of this is hard, anymore. All of it is being prototyped, today, inside PEP.</p>
 
