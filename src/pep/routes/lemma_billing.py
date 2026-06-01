@@ -19,6 +19,7 @@ from __future__ import annotations
 
 import json
 import os
+import secrets as _secrets
 import sqlite3
 from datetime import datetime, timezone
 from typing import Any
@@ -579,3 +580,31 @@ async function upgrade(plan){{
 @router.get("/lemma/upgrade", response_class=HTMLResponse)
 async def lemma_upgrade_redirect() -> RedirectResponse:
     return RedirectResponse("/lemma/pricing", status_code=302)
+
+
+# ---------------------------------------------------------------------------
+# Admin override — flip a teacher's plan with a secret token.
+# Use this to bypass Stripe for testing. Set LEMMA_ADMIN_SECRET in Render env.
+# ---------------------------------------------------------------------------
+
+@router.post("/lemma/api/admin/set-plan")
+async def admin_set_plan(req: Request) -> JSONResponse:
+    body = await req.json()
+    secret = (body.get("secret") or "").strip()
+    expected = (os.environ.get("LEMMA_ADMIN_SECRET") or "").strip()
+    if not expected:
+        raise HTTPException(503, "admin endpoint disabled (no LEMMA_ADMIN_SECRET set)")
+    if not _secrets.compare_digest(secret, expected):
+        raise HTTPException(403, "forbidden")
+    email = (body.get("email") or "").strip().lower()
+    plan = (body.get("plan") or "").strip().lower()
+    if plan not in ("free", "solo", "multi"):
+        raise HTTPException(400, "plan must be 'free', 'solo', or 'multi'")
+    if not email:
+        raise HTTPException(400, "email required")
+    with _conn() as c:
+        t = c.execute("SELECT id FROM teachers WHERE email = ?", (email,)).fetchone()
+        if not t:
+            raise HTTPException(404, f"no teacher account for {email}")
+    update_subscription(t["id"], plan=plan, status="active")
+    return JSONResponse({"ok": True, "email": email, "plan": plan})
