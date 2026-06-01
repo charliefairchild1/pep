@@ -141,7 +141,23 @@ _PAGE = r"""<!doctype html><html><head>
 
 <p>The dead get paid into the work of their descendants. (Where the descendants are biological, this is inheritance. Where they are intellectual, this is the academy as it has always wished it could be.)</p>
 
-<h2><span class="num">X — Where the judgment is already accurate: the recipe</span></h2>
+<h2><span class="num">X — Nobody pays</span>The video-game insight, and what the trade leaves behind.</h2>
+
+<p>In a well-designed video game, you gain. Other players do not lose. You level up, find loot, complete a quest — the world's total has gone up, and nobody had to give anything back. This is so natural inside the game that no one questions it. Outside the game, we have inherited the opposite intuition: every dollar in your pocket came from someone else's pocket. The pie is fixed. You are taking. <em>Both intuitions are partial truths, and the video-game one is closer to the actual physics.</em></p>
+
+<p>When a chef writes a recipe and it cooks a thousand meals, no recipe-pool was depleted. When a teacher's framework shapes a thousand students, no framework-pool was depleted. The supply of ideas, of teaching, of attention, of care — these are not finite reservoirs that can be drained. Money, the instrument, is fixed-pool. Contribution, the thing money was trying to track, is not. Money inherited zero-sum semantics from the time when wealth meant grain and grain was finite. The semantics never updated.</p>
+
+<p>Koin updates them. The koin that flows to the chef when her recipe cooks a meal is not subtracted from the diner — the diner has the meal. It is not subtracted from the kitchen worker — the worker is paid. It is recognition that the world's stock of fed people has gone up by one, and that the originating idea is the reason. <em>Nobody pays. The world simply notes, in the ledger, where the increase came from.</em></p>
+
+<p>Now look further back. Imagine two villages, before money. Each finds, in its own territory, a small object that exists nowhere else — a particular stone, a colored shell, an alloy only their soil holds. When the villages meet and trade, each gives the other its unique object. After the exchange, both villages possess something the other made possible. <em>The thing each gives is identity-bearing.</em> A third village, arriving later, sees that the first two have each other's tokens — and knows, without being told, that the two have met, traded, bonded. <em>The artifact of trade is the record of the bond.</em> Other relationships grow on top of the visible record.</p>
+
+<p>This is not speculation. Obsidian found a thousand miles from the volcano it came out of, amber that traveled from the Baltic to Egypt, Pacific shells in the Mississippi Valley — every archaeological trade route was first inferred from a foreign object showing up in a local context. The trade itself was the record. The objects were testimony.</p>
+
+<p>Koin is that ledger, scaled to billions of contributions and updated continuously. When your idea moves my mind, the flow between us is not a tax I pay; it is the marker that we traded — that something of yours is now in me, that something of mine (the recognition, the koin) is now in you. Anyone looking at my balance sees who shaped me. Anyone looking at yours sees who you reached. <em>The flow is the relationship made visible.</em> The economy is not a substance being moved around. It is a graph of bonds being recorded.</p>
+
+<blockquote>The video game got the math right. The historical traders got the meaning right. Koin combines them.</blockquote>
+
+<h2><span class="num">XI — Where the judgment is already accurate: the recipe</span></h2>
 
 <p>To see what an accurate verdict looks like, take the smallest case where it is actually achievable today. A chef writes down a recipe. Under the old economy, three things can happen to it. She can <em>cook it herself</em> — selling one plate at a time, capped by her own hands and time. She can <em>sell the rights</em> to a restaurant or a packaged-food company — a single check, after which she watches the dish become someone else's revenue. She can <em>publish it in a book</em> — a 10% royalty on each copy of the book, but no royalty at all on the millions of dinners cooked from the page.</p>
 
@@ -151,13 +167,13 @@ _PAGE = r"""<!doctype html><html><head>
 
 <p>This is the entire Koin thesis at small scale. Make the trace visible; the verdict follows. Generalize the pattern: the lesson plan that produced the student's grade. The diagnostic protocol that produced the patient's recovery. The proof technique that produced the engineer's design. The argument that produced the voter's choice. The melody that produced the album that paid for the singer's house — and the unnamed nursery rhyme inside the melody that paid for nothing. <em>Every artifact in the world is a recipe being run. Koin is the apparatus that lets the verdict find the cook.</em></p>
 
-<h2><span class="num">XI — The implementation</span></h2>
+<h2><span class="num">XII — The implementation</span></h2>
 
 <p>Koin runs on PEP. PEP gives Koin the substrate: a weighted graph of minds and ideas; spreading activation that finds upstream contributors when a benefit is paid; opacity / haze that lets old contributions decay if the world stops finding them useful; state modulation that lets the same contribution be worth different amounts in different contexts.</p>
 
 <p>The chain of provenance is not a blockchain — it is a graph, queried by activation, the same primitive a brain uses to remember. Each transaction is an integration over paths through that graph. The system does not need to know who you are; it needs to know what moved you.</p>
 
-<h2><span class="num">XII — The world it builds</span></h2>
+<h2><span class="num">XIII — The world it builds</span></h2>
 
 <p>Every human becomes an economic agent the moment they have an idea worth absorbing, regardless of whether they sold anything, started anything, owned anything. The barrier between thinking and being-compensated-for-thinking — the barrier that destroys most thinkers — comes down. The economy stops being a downstream pipeline of consumption and becomes a graph of influence, transacted continuously.</p>
 
@@ -167,7 +183,7 @@ _PAGE = r"""<!doctype html><html><head>
 
 <hr>
 
-<h2><span class="num">XIII — The ask</span></h2>
+<h2><span class="num">XIV — The ask</span></h2>
 
 <p>Build with Koin, even at small scale. Build a classroom where the student's question is logged and her later success credits the question. Build a writing tool that watches what you read and, when you publish, traces the influence. Build a village where the residents pay each other in proportion to how much each one's thinking shows up in the others'. None of this is hard, anymore. All of it is being prototyped, today, inside PEP.</p>
 
