@@ -133,8 +133,14 @@ _PAGE = r"""<!doctype html><html><head>
 <div class="tpart">Part V · The call</div>
 <ol>
 <li><span class="roman">XVI</span><a href="#s16">The lineage</a></li>
-<li><span class="roman">XVII</span><a href="#s17">Why this won't be coopted</a></li>
-<li><span class="roman">XVIII</span><a href="#s18">The ask</a></li>
+<li><span class="roman">XVII</span><a href="#s17">Objections, considered</a></li>
+<li><span class="roman">XVIII</span><a href="#s18">Why this won't be coopted</a></li>
+<li><span class="roman">XIX</span><a href="#s19">The ask</a></li>
+</ol>
+<div class="tpart">Appendix</div>
+<ol>
+<li><span class="roman">A</span><a href="#sa">Glossary</a></li>
+<li><span class="roman">B</span><a href="#sb">Further reading</a></li>
 </ol>
 </div>
 
@@ -182,10 +188,24 @@ _PAGE = r"""<!doctype html><html><head>
 <p>Money is the most ambitious answer humans have tried. It is not the only one. Each system below tracked some slice of the influence graph long before "the influence graph" was a phrase. Each shows that the behavior Koin requires — give without immediate return, trust the recognition, build a ledger of bonds — is well within the human repertoire. We have done it for shells, for prayers, for songs, and for code.</p>
 
 <div class="histbox">
+<h4>The Yap stones (rai)</h4>
+<div class="when">Yap Island, Micronesia · ca. 500 CE to the 20th century</div>
+<p>The people of Yap used enormous limestone discs — some weighing several tons — as units of account. The stones were quarried from islands hundreds of miles away and ferried across the ocean. Once placed, they were rarely moved. Ownership transferred orally and was remembered by the community. When a famous stone fell from a canoe and sank to the bottom of the sea on its way to Yap, the islanders agreed it still belonged to the family that had paid for it; the stone continued to function as wealth, unseen, for generations.</p>
+<p>The lesson: <em>the unit of account is independent of the substance.</em> Value was not in the stone. Value was in the consensus record of who owned it. The economy of Yap ran on the same protocol Koin proposes — pure ledger, agnostic to substrate. Milton Friedman, writing in 1991, used the rai stones to explain his theory of money: any agreed-upon ledger of bonds is money. Koin extends this principle from substance-independent custody to substance-independent contribution. <span class="cite">— Friedman, "The Island of Stone Money," 1991.</span></p>
+</div>
+
+<div class="histbox">
 <h4>The kula ring</h4>
 <div class="when">Trobriand and surrounding Pacific islands · approximately 2000 BCE to the 20th century</div>
 <p>Two ceremonial objects circulated on the kula: red shell necklaces (<i>soulava</i>) passed clockwise from island to island, and white shell armbands (<i>mwali</i>) passed counter-clockwise. The objects were never sold. They were given. The honor lay in receiving, briefly holding, and passing on. Over generations each object accumulated history — every owner's name carried with it. To hold a famous mwali was to hold a node in a network that stretched back centuries.</p>
 <p>Bronisław Malinowski mapped the kula in detail in 1922. Marcel Mauss, drawing on Malinowski, called it "one of the most extraordinary systems of voluntary obligation ever recorded." The Trobrianders ran a graph database for two millennia using shell. The exchange was the system; the bond was the value; the artifact was the testimony. <span class="cite">— Malinowski, <i>Argonauts of the Western Pacific</i>, 1922; Mauss, <i>The Gift</i>, 1925.</span></p>
+</div>
+
+<div class="histbox">
+<h4>The debt jubilee (deror, hērum, andurārum)</h4>
+<div class="when">Mesopotamia, Egypt, Israel · ca. 2400 BCE through the Hellenistic period</div>
+<p>The earliest written legal codes — Sumerian, Akkadian, Babylonian, Hebrew — included scheduled debt cancellation. The Sumerian <em>amargi</em> (literally "return to mother"), Akkadian <em>andurārum</em>, Babylonian <em>mīšarum</em>, and Hebrew <em>deror</em> all named the same institution: at the king's accession, after a famine, or on a fifty-year cycle, all debts were forgiven, debt-slaves freed, and forfeited land returned. Hammurabi proclaimed at least four such jubilees during his reign.</p>
+<p>The institution responded to a problem Koin also confronts: ledgers that record bonds will, over time, accumulate distortions — fraud, inheritance imbalances, debts incurred under duress. The Mesopotamian solution was periodic reset. A modern Koin equivalent already lives in the haze primitive (long decay times for foundational influence, short for casual). But the lesson is older than mathematics: <em>a ledger that cannot be partially forgiven becomes its own kind of tyranny.</em> <span class="cite">— Michael Hudson, <em>...and forgive them their debts</em>, 2018; Graeber, <em>Debt</em>, ch. 3.</span></p>
 </div>
 
 <div class="histbox">
@@ -518,7 +538,29 @@ _PAGE = r"""<!doctype html><html><head>
 
 <p>Each of these saw a piece. Each ran into the wall of the technologies of their time. The synthesis was not available because the apparatus was not available. The apparatus is here now. <em>Koin is the synthesis these earlier sightings have been waiting for.</em></p>
 
-<h2 id="s17"><span class="num">XVII — Why this won't be coopted</span></h2>
+<h2 id="s17"><span class="num">XVII — Objections, considered</span></h2>
+
+<p>A manifesto that ducks its objections is propaganda. The strongest arguments against Koin deserve direct answers.</p>
+
+<p><b>"This is surveillance."</b> The graph is, by definition, a record of what moved you. But Koin is opt-in, the data is encrypted, and the verdict is computed locally on user-controlled hardware whenever possible. The most surveillance-friendly Koin implementation is the corporate-owned one — which is precisely the implementation Section XVII argues against. A commons-governed, open-protocol Koin generates less surveillance than the ad-tech industry already does to track what you click. The right comparison is not "Koin vs. nothing" but "Koin vs. the current attention-harvesting baseline." Koin gives the contributor a payment in exchange for visibility that the ad networks already harvest for free.</p>
+
+<p><b>"It will be gamed."</b> Any system of value can be gamed; the question is how the gaming behavior compares to the gaming behavior of the system it replaces. Money is gamed at industrial scale: tax evasion, transfer pricing, wash trades, market manipulation, leveraged speculation that produces no value. Citation networks are gamed (citation rings, predatory journals). PageRank was gamed (link farms). In every case the response was iterative improvement of the verdict-rendering, not abandonment of the system. Koin's specific defense: the verdict is keyed to verifiable downstream effect, which is harder to fake than a star rating because the receiver's later behavior either does or does not show absorption. The cost of gaming Koin convincingly is roughly the cost of actually contributing.</p>
+
+<p><b>"It corrupts giving."</b> This worry comes from the gift-economy tradition (Mauss, Hyde) — that putting a number on a gift destroys what makes it a gift. The objection is sound but mis-aimed. Koin's carve-out (Section XIII) is the answer: the unmeasured remains. You choose what enters the ledger. The hour you give a friend in the dark is not a Koin event unless you decide to make it one — and the system has no way of finding out about it unless you tell it. Koin handles what was already commercial-adjacent (writing, music, teaching, advice, software) and leaves the genuinely intimate alone. The distinction has to be defended every year against the impulse to measure more.</p>
+
+<p><b>"It widens inequality. Popular voices will get most of the koin."</b> This is the most serious objection. Influence is power-law distributed; a few thinkers reach millions while most reach few. If Koin tracks influence faithfully, won't it produce hyper-concentration?</p>
+
+<p>Three answers. First, even unequal Koin is more equal than current capital — because current capital is captured almost entirely by intermediaries (platforms, publishers, employers) rather than originators. Returning the value to originators, even if those originators are themselves unequal, redistributes from the very-rich corporate few to the moderately-rich influential many. Second, the haze primitive prevents perpetual concentration: contributions that stop being absorbed stop generating flow. The wealthiest minds of one generation give way to the wealthiest of the next, who give way again. Third, the Shapley adjustment redistributes non-redundant credit: a contribution that everyone has heard reaches diminishing marginal returns; a contribution that uniquely shapes a small but consequential audience can outpay a viral one. The math fights the winner-take-all dynamic that pure influence-counts would produce.</p>
+
+<p><b>"It's just royalties for everything — and royalties don't pay much."</b> Existing royalty systems (ASCAP, book royalties) pay little because the rates are negotiated against captured distribution channels. The performance royalty for a streamed song is approximately $0.003. The author's royalty on a paperback is approximately 10% of cover. Both numbers are artifacts of the bargaining power asymmetry between creators and platforms. Koin's structural change is removing the platform's leverage. When distribution is one weighted edge among many — not the gatekeeper — the verdict redistributes the full value of the contribution, not the leftover after rent.</p>
+
+<p><b>"It needs too much infrastructure to ever exist."</b> Koin can be deployed domain by domain. The first deployments do not need to talk to each other. A classroom Koin that pays teachers for student outcomes does not need to interoperate with a music Koin that pays songwriters for plays. Each domain proves the verdict-rendering and the settlement separately. Federation comes later, once multiple verticals have shipped and the value of cross-domain provenance becomes visible. We are at the recipe stage: prove one cuisine, then standardize.</p>
+
+<p><b>"It will become Nosedive eventually."</b> This is the question Section VII addresses directly. The shortest answer: Koin pays; it does not gate. The moment a Koin balance starts gating anything, that is the moment Koin has become something else and must be opposed. The defense is institutional, not technical. The same vigilance citizens needed to keep credit scores from determining medical care is the vigilance they will need to keep Koin balances from determining anything other than what arrives in the contributor's account.</p>
+
+<blockquote>The objections do not refute the proposal. They name the things we must defend if the proposal is to work.</blockquote>
+
+<h2 id="s18"><span class="num">XVIII — Why this won't be coopted</span></h2>
 
 <p>Every honest reader of this manifesto will, by now, have asked the obvious question: what stops this from becoming someone's monopoly? What stops a corporation from owning the graph, charging rent on it, and recreating the exact extraction Koin was meant to dissolve?</p>
 
@@ -536,7 +578,7 @@ _PAGE = r"""<!doctype html><html><head>
 
 <p>This is why the ask is now.</p>
 
-<h2 id="s18"><span class="num">XVIII — The ask</span></h2>
+<h2 id="s19"><span class="num">XIX — The ask</span></h2>
 
 <p>Build with Koin, even at small scale.</p>
 
@@ -550,7 +592,78 @@ _PAGE = r"""<!doctype html><html><head>
 
 <blockquote>An economy is a verdict. The verdict can now be honest. Build it before someone closes it.</blockquote>
 
-<p class="signature">— Koin Labs<br>Draft v0.3 · This document is itself entered into Koin.</p>
+<p class="signature">— Koin Labs<br>Draft v0.4 · This document is itself entered into Koin.</p>
+
+<!-- ===================== APPENDIX ===================== -->
+<div class="part">
+  <div class="label">Appendix</div>
+  <div class="name">Reference</div>
+  <div class="rule"></div>
+</div>
+
+<h2 id="sa"><span class="num">A — Glossary</span></h2>
+
+<p><b>Koin.</b> Both a unit of account and the system that computes it. Tracks contribution to other minds, weighted by downstream effect, settled continuously across the influence graph. Does not refer to any specific token or currency; any payment substrate can carry koin.</p>
+
+<p><b>Influence graph.</b> A weighted directed graph in which nodes are contributions (sentences, recipes, songs, papers, code, lessons, conversations) and edges record absorption events. The edge weight encodes magnitude of influence; the edge metadata encodes channel, time, and decay parameters.</p>
+
+<p><b>Verdict.</b> The judgment, rendered automatically by the system, of how much each contributor is owed for a given benefit. A verdict is computed, contestable, and time-varying. Each new benefit produces a fresh verdict; the cumulative verdicts integrate to a balance.</p>
+
+<p><b>Flow.</b> A continuous-time payment stream from a benefit-receiver back to an upstream contributor, in proportion to the influence-graph weight, the Shapley adjustment, and the active decay. Flows accumulate as balances but are themselves the primary unit of accounting.</p>
+
+<p><b>Spreading activation.</b> The algorithm that traces a benefit backward through the influence graph, distributing credit along incoming edges in proportion to their weights, recursively, with a damping factor. The same primitive a brain uses to remember and PageRank uses to rank.</p>
+
+<p><b>Shapley value.</b> The unique fair split of a cooperative gain across the cooperators, defined as each cooperator's average marginal contribution across all possible orderings. Solves the credit-assignment problem when multiple contributors caused a single benefit. (Shapley 1953; Nobel 2012.)</p>
+
+<p><b>Haze / opacity.</b> The decay primitive: each edge weight in the influence graph fades continuously and is reinforced by every fresh absorption event. Implements the principle that old work is paid for its current use, not for its existence. Half-life is tunable per channel.</p>
+
+<p><b>PTO.</b> Potential, Transformation, Output (minus Dissipation). The variational framework on which Koin's economics rest. Maximizes constructive transformation per unit of dissipation. Formally: δ ∫ [T − Φ(T + D)] dτ = 0, where Φ is the Rayleigh quotient encoding receiver-bandwidth constraints.</p>
+
+<p><b>Rayleigh quotient.</b> The functional, borrowed from spectral analysis, that captures the maximum transformation a receiver can absorb given its bandwidth. Acts as the dissipation term in the PTO equation.</p>
+
+<p><b>The unmeasured.</b> The set of contributions Koin explicitly refuses to track: intimate acts, private exchanges, contributions the contributor has not consented to measure. The integrity of the system requires that the unmeasured remain large and protected.</p>
+
+<p><b>Lineage fund.</b> The default disposition for a deceased contributor's continuing flows when no heir is named. Funds the people the contributor's work touched (teachers, editors, collaborators) in proportion to traced influence.</p>
+
+<p><b>Commons graph.</b> The shared, jointly-held substrate of bond records — analogous to TCP/IP, the calendar, or the metric system. No single provider owns the graph; multiple providers compete on quality of judgment.</p>
+
+<h2 id="sb"><span class="num">B — Further reading</span></h2>
+
+<p>For the reader who wants to follow the threads this manifesto braided. Listed roughly in order of how directly they shaped the argument.</p>
+
+<p><b>Marcel Mauss</b>, <i>The Gift</i> (1925). The single most important precursor. Establishes that exchange creates and records bonds and that the artifact of trade is the testimony of the relationship. Read this first.</p>
+
+<p><b>David Graeber</b>, <i>Debt: The First 5,000 Years</i> (2011). Demonstrates that credit relationships preceded coin by millennia and that the gift economy and the market economy coexist in every human society. Most usable single-volume history of accounting.</p>
+
+<p><b>Karl Polanyi</b>, <i>The Great Transformation</i> (1944). Names the historical moment when markets disembedded from social relations. Koin proposes one form of re-embedding.</p>
+
+<p><b>Lewis Hyde</b>, <i>The Gift: Creativity and the Artist in the Modern World</i> (1983). The case that creative work belongs to a gift economy. Establishes the moral grammar Koin needs.</p>
+
+<p><b>Henry George</b>, <i>Progress and Poverty</i> (1879). The earliest substantial argument that economic value belongs to the network around the contributor, not to the contributor's bounded property.</p>
+
+<p><b>Bronisław Malinowski</b>, <i>Argonauts of the Western Pacific</i> (1922). The ethnographic record of the kula. Read with Mauss.</p>
+
+<p><b>Elinor Ostrom</b>, <i>Governing the Commons</i> (1990). The empirical and theoretical foundation for non-state, non-market governance of shared resources. The eight design principles are the template for commons-governed Koin.</p>
+
+<p><b>Friedrich Hayek</b>, "The Use of Knowledge in Society" (<i>American Economic Review</i>, 1945). The deep defense of decentralized aggregation. Koin extends Hayek; this essay is its starting point.</p>
+
+<p><b>Ronald Coase</b>, "The Nature of the Firm" (1937) and "The Problem of Social Cost" (1960). Establishes transaction costs as the variable Koin reduces toward zero.</p>
+
+<p><b>Michael Hudson</b>, <i>...and forgive them their debts</i> (2018). The history of debt jubilees from Sumer through the early church. Source for the Mesopotamian institutions section.</p>
+
+<p><b>Silvio Gesell</b>, <i>The Natural Economic Order</i> (1916). Original demurrage proposal. Read Gesell to understand why decay is a feature, not a flaw.</p>
+
+<p><b>Michael Goldhaber</b>, "The Attention Economy and the Net" (<i>First Monday</i>, 1997). The first clear statement that attention has become the economic substrate. Background for the move from attention to influence.</p>
+
+<p><b>Lloyd Shapley</b>, "A Value for n-Person Games" (1953). The mathematical kernel of fair credit assignment. Brief and technical; pair with Roth's 2016 introduction.</p>
+
+<p><b>Larry Page, Sergey Brin, Rajeev Motwani, Terry Winograd</b>, "The PageRank Citation Ranking" (Stanford, 1998). The proof at planetary scale that the influence-graph kernel works.</p>
+
+<p><b>Eugene Garfield</b>, "Citation Indexes for Science" (<i>Science</i>, 1955). The earliest serious proposal to build the influence graph of human thought, and a roadmap for why the academy was always going to be the first city of Koin.</p>
+
+<p><b>Milton Friedman</b>, "The Island of Stone Money" (<i>Working Papers in Economics</i>, 1991). The Yap example, used to demonstrate that money is fundamentally a ledger, indifferent to substance.</p>
+
+<p><b>Ilia Shumailov et al.</b>, "The Curse of Recursion: Training on Generated Data Makes Models Forget" (2023). The empirical case for why AI economies must preserve human provenance — which is to say, why AI economies need Koin.</p>
 
 <div class="kicker">
 <span class="glyph">◇</span>
