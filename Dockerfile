@@ -5,15 +5,18 @@ WORKDIR /app
 # Install uv
 RUN pip install --no-cache-dir uv
 
-# Copy dependency files first for layer caching
+# Install dependencies first (without the local project) — for layer caching
 COPY pyproject.toml uv.lock README.md ./
-RUN uv sync --no-dev
+RUN uv sync --no-dev --no-install-project
 
 # Copy app code. `data/` is created at runtime by SQLite (gitignored).
 # `dist/` holds hand-authored HTML for the demos.
 COPY src ./src
 COPY dist ./dist
 RUN mkdir -p data
+
+# Now install the local project itself (src/ is present)
+RUN uv sync --no-dev
 
 ENV PYTHONUNBUFFERED=1
 EXPOSE 8000
