@@ -83,7 +83,7 @@ a{color:var(--accent2)}
   .kicker{page-break-before:always}
   @page{margin:0.75in 0.85in;
         @bottom-right{content:counter(page);font-family:'SF Mono',monospace;font-size:9pt;color:#666}
-        @bottom-left{content:"Koin · the manifesto · v0.6";font-family:'SF Mono',monospace;font-size:9pt;color:#666}}
+        @bottom-left{content:"Koin · the manifesto · v0.7";font-family:'SF Mono',monospace;font-size:9pt;color:#666}}
   @page:first{@bottom-right{content:""}@bottom-left{content:""}}
 }
 """
@@ -97,7 +97,7 @@ _PAGE = r"""<!doctype html><html><head>
 <button class="print-btn" onclick="window.print()">⎙ Print / PDF</button>
 <div class="wrap">
 
-<div class="eyebrow">Koin · the manifesto · v0.6</div>
+<div class="eyebrow">Koin · the manifesto · v0.7</div>
 <h1>Money is the wrong instrument.<br><em>We finally have the right one.</em></h1>
 <p class="sub">A draft of the case that the economy is, before anything else, a verdict on what each person contributed — that money has always rendered that verdict badly — and that the technology to render it honestly just arrived.</p>
 
@@ -331,7 +331,13 @@ _PAGE = r"""<!doctype html><html><head>
 
 <p>It is not royalties. Royalties pay the named author. Koin pays the unnamed teacher who taught the author to read.</p>
 
-<p>It is not basic income. Basic income is a redistribution from production to existence. Koin is a redistribution from <em>downstream</em> to <em>upstream</em>. It pays the people whose contributions are already invisibly built into the value being created.</p>
+<p>It is not basic income (UBI). UBI is a redistribution from production to existence — every adult gets the same payment because they exist. Koin is a redistribution from <em>downstream</em> to <em>upstream</em> — every contributor gets paid in proportion to what they actually moved. The two are not incompatible; a society could choose to run both. But they are different vectors. UBI says: you deserve a floor because you are alive. Koin says: you deserve a flow because of what you have done.</p>
+
+<p>It is not a wealth tax. A wealth tax extracts from the rich and redistributes to the poor by political decree. Koin redistributes from the captured (those holding custody of value) to the original (those who created the value) by computation. Different vector, different mechanism, different politics. A society could have both, and the two would interact: the wealth captured under the old system, taxed; the wealth being generated under the new system, paid to source.</p>
+
+<p>It is not a land value tax. Henry George's 1879 proposal was Koin applied to one substrate (the land's network value). Koin generalizes the principle to every substrate — ideas, attention, care, framework, example. George would recognize it as the continuation of his argument.</p>
+
+<p>It is not a Pigouvian tax. Pigouvian taxes price external harm (pollution, congestion, noise). Koin prices external benefit (influence, instruction, support, the work that did not bill). The two are complementary: tax the externalities that subtract from the commons; flow value to the contributors that added to it.</p>
 
 <p>It is not a tax. A tax is an extraction by the state. Koin is a return of value to the source, transacted directly between minds.</p>
 
@@ -689,7 +695,7 @@ $0.40  →  the lineage fund (unallocated residuum routed to commons)
 <p><em>The verdict, at last, finds the cook.</em></p>
 </div>
 
-<p class="signature">— Koin Labs<br>Draft v0.6 · This document is itself entered into Koin.</p>
+<p class="signature">— Koin Labs<br>Draft v0.7 · This document is itself entered into Koin.</p>
 
 <!-- ===================== APPENDIX ===================== -->
 <div class="part">
