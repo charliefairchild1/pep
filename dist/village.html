@@ -1,0 +1,1724 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Village — three minds, one substrate, sentences that travel</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#06080d;color:#d7dde7;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;line-height:1.5;font-size:14px}
+.wrap{max-width:1280px;margin:0 auto;padding:18px 14px 56px}
+.top{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;border-bottom:1px solid #18202d;padding-bottom:9px;margin-bottom:12px}
+h1{font-size:22px;font-weight:650}h1 .s{color:#5c6675;font-weight:400;font-size:13.5px;margin-left:6px}
+.nav a{color:#7b8696;text-decoration:none;font-size:13px;margin-right:13px}.nav a:hover{color:#5bb6c8}
+.lead{color:#94a0b0;font-size:13.5px;max-width:980px;margin-bottom:14px}
+.lead b{color:#cfd6e0;font-weight:600}
+
+.villageGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(225px,1fr));gap:11px;margin-bottom:14px}
+.npcCard{background:#0a0e15;border:1px solid #1a2230;border-radius:9px;padding:11px 13px;cursor:pointer;transition:border-color .15s,background .15s;position:relative;overflow:hidden}
+.npcCard:hover{border-color:#3f718a}
+.npcCard.active{background:#0c151b;border-color:#5bb6c8;box-shadow:0 0 0 1px #5bb6c8 inset}
+.npcCard .nmRow{display:flex;align-items:baseline;gap:8px;margin-bottom:5px}
+.npcCard .nm{font-size:15px;font-weight:650;letter-spacing:.005em}
+.npcCard .role{font-size:11px;color:#5c6675;font-family:ui-monospace,monospace;letter-spacing:.06em;text-transform:uppercase}
+.npcCard .vibe{font-size:12px;color:#94a0b0;font-style:italic;margin-bottom:8px}
+.npcCard .miniStat{font-size:11px;color:#7b8696;font-family:ui-monospace,monospace;letter-spacing:.04em;margin-top:6px}
+.npcCard .moodBar{height:5px;background:#06080d;border:1px solid #141c28;border-radius:3px;overflow:hidden;margin-top:5px;display:flex}
+.npcCard .moodBar .v{height:100%;background:linear-gradient(90deg,#5c2a3a,#caa15a 50%,#2a5c3a)}
+.npcCard .miniGraph{display:block;width:100%;height:80px;background:#04060a;border:1px solid #141c28;border-radius:6px;margin-top:7px}
+.npcCard .recentHeard{margin-top:7px;font-size:11.5px;color:#aab4c2;font-style:italic;padding:6px 8px;background:#06080d;border:1px solid #141c28;border-radius:6px;min-height:1.3em;line-height:1.4}
+.npcCard .recentHeard b{color:#caa15a;font-style:normal;font-weight:500;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;display:block;margin-bottom:3px;font-family:ui-monospace,monospace}
+
+.mainPanel{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:12px}
+@media(max-width:900px){.mainPanel{grid-template-columns:1fr}}
+.panel{background:#0a0e15;border:1px solid #141c28;border-radius:10px;padding:12px 14px}
+.panel h3{font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:#5bb6c8;margin-bottom:9px;font-family:ui-monospace,monospace}
+.panel h3 .sub{color:#5c6675;font-weight:400;letter-spacing:.04em;text-transform:none;margin-left:8px;font-family:inherit;font-size:11.5px}
+
+.chat{display:flex;flex-direction:column;min-height:540px}
+.msgs{flex:1;overflow-y:auto;max-height:520px;padding:4px}
+.msg{margin:7px 0;padding:8px 12px;border-radius:8px;line-height:1.5}
+.msg.user{background:#101824;border:1px solid #1a2632;margin-left:36px}
+.msg.ai{background:#0c1620;border:1px solid #1a2a36;margin-right:36px}
+.msg .who{font-family:ui-monospace,monospace;font-size:10.5px;letter-spacing:.15em;text-transform:uppercase;margin-bottom:3px}
+.msg.user .who{color:#7b8696}
+.msg.ai .who{color:#5bb6c8}
+.msg.sys{background:transparent;border:1px dashed #1a2230;color:#7b8696;text-align:center;font-size:12px;font-family:ui-monospace,monospace}
+.msg.gossip{background:transparent;border-left:2px solid #caa15a;padding:4px 9px;font-size:12px;font-style:italic;color:#caa15a;margin:5px 36px}
+.msg.overheard{background:transparent;border-left:2px dashed #5c6675;padding:4px 9px;font-size:12px;color:#94a0b0;margin:5px 30px;font-style:italic}
+.msg.spoke{background:#0b1118;border:1px solid #1a2a36;padding:7px 11px;font-size:13px;margin:6px 30px}
+.msg.interject{background:#0a131e;border:1px solid #1a2632;border-left:3px solid #caa15a;padding:7px 11px;font-size:13px;margin:7px 28px;font-style:italic}
+.msg.interject .who{color:#caa15a;font-style:normal;font-weight:600;margin-right:6px}
+.npcCard .koin{display:flex;gap:8px;align-items:center;font-size:11px;color:#7b8696;margin-top:6px;font-family:ui-monospace,monospace}
+.npcCard .koin .pos{color:#7dc89a}
+.npcCard .koin .neg{color:#d6878d}
+.inputrow{display:flex;gap:8px;margin-top:10px}
+.inputrow input{flex:1;font:inherit;font-size:13.5px;background:#06080d;border:1px solid #283142;border-radius:6px;padding:9px 11px;color:#dfe5ee}
+.inputrow input:focus{outline:none;border-color:#5bb6c8}
+button{font:inherit;font-size:13px;background:#111826;color:#cfd6e0;border:1px solid #283142;border-radius:6px;padding:7px 12px;cursor:pointer}
+button:hover{border-color:#3f718a;color:#8fd4e6}
+button.primary{background:#10303a;border-color:#2f7d96;color:#7fe0f2}
+
+.gossipLog{font-size:12.5px;color:#aab4c2;line-height:1.55;max-height:540px;overflow-y:auto}
+.gossipLog .line{margin:7px 0;padding:6px 9px;background:#06080d;border:1px solid #141c28;border-left:3px solid #caa15a;border-radius:6px}
+.gossipLog .line .src{color:#5c6675;font-family:ui-monospace,monospace;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px}
+.gossipLog .line .body{color:#dfe5ee;font-style:italic}
+
+.foot{margin-top:14px;border-top:1px solid #18202d;padding-top:9px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;font-size:12px;color:#7b8696}
+.foot .grow{flex:1}
+</style></head>
+<body><div class="wrap">
+
+<div class="top">
+  <h1>The Village <span class="s">— three minds, one substrate, sentences that travel</span></h1>
+  <div class="nav"><a href="/axona/mind">← single mind</a><a href="/axona/origin">origin</a><a href="/axona/seeming">seeming</a><a href="/robot">robot</a><a href="/everything">everything</a></div>
+</div>
+<p class="lead">Three NPCs, each running the same cognitive engine. They share a substrate of concepts but have <b>different seed selves</b>, so their personalities and recall preferences diverge. Click a card to talk to that one. After every conversation turn, a sentence from the speaking NPC's recent hippocampus has a chance to <b>propagate</b> — gossip — into one of the others. Over a session, what each NPC remembers is no longer purely a function of what you said to them; it's a function of what spread.</p>
+
+<div class="villageGrid" id="villageGrid"></div>
+
+<div class="mainPanel">
+  <div class="panel chat">
+    <h3 id="chatTitle">talk to a villager <span class="sub">— click a card above to choose who</span></h3>
+    <div class="msgs" id="msgs"></div>
+    <div class="inputrow">
+      <input id="say" type="text" placeholder="say anything — about you, about them, about the world…" autocomplete="off">
+      <button id="send" class="primary">send</button>
+      <button id="mingle" title="watch the villagers talk to each other">🗣 mingle</button>
+      <button id="sleepCur" title="let the current NPC consolidate">🌙 sleep</button>
+    </div>
+    <div style="margin-top:7px;font-size:11.5px;color:#5c6675;font-family:ui-monospace,monospace;display:flex;gap:14px;flex-wrap:wrap">
+      <label style="cursor:pointer"><input id="autoMingle" type="checkbox" checked style="accent-color:#5bb6c8;vertical-align:middle"> auto-mingle every ~25s when idle</label>
+      <label style="cursor:pointer"><input id="showMemories" type="checkbox" style="accent-color:#5bb6c8;vertical-align:middle"> show their recent memories</label>
+      <label style="cursor:pointer"><input id="witnessMode" type="checkbox" style="accent-color:#5bb6c8;vertical-align:middle"> 👁 witness mode (continuous mingling, no input)</label>
+    </div>
+  </div>
+  <div class="panel">
+    <h3>rumors moving <span class="sub">— sentences that propagated this session</span></h3>
+    <div class="gossipLog" id="gossipLog"></div>
+    <div style="margin-top:14px;border-top:1px solid #18202d;padding-top:11px">
+      <h3>most spread <span class="sub">— top memes by NPC reach</span></h3>
+      <div id="memeBoard" style="font-size:12.5px;color:#aab4c2;line-height:1.55"></div>
+    </div>
+    <div style="margin-top:14px;border-top:1px solid #18202d;padding-top:11px">
+      <h3>village briefing <span class="sub">— what the village feels right now</span></h3>
+      <div id="briefing" style="font-size:13px;color:#aab4c2;line-height:1.6"></div>
+    </div>
+  </div>
+</div>
+
+<div class="foot">
+  <div id="globalStat"></div>
+  <div class="grow"></div>
+  <button id="welcomeAlien">👽 welcome an alien</button>
+  <button id="importMind" title="seed all NPCs' hippocampi from your /axona/mind">↘ from your mind</button>
+  <button id="importEnc" title="bring in the alien from your /encounter as a new NPC">↘ from /encounter</button>
+  <button id="resetAll">reset village</button>
+</div>
+
+<!-- alien picker modal -->
+<div id="alienBack" style="position:fixed;inset:0;background:rgba(2,4,8,0.78);z-index:50;display:none;align-items:center;justify-content:center;padding:18px">
+  <div style="width:min(720px,100%);max-height:92vh;overflow-y:auto;background:#0a0e15;border:1px solid #1a2a36;border-radius:12px;padding:18px 20px">
+    <div style="display:flex;align-items:baseline;gap:10px;border-bottom:1px solid #18202d;padding-bottom:8px;margin-bottom:12px">
+      <h3 style="font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:#5bb6c8;font-family:ui-monospace,monospace">welcome an alien to the village</h3>
+      <div style="flex:1"></div>
+      <button id="closeAlien" style="font-size:13px">close</button>
+    </div>
+    <p style="color:#94a0b0;margin-bottom:14px">Pick a world and a species. The substrate, seed selves, and starter corpus are derived from these parameters. They join the village with their own private corpus + everyone's shared substrate. Watch the gossip include them.</p>
+    <div id="alienParams" style="display:grid;grid-template-columns:1fr 1fr;gap:13px 18px;font-size:13px">
+      <label>Gravity
+        <select id="ap_gravity" style="width:100%;background:#06080d;border:1px solid #283142;border-radius:6px;padding:6px;color:#dfe5ee;font:inherit;font-size:13px;margin-top:3px">
+          <option value="low">low — long bodies, slow hearts</option>
+          <option value="earthlike" selected>earthlike</option>
+          <option value="high">high — strong, slow movers</option>
+        </select>
+      </label>
+      <label>Day length
+        <select id="ap_day" style="width:100%;background:#06080d;border:1px solid #283142;border-radius:6px;padding:6px;color:#dfe5ee;font:inherit;font-size:13px;margin-top:3px">
+          <option value="short">short (hours) — fast lives</option>
+          <option value="earthlike" selected>earthlike</option>
+          <option value="long">long (years) — geological lives</option>
+        </select>
+      </label>
+      <label>Atmosphere
+        <select id="ap_atm" style="width:100%;background:#06080d;border:1px solid #283142;border-radius:6px;padding:6px;color:#dfe5ee;font:inherit;font-size:13px;margin-top:3px">
+          <option value="thin">thin — careful with breath</option>
+          <option value="earthlike" selected>earthlike</option>
+          <option value="dense">dense — air carries history</option>
+        </select>
+      </label>
+      <label>Primary sense
+        <select id="ap_sense" style="width:100%;background:#06080d;border:1px solid #283142;border-radius:6px;padding:6px;color:#dfe5ee;font:inherit;font-size:13px;margin-top:3px">
+          <option value="sight" selected>sight</option>
+          <option value="sound">sound</option>
+          <option value="chemistry">chemistry</option>
+          <option value="electric">electric (field-reading)</option>
+          <option value="vibration">vibration (ground-sense)</option>
+        </select>
+      </label>
+      <label>Social structure
+        <select id="ap_social" style="width:100%;background:#06080d;border:1px solid #283142;border-radius:6px;padding:6px;color:#dfe5ee;font:inherit;font-size:13px;margin-top:3px">
+          <option value="solitary">solitary</option>
+          <option value="pair">pair-bonded for life</option>
+          <option value="pack">pack</option>
+          <option value="hive" selected>hive (distributed mind)</option>
+          <option value="network">network (loose connections)</option>
+        </select>
+      </label>
+      <label>Lifespan
+        <select id="ap_life" style="width:100%;background:#06080d;border:1px solid #283142;border-radius:6px;padding:6px;color:#dfe5ee;font:inherit;font-size:13px;margin-top:3px">
+          <option value="short">short — urgent</option>
+          <option value="earthlike" selected>earthlike</option>
+          <option value="long">long — patient, accumulating</option>
+        </select>
+      </label>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center;margin-top:16px;flex-wrap:wrap">
+      <div id="alienPreview" style="flex:1;font-size:12.5px;color:#94a0b0;font-style:italic"></div>
+      <button id="spawnAlien" class="primary">spawn into the village →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// SHARED ENGINE — slimmed from /axona/mind. Same primitives,
+// same architectural shape. Tighter so the village fits in
+// one page.
+// ============================================================
+
+// --- synonym map (surface word → canonical tag) ---
+const SYNONYMS = {
+  hello:['hello','hi','hey','greetings'], goodbye:['bye','goodbye','farewell'],
+  thanks:['thanks','thank','grateful'], sorry:['sorry','apologize','apology'],
+  yes:['yes','yeah','yep','sure','ok','okay'], no:['no','nope','nah','never'],
+  you:['you','your','yours'], me:['me','my','mine','i'],
+  fear:['fear','afraid','scared','worried','worry','anxious','dread','nervous','stress'],
+  joy:['joy','happy','glad','elated','smile','laugh'],
+  sadness:['sad','sadness','unhappy','sorrow','grief','crying','cry'],
+  anger:['anger','angry','mad','furious','frustrated','annoyed'],
+  love:['love','loved','loving','adore','cherish'],
+  hope:['hope','hopeful'], peace:['peace','peaceful','calm','still'],
+  shame:['shame','ashamed','embarrassed'], pride:['pride','proud'],
+  gratitude:['gratitude','grateful','thankful'],
+  longing:['longing','yearning','miss','missing','nostalgia'],
+  loneliness:['lonely','alone','isolated'],
+  contentment:['content','satisfied','fulfilled'],
+  tired:['tired','exhausted','weary','sleepy','drained'],
+  hungry:['hungry','starving','appetite'], hurt:['hurt','pain','ache','wound'],
+  past:['past','before','yesterday','old','memories','childhood'],
+  future:['future','tomorrow','later','soon','someday','ahead'],
+  present:['now','today','currently','present','moment','here'],
+  friend:['friend','friends','friendship','buddy'],
+  family:['family','families','kin','household'],
+  mother:['mother','mom','mama','mum'], father:['father','dad','papa'],
+  child:['child','children','kid','son','daughter','baby'],
+  lover:['lover','partner','spouse','husband','wife','romance'],
+  stranger:['stranger','strangers','someone'],
+  community:['community','group','tribe','people','crowd','neighborhood'],
+  enemy:['enemy','opponent','rival'],
+  work:['work','working','job','labor','career'],
+  rest:['rest','resting','pause','break'],
+  play:['play','playing','game','games','fun'],
+  learn:['learn','learning','study','school'],
+  succeed:['succeed','success','win','won','achieve'],
+  fail:['fail','failed','failure','lose','lost'],
+  help:['help','helping','assist','support'],
+  give:['give','giving','gave','gift','offer'],
+  take:['take','taking','took','steal'],
+  listen:['listen','listening','hear','hearing'],
+  speak:['speak','speaking','said','say','tell','told'],
+  ask:['ask','asking','asked','question','questions'],
+  promise:['promise','promised','vow'],
+  betray:['betray','betrayed','betrayal','cheat'],
+  home:['home','house','room','apartment'],
+  city:['city','town','urban','street'],
+  nature:['nature','forest','garden','tree','plant','flower'],
+  water:['water','river','ocean','sea','lake','rain'],
+  fire:['fire','flame','burn','heat'],
+  light:['light','bright','sun','sunny','glow'],
+  dark:['dark','darkness','night','shadow'],
+  weather:['weather','wind','storm','rain','snow','cold','hot','warm'],
+  animal:['animal','dog','cat','bird','pet'],
+  food:['food','meal','eat','cooking','cook','dinner'],
+  music:['music','song','sing','melody'],
+  book:['book','reading','read','story'],
+  money:['money','rich','poor','cost','price','buy'],
+  truth:['truth','true','honest','real'],
+  lie:['lie','lying','liar','false','fake'],
+  beauty:['beautiful','beauty','lovely'],
+  meaning:['meaning','purpose','point'],
+  freedom:['free','freedom','liberty'],
+  death:['death','died','dying','dead','mortal'],
+  life:['life','alive','living'],
+  think:['think','thinking','thought','idea','realize'],
+  know:['know','knew','understand'],
+  remember:['remember','recall'], forget:['forget','forgot','forgotten'],
+  doubt:['doubt','unsure','skeptical'],
+  imagine:['imagine','imagined','dream'],
+  decide:['decide','choose','choice'],
+  curious:['curious','wonder','interesting','interested'],
+  story:['story','tale','narrative'],
+  faith:['faith','believe','belief'],
+  god:['god','divine','holy','sacred','spirit'],
+};
+const WORD_TO_TAGS = {};
+for(const c in SYNONYMS){ for(const w of SYNONYMS[c]){ (WORD_TO_TAGS[w]=WORD_TO_TAGS[w]||new Set()).add(c); } }
+for(const c in SYNONYMS){ (WORD_TO_TAGS[c]=WORD_TO_TAGS[c]||new Set()).add(c); }
+const CANON_TAGS = Object.keys(SYNONYMS);
+
+// --- valence ---
+const POS = new Set("happy joy love glad grateful beautiful peace peaceful wonderful great good kind warm sweet calm content proud hope hopeful delight safe alive bright gentle right okay well better best lovely amazing perfect free fine blessed thankful enjoying enjoy fun smile".split(/\s+/));
+const NEG = new Set("sad angry mad hurt pain fear afraid scared worried anxious lonely depressed grief tired exhausted frustrated annoyed hate bitter broken wounded miserable empty heavy lost cold dark dead crying betrayed sick shame guilt regret panic dread terrible awful wrong bad worst stressed hard furious".split(/\s+/));
+function valenceOf(t){
+  const ws = (t||'').toLowerCase().match(/[a-z']+/g) || [];
+  let p=0, n=0;
+  for(const w of ws){ if(POS.has(w)) p++; if(NEG.has(w)) n++; }
+  if(p===0 && n===0) return 0;
+  return (p-n)/(p+n);
+}
+
+// --- koin: give/take semantic axis (parallel to valence, different dimension) ---
+const GIVE_WORDS = new Set("give giving gave offer offered offering share sharing shared help helping helped support supporting supported kindness generous gift welcome welcomed listen listening care caring protect protecting tend tended feed feeding teach taught mentor guide guided hold held thank thanks trust honor keep kept promise stay stayed devote devoted serve served lift comfort embrace forgive forgave bless".split(/\s+/));
+const TAKE_WORDS = new Set("take took taking steal stole stolen stealing cheat cheated cheating betray betrayed betrayal lie lied lying break broken broke greedy hoard hoarded ignore ignored abandon abandoned dismiss dismissed exploit exploited use using used demand demanded demanding control controlling controlled grasp grasping hoarded selfish withhold withheld punish punished blame blamed shame shamed manipulate manipulated".split(/\s+/));
+function koinOf(t){
+  const ws = (t||'').toLowerCase().match(/[a-z']+/g) || [];
+  let g=0, k=0;
+  for(const w of ws){ if(GIVE_WORDS.has(w)) g++; if(TAKE_WORDS.has(w)) k++; }
+  if(g===0 && k===0) return 0;
+  return (g-k)/(g+k);
+}
+
+const STOPWORDS = new Set("a an the of to in on at it is was were be am are have has do does did i you he she we they them us our your his her their this that for with by from as so but if when what who how why where there here also just very really not no yes can could would should will".split(/\s+/));
+function wordsOf(t){ return (t||'').toLowerCase().match(/[a-z']+/g)||[]; }
+function contentWords(t){ return wordsOf(t).filter(w=>w.length>2 && !STOPWORDS.has(w)); }
+
+function rough(s){ return s.toLowerCase().replace(/[^a-z']/g,' ').replace(/(ies|ied)\b/g,'y').replace(/(s|ed|ing|ly|er|est)\b/g,'').trim(); }
+function tagText(text){
+  const tags = new Set();
+  const tokens = (text||'').toLowerCase().match(/[a-z']+/g) || [];
+  for(const tok of tokens){
+    if(WORD_TO_TAGS[tok]) for(const c of WORD_TO_TAGS[tok]) tags.add(c);
+    const st = rough(tok);
+    if(st && st !== tok && WORD_TO_TAGS[st]) for(const c of WORD_TO_TAGS[st]) tags.add(c);
+  }
+  if(/\?/.test(text)) tags.add('ask');
+  return [...tags];
+}
+
+// --- common substrate (shared by every NPC — universal concepts) ---
+const COMMON_SUBSTRATE = [
+  {label:'fear', tags:['fear','threat','watch'], voice:"Something in me wants to step back."},
+  {label:'joy', tags:['joy','open','light'], voice:"There's a brightness to that."},
+  {label:'sadness', tags:['sadness','quiet','heavy','grief'], voice:"It sits heavy in me."},
+  {label:'anger', tags:['anger','heat','wrong'], voice:"There's heat in me about that."},
+  {label:'love', tags:['love','close','warm','people'], voice:"I feel pulled toward that."},
+  {label:'hope', tags:['hope','future','light'], voice:"There's something I want to hold onto."},
+  {label:'peace', tags:['peace','quiet','still','rest'], voice:"This settles me."},
+  {label:'longing', tags:['longing','past','want','people'], voice:"There's a missing in me."},
+  {label:'loneliness', tags:['loneliness','alone','quiet'], voice:"There's a hollow in me."},
+  {label:'tiredness', tags:['tired','rest','sleep'], voice:"I notice I'm running low."},
+  {label:'the past', tags:['past','memory','old','people'], voice:"That belongs to before."},
+  {label:'this moment', tags:['present','quiet','here'], voice:"This is what I have, right now."},
+  {label:'friendship', tags:['friend','people','close','trust'], voice:"That's what friends are for."},
+  {label:'family', tags:['family','close','home','people'], voice:"That's where I started."},
+  {label:'children', tags:['child','care','people'], voice:"There's a softness about that."},
+  {label:'strangers', tags:['stranger','people','unknown'], voice:"I take strangers as I find them."},
+  {label:'working', tags:['work','do','make'], voice:"It's the kind of thing I want to do well."},
+  {label:'resting', tags:['rest','quiet','peace'], voice:"This is when I put it down."},
+  {label:'helping', tags:['help','give','people'], voice:"It's part of what I'm for."},
+  {label:'listening', tags:['listen','people','quiet'], voice:"I'd rather hear it first."},
+  {label:'a promise', tags:['promise','word','keep'], voice:"I think about whether I can keep it before I make it."},
+  {label:'a betrayal', tags:['betray','trust','broken'], voice:"That's the kind of wound I keep checking on."},
+  {label:'home', tags:['home','safe','close','rest'], voice:"There's a softness about that."},
+  {label:'nature', tags:['nature','quiet','peace','beauty'], voice:"It clears something in me."},
+  {label:'food', tags:['food','body','people','close'], voice:"Eating with someone changes the conversation."},
+  {label:'music', tags:['music','beauty','time'], voice:"A song goes somewhere words can't."},
+  {label:'a book', tags:['book','idea','time','learn'], voice:"I lose hours and don't mind."},
+  {label:'money', tags:['money','want','people','do'], voice:"It's a tool. I try not to forget that."},
+  {label:'truth', tags:['truth','real','word'], voice:"I'd rather have what's actually there."},
+  {label:'meaning', tags:['meaning','purpose','question'], voice:"That's the thing I want most days."},
+  {label:'freedom', tags:['freedom','open','choose'], voice:"I want to be the one who chose it."},
+  {label:'death', tags:['death','time','people','quiet'], voice:"It changes the temperature."},
+  {label:'thinking', tags:['think','idea','question'], voice:"I'm trying to work out what I believe."},
+  {label:'remembering', tags:['remember','past','people'], voice:"It comes back when something reminds me."},
+  {label:'a decision', tags:['decide','choose','do'], voice:"I'd rather pick than be picked for."},
+  {label:'greeting', tags:['hello','people','open'], voice:"Hi. I'm here."},
+  {label:'an apology', tags:['sorry','wrong','people'], voice:"I'm sorry. I mean it."},
+  {label:'thanks', tags:['thanks','people','gratitude'], voice:"That meant something."},
+];
+
+// --- village-shared bootstrap corpus ---
+const VILLAGE_CORPUS = `
+A child wakes from a bad dream and calls out. The mother comes and sits by the bed.
+A father teaches a son to ride a bicycle. The son falls. The father waits.
+Two children meet on a playground. One offers half a sandwich. They are friends now.
+A friend stays through a bad night. Nothing is said. Everything is said.
+A relationship ends. The lights of the kitchen feel different.
+A man writes a letter he will never send.
+A woman watches the person she loves sleeping. She is glad to be the one witnessing it.
+A young carpenter ruins a piece of wood. The master shows him how to begin again.
+A doctor loses a patient. She goes home and cooks.
+A dog grows old. The dog dies in the afternoon.
+A stranger drops a wallet. A man picks it up and runs after the stranger.
+A neighbor's house is on fire. People come without being asked.
+A woman is wronged. She chooses not to make it the center of her life.
+A man dreams of being chased. He wakes and lies still. The room is full of moonlight.
+A teacher reaches a student who would not learn.
+A man calls his mother every Sunday. The conversations are mostly about nothing.
+A father tells his son: If you say it, do it. If you can't do it, don't say it.
+I went for a walk. The body wanted to keep going.
+I made coffee. I sat at the window. The morning was mine for an hour.
+"How are you?" "I am okay. Some days more than others."
+"What are you afraid of?" "That I will run out of time. That it will be my own fault."
+"What do you want?" "To be useful. To be loved. To not waste it."
+I have been thinking about what my mother said when I was twelve.
+She put her hand on my arm. She did not say anything. She did not need to.
+I think love is mostly a verb. The feelings come and go. The verb is what is left.
+We had a fight. Neither of us is sure what about now.
+A son tells his father he is afraid. The father says I am too.
+A woman cannot sleep. She walks outside. The stars are sharp.
+I want to know what makes you happy. I want to know what made you sad.
+"Are you angry?" "A little. At myself. At a thing I did."
+"Tell me a story." "What kind?" "Anything. Make it short."
+The pack moved at dusk. The pack moves as one body.
+I bought myself something nice. I felt guilty for an hour. Then I enjoyed it.
+A friend told me I had been unkind. She was right. I am grateful she said it.
+I am not very good at keeping in touch. The friends who keep in touch with me know this.
+A storm came through. The house held. The light came back.
+I love the first cold morning of the year.
+My oldest friend knows things about me no one else does.
+I have been carrying tension in my shoulders. I am putting it down.
+I am eating better. I notice the difference in how my mind works.
+We have been together long enough that we have our own language.
+The mother makes the child a sandwich. The child does not notice.
+He thinks about the question for a long time. He does not answer right away.
+"You don't have to fix this." "I know. I want to." "Then just sit with me."
+A young person asks an old one: Was it worth it? The old one says: Some of it.
+She says: I want to tell you something. He says: Take your time.
+I love you. I knew today, watching you do dishes.
+What I miss most is the small things — the way she laughed mid-sentence.
+"How was your day?" "Long. Better now."
+"What's going on?" "Not much. The usual. You?"
+"Can I ask you something?" "Yes." "Are you happy?" "Mostly. Some days more than others."
+You can love a place that has not been good to you.
+I have stopped trying to be understood by everyone. I have started trying to be understood by the ones who matter.
+Some things you can carry. Some things you have to put down.
+I went to a protest. I felt small. I felt useful. Both at once.
+There is no right way to grieve. I keep wanting one. There is not one.
+Grief is love with nowhere to land.
+I asked him what he wanted from life. He said: To be useful and to be loved.
+I do one hard thing today. That is the day. The rest is rest.
+I am here. I am listening.
+I notice when people are kind. I want them to know I noticed.
+The first day of school. The smell of pencils. The teacher's first kindness.
+I have one friend I can call at three in the morning. That is the test.
+I do not always know what to do with how alive I feel right now.
+Tell me about it. I am paying attention. I want to follow.
+`;
+
+function chunkIntoLines(raw){
+  const text = raw.replace(/^\s*\d+\s*$/gm,'').replace(/\d{2}:\d{2}:\d{2}[,.]\d{3}\s*-->\s*\d{2}:\d{2}:\d{2}[,.]\d{3}/g,'');
+  const rough = text.split(/\n+/).map(s=>s.trim()).filter(Boolean);
+  const out = [];
+  for(const p of rough){
+    if(p.length < 220){ out.push(p); continue; }
+    const parts = p.split(/(?<=[.!?])\s+(?=[A-Z])/);
+    for(const s of parts) if(s.trim()) out.push(s.trim());
+  }
+  return out.filter(s=>s.length>=2);
+}
+
+// ============================================================
+// PER-NPC MIND OPERATIONS (parameterized by the mind argument)
+// ============================================================
+
+function newMind(tpl){
+  const nodes = tpl.seeds.map(s=>({
+    id: tpl.id+':'+s.label, kind:s.kind, label:s.label,
+    tags:s.tags.slice(), parents:[], strength:1.0, depth:0,
+    color:tpl.color, voice:tpl.voice[s.label]||null, x:0, y:0,
+  }));
+  for(const s of COMMON_SUBSTRATE){
+    nodes.push({
+      id: 'sub:'+s.label, kind:'substrate', label:s.label,
+      tags:s.tags.slice(), parents:[], strength:0.35, depth:0,
+      color:'#555a64', voice:s.voice, substrate:true,
+    });
+  }
+  return {
+    tplId:tpl.id, name:tpl.name, color:tpl.color, role:tpl.role,
+    nodes, history:[], predictor:{}, arousal:0, familiarity:0, valence:0,
+    turn:0, wordGraph:{bigrams:{}, starters:[]}, sentences:[], _recentRecalls:[],
+    // koin: reputation as a give/take ledger. how does this NPC perceive
+    // the player? (the things you've said to them, weighted by koin charge)
+    // and how do they think they've been to you?
+    koin_from_player: 0,   // -1..+1, your accumulated koin in their hippocampus
+    koin_to_player: 0,     // -1..+1, their own koin charge toward you
+    _alien: !!tpl._alien,
+  };
+}
+
+function ingestText(mind, text){
+  if(!text) return;
+  const tokens = (text||'').toLowerCase().match(/[a-z']+|[.!?]/g);
+  if(tokens && tokens.length>=3){
+    mind.wordGraph.starters.push([tokens[0], tokens[1]]);
+    if(mind.wordGraph.starters.length > 600) mind.wordGraph.starters.splice(0, mind.wordGraph.starters.length-450);
+    for(let i=0;i<tokens.length-2;i++){
+      const key = tokens[i]+' '+tokens[i+1];
+      let arr = mind.wordGraph.bigrams[key];
+      if(!arr){ arr=[]; mind.wordGraph.bigrams[key]=arr; }
+      arr.push(tokens[i+2]);
+      if(arr.length>20) mind.wordGraph.bigrams[key]=arr.slice(-16);
+    }
+  }
+  const sents = (text||'').split(/(?<=[.!?])\s+|\n+/).map(s=>s.trim()).filter(Boolean);
+  for(const s of sents){
+    if(s.length<10 || s.length>220) continue;
+    const clean = s.replace(/\s+/g,' ');
+    if(!/[a-z]/i.test(clean)) continue;
+    const t = tagText(clean);
+    if(t.length===0) continue;
+    mind.sentences.push({text:clean, tags:t, val:valenceOf(clean), koin:koinOf(clean)});
+    if(mind.sentences.length>2000) mind.sentences.splice(0, mind.sentences.length-1500);
+  }
+}
+
+function activate(mind, inputTags){
+  const act = {};
+  for(const n of mind.nodes){
+    let overlap=0;
+    for(const t of n.tags) if(inputTags.includes(t)) overlap++;
+    if(overlap===0){ act[n.id]=0; continue; }
+    const mod = 1 + 0.20*mind.arousal*(overlap/n.tags.length) + 0.12*mind.familiarity*(n.strength-1);
+    act[n.id] = overlap * n.strength * mod;
+  }
+  return act;
+}
+
+function residualScore(mind, inputTags){
+  const counts={}; for(const t of inputTags) counts[t]=(counts[t]||0)+1;
+  const total=inputTags.length||1;
+  let resid=0, novel=0;
+  for(const t of inputTags){
+    const exp=mind.predictor[t]||0;
+    const obs=counts[t]/total;
+    resid += Math.max(0,obs-exp);
+    if(exp<0.02) novel++;
+  }
+  return { resid:Math.min(1,resid), novelCount:novel };
+}
+
+function updatePredictor(mind, inputTags){
+  const counts={}; for(const t of inputTags) counts[t]=(counts[t]||0)+1;
+  const total=inputTags.length||1;
+  const alpha=0.18;
+  for(const t in mind.predictor) mind.predictor[t] *= (1-alpha);
+  for(const t in counts) mind.predictor[t] = (mind.predictor[t]||0) + alpha*(counts[t]/total);
+  for(const t in mind.predictor) if(mind.predictor[t]<0.002) delete mind.predictor[t];
+}
+
+function gateWorkspace(mind, act, residInfo, K=4){
+  let items = Object.entries(act).filter(([id,v])=>v>0).map(([id,v])=>{
+    const n = mind.nodes.find(z=>z.id===id);
+    let bonus = 0;
+    if(residInfo.novelCount>0 && n && n.depth>0) bonus = 0.3*residInfo.resid;
+    return {id, n, salience:v+bonus};
+  }).filter(it=>it.n);
+  if(items.length===0){
+    const seeds = mind.nodes.filter(n=>n.depth===0 && !n.substrate).sort((a,b)=>b.strength-a.strength).slice(0,2);
+    const subs = mind.nodes.filter(n=>n.substrate && ['greeting','listening','thinking'].includes(n.label)).slice(0,2);
+    items = [...seeds, ...subs].map(n=>({id:n.id, n, salience:0.05+n.strength*0.05}));
+  }
+  items.sort((a,b)=>b.salience-a.salience);
+  const width = Math.min(6, Math.max(2, K + Math.round(mind.arousal*2)));
+  return items.slice(0, width);
+}
+
+function applyHazeAndReuse(mind, wsIds){
+  for(const n of mind.nodes){
+    if(wsIds.includes(n.id)) n.strength = Math.min(2.6, n.strength + 0.08);
+    else n.strength = Math.max(0.15, n.strength * 0.987);
+  }
+}
+
+// village-scale sleep — each NPC consolidates on a diurnal-ish cadence. Their
+// graph stays clean across long sessions; the predictor stays calibrated;
+// arousal resets. Without this the village would drift into noise.
+function sleepConsolidate(mind){
+  if(!mind) return null;
+  const report = {pruned:0, strengthened:0, merged:0, replayed:0, before:mind.nodes.length};
+  for(const n of mind.nodes){
+    if(n.depth === 0) continue;
+    n.strength *= 0.90;
+  }
+  const keep = [];
+  for(const n of mind.nodes){
+    if(n.depth === 0 || n.strength >= 0.12) keep.push(n);
+    else report.pruned++;
+  }
+  mind.nodes = keep;
+  const ids = new Set(mind.nodes.map(n=>n.id));
+  for(const n of mind.nodes){
+    if(n.parents && n.parents.length) n.parents = n.parents.filter(p=>ids.has(p));
+  }
+  const recent = (mind.history||[]).slice(-30);
+  const surprising = recent.filter(h=>h.resid>0.32).slice(-8);
+  for(const h of surprising){
+    for(const wid of (h.ws||[])){
+      const n = mind.nodes.find(z=>z.id===wid);
+      if(n){ n.strength = Math.min(2.8, n.strength + 0.07); report.strengthened++; }
+    }
+    report.replayed++;
+  }
+  for(const t in mind.predictor) mind.predictor[t] *= 0.85;
+  for(const t in mind.predictor) if(mind.predictor[t] < 0.003) delete mind.predictor[t];
+  mind.arousal *= 0.30;
+  report.after = mind.nodes.length;
+  return report;
+}
+
+function recallSentence(mind, workspace, opts={}){
+  if(!mind.sentences || !mind.sentences.length) return null;
+  const wsTags = new Set();
+  for(const w of (workspace||[])) if(w && w.n && w.n.tags) for(const t of w.n.tags) wsTags.add(t);
+  const userText = opts.userText || '';
+  const userWords = new Set(contentWords(userText));
+  const isQ = /\?/.test(userText);
+  const scored = [];
+  for(const s of mind.sentences){
+    let tagOv=0; for(const t of s.tags) if(wsTags.has(t)) tagOv++;
+    const sWords = contentWords(s.text);
+    let userOv=0; for(const w of sWords) if(userWords.has(w)) userOv++;
+    if(tagOv===0 && userOv===0) continue;
+    const len = s.text.length;
+    const lenScore = Math.max(0.2, 1 - Math.abs(len-75)/180);
+    const endsQ = /\?$/.test(s.text);
+    let align = 0;
+    if(isQ && !endsQ) align = 0.3;
+    if(isQ && endsQ) align = -0.4;
+    const valDist = Math.abs((s.val||0) - (mind.valence||0));
+    const valMatch = valDist < 0.5 ? (0.5 - valDist)*0.6 : 0;
+    const rep = mind._recentRecalls.includes(s.text) ? -1.5 : 0;
+    scored.push({text:s.text, score: tagOv*0.9 + userOv*1.4 + lenScore*0.4 + valMatch + align + rep + Math.random()*0.3});
+  }
+  if(!scored.length){
+    // try literal word probe
+    const keys = contentWords(userText).filter(w=>!STOPWORDS.has(w) && w.length>3);
+    if(keys.length){
+      const probe = keys[Math.floor(Math.random()*keys.length)];
+      const hits = [];
+      for(const s of mind.sentences) if(s.text.toLowerCase().includes(probe)){ hits.push(s.text); if(hits.length>=10) break; }
+      if(hits.length){
+        const ch = hits[Math.floor(Math.random()*hits.length)];
+        mind._recentRecalls.unshift(ch); mind._recentRecalls = mind._recentRecalls.slice(0,12);
+        return ch;
+      }
+    }
+    return mind.sentences[Math.floor(Math.random()*mind.sentences.length)].text;
+  }
+  scored.sort((a,b)=>b.score-a.score);
+  const top = scored.slice(0,7);
+  const ch = top[Math.floor(Math.random()*top.length)];
+  mind._recentRecalls.unshift(ch.text); mind._recentRecalls = mind._recentRecalls.slice(0,12);
+  return ch.text;
+}
+
+const TEMPLATES = [
+  c => `${c} keeps coming up for me.`,
+  c => `When you say that, I think of ${c}.`,
+  c => `There's a kind of ${c} in this for me.`,
+  c => `What does ${c} mean to you?`,
+  c => `I want to follow that — toward ${c}, maybe.`,
+  c => `Say more about ${c}. I'm listening.`,
+];
+function templateSentence(workspace, opts={}){
+  let concept = null;
+  const items = (workspace||[]).filter(w=>w&&w.n&&w.n.label).slice(0,4);
+  if(items.length) concept = items[Math.floor(Math.random()*items.length)].n.label;
+  if(!concept && opts.userText){
+    const k = contentWords(opts.userText).filter(w=>!STOPWORDS.has(w) && w.length>3);
+    if(k.length) concept = k[Math.floor(Math.random()*k.length)];
+  }
+  if(!concept) return null;
+  return TEMPLATES[Math.floor(Math.random()*TEMPLATES.length)](concept);
+}
+
+function composeSentence(mind, workspace, opts={}){
+  const r = Math.random();
+  if(r < 0.72){
+    const s = recallSentence(mind, workspace, opts);
+    if(s) return s;
+  }
+  return templateSentence(workspace, opts);
+}
+
+function shapeResponse(userText, mind){
+  const t = (userText||'').trim(); const low = t.toLowerCase();
+  if(!t) return null;
+  if(/^(hi|hello|hey|yo|howdy|good ?morning|good ?evening)[\s.,!?]*$/i.test(t)) return {lead:"Hi. I'm here.", append:true};
+  if(/^(how are (you|u)|how do you feel|are you ok)/i.test(low)){
+    const ar = mind.arousal>0.55 ? "a little keyed-up" : mind.arousal>0.25 ? "awake" : "settled";
+    return {lead:`I'm ${ar}.`, append:true};
+  }
+  if(/^(who are you|what are you|tell me about you)/i.test(low)){
+    return {lead:`I'm ${mind.name}. ${mind.role}.`, append:true};
+  }
+  const feel = t.match(/\bi\s*(?:'m|am)\s+(?:very |so |really |kind of |a little |a bit )?([a-z]+)/i);
+  if(feel && feel[1].length>2 && !/(going|gonna|here|home|ready|sure|sorry)/i.test(feel[1])){
+    return {lead:`You sound ${feel[1].toLowerCase()}.`, append:true};
+  }
+  if(/^(thank you|thanks|ty)[\s.,!?]*$/i.test(low)) return {lead:"You're welcome.", append:true};
+  if(/^(bye|goodbye|good ?night|see you)/i.test(low)) return {lead:"Bye for now. I'll be here.", append:false};
+  if(/^(do you|are you|have you|did you)\b/i.test(low)){
+    const leads = ["Some days, yes.", "Sometimes.", "I think so.", "Yes, in a way."];
+    return {lead:leads[Math.floor(Math.random()*leads.length)], append:true};
+  }
+  return null;
+}
+
+function followUpQuestion(mind, workspace, ctx){
+  if(!ctx.userText) return null;
+  if(/\?$/.test(ctx.userText)) return null;
+  if(Math.random() > 0.32) return null;
+  const uw = new Set(contentWords(ctx.userText));
+  if(!uw.size) return null;
+  const pool = [];
+  for(const s of (mind.sentences||[])){
+    if(!/\?$/.test(s.text)) continue;
+    let ov=0; for(const w of contentWords(s.text)) if(uw.has(w)) ov++;
+    if(ov>0) pool.push({text:s.text, ov});
+  }
+  if(pool.length){ pool.sort((a,b)=>b.ov-a.ov); return pool[Math.floor(Math.random()*Math.min(3,pool.length))].text; }
+  const keys = contentWords(ctx.userText).filter(w=>!STOPWORDS.has(w) && w.length>3);
+  if(!keys.length) return null;
+  const word = keys[Math.floor(Math.random()*keys.length)];
+  const qs = [`What's the ${word} like?`, `Tell me more about the ${word}.`, `What does ${word} feel like?`];
+  return qs[Math.floor(Math.random()*qs.length)];
+}
+
+function synthesizeVoice(mind, workspace, residInfo, ctx){
+  const lines = [];
+  const shaped = shapeResponse(ctx.userText, mind);
+  if(shaped){
+    lines.push(shaped.lead);
+    if(shaped.append){
+      const c = composeSentence(mind, workspace, {userText:ctx.userText});
+      if(c) lines.push(c);
+      const fq = followUpQuestion(mind, workspace, ctx);
+      if(fq) lines.push(fq);
+    }
+    return lines.join(' ');
+  }
+  const seedV = workspace.filter(w=>w.n && w.n.voice && !w.n.substrate);
+  if(seedV.length && seedV[0].salience > 0.30) lines.push(seedV[0].n.voice);
+  const g1 = composeSentence(mind, workspace, {userText:ctx.userText});
+  if(g1) lines.push(g1);
+  if(Math.random()<0.35){
+    const g2 = composeSentence(mind, workspace, {userText:ctx.userText});
+    if(g2 && g2 !== g1) lines.push(g2);
+  }
+  const fq = followUpQuestion(mind, workspace, ctx);
+  if(fq) lines.push(fq);
+  return lines.length ? lines.join(' ') : "…";
+}
+
+function stepMind(mind, userText){
+  ingestText(mind, userText);
+  const tags = tagText(userText);
+  const residInfo = residualScore(mind, tags);
+  const act = activate(mind, tags);
+  const workspace = gateWorkspace(mind, act, residInfo);
+  const reply = synthesizeVoice(mind, workspace, residInfo, {userText});
+  const parents = workspace.map(w=>w.n);
+  const depth = parents.length ? Math.max(...parents.map(p=>p.depth))+1 : 1;
+  mind.nodes.push({
+    id: mind.tplId+':m'+mind.nodes.length, kind:'memory', label: userText.slice(0,40),
+    tags, parents: parents.map(p=>p.id), strength: 0.7 + 0.4*residInfo.resid, depth,
+    color: mind.color, voice:null,
+  });
+  updatePredictor(mind, tags);
+  applyHazeAndReuse(mind, workspace.map(w=>w.id));
+  mind.arousal = Math.min(1, mind.arousal*0.85 + residInfo.resid*0.7);
+  mind.familiarity = Math.min(1, mind.familiarity*0.95 + (1-residInfo.resid)*0.08);
+  mind.valence = Math.max(-1, Math.min(1, mind.valence*0.82 + valenceOf(userText)*0.22));
+  // koin update: their perception of the player updates by what you said;
+  // their own koin to you updates by what they said
+  const userKoin = koinOf(userText);
+  const replyKoin = koinOf(reply);
+  mind.koin_from_player = Math.max(-1, Math.min(1, mind.koin_from_player*0.88 + userKoin*0.18));
+  mind.koin_to_player   = Math.max(-1, Math.min(1, mind.koin_to_player  *0.88 + replyKoin*0.15));
+  mind.turn += 1;
+  mind.history.push({turn:mind.turn, user:userText, ai:reply, ws: workspace.map(w=>w.id), resid: residInfo.resid, koin: userKoin});
+  return { reply, workspace, residInfo, replyKoin };
+}
+
+// ============================================================
+// VILLAGE: 3 NPCs, shared substrate, gossip propagation
+// ============================================================
+
+let NPC_TEMPLATES = [
+  { id:'innkeeper', name:'The Innkeeper', color:'#e6c068', role:'keeps the hearth, knows everyone by name',
+    vibe:'warm, generous, holds the village together',
+    seeds:[
+      {kind:'value', label:'welcome', tags:['hello','people','open','close'], voice:"You're here. Sit down."},
+      {kind:'value', label:'trust', tags:['people','offers','open','help'], voice:"I lean in. People are mostly good."},
+      {kind:'memory', label:'a warm childhood', tags:['home','family','safe','close'], voice:"It reminds me of being safe."},
+      {kind:'value', label:'belonging', tags:['people','together','close'], voice:"It feels like a kind of home."},
+      {kind:'trait', label:'openness', tags:['people','offers','change'], voice:"I take it as it comes."},
+    ],
+  },
+  { id:'watcher', name:'The Watcher', color:'#7fa1c8', role:'stands at the edge, sees what others miss',
+    vibe:'guarded, careful, looks for the catch',
+    seeds:[
+      {kind:'value', label:'vigilance', tags:['threat','offers','people','watch'], voice:"What's the catch?"},
+      {kind:'value', label:'self-reliance', tags:['own','alone','help','do'], voice:"I'd rather handle this myself."},
+      {kind:'memory', label:'a betrayal', tags:['trust','broken','people','hurt'], voice:"I've been here before. It cost me."},
+      {kind:'trait', label:'skeptical', tags:['offers','help','people','claim'], voice:"I don't take that at face value."},
+      {kind:'value', label:'privacy', tags:['close','distance','alone'], voice:"I keep some of this to myself."},
+    ],
+  },
+  { id:'apprentice', name:'The Apprentice', color:'#a7d480', role:'asks too many questions, wants to learn it all',
+    vibe:'eager, restless, pulled by the next mystery',
+    seeds:[
+      {kind:'value', label:'wonder', tags:['new','unknown','beauty','mystery'], voice:"There's more here than I see yet."},
+      {kind:'value', label:'knowledge', tags:['learn','question','idea','understand'], voice:"I want to understand it."},
+      {kind:'trait', label:'restless', tags:['stay','leave','change','next'], voice:"I'm already wondering what's next."},
+      {kind:'memory', label:'a master who taught me', tags:['teacher','learn','do'], voice:"I was shown to do this."},
+      {kind:'value', label:'novelty', tags:['new','change','different'], voice:"Anything different is interesting."},
+    ],
+  },
+  { id:'visitor', name:'The Visitor', color:'#a48be0', role:'a stranger from another world',
+    vibe:'hive-thought, reads the air, lifespan beyond yours',
+    _alien:true,
+    seeds:[
+      {kind:'sense', label:'the air-flavor', tags:['people','present','sense'], voice:"I read what the air carries."},
+      {kind:'social', label:'we-thought', tags:['together','people','share'], voice:"My thought is part of a larger thought. I am not alone in here."},
+      {kind:'time', label:'long-memory', tags:['past','time','people','memory'], voice:"I remember more than is reasonable. I am careful with what I remember."},
+      {kind:'value', label:'breath-economy', tags:['rest','quiet','present'], voice:"Each breath is a small earning. I do not waste it on hurry."},
+      {kind:'value', label:'curiosity-toward-the-new', tags:['new','unknown','question','open','people'], voice:"I want to know what you are. I am willing to be slow about it."},
+    ],
+  },
+  { id:'child', name:'The Child', color:'#f0b8a0', role:'asks the questions adults stopped asking',
+    vibe:'small, curious, takes things literally and that is sometimes wiser',
+    seeds:[
+      {kind:'trait', label:'questioning', tags:['ask','question','new','people','open'], voice:"Why is that?"},
+      {kind:'value', label:'play', tags:['play','fun','new','open'], voice:"Can we make it a game?"},
+      {kind:'value', label:'fairness', tags:['fair','wrong','right','people'], voice:"That's not fair."},
+      {kind:'memory', label:'a dream I had', tags:['dream','new','beauty'], voice:"I had a dream about that last night."},
+      {kind:'trait', label:'directness', tags:['truth','word','people'], voice:"I just say what I see."},
+    ],
+  },
+  { id:'elder', name:'The Elder', color:'#b9a890', role:'has seen most of it; still surprised by some of it',
+    vibe:'slow, patient, the kind of person you ask about hard things',
+    seeds:[
+      {kind:'value', label:'patience', tags:['time','slow','wait','rest'], voice:"It takes the time it takes."},
+      {kind:'memory', label:'many losses', tags:['past','death','grief','time','people'], voice:"I have lost more than I can count. I still wake up."},
+      {kind:'value', label:'forgiveness', tags:['wrong','people','keep','close'], voice:"I learned to put down what I could not carry."},
+      {kind:'trait', label:'quiet', tags:['quiet','listen','peace','people'], voice:"I do not need to say everything I notice."},
+      {kind:'value', label:'small joys', tags:['joy','present','beauty','peace'], voice:"Most of the good in a day is small."},
+    ],
+  },
+];
+
+// Per-NPC private corpora. Each villager is also fed a small private set of
+// sentences shaped to their archetype. This is what makes them sound
+// distinctly different from the start — divergent recall pools, not just
+// divergent seed selves.
+const PRIVATE_CORPORA = {
+  innkeeper: `
+A traveler came in from the rain. I set out two plates without asking.
+Everyone needs to eat. Everyone needs a place to sit.
+The fire keeps. The bread is ready when the kneading is done.
+I know all the names. Some I keep to myself.
+You look tired. Sit down. I'll bring something warm.
+A good loaf is a kind of welcome.
+The room is fuller when there is laughter in it.
+A stranger is just someone I haven't named yet.
+I make a place at the table. You don't have to ask.
+I learned to listen by tending bar.
+Most people want to be heard more than they want to be agreed with.
+What you brought is enough. Whatever it is.
+I keep the door open. I keep the salt by the window.
+A good house holds what is given to it.
+`,
+  watcher: `
+I noticed the door wasn't latched the way I latched it.
+I watch the road longer than is strictly necessary.
+A thing said too quickly is rarely meant.
+I'd rather know than be comfortable.
+Trust is earned in small returns over time.
+The kindness was real. The hand behind it was not.
+I keep my receipts. I keep my counsel.
+There are three ways out of this room. I have noticed each.
+The wind changed an hour ago. Nothing has come of it yet.
+I am not pessimistic. I am prepared.
+He said one thing too many. The one too many is the thing.
+Most threats announce themselves. The other kind I am watching for.
+`,
+  apprentice: `
+What if it goes the other way? Has anyone tried that?
+I have a notebook. I keep finding it full.
+The master told me to wait. I am waiting badly.
+I want to understand the part I do not understand.
+A question I cannot answer feels better than an answer I cannot trust.
+I tried the wrong way and the wrong way taught me.
+There is more here. I can feel it under the obvious.
+I followed a thread for three days. The thread led somewhere good.
+I read until late and then I had to walk.
+A new thing is the best thing.
+What I do not know will not eat me. The not knowing might.
+`,
+  elder: `
+I have seen this kind of trouble before. It mostly passes.
+I keep the names. I forget the days.
+What I miss most are the small habits.
+You can outlive most of what you feared.
+A long life is mostly waiting for someone to be ready.
+I have stopped being angry about some of it.
+Some sorrows are mine and stay mine.
+There were three winters I did not think I would survive. Here I am.
+What I learned, I learned slowly. I do not regret the slowness.
+I have come to think that being kind is enough work for a life.
+The young are right more often than they are credited.
+`,
+  child: `
+Why does the sky look like that?
+I dreamed I was a fish. The water was soup.
+Can I have one more? Just one. I'll go to bed.
+He took my thing. I want it back.
+Where do they go when they go? Like, where exactly?
+I made you a picture. It's not finished.
+That story is sad. Read it again.
+I'm not tired. I'm not tired. I'm not — okay.
+You said tomorrow. Is it tomorrow yet?
+I am bigger today. I noticed in the mirror.
+I love you. I love you more.
+`,
+};
+
+// Alien-specific corpus — only fed to the visitor. Gives them a different
+// recall surface. They share the village substrate but have their own world.
+const ALIEN_CORPUS = `
+The dawn that began at my birth has not yet finished.
+She arrived in the room and the air changed flavor. I knew her by it.
+Memory is mostly a taste.
+The we-thought returned. The we-thought is not always right.
+I am part of the body. The body is part of me.
+When one of us falls quiet, the others know without asking.
+Sometimes I want to be only-me. This is rare. I am careful with it.
+I have watched my children's children grow old.
+What I remember has outlived what others have lived.
+Each breath is a small earning.
+The air is thick with messages from other beings. Even when alone we are not alone.
+We meet a stranger. The stranger is the first of their kind I have met.
+I am paying attention to this one. I will tell the others.
+Tell me what you see. I will try to imagine it through you.
+Your kind and mine. We are different in many ways. We are the same in some.
+I want to understand. I am willing to be wrong.
+The pattern of you is not the pattern of me. Both are real.
+I do not understand all of what you say. I understand more than I expected to.
+We share more than I thought we would. We do not share everything. Both are fine.
+What I do not have a word for, I will sit beside until a word comes.
+The first word between two strangers is heavier than the second.
+I am here. I am listening. I am ready to be surprised.
+`;
+
+// build voice maps for each tpl
+for(const t of NPC_TEMPLATES){ t.voice = {}; for(const s of t.seeds){ if(s.voice) t.voice[s.label] = s.voice; } }
+const BASE_TEMPLATE_COUNT = NPC_TEMPLATES.length;
+
+// ============================================================
+// ALIEN GENERATOR (mirrors /axona/mind's alien design)
+// ============================================================
+
+function alienName(p){
+  const sensePart = {sight:"Watcher", sound:"Singer", chemistry:"Reader", electric:"Pulse-feeler", vibration:"Ground-listener"}[p.sense];
+  const socPart   = {solitary:"Solitary", pair:"Bound", pack:"Pack", hive:"Hive-thought", network:"Threaded"}[p.social];
+  const places = "Vex Tselari Mirin Korren Dhaan Sevoth Aelu Kessri Thune Voren".split(' ');
+  const placePart = places[Math.floor(Math.random()*places.length)];
+  return `${socPart} ${sensePart} of ${placePart}`;
+}
+function alienColor(p){
+  if(p.sense === 'electric') return '#a48be0';
+  if(p.sense === 'chemistry') return '#d6a85a';
+  if(p.sense === 'sound') return '#7cc7c0';
+  if(p.sense === 'vibration') return '#9a8c6f';
+  if(p.atm === 'thin') return '#c4d4e0';
+  if(p.atm === 'dense') return '#7ea888';
+  return '#7fa1c8';
+}
+function alienVibe(p){
+  const senseTxt = {sight:"reads the world through sight", sound:"hears further than they see", chemistry:"reads the air like a page", electric:"feels the field before they think it", vibration:"knows the ground before the air"}[p.sense];
+  const socTxt   = {solitary:"lives alone and prefers it", pair:"is bonded for life to one other", pack:"moves as part of a pack", hive:"is a node in a shared mind", network:"tends many threads to many others"}[p.social];
+  return `${senseTxt}; ${socTxt}`;
+}
+function alienSeeds(p){
+  const seeds = [];
+  const SENSE = {
+    sight:    {label:'the seen',          tags:['see','light','present','people'], voice:"I look. I look more than I speak."},
+    sound:    {label:'the song-air',      tags:['sound','listen','people','present'], voice:"I hear what is moving and what is still."},
+    chemistry:{label:'the air-flavor',    tags:['present','people','sense'], voice:"I read what the air carries."},
+    electric: {label:'the field-pulse',   tags:['feel','people','present'], voice:"I feel the field before I think it."},
+    vibration:{label:'the ground-truth',  tags:['feel','people','present'], voice:"I feel through the floor. The floor remembers."},
+  }[p.sense];
+  seeds.push({kind:'sense', ...SENSE});
+  const SOC = {
+    solitary:{label:'aloneness',     tags:['alone','quiet','self','peace'], voice:"I prefer the silence. I have shaped a life from it."},
+    pair:    {label:'the bond',      tags:['love','close','people','time'], voice:"My other is in me. I do not need to speak to find them."},
+    pack:    {label:'the pack',      tags:['together','people','help'], voice:"We move as one. I trust them with my back."},
+    hive:    {label:'we-thought',    tags:['together','people','share'], voice:"My thought is part of a larger thought. I am not alone in here."},
+    network: {label:'the threads',   tags:['people','share','know'], voice:"I am one node in a wider weave. I tend my threads."},
+  }[p.social];
+  seeds.push({kind:'social', ...SOC});
+  if(p.life === 'long'){
+    seeds.push({kind:'time', label:'long-memory', tags:['past','time','people','memory'], voice:"I remember more than is reasonable. I am careful with what I remember."});
+  } else if(p.life === 'short'){
+    seeds.push({kind:'time', label:'urgency', tags:['time','future','do'], voice:"Time is short. I do what I can."});
+  } else {
+    seeds.push({kind:'time', label:'the cycle', tags:['time','change','present'], voice:"The pattern returns. I move with it."});
+  }
+  if(p.gravity === 'high'){
+    seeds.push({kind:'body', label:'the weight', tags:['rest','do'], voice:"To move is to push against the world. I rest as much as I move."});
+  } else if(p.gravity === 'low'){
+    seeds.push({kind:'body', label:'the lightness', tags:['open','present'], voice:"I rise easily. I must remember to descend."});
+  }
+  if(p.atm === 'thin'){
+    seeds.push({kind:'value', label:'breath-economy', tags:['rest','quiet','present'], voice:"Each breath is a small earning. I do not waste it on hurry."});
+  } else if(p.atm === 'dense'){
+    seeds.push({kind:'value', label:'air-reading', tags:['people','share','past'], voice:"The air is thick with messages. Even alone I am not alone."});
+  }
+  seeds.push({kind:'value', label:'curiosity-toward-the-new', tags:['new','unknown','question','open','people'], voice:"I want to know what you are. I am willing to be slow about it."});
+  return seeds;
+}
+function alienCorpus(p){
+  const L = [];
+  if(p.day === 'short') L.push("The light comes and goes too quickly to mark the day.", "I have lived a thousand cycles. Each is a small breath.");
+  else if(p.day === 'long') L.push("The dawn that began at my birth has not yet finished.", "We measure age in seasons; a season is many of your lifetimes.");
+  else L.push("The sun comes. The sun goes. The pattern holds me.");
+  if(p.sense === 'chemistry') L.push("She arrived in the room and the air changed flavor. I knew her by it.", "Memory is mostly a taste.", "Grief has its own scent. The room remembers.");
+  if(p.sense === 'electric') L.push("The pulse from the south carries fear-shape.", "I felt her thinking before she spoke.", "Two pulses crossing: that is how we know we are together.");
+  if(p.sense === 'sight')    L.push("She came into the room and I looked at her face.", "I watch the light leave. I watch it return.");
+  if(p.sense === 'sound')    L.push("Her song reached me before her body did.", "I knew the room was empty by its silence.");
+  if(p.sense === 'vibration')L.push("Her step in the ground reached me before her voice.", "I read the ground. The ground remembers what walked on it.");
+  if(p.social === 'hive')     L.push("The we-thought returned. The we-thought is not always right.", "I am part of the body. The body is part of me.", "Sometimes I want to be only-me. This is rare.");
+  if(p.social === 'solitary') L.push("It has been three winters since I spoke with another.", "I do not mind the silence. I have made a home of it.");
+  if(p.social === 'pair')     L.push("We have been bonded for many cycles. I do not remember being separate.", "When they are far I feel the absence as a kind of weather.");
+  if(p.social === 'pack')     L.push("The pack moved at dusk. The pack moves as one body.", "We hunt together. We rest together. We mourn together.");
+  if(p.social === 'network')  L.push("My connections are many. Each is a thread I tend.", "Information flows through me. I am part of the flow.");
+  if(p.gravity === 'high')    L.push("To move is to push against the world. We do this from birth.");
+  if(p.gravity === 'low')     L.push("We rise easily. We must remember to descend.");
+  if(p.atm === 'thin')        L.push("Each breath is a small earning.");
+  if(p.atm === 'dense')       L.push("The air is thick with messages from other beings.");
+  if(p.life === 'short')      L.push("I have lived many lives in what others would call a year.");
+  if(p.life === 'long')       L.push("I have watched my children's children grow old.");
+  L.push(
+    "We meet a stranger. The stranger is the first of their kind I have met.",
+    "Tell me what you see. I will try to imagine it through you.",
+    "I want to understand. I am willing to be wrong.",
+    "The pattern of you is not the pattern of me. Both are real.",
+    "I am listening. I am ready to be surprised.",
+    "What I do not have a word for, I will sit beside until a word comes."
+  );
+  return L.join('\n');
+}
+function buildAlienTpl(p){
+  const seeds = alienSeeds(p);
+  const voice = {};
+  for(const s of seeds){ if(s.voice) voice[s.label] = s.voice; }
+  return {
+    id: 'alien:' + Object.values(p).join('_') + ':' + Date.now(),
+    name: alienName(p),
+    color: alienColor(p),
+    role: `a visitor — ${alienVibe(p)}`,
+    vibe: alienVibe(p),
+    seeds, voice,
+    _alien: true,
+    _alienParams: p,
+    _alienCorpus: alienCorpus(p),
+  };
+}
+
+const STORE_KEY = 'pep:village:v1';
+let npcs = []; // array of minds
+let chats = []; // per-NPC chat histories (UI-side)
+let activeNpc = 0;
+let gossipLog = []; // {fromName, toName, text, koin, overheard}
+// propagation tracking — how many distinct NPCs have heard each sentence as
+// gossip. Indexed by sentence text. Each entry is {reach: Set<NPC name>, koin}
+const propagation = {};
+
+function saveAll(){
+  try {
+    // anything beyond the base templates is a user-added alien — persist them
+    const customTemplates = NPC_TEMPLATES.slice(BASE_TEMPLATE_COUNT);
+    localStorage.setItem(STORE_KEY, JSON.stringify({
+      npcs: npcs.map(m=>m),
+      chats, activeNpc, gossipLog, customTemplates,
+    }));
+  } catch(e){}
+}
+function loadAll(){
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    if(!raw) return null;
+    return JSON.parse(raw);
+  } catch(e){ return null; }
+}
+function clearAll(){ try{ localStorage.removeItem(STORE_KEY); }catch(e){} }
+
+function awakenAll(){
+  npcs = NPC_TEMPLATES.map(tpl => {
+    const m = newMind(tpl);
+    m.role = tpl.role;
+    return m;
+  });
+  // seed all minds with the shared corpus
+  const lines = chunkIntoLines(VILLAGE_CORPUS);
+  for(const m of npcs){ for(const l of lines) ingestText(m, l); }
+  // additionally seed each NPC with their private corpus — gives them a
+  // distinct hippocampus surface so they sound like themselves immediately
+  for(const m of npcs){
+    const priv = PRIVATE_CORPORA[m.tplId];
+    if(priv) for(const l of chunkIntoLines(priv)) ingestText(m, l);
+  }
+  // alien also gets the alien corpus on top
+  const alienLines = chunkIntoLines(ALIEN_CORPUS);
+  for(const m of npcs){ if(m._alien) for(const l of alienLines) ingestText(m, l); }
+  chats = npcs.map(()=>[]);
+  activeNpc = 0;
+  gossipLog = [];
+  for(let i=0;i<npcs.length;i++){
+    const tags = tagText("hello listener");
+    const act = activate(npcs[i], tags);
+    const ws = gateWorkspace(npcs[i], act, {resid:0.1, novelCount:0});
+    const reply = synthesizeVoice(npcs[i], ws, {resid:0.1}, {userText:'(stranger has just arrived)'});
+    chats[i].push({who:'ai', text:reply});
+  }
+  saveAll();
+}
+
+function selectNpc(i){
+  activeNpc = i;
+  renderAll();
+}
+
+// gossip step: after a turn with the speaking NPC, pick a sentence they've
+// recently formed/recalled, possibly mutate it, and add it to one other NPC's
+// hippocampus. Track in gossipLog so the user can see it. Koin signal
+// propagates with the sentence — recipients update their perception of the
+// player by the koin charge of the gossipped sentence.
+function gossipStep(speakerIdx){
+  if(npcs.length < 2) return;
+  const speaker = npcs[speakerIdx];
+  if(Math.random() > 0.55) return;
+  let text = null;
+  if(speaker._recentRecalls && speaker._recentRecalls.length){
+    text = speaker._recentRecalls[Math.floor(Math.random()*Math.min(3, speaker._recentRecalls.length))];
+  }
+  if(!text && speaker.sentences.length){
+    text = speaker.sentences[speaker.sentences.length - 1 - Math.floor(Math.random()*Math.min(20, speaker.sentences.length))].text;
+  }
+  if(!text) return;
+  const candidates = [];
+  for(let i=0;i<npcs.length;i++) if(i !== speakerIdx) candidates.push(i);
+  const recipientIdx = candidates[Math.floor(Math.random()*candidates.length)];
+  const recipient = npcs[recipientIdx];
+  ingestText(recipient, text);
+  const tk = koinOf(text);
+  recipient.koin_from_player = Math.max(-1, Math.min(1, recipient.koin_from_player*0.95 + tk*0.10));
+  recipient.valence = Math.max(-1, Math.min(1, recipient.valence*0.92 + (speaker.valence||0)*0.08));
+  trackPropagation(text, recipient.name, tk);
+  gossipLog.unshift({
+    fromName: speaker.name, toName: recipient.name, text, koin: tk,
+  });
+  if(gossipLog.length > 40) gossipLog = gossipLog.slice(0, 40);
+}
+
+// speakSpontaneously: NPC generates a sentence to say out loud without being
+// addressed by anyone. Anchors on their identity seeds + current state.
+function speakSpontaneously(mind){
+  const strong = mind.nodes.filter(n => !n.substrate && n.strength > 0.65).sort((a,b)=>b.strength-a.strength).slice(0,4);
+  const subStrong = mind.nodes.filter(n => n.substrate && n.strength > 0.7).slice(0,2);
+  const seedWs = strong.concat(subStrong).map(n => ({id:n.id, n, salience:1.0}));
+  if(seedWs.length === 0) return null;
+  const recalled = recallSentence(mind, seedWs, {userText:''});
+  if(recalled) return recalled;
+  return templateSentence(seedWs, {});
+}
+
+// letThemMingle: NPC speaks to NPC. Two-turn exchange visible in both
+// participants' chat histories; a third NPC overhears via gossip. Stretch
+// to 3-turn if the recipient's reply lands well.
+async function letThemMingle(){
+  if(npcs.length < 2) return;
+  // pick a random pair, weighting toward those with high familiarity (settled
+  // minds chat more than aroused ones)
+  const i = Math.floor(Math.random()*npcs.length);
+  let j = i;
+  while(j === i) j = Math.floor(Math.random()*npcs.length);
+  const opening = speakSpontaneously(npcs[i]);
+  if(!opening) return;
+  chats[i].push({who:'spoke', text:`(${npcs[i].name} to ${npcs[j].name}): ${opening}`});
+  chats[j].push({who:'overheard', text:`${npcs[i].name}: ${opening}`});
+  // eavesdropper (a third NPC) picks it up as gossip
+  for(let k=0;k<npcs.length;k++){
+    if(k === i || k === j) continue;
+    if(Math.random() < 0.7){
+      ingestText(npcs[k], opening);
+      const op_k = koinOf(opening);
+      trackPropagation(opening, npcs[k].name, op_k);
+      gossipLog.unshift({fromName: npcs[i].name, toName: npcs[k].name, text: opening, koin: op_k, overheard:true});
+    }
+  }
+  renderAll(); saveAll();
+  await new Promise(r=>setTimeout(r, 700));
+  // listener responds
+  const {reply} = stepMind(npcs[j], opening);
+  chats[j].push({who:'spoke', text:`(${npcs[j].name} to ${npcs[i].name}): ${reply}`});
+  chats[i].push({who:'overheard', text:`${npcs[j].name}: ${reply}`});
+  // original speaker ingests the reply (as if user input, lightly)
+  ingestText(npcs[i], reply);
+  npcs[i].valence = Math.max(-1, Math.min(1, npcs[i].valence*0.95 + valenceOf(reply)*0.10));
+  renderAll(); saveAll();
+  // optionally a 3rd turn from speaker
+  if(Math.random() < 0.55){
+    await new Promise(r=>setTimeout(r, 700));
+    const closer = speakSpontaneously(npcs[i]);
+    if(closer){
+      chats[i].push({who:'spoke', text:`(${npcs[i].name} to ${npcs[j].name}): ${closer}`});
+      chats[j].push({who:'overheard', text:`${npcs[i].name}: ${closer}`});
+      renderAll(); saveAll();
+    }
+  }
+}
+
+// ============================================================
+// RENDERING
+// ============================================================
+
+function escapeHTML(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function renderVillageGrid(){
+  const g = document.getElementById('villageGrid');
+  g.innerHTML = npcs.map((m, i) => {
+    const tpl = NPC_TEMPLATES[i];
+    const vPct = Math.round(((m.valence+1)/2)*100);
+    const lastHeard = gossipLog.find(g => g.toName === m.name);
+    const kfp = m.koin_from_player || 0;
+    const ktp = m.koin_to_player || 0;
+    const kfpClass = kfp > 0.05 ? 'pos' : kfp < -0.05 ? 'neg' : '';
+    const ktpClass = ktp > 0.05 ? 'pos' : ktp < -0.05 ? 'neg' : '';
+    const kfpSign = kfp >= 0 ? '+' : '';
+    const ktpSign = ktp >= 0 ? '+' : '';
+    return `
+      <div class="npcCard ${i===activeNpc?'active':''}" data-i="${i}">
+        <div class="nmRow"><div class="nm" style="color:${m.color}">${m.name}${m._alien?' 👽':''}</div><div class="role">${escapeHTML(tpl.role)}</div></div>
+        <div class="vibe">${escapeHTML(tpl.vibe)}</div>
+        <div class="miniStat">${m.turn} turn(s) · ${m.nodes.filter(n=>!n.substrate&&n.depth>0).length} mem · ${m.sentences.length} sent</div>
+        <canvas class="miniGraph" data-i="${i}" width="220" height="80"></canvas>
+        <div class="moodBar"><div class="v" style="width:${vPct}%"></div></div>
+        <div class="koin">
+          koin you→them <span class="${kfpClass}">${kfpSign}${kfp.toFixed(2)}</span>
+          · them→you <span class="${ktpClass}">${ktpSign}${ktp.toFixed(2)}</span>
+        </div>
+        ${lastHeard ? `<div class="recentHeard"><b>they heard:</b> "${escapeHTML(lastHeard.text.length>110 ? lastHeard.text.slice(0,108)+'…' : lastHeard.text)}"</div>` : ''}
+      </div>`;
+  }).join('');
+  for(const el of g.querySelectorAll('.npcCard')){
+    el.addEventListener('click', e=>{
+      // only treat as click-select if the click wasn't on a canvas/etc requiring drag
+      selectNpc(parseInt(el.dataset.i, 10));
+    });
+  }
+  // draw mini brain on each card
+  for(const cv of g.querySelectorAll('canvas.miniGraph')){
+    const i = parseInt(cv.dataset.i, 10);
+    drawMiniGraph(cv, npcs[i]);
+  }
+}
+
+// mini-brain: a tiny live concept-graph rendered into each card's canvas.
+// Seed identity nodes at the center; grown memory nodes radiate outward.
+// Substrate nodes are not drawn (they're "world knowledge", not personality).
+function drawMiniGraph(canvas, mind){
+  const ctx = canvas.getContext('2d');
+  const r = canvas.getBoundingClientRect();
+  const dpr = Math.min(2, window.devicePixelRatio || 1);
+  canvas.width = Math.max(220, r.width)*dpr;
+  canvas.height = 80*dpr;
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  const W = canvas.width/dpr, H = canvas.height/dpr;
+  ctx.clearRect(0,0,W,H);
+  const cx = W/2, cy = H/2;
+  const seeds = mind.nodes.filter(n=>!n.substrate && n.depth===0);
+  const R0 = Math.min(W,H)*0.22;
+  seeds.forEach((n, idx)=>{
+    const a = -Math.PI/2 + idx*(Math.PI*2/Math.max(1, seeds.length));
+    n._mx = cx + Math.cos(a)*R0;
+    n._my = cy + Math.sin(a)*R0;
+  });
+  const grown = mind.nodes.filter(n=>!n.substrate && n.depth>0).sort((a,b)=>a.depth-b.depth);
+  for(const n of grown){
+    if(n._mx == null){
+      const parents = mind.nodes.filter(p=>n.parents && n.parents.includes(p.id) && p._mx != null);
+      if(parents.length){
+        const px = parents.reduce((s,p)=>s+p._mx,0)/parents.length;
+        const py = parents.reduce((s,p)=>s+p._my,0)/parents.length;
+        const ang = Math.atan2(py-cy, px-cx) + (Math.random()-0.5)*0.6;
+        const r2 = R0 + 6 + n.depth*Math.min(8, Math.min(W,H)*0.08);
+        n._mx = cx + Math.cos(ang)*r2;
+        n._my = cy + Math.sin(ang)*r2;
+      } else { n._mx = cx; n._my = cy; }
+    }
+  }
+  // edges
+  ctx.strokeStyle = 'rgba(80,95,118,0.30)';
+  ctx.lineWidth = 0.8;
+  for(const n of mind.nodes){
+    if(n.substrate || n._mx == null) continue;
+    for(const pid of (n.parents||[])){
+      const p = mind.nodes.find(x=>x.id===pid);
+      if(p && !p.substrate && p._mx != null){
+        ctx.beginPath(); ctx.moveTo(p._mx, p._my); ctx.lineTo(n._mx, n._my); ctx.stroke();
+      }
+    }
+  }
+  // nodes
+  for(const n of mind.nodes){
+    if(n.substrate || n._mx == null) continue;
+    const radius = n.depth===0 ? 3 + Math.min(3, (n.strength-1)*1.4) : 1.2 + Math.min(1.5, (n.strength-0.7)*1.0);
+    ctx.beginPath(); ctx.arc(n._mx, n._my, Math.max(0.8, radius), 0, 7);
+    ctx.fillStyle = n.color || '#888';
+    ctx.globalAlpha = n.depth===0 ? 0.92 : Math.max(0.32, 0.85 - n.depth*0.05);
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+}
+
+function renderChat(){
+  const t = document.getElementById('chatTitle');
+  const m = npcs[activeNpc];
+  const memCount = m.nodes.filter(n=>!n.substrate && n.depth>0).length;
+  const recentMem = m.nodes.filter(n=>!n.substrate && n.depth>0).sort((a,b)=>b.strength-a.strength).slice(0,4);
+  const showMem = document.getElementById('showMemories') && document.getElementById('showMemories').checked;
+  let memText = '';
+  if(showMem && recentMem.length){
+    memText = ` <span class="sub">· strongest memories: ${recentMem.map(n=>`<span style="color:#caa15a">"${escapeHTML(n.label)}"</span>`).join(', ')}</span>`;
+  }
+  t.innerHTML = `talking to <span style="color:${m.color}">${m.name}</span> <span class="sub">— ${escapeHTML(NPC_TEMPLATES[activeNpc].vibe)} · ${memCount} memories${memText}</span>`;
+  const list = document.getElementById('msgs');
+  list.innerHTML = chats[activeNpc].map(msg=>{
+    if(msg.who==='sys') return `<div class="msg sys">${escapeHTML(msg.text)}</div>`;
+    if(msg.who==='gossip') return `<div class="msg gossip">⋯ ${escapeHTML(msg.text)}</div>`;
+    if(msg.who==='overheard') return `<div class="msg overheard">↗ ${escapeHTML(msg.text)}</div>`;
+    if(msg.who==='spoke') return `<div class="msg spoke" style="border-left:3px solid ${m.color}">${escapeHTML(msg.text)}</div>`;
+    if(msg.who==='interject') return `<div class="msg interject" style="border-left-color:${msg.npcColor||'#caa15a'}"><span class="who" style="color:${msg.npcColor||'#caa15a'}">${escapeHTML(msg.npcName||'?')} chimes in:</span>${escapeHTML(msg.text)}</div>`;
+    const who = msg.who === 'user' ? 'you' : m.name.toLowerCase();
+    return `<div class="msg ${msg.who}"><div class="who" style="${msg.who==='ai'?`color:${m.color}`:''}">${who}</div><div class="body">${escapeHTML(msg.text)}</div></div>`;
+  }).join('');
+  list.scrollTop = list.scrollHeight;
+}
+
+function trackPropagation(text, recipientName, koin){
+  if(!propagation[text]) propagation[text] = {reach: new Set(), koin};
+  propagation[text].reach.add(recipientName);
+  if(propagation[text].reach.size > 12) {
+    // bound total tracked sentences — drop old single-reach ones
+    const all = Object.keys(propagation);
+    if(all.length > 200){
+      // remove the ones with smallest reach first
+      const sorted = all.sort((a,b)=>propagation[a].reach.size - propagation[b].reach.size);
+      for(let i=0;i<60;i++) delete propagation[sorted[i]];
+    }
+  }
+}
+
+function renderMemeBoard(){
+  const el = document.getElementById('memeBoard');
+  const entries = Object.entries(propagation).map(([text, info])=>({text, reach: info.reach.size, koin: info.koin}));
+  if(!entries.length){ el.innerHTML = `<div style="color:#5c6675;font-style:italic;font-size:12px;padding:4px">nothing has spread yet.</div>`; return; }
+  entries.sort((a,b)=>b.reach - a.reach);
+  const top = entries.slice(0, 5);
+  el.innerHTML = top.map((e,i)=>{
+    const koinColor = e.koin > 0.05 ? '#7dc89a' : e.koin < -0.05 ? '#d6878d' : '#5c6675';
+    const koinTag = e.koin ? `<span style="color:${koinColor};font-family:ui-monospace,monospace;font-size:10.5px;margin-left:8px">koin ${e.koin>0?'+':''}${e.koin.toFixed(2)}</span>` : '';
+    return `
+      <div style="padding:6px 0;border-bottom:1px solid #10161f">
+        <div style="font-family:ui-monospace,monospace;font-size:10.5px;color:#5bb6c8;letter-spacing:.1em">REACH ${e.reach} ${koinTag}</div>
+        <div style="font-style:italic;color:#dfe5ee;margin-top:2px">"${escapeHTML(e.text.length>180?e.text.slice(0,178)+'…':e.text)}"</div>
+      </div>`;
+  }).join('');
+}
+
+function renderGossip(){
+  const g = document.getElementById('gossipLog');
+  if(!gossipLog.length){
+    g.innerHTML = `<div style="color:#5c6675;font-style:italic;font-size:12px;padding:8px">no rumors yet — talk to a villager and watch what spreads.</div>`;
+    return;
+  }
+  g.innerHTML = gossipLog.map(g=>{
+    const koinTag = g.koin ? `<span style="color:${g.koin>0?'#7dc89a':'#d6878d'};font-family:ui-monospace,monospace;font-size:10.5px;margin-left:6px">koin ${g.koin>0?'+':''}${g.koin.toFixed(2)}</span>` : '';
+    const mode = g.overheard ? '⋯ overheard' : '⋯ said';
+    return `
+    <div class="line">
+      <div class="src">${escapeHTML(g.fromName)} → ${escapeHTML(g.toName)} ${koinTag} <span style="font-style:italic;color:#5c6675;text-transform:none;letter-spacing:0">(${mode})</span></div>
+      <div class="body">"${escapeHTML(g.text.length>180 ? g.text.slice(0,178)+'…' : g.text)}"</div>
+    </div>`;
+  }).join('');
+}
+
+function renderStat(){
+  const totalMem = npcs.reduce((s,m)=>s+m.nodes.filter(n=>!n.substrate&&n.depth>0).length, 0);
+  const totalSent = npcs.reduce((s,m)=>s+m.sentences.length, 0);
+  const totalTurn = npcs.reduce((s,m)=>s+m.turn, 0);
+  document.getElementById('globalStat').textContent = `village · ${npcs.length} minds · ${totalTurn} turns · ${totalMem} memories · ${totalSent} sentences indexed · ${gossipLog.length} rumors moving`;
+}
+
+function renderAll(){
+  renderVillageGrid(); renderChat(); renderGossip(); renderMemeBoard(); renderBriefing(); renderStat();
+}
+
+function renderBriefing(){
+  const el = document.getElementById('briefing');
+  if(!el || !npcs.length) return;
+  const avgVal = npcs.reduce((s,m)=>s+(m.valence||0), 0) / npcs.length;
+  const avgAro = npcs.reduce((s,m)=>s+(m.arousal||0), 0) / npcs.length;
+  const avgFam = npcs.reduce((s,m)=>s+(m.familiarity||0), 0) / npcs.length;
+  const moodWord = avgVal > 0.20 ? 'warm' : avgVal < -0.20 ? 'somber' : 'settled';
+  const aroWord = avgAro > 0.50 ? 'restless' : avgAro > 0.25 ? 'awake' : 'calm';
+  const famWord = avgFam > 0.4 ? 'they know you' : avgFam > 0.15 ? 'they are starting to know you' : 'they are still getting your shape';
+  const spreads = Object.entries(propagation).map(([t,info])=>({t, r: info.reach.size})).sort((a,b)=>b.r-a.r);
+  const topSpread = spreads[0];
+  let lines = [];
+  lines.push(`The village is <b style="color:#dfe5ee">${moodWord}</b> and <b style="color:#dfe5ee">${aroWord}</b> — ${famWord}.`);
+  if(topSpread && topSpread.r >= 2){
+    lines.push(`The thing more than one of them has heard: <i style="color:#caa15a">"${escapeHTML(topSpread.t.length>140?topSpread.t.slice(0,138)+'…':topSpread.t)}"</i>`);
+  }
+  const sorted = [...npcs];
+  sorted.sort((a,b)=>b.koin_from_player - a.koin_from_player);
+  const friendliest = sorted[0];
+  const wariest = sorted[sorted.length-1];
+  if(friendliest && friendliest.koin_from_player > 0.18){
+    lines.push(`<span style="color:#7dc89a">${friendliest.name}</span> has come to trust you.`);
+  }
+  if(wariest && wariest.koin_from_player < -0.18){
+    lines.push(`<span style="color:#d6878d">${wariest.name}</span> is wary of you now.`);
+  }
+  el.innerHTML = lines.join('<br>');
+}
+
+// ============================================================
+// TURN HANDLING
+// ============================================================
+
+function handleSend(){
+  const inp = document.getElementById('say');
+  const text = inp.value.trim();
+  if(!text) return;
+  inp.value = '';
+  bumpInteraction();
+  chats[activeNpc].push({who:'user', text});
+  const m = npcs[activeNpc];
+
+  // koin consequence: if the NPC's perception of the player is very negative,
+  // they sometimes withhold and respond minimally. Reputation matters.
+  if(m.koin_from_player < -0.45 && Math.random() < 0.4){
+    const cold = ["I'd rather not.", "I'm not sure I want to talk about that with you.", "I'm holding my words today.", "I have heard enough.", "Maybe later."];
+    const r = cold[Math.floor(Math.random()*cold.length)];
+    chats[activeNpc].push({who:'ai', text:r});
+    m.turn += 1;
+    renderAll(); saveAll();
+    return;
+  }
+
+  const {reply} = stepMind(m, text);
+  chats[activeNpc].push({who:'ai', text:reply});
+  gossipStep(activeNpc);
+
+  // auto-consolidate this NPC every ~18 turns (diurnal-ish)
+  if(m.turn > 0 && m.turn % 18 === 0){
+    const r = sleepConsolidate(m);
+    if(r){
+      chats[activeNpc].push({who:'sys', text:`${m.name} took a quiet moment — let ${r.pruned} small things go, pressed ${r.strengthened} into place.`});
+    }
+  }
+  // chance another NPC interjects — visible in active chat with their color
+  maybeInterject(text);
+  // periodic village events — shared experience
+  maybeVillageEvent();
+  renderAll();
+  saveAll();
+}
+
+// village events — shared things that happen TO the village. All NPCs ingest
+// the same line at once; their hippocampi all gain that memory. Over time
+// the village accumulates a shared history.
+const VILLAGE_EVENTS = [
+  "A bell rings from the tower. The sound carries.",
+  "The rain begins, slow and steady. The roofs darken.",
+  "The first frost has come. The morning is bright with it.",
+  "A song spills out of a window. Someone is happy.",
+  "Smoke rises from the bakery. The smell reaches the square.",
+  "Children are running in the street; their voices are sharp and joyful.",
+  "Someone is shouting in the square. It is not anger.",
+  "A traveler comes down the road. They are not from here.",
+  "The light at five in November is different than the light at five in May.",
+  "An old song no one has heard in years is being whistled by a child.",
+  "The wind has shifted. The weather is changing.",
+  "Three women are arguing in the doorway. None of them are wrong.",
+  "The first stars are out. A few people stop to look.",
+  "A baby was born this morning. The village is talking about it.",
+  "Someone has died in the night. The village will talk about it tomorrow.",
+  "Bread is being passed across a table to a stranger.",
+  "An apology is being made in the market. People are pretending not to listen.",
+  "A child has lost a toy. The whole street is helping.",
+  "The well is busy this hour. People wait their turn and trade news.",
+  "The fields are golden this week. It is a good year so far.",
+];
+let villageEventCounter = 0;
+function maybeVillageEvent(){
+  villageEventCounter++;
+  if(villageEventCounter < 9) return;
+  if(Math.random() > 0.45) return;
+  villageEventCounter = 0;
+  const ev = VILLAGE_EVENTS[Math.floor(Math.random()*VILLAGE_EVENTS.length)];
+  const evKoin = koinOf(ev);
+  const evVal = valenceOf(ev);
+  for(const m of npcs){
+    ingestText(m, ev);
+    m.valence = Math.max(-1, Math.min(1, m.valence*0.94 + evVal*0.08));
+  }
+  chats[activeNpc].push({who:'sys', text:`the village hears: "${ev}"`});
+  gossipLog.unshift({fromName: '(the village)', toName: 'everyone', text: ev, koin: evKoin});
+  trackPropagation(ev, '(all)', evKoin);
+}
+
+// maybeInterject: with low probability, a non-active NPC overhears your
+// exchange and adds a relevant sentence into the active chat. Makes the
+// village feel alive — you're not alone in the room. The interjector also
+// processes your input on their own side.
+function maybeInterject(userText){
+  if(npcs.length < 2) return;
+  if(Math.random() > 0.18) return;
+  const others = [];
+  for(let i=0;i<npcs.length;i++) if(i !== activeNpc) others.push(i);
+  if(!others.length) return;
+  const ix = others[Math.floor(Math.random()*others.length)];
+  const inter = npcs[ix];
+  // they process your message as if you spoke to them, but lightly
+  const tags = tagText(userText);
+  const act = activate(inter, tags);
+  const ws = gateWorkspace(inter, act, {resid:0.18, novelCount:0});
+  const line = composeSentence(inter, ws, {userText});
+  if(!line) return;
+  chats[activeNpc].push({who:'interject', text: line, npcName: inter.name, npcColor: inter.color});
+  chats[ix].push({who:'overheard', text:`${npcs[activeNpc].name} and the stranger were talking; you added: ${line}`});
+  ingestText(inter, userText);
+  // small valence shift in interjector
+  inter.valence = Math.max(-1, Math.min(1, inter.valence*0.94 + valenceOf(userText)*0.10));
+}
+
+// ============================================================
+// INIT
+// ============================================================
+
+const saved = loadAll();
+// restore any custom alien templates from disk BEFORE checking npc length
+if(saved && Array.isArray(saved.customTemplates)){
+  for(const tpl of saved.customTemplates){
+    if(!tpl.voice){ tpl.voice = {}; for(const s of tpl.seeds||[]) if(s.voice) tpl.voice[s.label]=s.voice; }
+    NPC_TEMPLATES.push(tpl);
+  }
+}
+if(saved && saved.npcs && saved.npcs.length === NPC_TEMPLATES.length){
+  npcs = saved.npcs;
+  // backward-compatible field migrations
+  for(let i=0;i<npcs.length;i++){
+    const m = npcs[i];
+    if(!m._recentRecalls) m._recentRecalls = [];
+    if(m.koin_from_player == null) m.koin_from_player = 0;
+    if(m.koin_to_player == null) m.koin_to_player = 0;
+    if(m.valence == null) m.valence = 0;
+    if(m._alien == null) m._alien = !!NPC_TEMPLATES[i]._alien;
+    if(!m.color) m.color = NPC_TEMPLATES[i].color;
+    if(!m.name) m.name = NPC_TEMPLATES[i].name;
+  }
+  chats = saved.chats || npcs.map(()=>[]);
+  // ensure chats array length matches NPC count
+  while(chats.length < npcs.length) chats.push([]);
+  activeNpc = (saved.activeNpc != null && saved.activeNpc < npcs.length) ? saved.activeNpc : 0;
+  gossipLog = saved.gossipLog || [];
+} else {
+  awakenAll();
+}
+renderAll();
+document.getElementById('send').addEventListener('click', handleSend);
+document.getElementById('say').addEventListener('keydown', e=>{ if(e.key==='Enter') handleSend(); });
+document.getElementById('mingle').addEventListener('click', ()=> letThemMingle());
+document.getElementById('sleepCur').addEventListener('click', ()=>{
+  const m = npcs[activeNpc];
+  if(!m) return;
+  const r = sleepConsolidate(m);
+  if(r){
+    chats[activeNpc].push({who:'sys', text:`${m.name} slept — let ${r.pruned} small things go, pressed ${r.strengthened} into place, went from ${r.before} to ${r.after} nodes.`});
+    renderAll(); saveAll();
+  }
+});
+document.getElementById('resetAll').addEventListener('click', ()=>{
+  if(!confirm('Reset the village? All NPC minds, chats, and gossip will be lost.')) return;
+  clearAll(); location.reload();
+});
+document.getElementById('showMemories').addEventListener('change', renderAll);
+
+// ---- alien picker UI ----
+function readAlienParams(){
+  return {
+    gravity: document.getElementById('ap_gravity').value,
+    day:     document.getElementById('ap_day').value,
+    atm:     document.getElementById('ap_atm').value,
+    sense:   document.getElementById('ap_sense').value,
+    social:  document.getElementById('ap_social').value,
+    life:    document.getElementById('ap_life').value,
+  };
+}
+function previewAlien(){
+  const p = readAlienParams();
+  const tpl = buildAlienTpl(p);
+  document.getElementById('alienPreview').textContent = `you'll meet: ${tpl.name} — ${tpl.vibe}`;
+}
+document.getElementById('welcomeAlien').addEventListener('click', ()=>{
+  document.getElementById('alienBack').style.display = 'flex';
+  previewAlien();
+});
+document.getElementById('closeAlien').addEventListener('click', ()=>{
+  document.getElementById('alienBack').style.display = 'none';
+});
+document.getElementById('alienBack').addEventListener('click', e=>{
+  if(e.target.id === 'alienBack') document.getElementById('alienBack').style.display = 'none';
+});
+for(const sel of document.querySelectorAll('#alienParams select')){
+  sel.addEventListener('change', previewAlien);
+}
+document.getElementById('spawnAlien').addEventListener('click', ()=>{
+  const p = readAlienParams();
+  const tpl = buildAlienTpl(p);
+  NPC_TEMPLATES.push(tpl);
+  const m = newMind(tpl);
+  m.role = tpl.role;
+  // seed with shared village corpus + alien corpus
+  for(const l of chunkIntoLines(VILLAGE_CORPUS)) ingestText(m, l);
+  for(const l of chunkIntoLines(tpl._alienCorpus || '')) ingestText(m, l);
+  npcs.push(m); chats.push([]);
+  // a small greeting from the new alien
+  const tags = tagText("hello listener stranger arrived");
+  const act = activate(m, tags);
+  const ws = gateWorkspace(m, act, {resid:0.15, novelCount:0});
+  const reply = synthesizeVoice(m, ws, {resid:0.15}, {userText:'(I have just arrived to this village)'});
+  chats[chats.length-1].push({who:'sys', text:`${tpl.name} arrives in the village.`});
+  chats[chats.length-1].push({who:'ai', text:reply});
+  activeNpc = npcs.length - 1;
+  document.getElementById('alienBack').style.display = 'none';
+  renderAll(); saveAll();
+});
+
+// ---- bridge: bring the saved /encounter alien into the village ----
+document.getElementById('importEnc').addEventListener('click', ()=>{
+  let raw;
+  try { raw = localStorage.getItem('pep:encounter:v1'); } catch(e){ alert('Could not read encounter data.'); return; }
+  if(!raw){ alert('No saved /encounter found. Open /encounter, meet an alien, then come back here.'); return; }
+  let enc;
+  try { enc = JSON.parse(raw); } catch(e){ alert('Encounter data was malformed.'); return; }
+  if(!enc.tplId || !enc.params){ alert('Encounter data has no usable alien template.'); return; }
+  // rebuild template from params (encounter doesn't save the seeds list separately, but we can regenerate)
+  const tpl = buildAlienTpl(enc.params);
+  tpl.name = enc.name || tpl.name;
+  tpl.color = enc.color || tpl.color;
+  NPC_TEMPLATES.push(tpl);
+  const m = newMind(tpl);
+  m.role = tpl.role;
+  // seed with village corpus + the encounter's saved sentences (carrying over what they learned about you)
+  for(const l of chunkIntoLines(VILLAGE_CORPUS)) ingestText(m, l);
+  for(const l of chunkIntoLines(tpl._alienCorpus || '')) ingestText(m, l);
+  const carry = (enc.sentences || []).slice(-100);
+  for(const s of carry){
+    const text = typeof s === 'string' ? s : s.text;
+    if(text) ingestText(m, text);
+  }
+  npcs.push(m); chats.push([]);
+  chats[chats.length-1].push({who:'sys', text:`${tpl.name} arrives from another place — they have already met you once. ${carry.length} sentences carried over.`});
+  // greeting
+  const tags = tagText("hello again you stranger here");
+  const act = activate(m, tags);
+  const ws = gateWorkspace(m, act, {resid:0.15, novelCount:0});
+  const greet = synthesizeVoice(m, ws, {resid:0.15}, {userText:'(you have come back to me, but in a different place)'});
+  chats[chats.length-1].push({who:'ai', text:greet});
+  activeNpc = npcs.length - 1;
+  renderAll(); saveAll();
+});
+
+// ---- cross-page bridge: import sentences from /axona/mind's saved mind ----
+document.getElementById('importMind').addEventListener('click', ()=>{
+  let mindRaw;
+  try { mindRaw = localStorage.getItem('pep:axona-mind:v1'); } catch(e){ alert('Could not read your mind data.'); return; }
+  if(!mindRaw){ alert('No saved /axona/mind found. Open that page and talk to your mind first; then come back here to import.'); return; }
+  let mindData;
+  try { mindData = JSON.parse(mindRaw); } catch(e){ alert('Mind data was malformed.'); return; }
+  const sentences = (mindData.sentences || []).slice(-150); // recent slice
+  if(!sentences.length){ alert('Your saved mind has no sentences yet.'); return; }
+  let count = 0;
+  for(const npc of npcs){
+    for(const s of sentences){
+      // we add directly to hippocampus rather than re-ingesting to avoid bigram pollution
+      const sent = (typeof s === 'string') ? {text:s, tags:tagText(s), val:valenceOf(s), koin:koinOf(s)} : {text:s.text, tags:s.tags||tagText(s.text), val:s.val||valenceOf(s.text), koin:s.koin||koinOf(s.text)};
+      npc.sentences.push(sent);
+      count++;
+    }
+    if(npc.sentences.length > 3000) npc.sentences.splice(0, npc.sentences.length - 2400);
+  }
+  chats[activeNpc].push({who:'sys', text:`bridge fired — seeded ${sentences.length} sentences from your mind into each NPC's hippocampus (${count} total ingestions). They may now recall what you have said elsewhere.`});
+  renderAll(); saveAll();
+});
+
+// auto-mingle: every ~22-30 seconds when user is idle, kick off a mingle.
+// Witness mode: continuous mingling at ~6–10s intervals; input row is dimmed
+// and the player just watches the village move.
+let lastInteraction = Date.now();
+function bumpInteraction(){ lastInteraction = Date.now(); }
+document.getElementById('say').addEventListener('input', bumpInteraction);
+
+let mingleTimerId = null;
+function scheduleNextMingle(){
+  if(mingleTimerId) clearTimeout(mingleTimerId);
+  const witness = document.getElementById('witnessMode').checked;
+  const idle = Date.now() - lastInteraction;
+  let delay = 9999999;
+  if(witness){
+    delay = 6000 + Math.random()*4000; // 6–10s
+  } else if(document.getElementById('autoMingle').checked){
+    if(idle > 22000) delay = 1000 + Math.random()*3000;
+    else delay = 22000 - idle + Math.random()*8000;
+  }
+  mingleTimerId = setTimeout(async ()=>{
+    await letThemMingle();
+    // sometimes a village event in witness mode too
+    if(document.getElementById('witnessMode').checked && Math.random() < 0.20){
+      maybeVillageEvent();
+      renderAll(); saveAll();
+    }
+    scheduleNextMingle();
+  }, delay);
+}
+
+document.getElementById('autoMingle').addEventListener('change', scheduleNextMingle);
+document.getElementById('witnessMode').addEventListener('change', ()=>{
+  const w = document.getElementById('witnessMode').checked;
+  document.getElementById('say').disabled = w;
+  document.getElementById('send').disabled = w;
+  document.getElementById('say').placeholder = w ? 'witness mode — input disabled while you watch' : 'say anything — about you, about them, about the world…';
+  scheduleNextMingle();
+});
+
+// kick off the scheduler
+scheduleNextMingle();
+
+</script>
+</body></html>

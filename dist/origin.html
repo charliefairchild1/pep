@@ -1,0 +1,381 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Origin — how a first impression becomes a self</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#06080d;color:#d7dde7;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;line-height:1.55}
+.wrap{max-width:1080px;margin:0 auto;padding:22px 16px 64px}
+.top{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;border-bottom:1px solid #18202d;padding-bottom:10px;margin-bottom:14px}
+h1{font-size:22px;font-weight:650}h1 .s{color:#5c6675;font-weight:400;font-size:14px;margin-left:6px}
+.nav a{color:#7b8696;text-decoration:none;font-size:13px;margin-right:13px}.nav a:hover{color:#5bb6c8}
+.lead{color:#94a0b0;font-size:14px;max-width:820px;margin-bottom:14px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(255px,1fr));gap:11px;margin-bottom:14px}
+.card{background:#0a0e15;border:1px solid #1a2230;border-radius:9px;padding:13px 15px;cursor:pointer;transition:border-color .15s,background .15s}
+.card:hover{border-color:#3f718a}
+.card.pick{background:#0c151b;border-color:#5bb6c8;box-shadow:0 0 0 1px #5bb6c8 inset}
+.card .nm{font-size:14.5px;font-weight:650;letter-spacing:.01em;margin-bottom:3px}
+.card .vibe{font-size:12px;color:#94a0b0;font-style:italic;margin-bottom:8px}
+.card .seeds{font-size:11.5px;color:#aab4c2;font-family:ui-monospace,monospace;line-height:1.45}
+.card .seeds b{color:#dfe5ee;font-weight:500}
+.run-ctl{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:10px 0;padding:11px;background:#0a0e15;border:1px solid #141c28;border-radius:9px}
+.run-ctl button{font:inherit;font-size:13px;background:#111826;color:#cfd6e0;border:1px solid #283142;border-radius:6px;padding:8px 13px;cursor:pointer}
+.run-ctl button:hover{border-color:#3f718a;color:#8fd4e6}
+.run-ctl button.on{background:#10303a;border-color:#2f7d96;color:#7fe0f2}
+.run-ctl .grow{flex:1;min-width:200px}
+.run-ctl input[type=text]{font:inherit;font-size:13px;background:#06080d;border:1px solid #283142;border-radius:6px;padding:9px 11px;color:#dfe5ee;width:100%}
+.run-ctl .meta{font-family:ui-monospace,monospace;font-size:11.5px;color:#7b8696;letter-spacing:.04em;margin-left:6px}
+canvas{width:100%;display:block;background:#04060a;border:1px solid #141c28;border-radius:10px}
+.evt{margin-top:11px;padding:11px 14px;background:#0a0e15;border:1px solid #141c28;border-left:3px solid #caa15a;border-radius:8px;font-size:14.5px}
+.evt .e{color:#caa15a;font-family:ui-monospace,monospace;font-size:10.5px;letter-spacing:.17em;text-transform:uppercase;margin-bottom:6px}
+.interps{display:grid;gap:9px;margin-top:10px}
+.interps.two{grid-template-columns:1fr 1fr}
+.interp{padding:11px 14px;background:#0a0e15;border:1px solid #141c28;border-radius:8px;font-size:14px}
+.interp .name{font-family:ui-monospace,monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;margin-bottom:4px}
+.interp .voices{font-style:italic;color:#dfe5ee}
+.interp .via{font-family:ui-monospace,monospace;font-size:11px;color:#7b8696;margin-top:5px}
+.history{margin-top:14px;max-height:170px;overflow-y:auto;padding:10px 14px;background:#080b11;border:1px solid #141c28;border-radius:8px;font-size:13px;color:#94a0b0}
+.history .h{font-family:ui-monospace,monospace;font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:#5f6c7b;margin-bottom:6px}
+.history .row{margin:3px 0;line-height:1.5}
+.history .row .ev{color:#caa15a}
+.legend{margin-top:18px;border-top:1px solid #18202d;padding-top:14px;font-size:13px;color:#93a0b0}
+.legend td:first-child{color:#5bb6c8;font-family:ui-monospace,monospace;font-size:12px;white-space:nowrap;padding-right:14px;vertical-align:top}
+.legend td{padding:4px 0;border-bottom:1px solid #10161f}
+.tag{font-family:ui-monospace,monospace;font-size:11px;color:#5f6c7b}
+.hide{display:none}
+</style></head>
+<body><div class="wrap">
+
+<div class="top">
+  <h1>The Origin <span class="s">how a first impression becomes a self</span></h1>
+  <div class="nav"><a href="/axona">← axona</a><a href="/axona/mind">mind</a><a href="/axona/seeming">seeming</a><a href="/axona/seizure">seizure</a><a href="/everything">everything</a></div>
+</div>
+<p class="lead">Pick a starting introduction (one to watch a self develop, or <b>two to compare</b>: same experiences, different selves). The seed nodes become the substrate every later experience attaches to and is interpreted through — Asch's primacy effect, schema theory, the haze primitive saying <em>what gets reused stays strong</em>. The first introduction isn't sticky because of nostalgia; it's sticky because it's the graph everything else grows on.</p>
+
+<div id="pick">
+  <div class="cards" id="cards"></div>
+  <div class="run-ctl">
+    <div id="picked" class="meta">pick one (single) or two (compare)</div>
+    <div class="grow"></div>
+    <button id="begin" disabled>begin →</button>
+  </div>
+</div>
+
+<div id="run" class="hide">
+  <div class="run-ctl">
+    <button id="next">⏵ next experience</button>
+    <input id="custom" type="text" placeholder="…or type your own experience and hit Enter (e.g. 'a friend forgets your birthday')">
+    <button id="restart">⟲ pick again</button>
+    <span class="meta" id="count">0 experiences</span>
+  </div>
+  <canvas id="cv" height="520"></canvas>
+  <div class="evt hide" id="evtbox"><div class="e">the experience</div><div id="evttext"></div></div>
+  <div id="interps" class="interps"></div>
+  <div class="history hide" id="hist"><div class="h">how this self has been written</div><div id="histbody"></div></div>
+</div>
+
+<div class="legend">
+  <table>
+    <tr><td>seed nodes</td><td>the starting introduction — values, traits, memories. They begin with full <b>encoding strength</b> (haze primitive) and the highest <b>relevance to the self</b> (worth gate). Everything later forms edges to them.</td></tr>
+    <tr><td>experiences</td><td>each new event is tagged; <b>spreading activation</b> through tag-overlap finds which existing nodes light up (the seeds it reminds the self of). It's interpreted through them, and a new node attaches to them.</td></tr>
+    <tr><td>reuse → strength</td><td>activated nodes <b>strengthen</b> (encoding by reuse). Early seeds get reactivated by almost everything early on, so they grow even more dominant — the primacy effect compounding.</td></tr>
+    <tr><td>color = lineage</td><td>each new event node is colored by the blend of the seeds it descends from, so you can see which branches of the self any later content grew out of.</td></tr>
+  </table>
+</div>
+</div>
+
+<script>
+const SELVES=[
+  {id:'loved', name:'Loved & safe', color:'#e6c068',
+   vibe:'raised in warmth — expects goodness from people',
+   seeds:[
+     {kind:'value', label:'trust', tags:['people','offers','open','help','close']},
+     {kind:'value', label:'curiosity', tags:['new','unknown','wonder']},
+     {kind:'memory', label:'a warm childhood', tags:['home','family','safe','close']},
+     {kind:'trait', label:'openness', tags:['people','offers','change']},
+     {kind:'value', label:'belonging', tags:['people','together','close']},
+   ],
+   voice:{
+     trust:"I lean in. People are mostly good.",
+     curiosity:"I want to know more.",
+     'a warm childhood':"It reminds me of being safe.",
+     openness:"I take it as it comes.",
+     belonging:"It feels like a kind of home.",
+   }},
+  {id:'alone', name:'Alone & wary', color:'#7fa1c8',
+   vibe:'had to fend for self — looks for the catch',
+   seeds:[
+     {kind:'value', label:'self-reliance', tags:['own','alone','help','do']},
+     {kind:'value', label:'vigilance', tags:['threat','offers','people','watch']},
+     {kind:'memory', label:'fending for myself', tags:['alone','hardship','do']},
+     {kind:'trait', label:'skeptical', tags:['offers','help','people','claim']},
+     {kind:'value', label:'privacy', tags:['close','distance','alone']},
+   ],
+   voice:{
+     'self-reliance':"I'd rather handle this myself.",
+     vigilance:"What's the catch?",
+     'fending for myself':"I've done this alone before.",
+     skeptical:"I don't take that at face value.",
+     privacy:"I keep some of this to myself.",
+   }},
+  {id:'curious', name:'Curious explorer', color:'#a7d480',
+   vibe:'pulled by mystery and the next question',
+   seeds:[
+     {kind:'value', label:'wonder', tags:['new','unknown','beauty','mystery']},
+     {kind:'value', label:'knowledge', tags:['learn','question','idea','understand']},
+     {kind:'trait', label:'restless', tags:['stay','leave','change','next']},
+     {kind:'memory', label:'a question I chased for years', tags:['question','pursue','time']},
+     {kind:'value', label:'novelty', tags:['new','change','different']},
+   ],
+   voice:{
+     wonder:"There's more here than I see yet.",
+     knowledge:"I want to understand it.",
+     restless:"I'm already wondering what's next.",
+     'a question I chased for years':"Some answers take a long time. I can wait.",
+     novelty:"Anything different is interesting.",
+   }},
+  {id:'craftsman', name:'Devoted craftsman', color:'#c89a7e',
+   vibe:'made by patient practice and good teachers',
+   seeds:[
+     {kind:'value', label:'skill', tags:['practice','do','make','work']},
+     {kind:'value', label:'patience', tags:['time','slow','wait']},
+     {kind:'value', label:'honor', tags:['promise','keep','duty','word']},
+     {kind:'trait', label:'meticulous', tags:['detail','careful','exact']},
+     {kind:'memory', label:'a master who taught me', tags:['teacher','learn','do']},
+   ],
+   voice:{
+     skill:"There's a right way to do this. I'll take it.",
+     patience:"This will take time. That's fine.",
+     honor:"I keep what I said I'd keep.",
+     meticulous:"The details are where it lives.",
+     'a master who taught me':"I was shown to do this.",
+   }},
+  {id:'skeptic', name:'Skeptic', color:'#9aa6b6',
+   vibe:'wants the evidence before the feeling',
+   seeds:[
+     {kind:'value', label:'rigor', tags:['proof','test','evidence','data']},
+     {kind:'value', label:'doubt', tags:['claim','sure','question']},
+     {kind:'trait', label:'precise', tags:['word','exact','detail']},
+     {kind:'memory', label:'a belief that turned out wrong', tags:['wrong','fooled','learn']},
+     {kind:'value', label:'evidence', tags:['see','real','data']},
+   ],
+   voice:{
+     rigor:"I'd want to test that.",
+     doubt:"I'm not sure yet.",
+     precise:"That word isn't quite right.",
+     'a belief that turned out wrong':"I've been wrong before, confidently.",
+     evidence:"Show me, then I'll know.",
+   }},
+  {id:'wounded', name:'Wounded', color:'#d28ea6',
+   vibe:'a betrayal early on — guarded since',
+   seeds:[
+     {kind:'value', label:'protection', tags:['hurt','safe','guard']},
+     {kind:'memory', label:'a betrayal', tags:['trust','broken','people','hurt']},
+     {kind:'trait', label:'guarded', tags:['offers','close','distance','open']},
+     {kind:'value', label:'vigilance', tags:['watch','threat','people']},
+     {kind:'value', label:'justice', tags:['wrong','right','balance']},
+   ],
+   voice:{
+     protection:"I check for the danger first.",
+     'a betrayal':"I've been here before. It cost me.",
+     guarded:"I'm not letting that in yet.",
+     vigilance:"I watch what they do, not what they say.",
+     justice:"What's owed should be paid.",
+   }},
+];
+
+const EVENTS=[
+  {text:"A stranger offers to help you carry something.", tags:['people','offers','help']},
+  {text:"Praise from a peer for work you cared about.", tags:['people','work','recognition','do']},
+  {text:"An unexpected setback at work — something you'd planned for fell through.", tags:['failure','work','wrong','do']},
+  {text:"An invitation to a gathering of people you don't know.", tags:['people','together','new']},
+  {text:"You're alone in a room, watching the rain.", tags:['alone','quiet','time']},
+  {text:"Someone breaks a promise to you.", tags:['promise','broken','trust','hurt','people','word']},
+  {text:"A child asks you a question you can't answer.", tags:['question','people','learn']},
+  {text:"You hear a piece of music that stays with you for days.", tags:['beauty','wonder','time']},
+  {text:"An opportunity opens that would require real risk.", tags:['new','change','threat']},
+  {text:"A friend confides something they've never told anyone.", tags:['people','close','trust','open']},
+  {text:"You catch yourself in a small, unnecessary lie.", tags:['wrong','word']},
+  {text:"A long walk at dusk, alone.", tags:['alone','quiet','time']},
+  {text:"A stranger asks you for directions, then walks the opposite way.", tags:['people','offers','wrong']},
+  {text:"You finish something you've worked on for a long time.", tags:['do','make','time','work']},
+  {text:"A door you didn't expect opens.", tags:['new','change','unknown']},
+];
+
+let picks=[], agents=[], evtIdx=0, lastEvt=null;
+const cv=document.getElementById('cv'), x=cv.getContext('2d');
+let W,H,DPR;
+function resize(){const r=cv.getBoundingClientRect();DPR=Math.min(2,window.devicePixelRatio||1);W=r.width;H=520;cv.width=W*DPR;cv.height=H*DPR;x.setTransform(DPR,0,0,DPR,0,0);if(agents.length)layoutAll();draw();}
+window.addEventListener('resize',resize);
+
+function renderCards(){
+  const c=document.getElementById('cards');
+  c.innerHTML=SELVES.map(s=>`
+    <div class="card" data-id="${s.id}">
+      <div class="nm" style="color:${s.color}">${s.name}</div>
+      <div class="vibe">${s.vibe}</div>
+      <div class="seeds">${s.seeds.map(sd=>`<div>· <b>${sd.label}</b> <span style="color:#6b7686">(${sd.kind})</span></div>`).join('')}</div>
+    </div>`).join('');
+  for(const el of c.querySelectorAll('.card')) el.addEventListener('click',()=>togglePick(el.dataset.id));
+}
+function togglePick(id){
+  if(picks.includes(id)) picks=picks.filter(p=>p!==id);
+  else if(picks.length<2) picks.push(id);
+  for(const el of document.querySelectorAll('.card')) el.classList.toggle('pick', picks.includes(el.dataset.id));
+  document.getElementById('begin').disabled = picks.length===0;
+  document.getElementById('picked').textContent = picks.length===0 ? 'pick one (single) or two (compare)'
+    : picks.length===1 ? `picked: ${SELVES.find(s=>s.id===picks[0]).name}  ·  (pick another to compare)`
+    : `comparing: ${SELVES.find(s=>s.id===picks[0]).name}  vs  ${SELVES.find(s=>s.id===picks[1]).name}`;
+}
+
+function tagOverlap(a,b){let c=0;for(const t of a)if(b.includes(t))c++;return c;}
+function blendHex(cols){
+  if(!cols.length) return '#888';
+  let r=0,g=0,b=0;
+  for(const c of cols){r+=parseInt(c.slice(1,3),16);g+=parseInt(c.slice(3,5),16);b+=parseInt(c.slice(5,7),16);}
+  r=Math.round(r/cols.length);g=Math.round(g/cols.length);b=Math.round(b/cols.length);
+  return '#'+[r,g,b].map(v=>v.toString(16).padStart(2,'0')).join('');
+}
+function makeAgent(tpl){
+  const nodes=tpl.seeds.map(s=>({id:tpl.id+':'+s.label, kind:s.kind, label:s.label, tags:s.tags.slice(), parents:[], strength:1.0, color:tpl.color, depth:0, x:0, y:0}));
+  return {tpl, nodes, history:[], cx:0, cy:0, R0:80};
+}
+function layoutAll(){
+  const w=W/agents.length, R0=Math.min(78,w*0.18);
+  agents.forEach((ag,i)=>{
+    ag.cx=w*(i+0.5); ag.cy=H*0.5; ag.R0=R0;
+    const seeds=ag.nodes.filter(n=>n.depth===0);
+    seeds.forEach((n,j)=>{
+      const a=-Math.PI/2 + (j/seeds.length)*Math.PI*2;
+      n.x=ag.cx+Math.cos(a)*R0; n.y=ag.cy+Math.sin(a)*R0;
+    });
+    // recompute positions of non-seed nodes from their parents (radial)
+    const later=ag.nodes.filter(n=>n.depth>0).sort((a,b)=>a.depth-b.depth);
+    for(const n of later){
+      const pars=ag.nodes.filter(p=>n.parents.includes(p.id));
+      if(pars.length){
+        const ax=pars.reduce((s,p)=>s+(p.x-ag.cx),0)/pars.length;
+        const ay=pars.reduce((s,p)=>s+(p.y-ag.cy),0)/pars.length;
+        const ang=Math.atan2(ay,ax)+(n._jit||0);
+        const r=R0+38+n.depth*Math.min(34,(Math.min(W/agents.length,H)*0.13));
+        n.x=ag.cx+Math.cos(ang)*r; n.y=ag.cy+Math.sin(ang)*r;
+      }
+    }
+  });
+}
+function processEvent(ag, evt){
+  const scored=ag.nodes.map(n=>({n, s:tagOverlap(n.tags,evt.tags)*n.strength}));
+  scored.sort((a,b)=>b.s-a.s);
+  const top=scored.filter(s=>s.s>0).slice(0,3);
+  let voices, parentLabels;
+  if(top.length===0){ voices=["I don't know what to make of this yet."]; parentLabels=[]; }
+  else { voices=top.slice(0,2).map(({n})=>(ag.tpl.voice[n.label]||('I notice it through "'+n.label+'."'))); parentLabels=top.map(({n})=>n.label); }
+  for(const {n} of top) n.strength=Math.min(2.5, n.strength+0.10);
+  const parents=top.map(({n})=>n);
+  const depth=parents.length? Math.max(...parents.map(p=>p.depth))+1 : 1;
+  const newNode={id:ag.tpl.id+':e'+ag.history.length, kind:'event', label:evt.text, tags:evt.tags, parents:parents.map(p=>p.id), strength:0.6, color:blendHex(parents.length?parents.map(p=>p.color):[ag.tpl.color]), depth, x:0, y:0, _jit:(Math.random()-0.5)*0.5};
+  ag.nodes.push(newNode);
+  ag.history.push({event:evt.text, interpretation:voices.join(' '), via:parentLabels});
+  return {interpretation:voices.join(' '), via:parentLabels};
+}
+
+function feed(evt){
+  lastEvt=evt;
+  document.getElementById('evtbox').classList.remove('hide');
+  document.getElementById('evttext').textContent=evt.text;
+  const results=agents.map(ag=>processEvent(ag,evt));
+  layoutAll();
+  renderInterps(results);
+  renderHistory();
+  draw();
+  document.getElementById('count').textContent=agents[0].history.length+' experience'+(agents[0].history.length===1?'':'s');
+}
+function renderInterps(results){
+  const cont=document.getElementById('interps');
+  cont.className='interps'+(agents.length===2?' two':'');
+  cont.innerHTML=agents.map((ag,i)=>{
+    const r=results[i];
+    return `<div class="interp" style="border-left:3px solid ${ag.tpl.color}">
+      <div class="name" style="color:${ag.tpl.color}">${ag.tpl.name}</div>
+      <div class="voices">${r.interpretation}</div>
+      <div class="via">via: ${r.via.length?r.via.join(', '):'(no match — orphan node)'}</div>
+    </div>`;
+  }).join('');
+}
+function renderHistory(){
+  const h=document.getElementById('hist'); h.classList.remove('hide');
+  const body=document.getElementById('histbody');
+  const rows=[];
+  for(let i=0;i<agents[0].history.length;i++){
+    const evtTxt=agents[0].history[i].event;
+    rows.push(`<div class="row"><span class="ev">${i+1}. ${evtTxt}</span></div>`);
+    for(const ag of agents){ const r=ag.history[i]; rows.push(`<div class="row" style="margin-left:14px;color:${ag.tpl.color}">— ${ag.tpl.name}: <span style="color:#dfe5ee;font-style:italic">${r.interpretation}</span></div>`); }
+  }
+  body.innerHTML=rows.join('') || '<div class="row" style="color:#6b7686">no experiences yet — hit "next experience" to begin.</div>';
+  body.scrollTop=body.scrollHeight;
+}
+
+function draw(){
+  x.clearRect(0,0,W,H);
+  // dividing line if 2 agents
+  if(agents.length===2){ x.strokeStyle='rgba(40,52,68,0.5)'; x.lineWidth=1; x.beginPath(); x.moveTo(W/2,12); x.lineTo(W/2,H-12); x.stroke(); }
+  for(const ag of agents){
+    // edges
+    x.lineWidth=1; x.strokeStyle='rgba(80,95,118,0.35)';
+    for(const n of ag.nodes){
+      if(!n.parents.length) continue;
+      for(const pid of n.parents){
+        const p=ag.nodes.find(z=>z.id===pid); if(!p) continue;
+        x.beginPath(); x.moveTo(p.x,p.y); x.lineTo(n.x,n.y); x.stroke();
+      }
+    }
+    // nodes
+    for(const n of ag.nodes){
+      const r = n.depth===0 ? 8+Math.min(6,(n.strength-1)*4) : 4.5;
+      x.beginPath(); x.arc(n.x,n.y,r,0,7); x.fillStyle=n.color; x.globalAlpha=n.depth===0?0.95:Math.max(0.35,0.85-n.depth*0.04); x.fill();
+      x.globalAlpha=1;
+    }
+    // labels — seeds always; latest event briefly
+    x.font='11.5px ui-sans-serif,system-ui'; x.textAlign='center';
+    for(const n of ag.nodes){
+      if(n.depth===0){
+        x.fillStyle='#e1e8f0';
+        const ang=Math.atan2(n.y-ag.cy,n.x-ag.cx);
+        x.fillText(n.label, n.x+Math.cos(ang)*16, n.y+Math.sin(ang)*16+4);
+      }
+    }
+    // agent title
+    x.fillStyle=ag.tpl.color; x.font='12px ui-monospace,monospace'; x.fillText(ag.tpl.name, ag.cx, 22);
+    x.textAlign='left';
+  }
+}
+
+// controls
+document.getElementById('begin').addEventListener('click',()=>{
+  agents=picks.map(id=>makeAgent(SELVES.find(s=>s.id===id)));
+  document.getElementById('pick').classList.add('hide');
+  document.getElementById('run').classList.remove('hide');
+  document.getElementById('count').textContent='0 experiences';
+  document.getElementById('evtbox').classList.add('hide');
+  document.getElementById('interps').innerHTML='';
+  document.getElementById('hist').classList.add('hide');
+  evtIdx=0; lastEvt=null;
+  resize();
+});
+document.getElementById('restart').addEventListener('click',()=>{ agents=[]; picks=[]; togglePick('__none__'); document.getElementById('run').classList.add('hide'); document.getElementById('pick').classList.remove('hide'); });
+document.getElementById('next').addEventListener('click',()=>{ const e=EVENTS[evtIdx%EVENTS.length]; evtIdx++; feed(e); });
+document.getElementById('custom').addEventListener('keydown',e=>{
+  if(e.key==='Enter' && e.target.value.trim()){
+    const text=e.target.value.trim();
+    // heuristic tagging: scan tag vocabulary for any tag-word present in text
+    const VOCAB=new Set(); for(const s of SELVES) for(const sd of s.seeds) for(const t of sd.tags) VOCAB.add(t);
+    for(const ev of EVENTS) for(const t of ev.tags) VOCAB.add(t);
+    const low=' '+text.toLowerCase()+' ';
+    const tags=[...VOCAB].filter(t=>low.includes(t));
+    feed({text, tags});
+    e.target.value='';
+  }
+});
+
+renderCards(); resize();
+</script>
+</body></html>

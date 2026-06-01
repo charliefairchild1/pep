@@ -1,0 +1,787 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Passage — wordless first contact</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{background:#04060a;color:#d7dde7;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;line-height:1.55;font-size:14px;overflow:hidden}
+.app{position:relative;width:100vw;height:100vh;display:flex;flex-direction:column}
+
+.top{display:flex;align-items:baseline;gap:12px;padding:12px 20px;border-bottom:1px solid #0a0e15;background:rgba(4,6,10,0.85);z-index:5}
+h1{font-size:18px;font-weight:550;letter-spacing:.01em}h1 .s{color:#5c6675;font-weight:400;font-size:12.5px;margin-left:8px;font-style:italic}
+.nav a{color:#7b8696;text-decoration:none;font-size:12.5px;margin-right:13px;font-style:italic}.nav a:hover{color:#a48be0}
+.grow{flex:1}
+
+.lead{padding:14px 20px 0;color:#94a0b0;font-size:13px;font-style:italic;line-height:1.65;text-align:center;max-width:760px;margin:0 auto}
+.lead b{color:#cfd6e0;font-weight:500;font-style:normal}
+
+.stage{flex:1;display:flex;align-items:center;justify-content:center;position:relative;min-height:0}
+#field{display:block;width:100%;height:100%;cursor:default}
+
+.sideRight{position:absolute;top:84px;right:20px;width:240px;background:rgba(10,14,21,0.65);border:1px solid #1a2230;border-radius:8px;padding:13px 15px;font-size:12.5px;backdrop-filter:blur(4px);z-index:4}
+.sideRight h3{font-size:10.5px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:#a48be0;margin-bottom:9px;font-family:ui-monospace,monospace}
+.feel{font-style:italic;color:#e1cf9a;line-height:1.55;font-family:ui-serif,Georgia,serif;min-height:1.5em;margin-bottom:10px;font-size:14px}
+.bars{display:grid;grid-template-columns:74px 1fr 36px;gap:5px 7px;align-items:center;font-size:11px}
+.bars .lab{color:#7b8696;font-family:ui-monospace,monospace;font-size:10.5px}
+.bars .bar{height:5px;background:#06080d;border:1px solid #141c28;border-radius:3px;overflow:hidden}
+.bars .bar .fill{height:100%;background:linear-gradient(90deg,#5a5680,#a48be0);border-radius:2px;transition:width .3s}
+.bars .val{color:#cfd6e0;font-family:ui-monospace,monospace;font-size:10.5px;text-align:right}
+
+.sideLeft{position:absolute;top:84px;left:20px;width:230px;background:rgba(10,14,21,0.65);border:1px solid #1a2230;border-radius:8px;padding:13px 15px;font-size:12.5px;backdrop-filter:blur(4px);z-index:4}
+.sideLeft h3{font-size:10.5px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:#5bb6c8;margin-bottom:9px;font-family:ui-monospace,monospace}
+.workspace{font-style:italic;color:#cfd6e0;line-height:1.5;font-size:12.5px;min-height:5em}
+.workspace .item{margin:3px 0;padding:4px 8px;background:#06080d;border:1px solid #141c28;border-radius:5px;display:flex;align-items:center;gap:7px}
+.workspace .dot{width:7px;height:7px;border-radius:50%}
+.workspace .empty{color:#5c6675;font-style:italic;font-size:11.5px}
+
+.palette{display:flex;justify-content:center;gap:12px;padding:18px 20px 22px;flex-wrap:wrap;background:rgba(4,6,10,0.85);border-top:1px solid #0a0e15}
+.sig{width:54px;height:54px;background:rgba(20,15,30,0.55);border:1px solid #2a253a;border-radius:50%;color:#c4b8e8;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .15s,border-color .15s,background .15s;position:relative}
+.sig:hover{border-color:#a48be0;color:#fff;background:rgba(40,30,60,0.75);transform:scale(1.08)}
+.sig:active{transform:scale(0.95)}
+.sig .tip{position:absolute;bottom:-22px;font-size:10.5px;color:#5c6675;font-family:ui-monospace,monospace;letter-spacing:.04em;opacity:0;transition:opacity .2s;pointer-events:none;white-space:nowrap}
+.sig:hover .tip{opacity:1}
+
+/* their emitted signal — appears briefly above the palette */
+.theirsig{position:absolute;bottom:96px;left:50%;transform:translateX(-50%);background:rgba(20,15,30,0.92);border:1px solid #a48be0;border-radius:30px;padding:8px 16px 8px 12px;display:flex;align-items:center;gap:9px;color:#e1cf9a;font-size:13px;font-style:italic;z-index:5;animation:theirIn 0.5s;backdrop-filter:blur(4px)}
+.theirsig .sym{font-size:22px;color:#c4b8e8;font-style:normal}
+.theirsig .lab{font-family:ui-monospace,monospace;font-size:11px;letter-spacing:.1em;color:#a48be0;font-style:normal;text-transform:uppercase;margin-right:4px}
+@keyframes theirIn{from{opacity:0;transform:translateX(-50%) translateY(6px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+
+.start{position:absolute;inset:0;background:rgba(4,6,10,0.93);z-index:20;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px)}
+.startPanel{max-width:540px;text-align:center;padding:30px 36px;background:#0a0e15;border:1px solid #1a2230;border-radius:10px}
+.startPanel h2{font-size:22px;font-weight:550;color:#e1cf9a;margin-bottom:14px;font-family:ui-serif,Georgia,serif}
+.startPanel p{color:#aab4c2;font-size:14px;line-height:1.7;margin-bottom:14px;font-style:italic}
+.startPanel p b{color:#cfd6e0;font-style:normal;font-weight:500}
+.startBtn{font:inherit;font-size:14px;background:#1f1830;color:#c4b8e8;border:1px solid #5a5680;border-radius:6px;padding:11px 18px;cursor:pointer;margin-top:8px}
+.startBtn:hover{border-color:#a48be0}
+
+.foot{position:absolute;bottom:8px;right:14px;color:#3a4250;font-size:10.5px;font-family:ui-monospace,monospace;letter-spacing:.04em;z-index:3}
+</style></head>
+<body><div class="app">
+
+<div class="top">
+  <h1>The Passage <span class="s">— wordless first contact</span></h1>
+  <div class="grow"></div>
+  <div class="nav"><a href="/encounter">← encounter</a><a href="/village">village</a><a href="/axona/mind">mind</a><a href="/everything">everything</a></div>
+</div>
+
+<div class="lead">No words. <b>You send signals; they answer with a field.</b> The shape and color of the field is how their state changes after each thing you send. Read the <i>feeling translation</i> on the right; the workspace on the left shows what is currently lit in them.
+<div style="margin-top:8px;font-size:11.5px;color:#5c6675;font-family:ui-monospace,monospace;letter-spacing:.04em;display:flex;gap:14px;justify-content:center;flex-wrap:wrap">
+  <label style="cursor:pointer"><input id="driftMode" type="checkbox" style="accent-color:#a48be0;vertical-align:middle"> ⌽ let them think on their own (idle drift)</label>
+  <label style="cursor:pointer"><input id="witnessMode" type="checkbox" style="accent-color:#a48be0;vertical-align:middle"> 👁 witness — let two of them meet</label>
+</div></div>
+
+<div class="stage">
+  <canvas id="field"></canvas>
+</div>
+
+<div class="sideLeft">
+  <h3>workspace</h3>
+  <div class="workspace" id="ws"></div>
+</div>
+
+<div class="sideRight">
+  <h3>what they seem to feel</h3>
+  <div class="feel" id="feel">they are settling. their field is dim and waiting.</div>
+  <div class="feel" id="feelB" style="display:none;color:#a48be0;border-top:1px solid #1a2230;padding-top:8px;margin-top:8px;font-size:13px"></div>
+  <div class="bars" id="bars"></div>
+</div>
+
+<div class="palette">
+  <button class="sig" data-sig="warmth">❤<span class="tip">warmth</span></button>
+  <button class="sig" data-sig="caution">⚠<span class="tip">caution</span></button>
+  <button class="sig" data-sig="question">?<span class="tip">question</span></button>
+  <button class="sig" data-sig="delight">✦<span class="tip">delight</span></button>
+  <button class="sig" data-sig="calm">∽<span class="tip">calm</span></button>
+  <button class="sig" data-sig="presence">◉<span class="tip">i am here</span></button>
+  <button class="sig" data-sig="offer">⊕<span class="tip">i offer</span></button>
+  <button class="sig" data-sig="wonder">⟁<span class="tip">wonder</span></button>
+  <button class="sig" data-sig="grief">☂<span class="tip">grief</span></button>
+  <button class="sig" data-sig="stop">⌗<span class="tip">stop / withdraw</span></button>
+</div>
+
+<div class="start" id="start">
+  <div class="startPanel">
+    <h2>Step into the field.</h2>
+    <p>You are about to meet a being whose language you do not share. <b>They cannot read your words; you cannot read theirs.</b> What you have are signals — small symbols that carry feeling. What they have is a field that shifts in response.</p>
+    <p>Send what you mean. Watch how their field answers. The test is whether two cognitions with no shared syntax can find a stable rhythm together.</p>
+    <button class="startBtn" id="startBtn">enter the passage →</button>
+  </div>
+</div>
+
+<div class="foot" id="foot">passage turn 0</div>
+<div id="theirsig" class="theirsig" style="display:none"></div>
+
+<script>
+// ============================================================
+// SIGNAL → TAG MAP — what each symbol carries cognitively
+// ============================================================
+const SIGNAL_TAGS = {
+  warmth:  {tags:['love','close','warm','people','open'], valence:+0.6, koin:+0.5, label:"warmth"},
+  caution: {tags:['fear','threat','watch','present'],     valence:-0.4, koin:-0.1, label:"caution"},
+  question:{tags:['question','ask','curious','open','new'], valence:+0.1, koin:+0.1, label:"a question"},
+  delight: {tags:['joy','beauty','light','open'],        valence:+0.7, koin:+0.3, label:"delight"},
+  calm:    {tags:['peace','quiet','rest','present'],     valence:+0.3, koin:+0.2, label:"calm"},
+  presence:{tags:['present','here','self','people'],     valence:+0.1, koin:+0.2, label:"i am here"},
+  offer:   {tags:['give','offer','open','people','help'],valence:+0.4, koin:+0.7, label:"i offer"},
+  wonder:  {tags:['wonder','mystery','unknown','new','question'], valence:+0.3, koin:+0.1, label:"wonder"},
+  grief:   {tags:['sadness','grief','heavy','quiet'],    valence:-0.6, koin:+0.0, label:"grief"},
+  stop:    {tags:['no','alone','quiet','close'],         valence:-0.2, koin:-0.4, label:"stop"},
+};
+
+// ============================================================
+// MINIMAL ENGINE
+// ============================================================
+
+// Universal substrate the alien starts with — pre-linguistic concepts.
+const UNIVERSAL = [
+  {label:'fear',     tags:['fear','threat','watch']},
+  {label:'love',     tags:['love','close','warm','people']},
+  {label:'joy',      tags:['joy','open','light']},
+  {label:'sadness',  tags:['sadness','grief','heavy']},
+  {label:'peace',    tags:['peace','quiet','still','rest']},
+  {label:'wonder',   tags:['wonder','mystery','unknown']},
+  {label:'curiosity',tags:['curious','question','new','ask']},
+  {label:'presence', tags:['present','here','self','people']},
+  {label:'giving',   tags:['give','offer','open','people']},
+  {label:'withdrawing',tags:['no','alone','quiet','close']},
+  {label:'beauty',   tags:['beauty','wonder','light']},
+  {label:'time',     tags:['past','present','future','time']},
+];
+
+// the alien's own seed self — shaped by being non-linguistic
+const ALIEN_SEEDS = [
+  {label:'the field', tags:['present','self','feel'], color:'#a48be0'},
+  {label:'being met', tags:['people','stranger','open','close','present'], color:'#caa15a'},
+  {label:'sensing',   tags:['feel','watch','listen','present'], color:'#7cc7c0'},
+  {label:'pattern',   tags:['change','cycle','time'], color:'#9aa6b6'},
+  {label:'rest',      tags:['quiet','peace','rest'], color:'#7fa1c8'},
+];
+
+let mind = null;
+let activePulses = [];
+let turn = 0;
+
+function newMind(){
+  const nodes = [];
+  for(const s of ALIEN_SEEDS){
+    nodes.push({id:'seed:'+s.label, label:s.label, tags:s.tags.slice(), strength:1.0, depth:0, color:s.color, isSeed:true});
+  }
+  for(const u of UNIVERSAL){
+    nodes.push({id:'uni:'+u.label, label:u.label, tags:u.tags.slice(), strength:0.4, depth:0, color:'#555a64', isSubstrate:true});
+  }
+  return {nodes, predictor:{}, arousal:0, valence:0, familiarity:0, history:[], turn:0};
+}
+
+function activate(inputTags){
+  const act = {};
+  for(const n of mind.nodes){
+    let o=0;
+    for(const t of n.tags) if(inputTags.includes(t)) o++;
+    if(o===0){ act[n.id]=0; continue; }
+    act[n.id] = o * n.strength * (1 + mind.arousal*0.2);
+  }
+  return act;
+}
+function residualScore(inputTags){
+  const counts={}; for(const t of inputTags) counts[t]=(counts[t]||0)+1;
+  const total=inputTags.length||1;
+  let resid=0;
+  for(const t of inputTags){
+    const exp=mind.predictor[t]||0;
+    const obs=counts[t]/total;
+    resid += Math.max(0,obs-exp);
+  }
+  return Math.min(1, resid);
+}
+function updatePredictor(inputTags){
+  const counts={}; for(const t of inputTags) counts[t]=(counts[t]||0)+1;
+  const total=inputTags.length||1;
+  const alpha=0.18;
+  for(const t in mind.predictor) mind.predictor[t] *= (1-alpha);
+  for(const t in counts) mind.predictor[t] = (mind.predictor[t]||0) + alpha*(counts[t]/total);
+  for(const t in mind.predictor) if(mind.predictor[t]<0.002) delete mind.predictor[t];
+}
+function gateWorkspace(act, residNum){
+  const items = Object.entries(act).filter(([,v])=>v>0).map(([id,v])=>{
+    const n = mind.nodes.find(x=>x.id===id);
+    return {id, n, salience:v};
+  }).filter(it=>it.n);
+  if(items.length === 0){
+    // fall back to strongest seeds + a substrate item
+    const seeds = mind.nodes.filter(n=>n.isSeed).sort((a,b)=>b.strength-a.strength).slice(0,2);
+    return seeds.map(n=>({id:n.id, n, salience:0.1+n.strength*0.05}));
+  }
+  items.sort((a,b)=>b.salience-a.salience);
+  return items.slice(0, Math.min(5, Math.max(2, 3 + Math.round(mind.arousal*2))));
+}
+function applyHaze(wsIds){
+  for(const n of mind.nodes){
+    if(wsIds.includes(n.id)) n.strength = Math.min(2.5, n.strength + 0.07);
+    else n.strength = Math.max(0.15, n.strength * 0.989);
+  }
+}
+
+// ============================================================
+// SIGNAL → COGNITION → FIELD
+// ============================================================
+
+function sendSignal(sig){
+  if(!mind) return;
+  const s = SIGNAL_TAGS[sig];
+  if(!s) return;
+  // process through the cognitive engine
+  const resid = residualScore(s.tags);
+  const act = activate(s.tags);
+  const ws = gateWorkspace(act, resid);
+
+  // attach a memory node — the alien remembers this signal-shape
+  const parents = ws.map(w=>w.n);
+  const depth = parents.length ? Math.max(...parents.map(p=>p.depth))+1 : 1;
+  mind.nodes.push({
+    id: 'm'+mind.nodes.length, label:'(felt) '+s.label, tags:s.tags.slice(),
+    parents: parents.map(p=>p.id), strength: 0.7 + 0.4*resid, depth, color: '#a48be0',
+  });
+  updatePredictor(s.tags);
+  applyHaze(ws.map(w=>w.id));
+  mind.arousal = Math.min(1, mind.arousal*0.80 + resid*0.7);
+  mind.familiarity = Math.min(1, mind.familiarity*0.94 + (1-resid)*0.10);
+  mind.valence = Math.max(-1, Math.min(1, mind.valence*0.82 + s.valence*0.25));
+  mind.history.push({sig, ws: ws.map(w=>w.id), resid});
+  turn++;
+  mind.turn = turn;
+
+  // emit a visual pulse with this signal's color (from outside in, player's signal)
+  const sigColor = signalColor(s);
+  activePulses.push({start: Date.now(), color: sigColor, sig});
+
+  renderState(ws, resid);
+  // the alien's reply — after a short delay so the player sees their signal land first
+  setTimeout(()=>{ alienRespond(ws); renderState(ws, resid); saveMind(); }, 700 + Math.random()*400);
+  saveMind();
+}
+
+function signalColor(s){
+  // valence-tinted RGB
+  if(s.valence > 0.3) return '180, 220, 160';
+  if(s.valence < -0.3) return '220, 130, 130';
+  if(s.koin > 0.3) return '200, 180, 240';
+  return '170, 170, 200';
+}
+
+const SIGNAL_SYMBOLS = {
+  warmth:'❤', caution:'⚠', question:'?', delight:'✦', calm:'∽',
+  presence:'◉', offer:'⊕', wonder:'⟁', grief:'☂', stop:'⌗',
+};
+
+// concept label → signal that expresses it. Workspace labels that don't map
+// (memory nodes etc.) skip; the alien just picks from what does map.
+const LABEL_TO_SIGNAL = {
+  'fear':'caution',     'love':'warmth',
+  'joy':'delight',      'sadness':'grief',
+  'peace':'calm',       'wonder':'wonder',
+  'curiosity':'question','presence':'presence',
+  'giving':'offer',     'withdrawing':'stop',
+  'beauty':'wonder',    'being met':'presence',
+  'sensing':'question', 'the field':'presence',
+  'rest':'calm',        'pattern':'wonder',
+  'time':'wonder',
+};
+
+// alien picks its response signal from the lit workspace + state
+function alienReplySignal(ws){
+  if(!ws || !ws.length) return null;
+  // walk workspace top-down; first node whose label maps to a signal wins,
+  // weighted toward higher salience
+  const candidates = [];
+  for(const item of ws){
+    const sig = LABEL_TO_SIGNAL[item.n.label];
+    if(sig) candidates.push({sig, weight: item.salience});
+  }
+  if(!candidates.length){
+    // valence-fallback: pick by mood
+    if(mind.valence > 0.4) return 'warmth';
+    if(mind.valence > 0.1) return 'calm';
+    if(mind.valence < -0.4) return 'grief';
+    if(mind.valence < -0.1) return 'caution';
+    return 'presence';
+  }
+  // weighted random
+  const total = candidates.reduce((s,c)=>s+c.weight, 0);
+  let r = Math.random() * total;
+  for(const c of candidates){ r -= c.weight; if(r <= 0) return c.sig; }
+  return candidates[0].sig;
+}
+
+function showTheirSignal(sig){
+  const s = SIGNAL_TAGS[sig];
+  if(!s) return;
+  const el = document.getElementById('theirsig');
+  el.innerHTML = `<span class="lab">they sent</span><span class="sym">${SIGNAL_SYMBOLS[sig]||'?'}</span> ${s.label}`;
+  el.style.display = 'flex';
+  // restart the animation
+  el.style.animation = 'none'; void el.offsetWidth; el.style.animation = '';
+  // hide after a bit
+  clearTimeout(showTheirSignal._t);
+  showTheirSignal._t = setTimeout(()=>{ el.style.display = 'none'; }, 4500);
+}
+
+// the alien's response — fires after the player's signal is processed.
+// Updates the field with a pulse from THEIR side (smaller inner pulse,
+// different color tint) + shows the signal symbol briefly.
+function alienRespond(ws){
+  if(!ws || !ws.length) return;
+  const sig = alienReplySignal(ws);
+  if(!sig) return;
+  const s = SIGNAL_TAGS[sig];
+  if(!s) return;
+  // emit an inner pulse (from the field outward, but smaller)
+  activePulses.push({start: Date.now(), color: '230, 210, 160', sig, alien:true});
+  showTheirSignal(sig);
+  // their signal is ALSO an experience for them — they process emitting it,
+  // which modulates their state slightly (an act of expression shapes affect)
+  mind.valence = Math.max(-1, Math.min(1, mind.valence*0.95 + s.valence*0.06));
+  // small arousal bump from the act of expressing
+  mind.arousal = Math.min(1, mind.arousal + 0.03);
+}
+
+function feelTranslation(ws, resid){
+  const ar = mind.arousal, va = mind.valence, fa = mind.familiarity;
+  let part1, part2, part3;
+  if(ar > 0.6) part1 = "their field is bright and pulsing";
+  else if(ar > 0.3) part1 = "their field is stirring";
+  else if(ar > 0.10) part1 = "their field is quiet but awake";
+  else part1 = "their field is still";
+  if(va > 0.35) part2 = "warm";
+  else if(va > 0.10) part2 = "softening";
+  else if(va > -0.10) part2 = "neutral";
+  else if(va > -0.35) part2 = "cooling";
+  else part2 = "withdrawn";
+  if(resid > 0.50) part3 = "what you sent surprised them";
+  else if(resid > 0.20) part3 = "something moved in them";
+  else if(fa > 0.4) part3 = "they recognize this kind of signal now";
+  else part3 = "they are reading you";
+  return part1 + ", " + part2 + ". " + part3 + ".";
+}
+
+// ============================================================
+// RENDERING
+// ============================================================
+
+const cv = document.getElementById('field');
+const ctx = cv.getContext('2d');
+let W, H, DPR;
+function resize(){
+  const r = cv.getBoundingClientRect();
+  DPR = Math.min(2, window.devicePixelRatio || 1);
+  W = r.width; H = r.height;
+  cv.width = W*DPR; cv.height = H*DPR;
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+}
+window.addEventListener('resize', resize);
+
+function drawSingleField(thisMind, cx, cy, baseRadius, pulsesFilter){
+  if(!thisMind) return;
+  const r = baseRadius * (1 + thisMind.arousal*0.65);
+  const valScale = (thisMind.valence + 1) / 2;
+  const hue = 0 + valScale*125;
+  const sat = 35 + thisMind.arousal*40;
+  const light = 32 + thisMind.familiarity*15;
+  // outer glow
+  const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, r*2.4);
+  grad.addColorStop(0, `hsla(${hue},${sat}%,${light+10}%,0.85)`);
+  grad.addColorStop(0.35, `hsla(${hue},${sat}%,${light}%,0.40)`);
+  grad.addColorStop(0.7, `hsla(${hue},${sat}%,${light-5}%,0.10)`);
+  grad.addColorStop(1, `hsla(${hue},${sat}%,${light-10}%,0)`);
+  ctx.fillStyle = grad;
+  ctx.beginPath(); ctx.arc(cx, cy, r*2.4, 0, 7); ctx.fill();
+  // core
+  const coreGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+  coreGrad.addColorStop(0, `hsla(${hue},${sat+15}%,${light+25}%,0.95)`);
+  coreGrad.addColorStop(1, `hsla(${hue},${sat}%,${light}%,0.7)`);
+  ctx.fillStyle = coreGrad;
+  ctx.beginPath(); ctx.arc(cx, cy, r, 0, 7); ctx.fill();
+  // pulses
+  for(const p of activePulses){
+    if(pulsesFilter && !pulsesFilter(p)) continue;
+    const age = (Date.now() - p.start) / 1000;
+    if(age > 2.4) continue;
+    const alpha = Math.max(0, 1 - age/2.4);
+    if(p.alien){
+      const pr = baseRadius*0.4 + age * 70;
+      ctx.strokeStyle = `rgba(${p.color},${alpha*0.8})`;
+      ctx.lineWidth = 2 - age*0.5;
+      ctx.beginPath(); ctx.arc(cx, cy, pr, 0, 7); ctx.stroke();
+      ctx.strokeStyle = `rgba(${p.color},${alpha*0.45})`;
+      ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.arc(cx, cy, pr*0.7, 0, 7); ctx.stroke();
+    } else {
+      const pr = baseRadius + age * 130;
+      ctx.strokeStyle = `rgba(${p.color},${alpha*0.7})`;
+      ctx.lineWidth = 2.5 - age;
+      ctx.beginPath(); ctx.arc(cx, cy, pr, 0, 7); ctx.stroke();
+    }
+  }
+  return {cx, cy, r, hue, baseRadius};
+}
+
+function drawField(){
+  ctx.fillStyle = '#04060a';
+  ctx.fillRect(0,0,W,H);
+  if(!mind) return;
+  // witness mode: two fields side by side
+  if(witnessActive && mindB){
+    const baseR = Math.min(W*0.45, H) * 0.10;
+    drawSingleField(mind, W*0.28, H/2, baseR, (p)=>p.side!=='B');
+    drawSingleField(mindB, W*0.72, H/2, baseR, (p)=>p.side!=='A');
+    // a thin line of light between them — a hint of channel
+    ctx.strokeStyle = 'rgba(120,110,180,0.18)';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(W*0.28+baseR*1.6, H/2); ctx.lineTo(W*0.72-baseR*1.6, H/2); ctx.stroke();
+    // small labels A / B
+    ctx.fillStyle = '#5c6675'; ctx.font = '11px ui-monospace,monospace'; ctx.textAlign = 'center';
+    ctx.fillText('A', W*0.28, H/2 + baseR*2.7 + 14);
+    ctx.fillText('B', W*0.72, H/2 + baseR*2.7 + 14);
+    ctx.textAlign = 'left';
+    activePulses = activePulses.filter(p => (Date.now() - p.start) < 2400);
+    return;
+  }
+  // single-field
+  const cx = W/2, cy = H/2;
+  const baseR = Math.min(W, H) * 0.13;
+  const r = baseR * (1 + mind.arousal*0.65);
+
+  // field color: hue from valence (red→gold→green), sat from arousal
+  const valScale = (mind.valence + 1) / 2; // 0..1
+  const hue = 0 + valScale*125; // 0=red, 125=green-ish
+  const sat = 35 + mind.arousal*40;
+  const light = 32 + mind.familiarity*15;
+
+  // outer glow gradient
+  const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, r*2.4);
+  grad.addColorStop(0, `hsla(${hue},${sat}%,${light+10}%,0.85)`);
+  grad.addColorStop(0.35, `hsla(${hue},${sat}%,${light}%,0.40)`);
+  grad.addColorStop(0.7, `hsla(${hue},${sat}%,${light-5}%,0.10)`);
+  grad.addColorStop(1, `hsla(${hue},${sat}%,${light-10}%,0)`);
+  ctx.fillStyle = grad;
+  ctx.beginPath(); ctx.arc(cx, cy, r*2.4, 0, 7); ctx.fill();
+
+  // core
+  const coreGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+  coreGrad.addColorStop(0, `hsla(${hue},${sat+15}%,${light+25}%,0.95)`);
+  coreGrad.addColorStop(1, `hsla(${hue},${sat}%,${light}%,0.7)`);
+  ctx.fillStyle = coreGrad;
+  ctx.beginPath(); ctx.arc(cx, cy, r, 0, 7); ctx.fill();
+
+  // workspace items as orbiting dots
+  const ws = lastWorkspace || [];
+  const orbBase = r + 22;
+  ws.forEach((item, i) => {
+    const angle = (i / Math.max(1, ws.length)) * Math.PI * 2 + Date.now()/3500;
+    const orbR = orbBase + i * 9;
+    const x = cx + Math.cos(angle) * orbR;
+    const y = cy + Math.sin(angle) * orbR;
+    ctx.fillStyle = item.n && item.n.color ? item.n.color : '#fff';
+    ctx.globalAlpha = 0.85;
+    const dotR = 3 + (item.salience || 0.5) * 1.5;
+    ctx.beginPath(); ctx.arc(x, y, dotR, 0, 7); ctx.fill();
+  });
+  ctx.globalAlpha = 1;
+
+  // expanding pulses
+  for(const p of activePulses){
+    const age = (Date.now() - p.start) / 1000;
+    if(age > 2.4) continue;
+    const alpha = Math.max(0, 1 - age/2.4);
+    if(p.alien){
+      // alien's reply pulse: starts from center, smaller, dashed-feel via two arcs
+      const pr = baseR*0.4 + age * 80;
+      ctx.strokeStyle = `rgba(${p.color},${alpha*0.8})`;
+      ctx.lineWidth = 2 - age*0.5;
+      ctx.beginPath(); ctx.arc(cx, cy, pr, 0, 7); ctx.stroke();
+      // a second inner trace
+      ctx.strokeStyle = `rgba(${p.color},${alpha*0.45})`;
+      ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.arc(cx, cy, pr*0.7, 0, 7); ctx.stroke();
+    } else {
+      // player's signal: outer expanding ring
+      const pr = baseR + age * 150;
+      ctx.strokeStyle = `rgba(${p.color},${alpha*0.7})`;
+      ctx.lineWidth = 2.5 - age;
+      ctx.beginPath(); ctx.arc(cx, cy, pr, 0, 7); ctx.stroke();
+    }
+  }
+  activePulses = activePulses.filter(p => (Date.now() - p.start) < 2400);
+}
+
+let lastWorkspace = [];
+function renderState(ws, resid){
+  lastWorkspace = ws || [];
+  // workspace list
+  const wel = document.getElementById('ws');
+  if(!ws || !ws.length){
+    wel.innerHTML = '<div class="empty">(empty — nothing has lit yet)</div>';
+  } else {
+    wel.innerHTML = ws.map(w => `
+      <div class="item">
+        <div class="dot" style="background:${w.n.color||'#aaa'}"></div>
+        <div>${escapeHTML(w.n.label)}</div>
+      </div>`).join('');
+  }
+  // feel translation
+  document.getElementById('feel').textContent = feelTranslation(ws, resid || 0);
+  // gauges
+  const vPct = Math.round(((mind.valence+1)/2)*100);
+  document.getElementById('bars').innerHTML = `
+    <div class="lab">residual</div><div class="bar"><div class="fill" style="width:${Math.round((resid||0)*100)}%"></div></div><div class="val">${(resid||0).toFixed(2)}</div>
+    <div class="lab">arousal</div><div class="bar"><div class="fill" style="width:${Math.round(mind.arousal*100)}%"></div></div><div class="val">${mind.arousal.toFixed(2)}</div>
+    <div class="lab">familiarity</div><div class="bar"><div class="fill" style="width:${Math.round(mind.familiarity*100)}%"></div></div><div class="val">${mind.familiarity.toFixed(2)}</div>
+    <div class="lab">valence</div><div class="bar" style="background:linear-gradient(90deg,#5c2a3a,#202830 50%,#2a5c3a)"><div class="fill" style="width:3px;margin-left:${vPct}%;background:#e6ecf2;border-radius:0"></div></div><div class="val">${(mind.valence>=0?'+':'')}${mind.valence.toFixed(2)}</div>
+  `;
+  document.getElementById('foot').textContent = `passage turn ${turn} · ${mind.nodes.length} concepts · ${(mind.nodes.filter(n=>!n.isSeed && !n.isSubstrate).length)} memories`;
+}
+
+function escapeHTML(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// ============================================================
+// PERSISTENCE
+// ============================================================
+
+const STORE_KEY = 'pep:passage:v1';
+function saveMind(){ try { localStorage.setItem(STORE_KEY, JSON.stringify({mind, turn})); } catch(e){} }
+function loadMind(){ try { const raw = localStorage.getItem(STORE_KEY); return raw ? JSON.parse(raw) : null; } catch(e){ return null; } }
+
+// ============================================================
+// INIT
+// ============================================================
+
+function awaken(fromSaved){
+  if(fromSaved && fromSaved.mind){
+    mind = fromSaved.mind;
+    turn = fromSaved.turn || 0;
+  } else {
+    mind = newMind();
+    turn = 0;
+  }
+  document.getElementById('start').style.display = 'none';
+  resize();
+  renderState([], 0);
+  // gentle initial pulse to show the field is alive
+  activePulses.push({start: Date.now(), color: '160, 140, 210'});
+  // ambient: arousal decays, familiarity creeps up. Plus the drift + witness
+  // loops if their toggles are on.
+  setInterval(()=>{
+    if(!mind) return;
+    mind.arousal *= 0.992;
+    mind.familiarity = Math.min(1, mind.familiarity*0.999 + 0.0005);
+  }, 1000);
+  // idle drift loop: every 6–9s, if toggle is on, the alien picks a signal
+  // from its strongest workspace items and emits it to itself. State updates.
+  setInterval(()=>{
+    if(!mind) return;
+    const drift = document.getElementById('driftMode');
+    if(!drift || !drift.checked) return;
+    if(witnessActive) return; // witness mode supersedes
+    // build a small fake workspace from strongest seeds + substrate
+    const ws = mind.nodes
+      .filter(n=>(n.isSeed || n.isSubstrate) && n.strength > 0.35)
+      .sort((a,b)=>b.strength-a.strength)
+      .slice(0,4)
+      .map(n=>({id:n.id, n, salience:0.5+n.strength*0.1}));
+    if(!ws.length) return;
+    const sig = alienReplySignal(ws);
+    if(!sig) return;
+    const s = SIGNAL_TAGS[sig];
+    mind.valence = Math.max(-1, Math.min(1, mind.valence*0.92 + s.valence*0.10));
+    mind.arousal = Math.min(1, mind.arousal*0.85 + 0.10);
+    lastWorkspace = ws;
+    activePulses.push({start: Date.now(), color: '180, 160, 220', sig, alien:true});
+    showTheirSignal(sig);
+    renderState(ws, 0.10);
+    saveMind();
+  }, 6500);
+  // witness loop: two-alien meeting. spawned lazily on toggle activation.
+  setInterval(witnessTick, 4500);
+}
+
+// ============================================================
+// WITNESS MODE — two aliens signaling to each other
+// ============================================================
+
+let mindB = null;
+let witnessActive = false;
+let witnessTurn = 0;
+
+function ensureWitness(){
+  if(mindB) return;
+  // give mindB different starting seed strengths so they're not identical
+  mindB = newMind();
+  // randomize substrate strengths slightly
+  for(const n of mindB.nodes){ n.strength *= 0.7 + Math.random()*0.6; }
+  mindB.valence = (Math.random() - 0.5) * 0.4;
+  mindB.arousal = Math.random() * 0.3;
+}
+
+function witnessTick(){
+  const w = document.getElementById('witnessMode');
+  if(!w || !w.checked){
+    if(witnessActive){
+      witnessActive = false;
+      mindB = null;
+      document.getElementById('feelB') && (document.getElementById('feelB').style.display = 'none');
+    }
+    return;
+  }
+  if(!witnessActive){
+    witnessActive = true;
+    ensureWitness();
+    document.getElementById('feelB') && (document.getElementById('feelB').style.display = 'block');
+  }
+  // A speaks to B (or vice versa, alternating)
+  witnessTurn++;
+  const speaker = (witnessTurn % 2 === 0) ? mind : mindB;
+  const listener = (witnessTurn % 2 === 0) ? mindB : mind;
+  if(!speaker || !listener) return;
+  // speaker picks a signal from its strongest workspace items
+  const speakerWs = speaker.nodes
+    .filter(n=>(n.isSeed || n.isSubstrate) && n.strength > 0.35)
+    .sort((a,b)=>b.strength-a.strength)
+    .slice(0,4)
+    .map(n=>({id:n.id, n, salience:0.5+n.strength*0.1}));
+  if(!speakerWs.length) return;
+  const sig = alienReplySignal_for(speaker, speakerWs);
+  if(!sig) return;
+  const s = SIGNAL_TAGS[sig];
+  // listener processes the signal
+  processSignalOn(listener, s);
+  // speaker also updates from the act of expressing
+  speaker.valence = Math.max(-1, Math.min(1, speaker.valence*0.95 + s.valence*0.05));
+  speaker.arousal = Math.min(1, speaker.arousal + 0.02);
+  // visual: a pulse from speaker's side toward listener
+  const speakerSide = (speaker === mind) ? 'A' : 'B';
+  activePulses.push({start: Date.now(), color: signalColor(s), sig, side: speakerSide, travel:true});
+  showTheirSignal(sig);
+  renderWitness();
+  saveMind();
+}
+
+function alienReplySignal_for(thisMind, ws){
+  if(!ws || !ws.length) return null;
+  const candidates = [];
+  for(const item of ws){
+    const sig = LABEL_TO_SIGNAL[item.n.label];
+    if(sig) candidates.push({sig, weight: item.salience});
+  }
+  if(!candidates.length){
+    if(thisMind.valence > 0.4) return 'warmth';
+    if(thisMind.valence > 0.1) return 'calm';
+    if(thisMind.valence < -0.4) return 'grief';
+    if(thisMind.valence < -0.1) return 'caution';
+    return 'presence';
+  }
+  const total = candidates.reduce((s,c)=>s+c.weight, 0);
+  let r = Math.random() * total;
+  for(const c of candidates){ r -= c.weight; if(r <= 0) return c.sig; }
+  return candidates[0].sig;
+}
+
+function processSignalOn(thisMind, s){
+  // mini version of sendSignal that operates on thisMind not the global
+  const counts = {}; for(const t of s.tags) counts[t]=(counts[t]||0)+1;
+  const total = s.tags.length||1;
+  let resid = 0;
+  for(const t of s.tags){ const exp = thisMind.predictor[t]||0; const obs = counts[t]/total; resid += Math.max(0, obs-exp); }
+  resid = Math.min(1, resid);
+  // activation
+  const act = {};
+  for(const n of thisMind.nodes){
+    let o=0; for(const t of n.tags) if(s.tags.includes(t)) o++;
+    if(o===0){ act[n.id]=0; continue; }
+    act[n.id] = o * n.strength * (1 + thisMind.arousal*0.2);
+  }
+  // gate
+  let items = Object.entries(act).filter(([,v])=>v>0).map(([id,v])=>{
+    const n = thisMind.nodes.find(z=>z.id===id);
+    return {id, n, salience:v};
+  }).filter(it=>it.n);
+  if(items.length === 0){
+    items = thisMind.nodes.filter(n=>n.isSeed).slice(0,2).map(n=>({id:n.id, n, salience:0.1}));
+  }
+  items.sort((a,b)=>b.salience-a.salience);
+  const ws = items.slice(0, 5);
+  // memory node
+  const parents = ws.map(w=>w.n);
+  const depth = parents.length ? Math.max(...parents.map(p=>p.depth))+1 : 1;
+  thisMind.nodes.push({id:'m'+thisMind.nodes.length, label:'(felt) '+s.label, tags:s.tags.slice(),
+    parents:parents.map(p=>p.id), strength:0.7+0.4*resid, depth, color:'#a48be0'});
+  // predictor
+  const alpha = 0.18;
+  for(const t in thisMind.predictor) thisMind.predictor[t] *= (1-alpha);
+  for(const t in counts) thisMind.predictor[t] = (thisMind.predictor[t]||0) + alpha*(counts[t]/total);
+  for(const t in thisMind.predictor) if(thisMind.predictor[t]<0.002) delete thisMind.predictor[t];
+  // haze
+  const wsIds = ws.map(w=>w.id);
+  for(const n of thisMind.nodes){
+    if(wsIds.includes(n.id)) n.strength = Math.min(2.5, n.strength + 0.07);
+    else n.strength = Math.max(0.15, n.strength * 0.989);
+  }
+  thisMind.arousal = Math.min(1, thisMind.arousal*0.80 + resid*0.7);
+  thisMind.familiarity = Math.min(1, thisMind.familiarity*0.94 + (1-resid)*0.10);
+  thisMind.valence = Math.max(-1, Math.min(1, thisMind.valence*0.82 + s.valence*0.25));
+  thisMind._lastResid = resid;
+  thisMind._lastWs = ws;
+  return ws;
+}
+
+function renderWitness(){
+  if(!witnessActive) return;
+  // update feel translation for both
+  const feelTextA = feelTranslation(mind._lastWs || lastWorkspace, mind._lastResid || 0);
+  document.getElementById('feel').textContent = feelTextA + " (A)";
+  const feelB = document.getElementById('feelB');
+  if(feelB){
+    feelB.textContent = feelTranslation_for(mindB) + " (B)";
+  }
+  // update workspace panel to show A's
+  if(mind._lastWs) lastWorkspace = mind._lastWs;
+  renderState(lastWorkspace, mind._lastResid || 0);
+}
+
+function feelTranslation_for(m){
+  if(!m) return '';
+  const ar = m.arousal, va = m.valence;
+  let part1;
+  if(ar > 0.6) part1 = "field bright and pulsing";
+  else if(ar > 0.3) part1 = "field stirring";
+  else if(ar > 0.10) part1 = "field quiet but awake";
+  else part1 = "field still";
+  let part2;
+  if(va > 0.35) part2 = "warm";
+  else if(va > 0.10) part2 = "softening";
+  else if(va > -0.10) part2 = "neutral";
+  else if(va > -0.35) part2 = "cooling";
+  else part2 = "withdrawn";
+  return `${part1}, ${part2}`;
+}
+
+// signal handlers
+for(const b of document.querySelectorAll('.sig')){
+  b.addEventListener('click', ()=> sendSignal(b.dataset.sig));
+}
+document.getElementById('startBtn').addEventListener('click', ()=> awaken(null));
+
+// resume if saved
+const saved = loadMind();
+if(saved && saved.mind){
+  awaken(saved);
+}
+
+// animation loop
+function tick(){
+  drawField();
+  requestAnimationFrame(tick);
+}
+tick();
+
+</script>
+</body></html>

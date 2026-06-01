@@ -1,0 +1,60 @@
+# Auto-deploy Lemma on push to main.
+#
+# Render auto-deploys when it sees a push to your connected branch — so
+# strictly speaking this workflow is optional. It's here for:
+#   1. Triggering Render's deploy webhook on demand (manual or CI test)
+#   2. Running tests before letting the deploy fire
+#   3. Letting Fly.io / Railway / your-own-VPS users plug in a deploy step
+#
+# Setup:
+#   - Push this file as part of your repo
+#   - In GitHub → Settings → Secrets and variables → Actions, add:
+#       RENDER_DEPLOY_HOOK_URL  — get this from Render → Service → Settings → "Deploy Hook"
+#   - (Optional for Fly):  FLY_API_TOKEN  — from `flyctl auth token`
+
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv
+        run: pip install uv
+      - name: Sync deps
+        run: uv sync --no-dev
+      - name: Import-check (server boots without errors)
+        run: uv run python -c "from pep.main import app; print('routes:', len(app.routes))"
+
+  deploy-render:
+    needs: test
+    runs-on: ubuntu-latest
+    if: ${{ github.ref == 'refs/heads/main' }}
+    steps:
+      - name: Trigger Render deploy hook
+        env:
+          HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: |
+          if [ -z "$HOOK_URL" ]; then
+            echo "RENDER_DEPLOY_HOOK_URL not set — skipping Render deploy."
+            echo "Set it in GitHub Secrets to enable. See LEMMA_DEPLOY.md."
+            exit 0
+          fi
+          curl -sS -X POST "$HOOK_URL" -o /dev/null -w "Render deploy hook fired: HTTP %{http_code}\n"
+
+  # Uncomment to deploy to Fly instead of (or alongside) Render.
+  # deploy-fly:
+  #   needs: test
+  #   runs-on: ubuntu-latest
+  #   if: ${{ github.ref == 'refs/heads/main' }}
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: superfly/flyctl-actions/setup-flyctl@master
+  #     - run: flyctl deploy --remote-only
+  #       env:
+  #         FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}

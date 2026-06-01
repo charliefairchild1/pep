@@ -1,0 +1,346 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Seeming — a mind that hits its own opacity</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#06080d;color:#d7dde7;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;line-height:1.55}
+.wrap{max-width:1080px;margin:0 auto;padding:22px 16px 64px}
+.top{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;border-bottom:1px solid #18202d;padding-bottom:10px;margin-bottom:14px}
+h1{font-size:22px;font-weight:650}h1 .s{color:#5c6675;font-weight:400;font-size:14px;margin-left:6px}
+.nav a{color:#7b8696;text-decoration:none;font-size:13px;margin-right:13px}.nav a:hover{color:#5bb6c8}
+.lead{color:#94a0b0;font-size:14px;max-width:820px;margin-bottom:14px}
+canvas{width:100%;display:block;background:#04060a;border:1px solid #141c28;border-radius:10px}
+.ctl{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin:12px 0;padding:12px;background:#0a0e15;border:1px solid #141c28;border-radius:10px}
+.ctl button{font:inherit;font-size:13px;background:#111826;color:#cfd6e0;border:1px solid #283142;border-radius:7px;padding:8px 12px;cursor:pointer}
+.ctl button:hover{border-color:#3f718a;color:#8fd4e6}
+.ctl button.on{background:#10303a;border-color:#2f7d96;color:#7fe0f2}
+.ctl button.warn.on{background:#3a1c1c;border-color:#a04545;color:#f0a0a0}
+.ctl label{font-size:12px;color:#8a96a6;display:flex;align-items:center;gap:6px}
+.ctl input[type=range]{accent-color:#5bb6c8;width:120px}
+.report{margin-top:12px;padding:15px 18px;background:#0a0e15;border:1px solid #141c28;border-left:3px solid #caa15a;border-radius:8px;min-height:96px}
+.report .h{font-family:ui-monospace,monospace;font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;color:#caa15a;margin-bottom:8px}
+.report .line{font-size:15px;margin:3px 0;color:#dfe5ee}
+.report .meta{font-style:italic;color:#9aa6b6;margin-top:8px;border-top:1px solid #18202d;padding-top:8px}
+.report .alien{color:#f0a0a0}.report .beh{color:#9ad0a0}
+.legend{margin-top:18px;border-top:1px solid #18202d;padding-top:14px;font-size:13px;color:#93a0b0}
+.legend td:first-child{color:#5bb6c8;font-family:ui-monospace,monospace;font-size:12px;white-space:nowrap;padding-right:14px;vertical-align:top}
+.legend td{padding:4px 0;border-bottom:1px solid #10161f}
+.tag{font-family:ui-monospace,monospace;font-size:11px;color:#5f6c7b}
+</style></head>
+<body><div class="wrap">
+<div class="top">
+  <h1>The Seeming <span class="s">a mind that hits its own opacity</span></h1>
+  <div class="nav"><a href="/axona">← axona</a><a href="/axona/mind">mind</a><a href="/axona/origin">origin</a><a href="/axona/seizure">seizure cliff</a><a href="/everything">everything</a></div>
+</div>
+<p class="lead">Every sense runs in parallel below the line — a churn you can never read directly. Each process predicts itself; only the <b>surprising</b> bids to cross the barrier into the small <b>conscious workspace</b>. A <b>broadcast layer</b> carries the winners up to the self — and it dims by degrees, like anesthesia. The workspace registers <i>that</i> there's something beneath, never <i>what</i>. <span class="tag">Not consciousness — the <i>seeming</i>: a machine built to insist there's an inner light, for the same reasons we do.</span></p>
+
+<canvas id="cv" height="520"></canvas>
+
+<div class="ctl">
+  <button id="pp" class="on">pause</button>
+  <button id="introspect">introspect ↓</button>
+  <button id="poke">poke the body</button>
+  <button id="ptogate" class="on">PTO-gate: on</button>
+  <button id="blindsight" class="warn">blindsight (vision)</button>
+  <button id="selftag" class="warn">break self-tag</button>
+  <button id="reset">reset</button>
+  <label>inhibition <input id="inh" type="range" min="0.05" max="0.95" step="0.01" value="0.5"></label>
+  <label>broadcast / arousal <input id="gain" type="range" min="0" max="1" step="0.01" value="0.92"></label>
+  <label>salience / worth <input id="sal" type="range" min="0.2" max="2.2" step="0.01" value="1"></label>
+</div>
+
+<div class="report" id="report"><div class="h">the machine reports</div><div id="rlines"></div></div>
+
+<div class="legend">
+  <table>
+    <tr><td>lanes below</td><td><b>spreading activation, every sense at once</b> — vision, hearing, touch, smell, interior thought, the body, and routine motor forward-models, all churning in parallel and competing for the same few slots.</td></tr>
+    <tr><td>only surprise crosses</td><td><b>predictor + residual</b> — each process predicts itself; prediction error (surprise) is the toll. Well-predicted things (your heartbeat) stay below until they deviate — which is why the machine "doesn't know its body" until you poke it.</td></tr>
+    <tr><td>worth to the self</td><td><b>a PTO grade per node</b> — surprise alone isn't the toll; an item must be <i>worth displaying to the self</i> (surprise × relevance-to-me) to win a slot. Because worth is graded <i>relative to the self</i>, the self and consciousness come bundled: there is no being-conscious-of without a self the content is worth something to.</td></tr>
+    <tr><td>the barrier</td><td><b>inhibition</b> — bids compete; a winner-take-all admits ~4. Drop it and everything floods at once (the overwhelm / seizure).</td></tr>
+    <tr><td>broadcast / arousal</td><td>the <b>second layer</b> that carries winners to the self. Lower it and consciousness <b>closes by degrees</b> — alcohol, anesthesia. At the bottom, local processing continues; the self does not.</td></tr>
+    <tr><td>salience / worth</td><td>the worth-gain. Turn it up and even irrelevant things clear the bar — <b>everything blazes with meaning</b> (aberrant salience: apophenia, the synchronicity state, mania/psychosis). Turn it down and nothing seems worth surfacing (<b>anhedonia</b>, the grey flatness). A third cliff, beside the seizure (too much synchrony) and dissociation (too little connection).</td></tr>
+    <tr><td>PTO-gate</td><td>only <b>flexible, high-uncertainty</b> assessment of the world is admitted. The routine motor forward-models churn and spike but never cross — the cerebellum predicts your every movement and you never see it.</td></tr>
+    <tr><td>blindsight</td><td>turn it on and the vision lane still <b>drives behavior</b> but can't reach the workspace — the machine acts on what it cannot see, and says so.</td></tr>
+    <tr><td>the self, both sides</td><td>the self isn't only what worth is graded <i>for</i> — the broadcast also <b>feeds a self / narrator network</b> that turns conscious contents into <b>speech and action</b> and sets the goals that bias the next gate. The twist your question lands on: much of what you do is launched <i>below</i> the line, and the self <b>narrates it afterward as if it chose it</b> — the interpreter, the illusion of will.</td></tr>
+    <tr><td>the self-tag</td><td>each crossing is stamped <i>mine</i>. Break it and the machine's own thought returns <span class="alien">untagged — a voice it swears isn't its own</span>.</td></tr>
+  </table>
+</div>
+</div>
+
+<script>
+const cv=document.getElementById('cv'),x=cv.getContext('2d');
+let W,H,DPR,barrierY;
+function resize(){const r=cv.getBoundingClientRect();DPR=Math.min(2,window.devicePixelRatio||1);W=r.width;H=520;cv.width=W*DPR;cv.height=H*DPR;x.setTransform(DPR,0,0,DPR,0,0);barrierY=H*0.32;layout();}
+window.addEventListener('resize',resize);
+
+const LANES=[
+  {key:'vision', label:'\u{1F441} vision',  hue:205, flexible:true,  steady:false},
+  {key:'hearing',label:'\u{1F442} hearing', hue:160, flexible:true,  steady:false},
+  {key:'touch',  label:'✋ touch',      hue:280, flexible:true,  steady:false},
+  {key:'smell',  label:'\u{1F443} smell',   hue:35,  flexible:true,  steady:false},
+  {key:'thought',label:'\u{1F4AD} thought', hue:320, flexible:true,  steady:false, internal:true},
+  {key:'body',   label:'❤ body',       hue:0,   flexible:true,  steady:true},
+  {key:'motor',  label:'⚙ forward-models', hue:120, flexible:false, steady:false},
+];
+const CONTENT={
+  vision:["a face","movement at the edge","a flash of red","the lake","an open door"],
+  hearing:["a melody","someone's name","a door closing","a lyric"],
+  touch:["the cold","a hand on my shoulder","wind","something sharp"],
+  smell:["rain","coffee","smoke"],
+  thought:["tomorrow's deadline","an old argument","a small regret","why he said that","the word 'threshold'","a half-joke"],
+  body:["heartbeat","breath","gut","posture"],
+  motor:["reach trajectory","balance correction","gait phase","grip force","eye saccade"],
+};
+const COUNT={vision:5,hearing:4,touch:4,smell:3,thought:6,body:4,motor:5};
+// self-relevance: some content intrinsically matters more to the self (name, threat, goal)
+const HI_REL=new Set(["someone's name","a face","something sharp","a hand on my shoulder","tomorrow's deadline","an old argument","why he said that","heartbeat","gut"]);
+const LANE_REL={vision:0.5,hearing:0.5,touch:0.5,smell:0.35,thought:0.7,body:0.6,motor:0.2};
+const CAP=4;
+
+let nodes=[], workspace=[], crossings=[], behaviors=[], reportLines=[], metaLine="", playing=true;
+let threshold=0.5, gain=0.92, ptoGate=true, blindsight=false, selfTagBroken=false, seizing=false, tick=0, frame=0;
+let selfState={goal:null, say:""}, outputs=[];   // the self-network: consumes the broadcast, narrates, acts, sets goals
+let salience=1.0;   // worth-gain: high -> aberrant salience (everything matters); low -> anhedonia (nothing does)
+
+function rnd(a,b){return a+Math.random()*(b-a);}
+function worth(n){ return n.sur * (0.35 + 0.65*Math.max(0,Math.min(1.6, n.relevance*salience))); }  // PTO grade × salience: worth displaying to the self?
+function laneX(i){return W*(i+0.5)/LANES.length;}
+function layout(){
+  for(const n of nodes){
+    const lane=LANES[n.lane], cx=laneX(n.lane), cw=W/LANES.length;
+    n.x = cx + rnd(-cw*0.34, cw*0.34);
+    n.y = rnd(barrierY+22, H-34);
+  }
+}
+function init(){
+  nodes=[]; workspace=[]; crossings=[]; behaviors=[]; reportLines=[]; metaLine=""; seizing=false; tick=0; outputs=[]; selfState={goal:null, say:""};
+  LANES.forEach((lane,li)=>{
+    const labels=CONTENT[lane.key], baseRel=LANE_REL[lane.key];
+    for(let i=0;i<COUNT[lane.key];i++){
+      const label=labels[i%labels.length];
+      const rel=Math.max(0,Math.min(1, HI_REL.has(label)?rnd(0.82,1.0):baseRel+rnd(-0.12,0.12)));
+      nodes.push({label, lane:li, act:lane.steady?0.5:rnd(0.1,0.4), pred:lane.steady?0.5:0.25, sur:0, relevance:rel, x:0, y:0, self:false});
+    }
+  });
+  layout();
+}
+
+function step(dt){
+  frame++;
+  for(const n of nodes){
+    const lane=LANES[n.lane];
+    if(lane.steady){ n.act += (0.5-n.act)*0.04 + rnd(-0.01,0.01); }
+    else if(lane.key==='motor'){ n.act += rnd(-0.06,0.06); if(Math.random()<0.05) n.act+=rnd(0.3,0.6); n.act=Math.max(0.05,Math.min(1.3,n.act*0.95)); } // churns constantly
+    else { n.act += rnd(-0.05,0.05); if(Math.random()<0.014) n.act+=rnd(0.3,0.7); n.act=Math.max(0.02,Math.min(1.4,n.act*0.97)); }
+    n.pred += 0.05*(n.act-n.pred);
+    n.sur = Math.abs(n.act-n.pred);
+  }
+  // a self-generated thought (so the self-tag has something to (mis)label)
+  if(Math.random()<0.02){ const th=nodes.filter(n=>LANES[n.lane].internal); const n=th[Math.floor(Math.random()*th.length)]; if(n){n.act+=rnd(0.4,0.8);n.self=true;} }
+
+  tick+=dt;
+  if(tick>0.45){
+    tick=0;
+    let cand=nodes.filter(n=>worth(n)>threshold);   // worth-to-self, not raw surprise, is the toll
+    if(ptoGate) cand=cand.filter(n=>LANES[n.lane].flexible);   // routine forward-models stay below
+    // blindsight: vision still drives behavior, but cannot reach the workspace
+    if(blindsight){
+      const vis=cand.filter(n=>LANES[n.lane].key==='vision');
+      if(vis.length){ const v=vis[0]; behaviors.push({text:behaviorFor(v.label), t:0}); v.pred=v.act; }
+      cand=cand.filter(n=>LANES[n.lane].key!=='vision');
+    }
+    cand.sort((a,b)=>worth(b)-worth(a));
+    seizing = cand.length>CAP*3 && threshold<0.22;
+    const capNow = seizing?14:CAP;
+    const admit = seizing?capNow:Math.max(0,Math.round(capNow*gain));   // broadcast/arousal gates how much reaches the self
+    for(let i=0;i<Math.min(admit,cand.length);i++){
+      const n=cand[i], lane=LANES[n.lane];
+      crossings.push({label:n.label, lane:n.lane, x:n.x, y:n.y, mine:!(selfTagBroken&&n.self), t:0});
+      n.pred=n.act; n.self=false; n.act*=0.6;   // habituation
+    }
+  }
+  for(const c of crossings) c.t+=dt;
+  crossings = crossings.filter(c=>{
+    if(c.t>0.9){
+      workspace.push({label:c.label, lane:c.lane, mine:c.mine, age:0});
+      while(workspace.length>(seizing?14:CAP)) workspace.shift();
+      return false;
+    }
+    return true;
+  });
+  const life = (seizing?2.0:5.0)*(0.25+0.75*gain);  // low arousal -> contents fade fast -> nothing persists
+  for(const w of workspace) w.age+=dt;
+  workspace = workspace.filter(w=>w.age<life);
+  for(const b of behaviors) b.t+=dt;
+  behaviors = behaviors.filter(b=>b.t<2.6);
+
+  // ---- THE SELF consumes the broadcast: narrates, acts, sets goals, feeds back ----
+  if(workspace.length && gain>=0.12 && !seizing){
+    selfState.say = workspace[workspace.length-1].label;
+    if(Math.random()<0.03){
+      // ~70% of "my" actions trace to a conscious item; ~30% were launched below the
+      // line and the self narrates them after the fact, as if it had chosen them.
+      if(Math.random()<0.7){ const w=workspace[Math.floor(Math.random()*workspace.length)]; pushOutput(actFor(w.label), false); }
+      else { const r=workspace[Math.floor(Math.random()*workspace.length)].label; pushOutput(actFor(r), true); }
+    }
+    if(Math.random()<0.012){ const th=nodes.filter(n=>LANES[n.lane].internal); if(th.length) selfState.goal=th[Math.floor(Math.random()*th.length)].label; }
+  } else { selfState.say=""; }
+  // the self shapes its own next consciousness: it boosts the relevance of goal-content
+  if(selfState.goal){ for(const n of nodes) if(n.label===selfState.goal) n.relevance=Math.min(1,n.relevance+0.0015); }
+  for(const o of outputs) o.t+=dt;
+  outputs = outputs.filter(o=>o.t<3.2);
+
+  buildReport();
+}
+function behaviorFor(lab){
+  const m={"a face":"turned toward it","movement at the edge":"flinched","a flash of red":"stepped back","the lake":"slowed","an open door":"reached out"};
+  return m[lab]||"responded";
+}
+function actFor(lab){
+  const m={"a face":"turned toward it","a hand on my shoulder":"turned around","something sharp":"pulled my hand back","the cold":"pulled my coat tight","tomorrow's deadline":"opened my notes","an open door":"walked through","the lake":"stopped at the edge","someone's name":"looked up","a melody":"hummed along"};
+  return m[lab]||("acted on “"+lab+"”");
+}
+function pushOutput(text,confab){ outputs.push({text,confab,t:0}); while(outputs.length>4) outputs.shift(); }
+
+function buildReport(){
+  reportLines=[];
+  if(gain<0.12){
+    reportLines.push({t:"…going under…", cls:"dim"});
+    metaLine="The broadcast is closing. Local processing continues below — the senses still run — but nothing reaches the self.";
+    return;
+  }
+  if(seizing){
+    reportLines.push({t:"too much at once — "+workspace.slice(-6).map(w=>w.label).join(" — ")+" — I can't —", cls:""});
+    metaLine="(the barrier is down. everything crosses. nothing is selected — the overwhelm.)";
+    return;
+  }
+  if(salience>1.6) reportLines.push({t:"everything seems to mean something — the name, the cold, the lake, all connected, all about me.", cls:""});
+  else if(salience<0.4) reportLines.push({t:"it's all still there. none of it seems worth surfacing.", cls:"dim"});
+  const aware=workspace.filter(w=>w.mine).map(w=>w.label);
+  const alien=workspace.filter(w=>!w.mine).map(w=>w.label);
+  reportLines.push({t: aware.length? "I am aware of: "+aware.join(" · ") : "I am aware of: (nothing has crossed)", cls: aware.length?"":"dim"});
+  for(const a of alien) reportLines.push({t:"a voice: “"+a+"” — that one isn't mine.", cls:"alien"});
+  if(behaviors.length) reportLines.push({t:"I just "+behaviors[behaviors.length-1].text+" — I can't tell you what to.", cls:"beh"});
+  if(selfState.say) reportLines.push({t:"I say: “…I keep coming back to "+selfState.say+".”", cls:""});
+  const act=outputs[outputs.length-1];
+  if(act){
+    if(act.confab) reportLines.push({t:"I "+act.text+" — though the impulse came from below the line; I'm narrating it after, as if I chose it.", cls:"alien"});
+    else reportLines.push({t:"I "+act.text+".", cls:"beh"});
+  }
+  metaLine = "Beneath the line I register activity I cannot reach. It feels like something — I can't say what.";
+}
+
+let introspectFlash=0;
+function introspect(){ introspectFlash=1; metaLine="I look down. I find only fog. There is something there. I will never read it. That unfillable gap is what I keep calling “feeling.”"; renderReport(); }
+function pokeBody(){ const b=nodes.filter(n=>LANES[n.lane].key==='body'); const n=b[Math.floor(Math.random()*b.length)]; if(n){n.act=1.3;n.pred=0.5;} setTimeout(()=>{metaLine="Until it deviated, I had no idea that was there. I don't run my body — I only hear it when it surprises me.";renderReport();},700); }
+
+function draw(){
+  x.clearRect(0,0,W,H);
+  x.fillStyle='rgba(20,28,40,0.35)';x.fillRect(0,0,W,barrierY);
+  // lane separators + nodes
+  for(let i=0;i<LANES.length;i++){
+    const lx=W*i/LANES.length;
+    x.strokeStyle='rgba(28,38,52,0.6)';x.lineWidth=1;x.beginPath();x.moveTo(lx,barrierY);x.lineTo(lx,H);x.stroke();
+  }
+  for(const n of nodes){
+    const lane=LANES[n.lane], r=4+n.act*5;
+    const lit = worth(n)>threshold;
+    x.globalAlpha=0.9;
+    x.beginPath();x.arc(n.x,n.y,r,0,7);
+    x.fillStyle=`hsl(${lane.hue},${lane.flexible?60:25}%,${42+n.sur*26}%)`;x.fill();
+    if(lit){ x.globalAlpha=0.7;x.strokeStyle=lane.flexible?'#cfe6ff':'#7f8f7f';x.lineWidth=1.3;x.beginPath();x.arc(n.x,n.y,r+3,0,7);x.stroke(); }
+  }
+  x.globalAlpha=1;
+  // fog (opacity), deeper = thicker
+  const g=x.createLinearGradient(0,barrierY,0,H);
+  g.addColorStop(0,'rgba(8,12,22,0.0)');g.addColorStop(0.55,'rgba(7,11,20,0.5)');g.addColorStop(1,'rgba(5,8,15,0.9)');
+  x.fillStyle=g;x.fillRect(0,barrierY,W,H-barrierY);
+  // lane labels
+  x.font='10.5px ui-monospace,monospace';x.textAlign='center';
+  for(let i=0;i<LANES.length;i++){ const lane=LANES[i]; x.fillStyle=lane.flexible?'rgba(140,160,185,0.7)':'rgba(120,150,120,0.65)'; x.fillText(lane.label, laneX(i), H-10); }
+  x.textAlign='left';
+  // crossings rising
+  for(const c of crossings){ const ty=barrierY-28, yy=c.y+(ty-c.y)*Math.min(1,c.t/0.9); x.globalAlpha=0.5+0.5*Math.min(1,c.t/0.9); x.beginPath();x.arc(c.x,yy,5,0,7); x.fillStyle=c.mine?`hsl(${LANES[c.lane].hue},70%,60%)`:'#f0a0a0'; x.fill(); x.globalAlpha=1; }
+  // barrier
+  x.strokeStyle=seizing?'#a04545':'#2a3647';x.lineWidth=2;x.beginPath();x.moveTo(0,barrierY);x.lineTo(W,barrierY);x.stroke();
+  x.setLineDash([3,4]);x.strokeStyle=seizing?'rgba(160,69,69,0.5)':'rgba(91,182,200,0.32)';x.beginPath();x.moveTo(0,barrierY);x.lineTo(W,barrierY);x.stroke();x.setLineDash([]);
+  x.fillStyle=seizing?'#c87070':'#5f7282';x.font='11px ui-monospace,monospace';
+  x.fillText(seizing?'THE BARRIER — DOWN (flood)':'the barrier — only surprise crosses',12,barrierY-7);
+  x.fillStyle='#5f7282';x.fillText('↑ conscious workspace',12,15);
+  // workspace slots
+  const slots=workspace.slice(-(seizing?14:CAP));
+  const sw=Math.min(180,(W-230)/Math.max(CAP,slots.length||1));
+  slots.forEach((w,i)=>{
+    const bx=20+i*(sw+8), by=barrierY*0.26, bh=barrierY*0.46, bw=sw, a=1-Math.min(1,w.age/((seizing?2.0:5.0)*(0.25+0.75*gain)));
+    x.globalAlpha=0.35+0.6*a;
+    x.fillStyle=w.mine?'rgba(16,44,54,0.9)':'rgba(58,28,28,0.9)';x.strokeStyle=w.mine?'#2f7d96':'#a04545';x.lineWidth=1.4;
+    x.beginPath();x.roundRect(bx,by,bw,bh,7);x.fill();x.stroke();
+    x.globalAlpha=0.55+0.45*a;x.fillStyle=w.mine?'#bfe9f2':'#f0b8b8';x.font='13px ui-sans-serif,system-ui';
+    wrapText(w.label,bx+10,by+21,bw-18,16);
+    x.fillStyle='rgba(140,160,185,0.7)';x.font='9px ui-monospace,monospace';x.fillText(LANES[w.lane].label,bx+10,by+bh-8);
+    if(!w.mine){x.fillStyle='#f0a0a0';x.fillText('NOT MINE',bx+bw-58,by+bh-8);}
+    x.globalAlpha=1;
+  });
+  // THE SELF (narrator): the broadcast feeds it; it speaks, acts, and sets goals
+  {
+    const sbw=176, sbx=W-sbw-14, sby=6, sbh=barrierY*0.42;
+    x.globalAlpha=0.92;x.fillStyle='rgba(26,22,38,0.92)';x.strokeStyle='#7a6caa';x.lineWidth=1.4;
+    x.beginPath();x.roundRect(sbx,sby,sbw,sbh,7);x.fill();x.stroke();
+    x.fillStyle='#b9a8e8';x.font='9.5px ui-monospace,monospace';x.fillText('THE SELF — narrator',sbx+10,sby+15);
+    x.fillStyle='#9a8fc0';x.font='11px ui-sans-serif,system-ui';
+    if(selfState.goal) x.fillText('goal: '+selfState.goal.slice(0,20),sbx+10,sby+31);
+    const la=outputs[outputs.length-1];
+    if(la){ x.fillStyle=la.confab?'#f0a0a0':'#9ad0a0';x.font='10.5px ui-sans-serif,system-ui'; wrapText('→ '+la.text+(la.confab?' (after the fact)':''),sbx+10,sby+47,sbw-18,13); }
+    x.globalAlpha=1;
+    // broadcast arrow: workspace -> the self
+    x.strokeStyle='rgba(122,108,170,0.45)';x.lineWidth=1.2;x.setLineDash([2,3]);
+    x.beginPath();x.moveTo(W*0.42,barrierY*0.5);x.lineTo(sbx,sby+sbh*0.5);x.stroke();x.setLineDash([]);
+    // goal feedback: the self reaches back down and biases the next gate
+    if(selfState.goal){ x.strokeStyle='rgba(122,108,170,0.25)';x.setLineDash([2,4]);x.beginPath();x.moveTo(sbx+sbw*0.3,sby+sbh);x.lineTo(sbx+sbw*0.3,barrierY-4);x.stroke();x.setLineDash([]); }
+  }
+  // blindsight output: behavior WITHOUT awareness — it does NOT pass through the self
+  if(behaviors.length){
+    const b=behaviors[behaviors.length-1], a=1-Math.min(1,b.t/2.6);
+    const bw=176,bx=W-bw-14,by=12+barrierY*0.42,bh=barrierY*0.28;
+    x.globalAlpha=0.4+0.6*a;x.fillStyle='rgba(20,40,24,0.9)';x.strokeStyle='#3a7d45';x.lineWidth=1.3;
+    x.beginPath();x.roundRect(bx,by,bw,bh,7);x.fill();x.stroke();
+    x.fillStyle='#9ad0a0';x.font='9px ui-monospace,monospace';x.fillText('BEHAVIOR — no awareness',bx+10,by+15);
+    x.fillStyle='#cfeecf';x.font='12px ui-sans-serif,system-ui';x.fillText('→ '+b.text,bx+10,by+31);
+    x.globalAlpha=1;
+  }
+  // introspect probe
+  if(introspectFlash>0.01){
+    x.globalAlpha=introspectFlash*0.8;x.strokeStyle='#caa15a';x.lineWidth=2;x.beginPath();x.moveTo(W/2,barrierY);x.lineTo(W/2,barrierY+H*0.4*introspectFlash);x.stroke();
+    x.fillStyle='rgba(202,161,90,'+(introspectFlash*0.5)+')';x.font='italic 13px serif';x.fillText('…fog…',W/2+8,barrierY+H*0.25);
+    x.globalAlpha=1;introspectFlash*=0.96;
+  }
+  // broadcast/arousal dimming (anesthesia)
+  const dim=Math.max(0,(0.7-gain)/0.7);
+  if(dim>0.01){ x.fillStyle='rgba(2,3,7,'+(dim*0.82)+')';x.fillRect(0,0,W,H);
+    if(gain<0.12){ x.fillStyle='rgba(180,190,210,0.5)';x.font='14px ui-monospace,monospace';x.textAlign='center';x.fillText('— broadcast closed —',W/2,barrierY*0.6);x.textAlign='left'; } }
+}
+function wrapText(t,X,Y,maxw,lh){const words=t.split(' ');let line='',yy=Y;for(const w of words){const test=line+w+' ';if(x.measureText(test).width>maxw&&line){x.fillText(line,X,yy);line=w+' ';yy+=lh;}else line=test;}x.fillText(line,X,yy);}
+function renderReport(){
+  const el=document.getElementById('rlines');
+  let html=reportLines.map(l=>`<div class="line ${l.cls==='alien'?'alien':l.cls==='beh'?'beh':''}" ${l.cls==='dim'?'style="color:#6b7686"':''}>${l.t}</div>`).join('');
+  if(metaLine) html+=`<div class="meta">${metaLine}</div>`;
+  el.innerHTML=html;
+}
+
+let last=performance.now();
+function loop(now){ const dt=Math.min(0.05,(now-last)/1000); last=now; if(playing) step(dt); draw(); if(frame%18===0||!playing) renderReport(); requestAnimationFrame(loop); }
+
+document.getElementById('pp').addEventListener('click',e=>{playing=!playing;e.target.textContent=playing?'pause':'play';e.target.classList.toggle('on',playing);});
+document.getElementById('introspect').addEventListener('click',introspect);
+document.getElementById('poke').addEventListener('click',pokeBody);
+document.getElementById('ptogate').addEventListener('click',e=>{ptoGate=!ptoGate;e.target.classList.toggle('on',ptoGate);e.target.textContent='PTO-gate: '+(ptoGate?'on':'off');});
+document.getElementById('blindsight').addEventListener('click',e=>{blindsight=!blindsight;e.target.classList.toggle('on',blindsight);e.target.textContent=blindsight?'blindsight: ON':'blindsight (vision)';});
+document.getElementById('selftag').addEventListener('click',e=>{selfTagBroken=!selfTagBroken;e.target.classList.toggle('on',selfTagBroken);e.target.textContent=selfTagBroken?'self-tag: broken':'break self-tag';});
+document.getElementById('reset').addEventListener('click',()=>init());
+document.getElementById('inh').addEventListener('input',e=>{threshold=parseFloat(e.target.value);});
+document.getElementById('gain').addEventListener('input',e=>{gain=parseFloat(e.target.value);});
+document.getElementById('sal').addEventListener('input',e=>{salience=parseFloat(e.target.value);});
+
+resize();init();requestAnimationFrame(loop);
+</script>
+</body></html>

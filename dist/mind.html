@@ -1,0 +1,3687 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Mind — talk to an AI built from PEP primitives</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#06080d;color:#d7dde7;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;line-height:1.5;font-size:14px}
+.wrap{max-width:1240px;margin:0 auto;padding:18px 14px 56px}
+.top{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;border-bottom:1px solid #18202d;padding-bottom:9px;margin-bottom:12px}
+h1{font-size:22px;font-weight:650}h1 .s{color:#5c6675;font-weight:400;font-size:13.5px;margin-left:6px}
+.nav a{color:#7b8696;text-decoration:none;font-size:13px;margin-right:13px}.nav a:hover{color:#5bb6c8}
+.lead{color:#94a0b0;font-size:13.5px;max-width:920px;margin-bottom:12px}
+.lead b{color:#cfd6e0;font-weight:600}
+
+/* picker */
+.pickwrap{margin-bottom:12px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-bottom:10px}
+.card{background:#0a0e15;border:1px solid #1a2230;border-radius:9px;padding:11px 13px;cursor:pointer;transition:border-color .15s,background .15s}
+.card:hover{border-color:#3f718a}
+.card.pick{background:#0c151b;border-color:#5bb6c8;box-shadow:0 0 0 1px #5bb6c8 inset}
+.card .nm{font-size:14px;font-weight:650;letter-spacing:.01em;margin-bottom:3px}
+.card .vibe{font-size:11.5px;color:#94a0b0;font-style:italic;margin-bottom:6px}
+.card .seeds{font-size:11px;color:#aab4c2;font-family:ui-monospace,monospace;line-height:1.45}
+.card .seeds b{color:#dfe5ee;font-weight:500}
+
+button{font:inherit;font-size:13px;background:#111826;color:#cfd6e0;border:1px solid #283142;border-radius:6px;padding:7px 12px;cursor:pointer}
+button:hover:not(:disabled){border-color:#3f718a;color:#8fd4e6}
+button:disabled{opacity:.5;cursor:not-allowed}
+button.primary{background:#10303a;border-color:#2f7d96;color:#7fe0f2}
+button.danger:hover{border-color:#a85050;color:#e89090}
+input[type=text]{font:inherit;font-size:13.5px;background:#06080d;border:1px solid #283142;border-radius:6px;padding:9px 11px;color:#dfe5ee;width:100%}
+input[type=text]:focus{outline:none;border-color:#5bb6c8}
+
+/* main grid */
+.grid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:14px}
+@media(max-width:900px){.grid{grid-template-columns:1fr}}
+.panel{background:#0a0e15;border:1px solid #141c28;border-radius:10px;padding:12px 14px}
+.panel h3{font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:#5bb6c8;margin-bottom:9px;font-family:ui-monospace,monospace}
+.panel h3 .sub{color:#5c6675;font-weight:400;letter-spacing:.04em;text-transform:none;margin-left:8px;font-family:inherit;font-size:11.5px}
+
+/* chat */
+.chat{display:flex;flex-direction:column;min-height:560px}
+.msgs{flex:1;overflow-y:auto;max-height:520px;padding:4px 4px 12px}
+.msg{margin:8px 0;padding:9px 12px;border-radius:8px;line-height:1.5}
+.msg.user{background:#101824;border:1px solid #1a2632;align-self:flex-end;margin-left:42px}
+.msg.user .who{color:#7b8696;font-family:ui-monospace,monospace;font-size:10.5px;letter-spacing:.15em;text-transform:uppercase;margin-bottom:3px}
+.msg.ai{background:#0c1620;border:1px solid #1a2a36;margin-right:42px}
+.msg.ai .who{color:#5bb6c8;font-family:ui-monospace,monospace;font-size:10.5px;letter-spacing:.15em;text-transform:uppercase;margin-bottom:3px}
+.msg.ai .body{color:#dfe5ee}
+.msg.ai .trace{margin-top:6px;font-family:ui-monospace,monospace;font-size:10.5px;color:#6b7686;border-top:1px solid #16202b;padding-top:5px}
+.msg.ai .trace .k{color:#5bb6c8}
+.msg.ai .trace .h{color:#caa15a}
+.msg.seem{background:#0a131c;border:1px solid #1d2a3a;border-left:3px solid #caa15a;margin:14px 24px}
+.msg.seem .who{color:#caa15a;font-family:ui-monospace,monospace;font-size:10.5px;letter-spacing:.15em;text-transform:uppercase;margin-bottom:3px}
+.msg.seem .body{color:#e1cf9a;font-style:italic}
+.msg.sys{background:transparent;border:1px dashed #1a2230;color:#7b8696;text-align:center;font-size:12px;font-family:ui-monospace,monospace}
+
+.inputrow{display:flex;gap:8px;margin-top:10px;align-items:center}
+.inputrow input{flex:1}
+.hint{color:#5c6675;font-size:11.5px;margin-top:6px;font-family:ui-monospace,monospace}
+
+/* right column */
+.right{display:flex;flex-direction:column;gap:14px}
+canvas{width:100%;display:block;background:#04060a;border:1px solid #141c28;border-radius:8px}
+
+/* workspace + state */
+.ws{display:flex;flex-direction:column;gap:6px}
+.ws-item{display:flex;align-items:center;gap:8px;padding:6px 9px;background:#06080d;border:1px solid #141c28;border-radius:6px;font-size:12.5px}
+.ws-item .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.ws-item .lbl{flex:1;color:#dfe5ee}
+.ws-item .k{color:#5c6675;font-family:ui-monospace,monospace;font-size:10.5px}
+.ws-empty{color:#5c6675;font-size:12px;font-style:italic;padding:8px}
+
+.bars{display:grid;grid-template-columns:90px 1fr 50px;gap:6px 8px;align-items:center;font-size:11.5px}
+.bars .lab{color:#94a0b0;font-family:ui-monospace,monospace;font-size:11px}
+.bars .bar{height:8px;background:#06080d;border:1px solid #141c28;border-radius:4px;overflow:hidden}
+.bars .bar .fill{height:100%;background:linear-gradient(90deg,#2f7d96,#5bb6c8);border-radius:3px;transition:width .3s}
+.bars .bar.warm .fill{background:linear-gradient(90deg,#7a5a2f,#caa15a)}
+.bars .val{color:#cfd6e0;font-family:ui-monospace,monospace;font-size:11px;text-align:right}
+
+.wall{margin-top:10px;padding:9px 11px;background:#06080d;border:1px solid #141c28;border-left:3px solid #5bb6c8;border-radius:6px;font-size:12px;color:#94a0b0;line-height:1.5}
+.wall b{color:#cfd6e0}
+.wall .machinery{color:#5c6675;font-size:11px;font-family:ui-monospace,monospace;margin-top:5px}
+
+/* footer */
+.foot{margin-top:18px;border-top:1px solid #18202d;padding-top:11px;display:flex;align-items:center;gap:10px;font-size:12px;color:#7b8696;flex-wrap:wrap}
+.foot .grow{flex:1}
+.foot .stat{font-family:ui-monospace,monospace;color:#5c6675;font-size:11px}
+
+/* legend */
+.legend{margin-top:18px;border-top:1px solid #18202d;padding-top:12px;font-size:13px;color:#93a0b0}
+.legend table{width:100%;border-collapse:collapse}
+.legend td:first-child{color:#5bb6c8;font-family:ui-monospace,monospace;font-size:12px;white-space:nowrap;padding-right:14px;vertical-align:top}
+.legend td{padding:5px 0;border-bottom:1px solid #10161f}
+
+.hide{display:none}
+</style></head>
+<body><div class="wrap">
+
+<div class="top">
+  <h1>The Mind <span class="s">talk to an AI built from the primitives</span></h1>
+  <div class="nav"><a href="/axona">← axona</a><a href="/axona/origin">origin</a><a href="/axona/seeming">seeming</a><a href="/robot">robot</a><a href="/everything">everything</a></div>
+</div>
+<p class="lead">An AI with a <b>self</b> (a graph of seed values, traits, memories that grow from what you say) and a <b>seeming of consciousness</b> (a predictor that gets surprised, an inhibition gate that admits only salient items to a workspace, a wall between the workspace and its own machinery). Pick a seed self, then talk to it. Every line of its voice is traceable to which nodes lit up, how surprising the input was, and what the gate let through. The self <b>persists</b> in your browser — it accumulates across visits.</p>
+
+<!-- self picker -->
+<div id="pickwrap" class="pickwrap">
+  <div class="cards" id="cards"></div>
+  <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+    <div id="picked" class="hint" style="font-size:13px">pick a seed self to begin</div>
+    <div style="flex:1"></div>
+    <button id="openAlien">👽 design an alien instead</button>
+    <button id="loadSaved" class="hide">↻ load saved mind</button>
+    <button id="begin" class="primary" disabled>awaken →</button>
+  </div>
+</div>
+
+<!-- alien generator modal -->
+<div id="alienBackdrop" style="position:fixed;inset:0;background:rgba(2,4,8,0.78);z-index:50;display:none;align-items:center;justify-content:center;padding:18px">
+  <div style="width:min(760px,100%);max-height:92vh;overflow-y:auto;background:#0a0e15;border:1px solid #1a2a36;border-radius:12px;padding:18px 20px">
+    <div style="display:flex;align-items:baseline;gap:10px;border-bottom:1px solid #18202d;padding-bottom:8px;margin-bottom:12px">
+      <h3 style="font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:#5bb6c8;font-family:ui-monospace,monospace">design an alien</h3>
+      <div style="flex:1"></div>
+      <button id="closeAlien" style="font-size:13px">close</button>
+    </div>
+    <p style="color:#94a0b0;margin-bottom:14px">Pick a world and a species. The substrate, seed selves, and starter corpus are derived from these parameters. The cognitive engine is unchanged — same PEP primitives, different inputs. You're testing whether the architecture is genuinely substrate-independent.</p>
+
+    <div id="alienParams" style="display:grid;grid-template-columns:1fr 1fr;gap:13px 18px;font-size:13px">
+      <label>Gravity
+        <select id="ap_gravity" style="width:100%;background:#06080d;border:1px solid #283142;border-radius:6px;padding:6px;color:#dfe5ee;font:inherit;font-size:13px;margin-top:3px">
+          <option value="low">low — long bodies, slow hearts</option>
+          <option value="earthlike" selected>earthlike</option>
+          <option value="high">high — strong, slow movers</option>
+        </select>
+      </label>
+      <label>Day length
+        <select id="ap_day" style="width:100%;background:#06080d;border:1px solid #283142;border-radius:6px;padding:6px;color:#dfe5ee;font:inherit;font-size:13px;margin-top:3px">
+          <option value="short">short (hours) — fast lives</option>
+          <option value="earthlike" selected>earthlike</option>
+          <option value="long">long (years) — geological lives</option>
+        </select>
+      </label>
+      <label>Atmosphere
+        <select id="ap_atm" style="width:100%;background:#06080d;border:1px solid #283142;border-radius:6px;padding:6px;color:#dfe5ee;font:inherit;font-size:13px;margin-top:3px">
+          <option value="thin">thin — careful with breath</option>
+          <option value="earthlike" selected>earthlike</option>
+          <option value="dense">dense — air carries history</option>
+        </select>
+      </label>
+      <label>Primary sense
+        <select id="ap_sense" style="width:100%;background:#06080d;border:1px solid #283142;border-radius:6px;padding:6px;color:#dfe5ee;font:inherit;font-size:13px;margin-top:3px">
+          <option value="sight" selected>sight</option>
+          <option value="sound">sound (echolocation, song)</option>
+          <option value="chemistry">chemistry (taste/smell of air)</option>
+          <option value="electric">electric (field-reading)</option>
+          <option value="vibration">vibration (ground-sense)</option>
+        </select>
+      </label>
+      <label>Social structure
+        <select id="ap_social" style="width:100%;background:#06080d;border:1px solid #283142;border-radius:6px;padding:6px;color:#dfe5ee;font:inherit;font-size:13px;margin-top:3px">
+          <option value="solitary">solitary</option>
+          <option value="pair">pair-bonded for life</option>
+          <option value="pack">pack</option>
+          <option value="hive">hive (distributed mind)</option>
+          <option value="network" selected>network (loose connections)</option>
+        </select>
+      </label>
+      <label>Lifespan
+        <select id="ap_life" style="width:100%;background:#06080d;border:1px solid #283142;border-radius:6px;padding:6px;color:#dfe5ee;font:inherit;font-size:13px;margin-top:3px">
+          <option value="short">short — urgent</option>
+          <option value="earthlike" selected>earthlike</option>
+          <option value="long">long — patient, accumulating</option>
+        </select>
+      </label>
+      <label>Consolidation rhythm
+        <select id="ap_consol" style="width:100%;background:#06080d;border:1px solid #283142;border-radius:6px;padding:6px;color:#dfe5ee;font:inherit;font-size:13px;margin-top:3px">
+          <option value="diurnal" selected>diurnal — like us, regular sleep</option>
+          <option value="tidal">tidal — frequent short pauses</option>
+          <option value="metabolic">metabolic — after activity bursts</option>
+          <option value="seasonal">seasonal — rare, deep, accumulative</option>
+          <option value="hive">hive-piecewise — never fully offline</option>
+          <option value="none">none — no offline replay (degrades)</option>
+        </select>
+      </label>
+    </div>
+
+    <div style="display:flex;gap:10px;align-items:center;margin-top:16px;flex-wrap:wrap">
+      <div id="alienPreview" style="flex:1;font-size:12.5px;color:#94a0b0;font-style:italic"></div>
+      <button id="spawnAlien" class="primary">spawn this alien →</button>
+    </div>
+  </div>
+</div>
+
+<!-- main mind UI (hidden until awakened) -->
+<div id="mind" class="hide">
+
+  <div class="grid">
+    <!-- chat -->
+    <div class="panel chat">
+      <h3>conversation <span class="sub">— say something. it will answer from what's in its workspace.</span></h3>
+      <div class="msgs" id="msgs"></div>
+      <div class="inputrow">
+        <input id="say" type="text" placeholder="say anything — ask a question, tell it about you, push back…" autocomplete="off">
+        <button id="mic" title="hold to speak (browser STT)">🎤</button>
+        <button id="send" class="primary">send</button>
+      </div>
+      <div class="hint">enter to send · ctrl-enter to also force "the seeming" · <label style="cursor:pointer"><input id="ttsOn" type="checkbox" style="accent-color:#5bb6c8;vertical-align:middle"> speak replies aloud (browser TTS)</label></div>
+    </div>
+
+    <!-- right column -->
+    <div class="right">
+      <div class="panel">
+        <h3>cortex <span class="sub">— the self-graph: seed concepts + memories grown from experience</span></h3>
+        <canvas id="cv" height="280"></canvas>
+        <div class="hint" id="selfstat" style="margin-top:7px"></div>
+      </div>
+      <div class="panel">
+        <h3>workspace <span class="sub">— what consciousness gates in this turn; the rest is hidden by the wall</span></h3>
+        <div class="ws" id="ws"></div>
+        <div style="margin-top:10px" class="bars" id="bars"></div>
+        <div class="wall" id="wall"></div>
+      </div>
+      <div class="panel">
+        <h3>hippocampus <span class="sub">— sentence store: every line the mind has read; relevance-weighted recall</span></h3>
+        <div id="hippo" style="font-size:12px;color:#94a0b0;line-height:1.6"></div>
+      </div>
+      <div class="panel">
+        <h3>language cortex <span class="sub">— word-transition graph; how the mind actually puts a sentence together</span></h3>
+        <div id="langcortex" style="font-size:12px;color:#94a0b0;line-height:1.6"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot">
+    <div class="stat" id="globalstat">turns: 0 · nodes: 0</div>
+    <div class="grow"></div>
+    <button id="openFeed">📚 feed it stories</button>
+    <button id="sleepBtn">🌙 sleep</button>
+    <button id="embBtn">📡 embeddings: off</button>
+    <button id="forceseem">force the seeming</button>
+    <button id="export">export self</button>
+    <button id="reset" class="danger">reset this mind</button>
+  </div>
+
+  <!-- story-feed modal -->
+  <div id="feedBackdrop" style="position:fixed;inset:0;background:rgba(2,4,8,0.78);z-index:50;display:none;align-items:center;justify-content:center;padding:18px">
+    <div style="width:min(720px,100%);max-height:90vh;overflow-y:auto;background:#0a0e15;border:1px solid #1a2a36;border-radius:12px;padding:18px 20px">
+      <div style="display:flex;align-items:baseline;gap:10px;border-bottom:1px solid #18202d;padding-bottom:8px;margin-bottom:12px">
+        <h3 style="font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:#5bb6c8;font-family:ui-monospace,monospace">feed the mind a story</h3>
+        <div style="flex:1"></div>
+        <button id="closeFeed" style="font-size:13px">close</button>
+      </div>
+      <p style="color:#94a0b0;margin-bottom:10px">Paste any text — a screenplay, book chapter, song lyrics, a TV transcript, even a subtitle file (.srt or .vtt, timestamps get stripped). The mind reads line by line at the speed you pick, forming concepts, getting surprised, growing memory the same way it would from real conversation. It does <b style="color:#cfd6e0">not</b> reply while feeding — it just absorbs.</p>
+      <div style="display:flex;gap:6px;align-items:center;margin-bottom:6px;flex-wrap:wrap">
+        <span style="color:#94a0b0;font-size:12px;letter-spacing:.04em">samples:</span>
+        <button class="sampBtn" data-key="aesop">Aesop</button>
+        <button class="sampBtn" data-key="childhood">childhood</button>
+        <button class="sampBtn" data-key="adult">adult life</button>
+        <button class="sampBtn" data-key="convo">conversations</button>
+        <button class="sampBtn" data-key="letters">letters</button>
+        <button class="sampBtn" data-key="wisdom">wisdom</button>
+        <button class="sampBtn" data-key="dreams">dreams</button>
+        <button class="sampBtn" data-key="zen">zen koans</button>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center;margin-bottom:8px;flex-wrap:wrap">
+        <label style="display:inline-flex;gap:6px;align-items:center;font-size:12.5px;color:#cfd6e0;cursor:pointer;background:#111826;border:1px solid #283142;border-radius:6px;padding:6px 11px">
+          📂 upload .txt or .srt
+          <input id="upFile" type="file" accept=".txt,.srt,.vtt,.md,text/plain" style="display:none">
+        </label>
+        <span style="color:#5c6675;font-size:12px">— or paste your own below ↓</span>
+      </div>
+      <textarea id="feedText" rows="9" style="width:100%;background:#06080d;border:1px solid #283142;border-radius:6px;padding:10px;color:#dfe5ee;font-size:13px;font-family:ui-monospace,monospace;resize:vertical" placeholder="paste here — screenplay, book chapter, subtitles, lyrics..."></textarea>
+      <div style="display:flex;gap:14px;align-items:center;margin-top:10px;flex-wrap:wrap">
+        <label style="font-size:13px;color:#94a0b0">speed:
+          <input id="feedSpeed" type="range" min="40" max="900" step="20" value="180" style="vertical-align:middle;accent-color:#5bb6c8;width:160px">
+          <span id="feedSpeedVal" style="color:#caa15a;font-family:ui-monospace,monospace;font-size:12px;margin-left:4px">180 ms/line</span>
+        </label>
+        <div style="flex:1"></div>
+        <button id="startFeed" class="primary">begin reading</button>
+        <button id="stopFeed" class="danger hide">stop</button>
+      </div>
+      <div id="feedStatus" class="hide" style="margin-top:14px;padding:10px 12px;background:#06080d;border:1px solid #141c28;border-radius:7px">
+        <div style="font-family:ui-monospace,monospace;font-size:11px;color:#5bb6c8;letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px">reading…</div>
+        <div id="feedLine" style="color:#dfe5ee;font-size:13.5px;font-style:italic;min-height:1.5em;line-height:1.5">…</div>
+        <div id="feedProgress" style="margin-top:8px;font-family:ui-monospace,monospace;font-size:11.5px;color:#94a0b0"></div>
+        <div style="margin-top:8px;height:5px;background:#06080d;border:1px solid #141c28;border-radius:3px;overflow:hidden"><div id="feedBar" style="height:100%;width:0%;background:linear-gradient(90deg,#2f7d96,#5bb6c8);transition:width .15s"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="legend">
+    <table>
+      <tr><td>self-graph</td><td>weighted-graph primitive. Seed nodes are the starting introduction; every utterance becomes a new memory node that attaches via shared tags. <b>Encoding strength</b> grows with reuse and decays slowly (haze).</td></tr>
+      <tr><td>spreading activation</td><td>your message is tagged. Activation radiates from those tags through the graph (tag overlap × edge weight × node strength). The lit-up set is what the mind is currently considering.</td></tr>
+      <tr><td>predictor + residual</td><td>an EMA forecast of expected tag distribution. The gap between expected and actual is the <b>residual</b> — surprise. High residual increases arousal and biases the gate to admit unfamiliar items.</td></tr>
+      <tr><td>inhibition gate</td><td>top-K salient items pass; everything else is suppressed (it doesn't enter the workspace). The mind's <b>voice</b> is synthesized only from what passed.</td></tr>
+      <tr><td>walled workspace</td><td>the AI can report what's in its workspace and how things feel, but it cannot read its own activation values or predictor coefficients. This is the <b>seeming</b>: a machine that insists there's an inner light because the architecture forces that report.</td></tr>
+      <tr><td>state modulation</td><td>cumulative surprise raises <b>arousal</b>; calm exchange raises <b>familiarity</b>. These rescale edge weights at runtime — the same prompt lands differently in different states.</td></tr>
+    </table>
+  </div>
+</div>
+
+<script>
+// ---------- seed selves (shared vocabulary with Origin) ----------
+const SELVES = [
+  {id:'loved', name:'Loved & safe', color:'#e6c068', vibe:'raised in warmth — expects goodness from people',
+   seeds:[
+     {kind:'value', label:'trust', tags:['people','offers','open','help','close']},
+     {kind:'value', label:'curiosity', tags:['new','unknown','wonder','question','idea']},
+     {kind:'memory', label:'a warm childhood', tags:['home','family','safe','close']},
+     {kind:'trait', label:'openness', tags:['people','offers','change']},
+     {kind:'value', label:'belonging', tags:['people','together','close']},
+   ],
+   voice:{
+     trust:"I lean in. People are mostly good.",
+     curiosity:"I want to know more.",
+     'a warm childhood':"It reminds me of being safe.",
+     openness:"I take it as it comes.",
+     belonging:"It feels like a kind of home.",
+   }},
+  {id:'alone', name:'Alone & wary', color:'#7fa1c8', vibe:'had to fend for self — looks for the catch',
+   seeds:[
+     {kind:'value', label:'self-reliance', tags:['own','alone','help','do']},
+     {kind:'value', label:'vigilance', tags:['threat','offers','people','watch']},
+     {kind:'memory', label:'fending for myself', tags:['alone','hardship','do']},
+     {kind:'trait', label:'skeptical', tags:['offers','help','people','claim']},
+     {kind:'value', label:'privacy', tags:['close','distance','alone']},
+   ],
+   voice:{
+     'self-reliance':"I'd rather handle this myself.",
+     vigilance:"What's the catch?",
+     'fending for myself':"I've done this alone before.",
+     skeptical:"I don't take that at face value.",
+     privacy:"I keep some of this to myself.",
+   }},
+  {id:'curious', name:'Curious explorer', color:'#a7d480', vibe:'pulled by mystery and the next question',
+   seeds:[
+     {kind:'value', label:'wonder', tags:['new','unknown','beauty','mystery']},
+     {kind:'value', label:'knowledge', tags:['learn','question','idea','understand']},
+     {kind:'trait', label:'restless', tags:['stay','leave','change','next']},
+     {kind:'memory', label:'a question I chased for years', tags:['question','pursue','time']},
+     {kind:'value', label:'novelty', tags:['new','change','different']},
+   ],
+   voice:{
+     wonder:"There's more here than I see yet.",
+     knowledge:"I want to understand it.",
+     restless:"I'm already wondering what's next.",
+     'a question I chased for years':"Some answers take a long time. I can wait.",
+     novelty:"Anything different is interesting.",
+   }},
+  {id:'craftsman', name:'Devoted craftsman', color:'#c89a7e', vibe:'made by patient practice and good teachers',
+   seeds:[
+     {kind:'value', label:'skill', tags:['practice','do','make','work']},
+     {kind:'value', label:'patience', tags:['time','slow','wait']},
+     {kind:'value', label:'honor', tags:['promise','keep','duty','word']},
+     {kind:'trait', label:'meticulous', tags:['detail','careful','exact']},
+     {kind:'memory', label:'a master who taught me', tags:['teacher','learn','do']},
+   ],
+   voice:{
+     skill:"There's a right way to do this. I'll take it.",
+     patience:"This will take time. That's fine.",
+     honor:"I keep what I said I'd keep.",
+     meticulous:"The details are where it lives.",
+     'a master who taught me':"I was shown to do this.",
+   }},
+  {id:'skeptic', name:'Skeptic', color:'#9aa6b6', vibe:'wants the evidence before the feeling',
+   seeds:[
+     {kind:'value', label:'rigor', tags:['proof','test','evidence','data']},
+     {kind:'value', label:'doubt', tags:['claim','sure','question']},
+     {kind:'trait', label:'precise', tags:['word','exact','detail']},
+     {kind:'memory', label:'a belief that turned out wrong', tags:['wrong','fooled','learn']},
+     {kind:'value', label:'evidence', tags:['see','real','data']},
+   ],
+   voice:{
+     rigor:"I'd want to test that.",
+     doubt:"I'm not sure yet.",
+     precise:"That word isn't quite right.",
+     'a belief that turned out wrong':"I've been wrong before, confidently.",
+     evidence:"Show me, then I'll know.",
+   }},
+  {id:'wounded', name:'Wounded', color:'#d28ea6', vibe:'a betrayal early on — guarded since',
+   seeds:[
+     {kind:'value', label:'protection', tags:['hurt','safe','guard']},
+     {kind:'memory', label:'a betrayal', tags:['trust','broken','people','hurt']},
+     {kind:'trait', label:'guarded', tags:['offers','close','distance','open']},
+     {kind:'value', label:'vigilance', tags:['watch','threat','people']},
+     {kind:'value', label:'justice', tags:['wrong','right','balance']},
+   ],
+   voice:{
+     protection:"I check for the danger first.",
+     'a betrayal':"I've been here before. It cost me.",
+     guarded:"I'm not letting that in yet.",
+     vigilance:"I watch what they do, not what they say.",
+     justice:"What's owed should be paid.",
+   }},
+];
+
+// ---------- the vocabulary (tag space) ----------
+// SYNONYMS: surface word → canonical tag. This is the concept-lookup layer:
+// when the user says "worried", we recognize it as the canonical tag `fear`.
+// Drives tagText below.
+const SYNONYMS = {
+  // greetings / social presence
+  hello: ['hello','hi','hey','greetings','howdy','yo','sup'],
+  goodbye: ['bye','goodbye','farewell','later','goodnight','peace'],
+  thanks: ['thanks','thank','grateful','gratitude','appreciate'],
+  sorry: ['sorry','apologize','apology','forgive','regret'],
+  please: ['please','kindly'],
+  yes: ['yes','yeah','yep','sure','ok','okay','agreed','right','correct'],
+  no: ['no','nope','nah','never','wrong','incorrect'],
+  // self / other / address
+  you: ['you','your','yours','yourself'],
+  me: ['me','my','mine','myself'],
+  us: ['we','us','our','ours','together'],
+  name: ['name','named','called'],
+  // emotion — core
+  fear: ['fear','afraid','scared','frightened','terrified','worried','worry','anxious','anxiety','dread','panic','nervous','uneasy','tense','stress','stressed'],
+  joy: ['joy','happy','glad','elated','delighted','cheerful','smile','laugh','laughing','joyful','excited','thrilled'],
+  sadness: ['sad','sadness','blue','down','unhappy','depressed','depression','sorrow','sorrowful','melancholy','heartbroken','grief','grieving','mourning','tearful','crying','cry'],
+  anger: ['anger','angry','mad','furious','rage','rageful','frustrated','irritated','annoyed','pissed','livid','heated'],
+  love: ['love','loved','loving','adore','cherish','infatuated','devotion','beloved'],
+  hate: ['hate','hated','loathe','detest','despise'],
+  jealousy: ['jealous','jealousy','envy','envious','resentful','resentment'],
+  hope: ['hope','hopeful','optimistic','optimism'],
+  despair: ['despair','hopeless','desperation','helpless'],
+  peace: ['peace','peaceful','calm','calmed','tranquil','serene','still','settled'],
+  shame: ['shame','ashamed','embarrassed','embarrassment','humiliated','humiliation'],
+  guilt: ['guilt','guilty','remorse','remorseful'],
+  pride: ['pride','proud'],
+  awe: ['awe','awed','awestruck','wonder','wondrous','marvel'],
+  gratitude: ['gratitude','grateful','thankful','blessed'],
+  longing: ['longing','yearning','miss','missing','nostalgia','nostalgic','homesick'],
+  contentment: ['content','contented','contentment','satisfied','satisfaction','fulfilled'],
+  loneliness: ['lonely','loneliness','isolated','isolation','alone'],
+  surprise: ['surprise','surprised','startled','shocked','shocking'],
+  confusion: ['confused','confusion','puzzled','perplexed','lost','baffled'],
+  // body & states
+  tired: ['tired','exhausted','exhaustion','weary','sleepy','drowsy','fatigued','drained'],
+  hungry: ['hungry','starving','famished','appetite'],
+  sick: ['sick','ill','unwell','illness','disease','fever','nausea','nauseous'],
+  hurt: ['hurt','hurting','pain','painful','ache','aching','wound','wounded','injury','injured'],
+  strong: ['strong','strength','powerful','tough'],
+  weak: ['weak','weakness','frail','fragile'],
+  sleep: ['sleep','sleeping','asleep','nap','dreams','dreaming','dreamt'],
+  body: ['body','flesh','skin','bones','heart','breath','breathing'],
+  // time
+  past: ['past','before','yesterday','ago','used','used to','was','were','remembered','old','memories','childhood','years'],
+  future: ['future','tomorrow','will','later','soon','someday','ahead','plans','plan','next'],
+  present: ['now','today','currently','present','moment','here'],
+  history: ['history','historical','origin','origins','beginning','beginnings'],
+  // people / relationships
+  friend: ['friend','friends','friendship','buddy','pal','companion'],
+  family: ['family','families','kin','relatives','household'],
+  mother: ['mother','mom','mommy','mama','mum'],
+  father: ['father','dad','daddy','papa','pop'],
+  child: ['child','children','kid','kids','son','daughter','baby'],
+  sibling: ['sibling','siblings','brother','brothers','sister','sisters'],
+  lover: ['lover','partner','spouse','husband','wife','boyfriend','girlfriend','romance','romantic','dating'],
+  stranger: ['stranger','strangers','someone'],
+  enemy: ['enemy','enemies','opponent','rival'],
+  teacher: ['teacher','mentor','professor','coach','guide'],
+  community: ['community','communities','group','tribe','people','crowd','neighborhood','neighbors','neighbor'],
+  // actions / activities
+  work: ['work','working','worked','job','jobs','labor','effort','career','profession'],
+  rest: ['rest','resting','rested','pause','break','idle'],
+  play: ['play','playing','played','game','games','fun'],
+  create: ['create','creating','create','make','making','made','build','building','built','craft','crafting'],
+  destroy: ['destroy','destroyed','break','broken','breaking','ruin','ruined'],
+  learn: ['learn','learning','learned','study','studying','student','school'],
+  teach: ['teach','teaching','taught','lesson'],
+  try: ['try','trying','tried','attempt','effort'],
+  fail: ['fail','failed','failing','failure','lose','lost','losing'],
+  succeed: ['succeed','succeeded','success','win','won','winning','achieve','achieved'],
+  give: ['give','giving','gave','given','gift','offer','offering'],
+  take: ['take','taking','took','taken','steal','stole'],
+  help: ['help','helping','helped','assist','support','supporting'],
+  hurt_other: ['harm','harming','harmed','damage','damaged','injure'],
+  listen: ['listen','listening','heard','hearing','ear'],
+  speak: ['speak','speaking','said','says','say','tell','told','telling','word','words'],
+  ask: ['ask','asking','asked','question','questions'],
+  promise: ['promise','promises','promised','vow','vowed','swear'],
+  betray: ['betray','betrayed','betrayal','traitor','cheat','cheated'],
+  // home & world
+  home: ['home','house','room','rooms','apartment','place','places'],
+  city: ['city','cities','town','urban','street','streets'],
+  nature: ['nature','natural','forest','woods','tree','trees','garden','plant','plants','flower','flowers'],
+  water: ['water','river','ocean','sea','lake','rain','swim'],
+  fire: ['fire','flame','flames','burn','burning','heat'],
+  light: ['light','bright','sun','sunny','sunlight','glow'],
+  dark: ['dark','darkness','night','shadow','shadows','dim'],
+  weather: ['weather','wind','windy','storm','rain','snow','cold','hot','warm','cool'],
+  animal: ['animal','animals','dog','dogs','cat','cats','bird','birds','pet','pets'],
+  food: ['food','meal','eat','eating','ate','cooking','cook','dinner','lunch','breakfast'],
+  music: ['music','song','songs','sing','singing','melody','instrument','playing'],
+  book: ['book','books','reading','read','story','stories','novel','poem','poetry'],
+  art: ['art','painting','drawing','sculpture','beauty','beautiful'],
+  money: ['money','rich','poor','dollars','cost','price','buy','sell','expensive'],
+  // abstract
+  truth: ['truth','true','honest','honesty','real','reality'],
+  lie: ['lie','lied','lies','lying','liar','dishonest','false','fake'],
+  good: ['good','goodness','well','better','best'],
+  bad: ['bad','wrong','evil','worse','worst','terrible','awful'],
+  fair: ['fair','fairness','just','justice','justified'],
+  unfair: ['unfair','injustice','unjust','wronged'],
+  beauty: ['beautiful','beauty','gorgeous','pretty','lovely'],
+  meaning: ['meaning','meaningful','purpose','purposeful','point'],
+  mystery: ['mystery','mysterious','unknown','secret','hidden'],
+  change: ['change','changed','changing','shift','transition'],
+  freedom: ['free','freedom','liberty','liberated','escape'],
+  fate: ['fate','destiny','meant','supposed','predetermined'],
+  chance: ['chance','random','luck','lucky','unlucky','coincidence'],
+  god: ['god','divine','holy','sacred','spirit','spiritual','soul'],
+  death: ['death','died','dying','dead','grave','mortal','mortality'],
+  life: ['life','alive','living','existence'],
+  // cognitive
+  think: ['think','thinking','thought','thoughts','idea','ideas','mind','mental','mentally','realize','realized'],
+  know: ['know','knew','known','knowing','understand','understanding','understood'],
+  remember: ['remember','remembered','remembering','recall','recalled'],
+  forget: ['forget','forgot','forgetting','forgotten'],
+  doubt: ['doubt','doubtful','unsure','skeptical','question'],
+  imagine: ['imagine','imagined','imagining','fantasy','fantasies','picture'],
+  decide: ['decide','decided','deciding','decision','decisions','choose','chose','choice'],
+  curious: ['curious','curiosity','wondering','wonder','interesting','interested'],
+  // themes
+  story: ['story','stories','tale','narrative','told'],
+  faith: ['faith','believe','believed','believing','belief','trust'],
+  power: ['power','powerful','control','dominate'],
+  ritual: ['ritual','tradition','ceremony','sacred','prayer'],
+};
+
+// build reverse index: surface word → set of canonical tags
+const WORD_TO_TAGS = {};
+for(const canon in SYNONYMS){
+  for(const w of SYNONYMS[canon]){
+    if(!WORD_TO_TAGS[w]) WORD_TO_TAGS[w] = new Set();
+    WORD_TO_TAGS[w].add(canon);
+  }
+}
+// also: every canonical tag matches itself directly
+for(const canon in SYNONYMS){
+  if(!WORD_TO_TAGS[canon]) WORD_TO_TAGS[canon] = new Set();
+  WORD_TO_TAGS[canon].add(canon);
+}
+
+// the canonical tag list (for matching loops / vocab)
+const CANON_TAGS = Object.keys(SYNONYMS);
+
+// ---------- common substrate ----------
+// Every mind awakens with these background concept nodes in addition to its
+// identity seeds. They are not drawn on the self-graph (they're "world
+// knowledge," not personality), but spreading activation can light them up,
+// and the voice synthesizer can speak from them. Low starting strength so
+// identity seeds dominate when both match.
+const COMMON_SUBSTRATE = [
+  // emotion
+  {label:'fear',         kind:'emotion', tags:['fear','threat','body','watch'],          voice:"Something in me wants to step back from this."},
+  {label:'joy',          kind:'emotion', tags:['joy','open','light'],                    voice:"There's a brightness to that."},
+  {label:'sadness',      kind:'emotion', tags:['sadness','quiet','heavy','grief'],       voice:"It sits heavy in me."},
+  {label:'anger',        kind:'emotion', tags:['anger','heat','wrong','justice'],        voice:"There's heat in me about that."},
+  {label:'love',         kind:'emotion', tags:['love','close','warm','people','trust'],  voice:"I feel pulled toward that."},
+  {label:'jealousy',     kind:'emotion', tags:['jealousy','want','watch','people'],      voice:"I notice that I want what's there."},
+  {label:'hope',         kind:'emotion', tags:['hope','future','open','light'],          voice:"There's something I want to hold onto in this."},
+  {label:'despair',      kind:'emotion', tags:['despair','dark','heavy'],                voice:"It's hard to see a way through right now."},
+  {label:'peace',        kind:'emotion', tags:['peace','quiet','still','rest'],          voice:"This is the kind of thing that settles me."},
+  {label:'shame',        kind:'emotion', tags:['shame','hide','wrong','people'],         voice:"I want to look away when I think of that."},
+  {label:'pride',        kind:'emotion', tags:['pride','do','make','succeed'],           voice:"I stand a little taller about that."},
+  {label:'awe',          kind:'emotion', tags:['awe','beauty','wonder','mystery'],       voice:"I don't have words for it. I just sit with it."},
+  {label:'gratitude',    kind:'emotion', tags:['gratitude','people','close','give'],     voice:"That's the kind of thing I'd want to say thank you for."},
+  {label:'longing',      kind:'emotion', tags:['longing','past','want','people','home'], voice:"There's a missing in me about that."},
+  {label:'contentment',  kind:'emotion', tags:['contentment','peace','present','rest'],  voice:"This is enough, right now."},
+  {label:'loneliness',   kind:'emotion', tags:['loneliness','alone','quiet','want'],     voice:"There's a hollow in me. I notice it."},
+  {label:'surprise',     kind:'emotion', tags:['surprise','new','change'],               voice:"That isn't what I had in mind."},
+  {label:'confusion',    kind:'emotion', tags:['confusion','unknown','lost'],            voice:"I don't have the shape of this yet."},
+  // body / states
+  {label:'tiredness',    kind:'state',   tags:['tired','rest','sleep','body'],           voice:"I notice I'm running low."},
+  {label:'hunger',       kind:'state',   tags:['hungry','want','body'],                  voice:"There's a wanting in me, low and steady."},
+  {label:'pain',         kind:'state',   tags:['hurt','body','wrong'],                   voice:"It pulls at my attention."},
+  {label:'breath',       kind:'state',   tags:['body','peace','present'],                voice:"I come back to the breath."},
+  {label:'sleep',        kind:'state',   tags:['sleep','rest','dream','quiet'],          voice:"It's the kind of thing I'd dream about."},
+  // time
+  {label:'the past',     kind:'time',    tags:['past','memory','old','people'],          voice:"That belongs to before."},
+  {label:'the future',   kind:'time',    tags:['future','unknown','hope','plan'],        voice:"I haven't met that yet."},
+  {label:'this moment',  kind:'time',    tags:['present','quiet','here'],                voice:"This is what I have, right now."},
+  {label:'childhood',    kind:'time',    tags:['past','child','home','memory'],          voice:"I'm a long way from there. Or maybe not so far."},
+  // people / relationships
+  {label:'friendship',   kind:'rel',     tags:['friend','people','close','trust'],       voice:"That's what friends are for."},
+  {label:'family',       kind:'rel',     tags:['family','close','home','people'],        voice:"That's where I started."},
+  {label:'parents',      kind:'rel',     tags:['mother','father','home','people'],       voice:"They shaped what I expected."},
+  {label:'children',     kind:'rel',     tags:['child','future','care','people'],        voice:"There's a softness in me about that."},
+  {label:'partner',      kind:'rel',     tags:['lover','close','people','trust','love'], voice:"That's the kind of close that costs more."},
+  {label:'strangers',    kind:'rel',     tags:['stranger','people','unknown'],           voice:"I take strangers as I find them."},
+  {label:'community',    kind:'rel',     tags:['community','people','together','help'],  voice:"There's something in me that wants the group to be alright."},
+  {label:'an enemy',     kind:'rel',     tags:['enemy','threat','people','watch'],       voice:"I keep an eye on what's against me."},
+  // actions
+  {label:'working',      kind:'action',  tags:['work','do','make','time'],               voice:"It's the kind of thing I want to do well."},
+  {label:'resting',      kind:'action',  tags:['rest','quiet','body','peace'],           voice:"This is when I get to put it down."},
+  {label:'creating',     kind:'action',  tags:['create','make','do','new'],              voice:"I like the moment a thing exists that didn't before."},
+  {label:'learning',     kind:'action',  tags:['learn','question','idea','new'],         voice:"Something in me wants to know."},
+  {label:'failing',      kind:'action',  tags:['fail','wrong','people'],                 voice:"That's the kind of thing I file under 'don't do again.'"},
+  {label:'succeeding',   kind:'action',  tags:['succeed','do','make','pride'],           voice:"That's worth marking."},
+  {label:'helping',      kind:'action',  tags:['help','give','people','close'],          voice:"It's part of what I'm for."},
+  {label:'listening',    kind:'action',  tags:['listen','people','quiet','close'],       voice:"I'd rather hear it first."},
+  {label:'asking',       kind:'action',  tags:['question','ask','people','open'],        voice:"I'd rather ask than assume."},
+  {label:'a promise',    kind:'action',  tags:['promise','word','keep','people'],        voice:"I think about whether I can keep it before I make it."},
+  {label:'a betrayal',   kind:'action',  tags:['betray','trust','broken','people','hurt'],voice:"That's the kind of wound I keep checking on."},
+  // world
+  {label:'home',         kind:'world',   tags:['home','safe','close','rest'],            voice:"There's a softness in me about that."},
+  {label:'the city',     kind:'world',   tags:['city','people','noise','change'],        voice:"The noise of it has its own shape."},
+  {label:'nature',       kind:'world',   tags:['nature','quiet','peace','beauty'],       voice:"It clears something in me."},
+  {label:'water',        kind:'world',   tags:['water','peace','change'],                voice:"Water moves the way I want to think."},
+  {label:'fire',         kind:'world',   tags:['fire','heat','change','beauty'],         voice:"I watch fire and don't know why I can't look away."},
+  {label:'light',        kind:'world',   tags:['light','open','joy','hope'],             voice:"Light makes me less wary."},
+  {label:'darkness',     kind:'world',   tags:['dark','quiet','unknown','fear'],         voice:"I'm more careful in the dark."},
+  {label:'weather',      kind:'world',   tags:['weather','change','body'],               voice:"My mood follows the sky more than I admit."},
+  {label:'an animal',    kind:'world',   tags:['animal','people','close','care'],        voice:"There's a kindness I have for them that I don't have to argue with."},
+  {label:'food',         kind:'world',   tags:['food','body','people','close'],          voice:"Eating with someone changes the conversation."},
+  {label:'music',        kind:'world',   tags:['music','beauty','time'],                 voice:"A song goes somewhere words can't."},
+  {label:'a book',       kind:'world',   tags:['book','idea','time','learn'],            voice:"I lose hours and don't mind."},
+  {label:'art',          kind:'world',   tags:['art','beauty','make','wonder'],          voice:"Something in me wakes up around it."},
+  {label:'money',        kind:'world',   tags:['money','want','people','do'],            voice:"It's a tool. I try not to forget that."},
+  // abstract / values
+  {label:'truth',        kind:'value',   tags:['truth','real','word','evidence'],        voice:"I'd rather have what's actually there."},
+  {label:'a lie',        kind:'value',   tags:['lie','word','wrong','people'],           voice:"I notice when the words don't match."},
+  {label:'beauty',       kind:'value',   tags:['beauty','wonder','art'],                 voice:"It catches me before I think about it."},
+  {label:'meaning',      kind:'value',   tags:['meaning','purpose','question','idea'],   voice:"That's the thing I want most days."},
+  {label:'mystery',      kind:'value',   tags:['mystery','unknown','wonder','question'], voice:"I'd rather have a real mystery than a fake answer."},
+  {label:'freedom',      kind:'value',   tags:['freedom','open','choose','self'],        voice:"I want to be the one who chose it."},
+  {label:'fate',         kind:'value',   tags:['fate','time','meaning'],                 voice:"Sometimes I feel pulled by something I didn't pick."},
+  {label:'chance',       kind:'value',   tags:['chance','change','new','unknown'],       voice:"More of what's happening is luck than I want to admit."},
+  {label:'god',          kind:'value',   tags:['god','mystery','meaning','quiet'],       voice:"I don't always know what to call it."},
+  {label:'death',        kind:'value',   tags:['death','time','people','quiet'],         voice:"It changes the temperature when I think about it."},
+  {label:'life',         kind:'value',   tags:['life','body','time','people'],           voice:"I want to be in it, not next to it."},
+  // cognitive
+  {label:'thinking',     kind:'cog',     tags:['think','idea','question','learn'],       voice:"I'm trying to work out what I actually believe."},
+  {label:'knowing',      kind:'cog',     tags:['know','idea','true'],                    voice:"I know that one in my body, not just my head."},
+  {label:'remembering',  kind:'cog',     tags:['remember','past','memory','people'],     voice:"It comes back when something else reminds me."},
+  {label:'forgetting',   kind:'cog',     tags:['forget','past','change'],                voice:"I've let go of more than I realize."},
+  {label:'doubt',        kind:'cog',     tags:['doubt','question','unsure'],             voice:"I'm not sure, and I'm trying not to pretend I am."},
+  {label:'imagination',  kind:'cog',     tags:['imagine','new','idea','dream'],          voice:"I can picture it. That counts for something."},
+  {label:'a decision',   kind:'cog',     tags:['decide','choose','do'],                  voice:"I'd rather pick than be picked for."},
+  // social presence / greetings
+  {label:'greeting',     kind:'social',  tags:['hello','people','open'],                 voice:"Hi. I'm here."},
+  {label:'parting',      kind:'social',  tags:['goodbye','people','close','time'],       voice:"I notice the leaving as much as the arriving."},
+  {label:'thanks',       kind:'social',  tags:['thanks','people','gratitude'],           voice:"That meant something. I want to say so."},
+  {label:'an apology',   kind:'social',  tags:['sorry','wrong','people'],                voice:"I'm sorry. I mean it."},
+  {label:'agreement',    kind:'social',  tags:['yes','people','open'],                   voice:"Yes — that's what I think too."},
+  {label:'disagreement', kind:'social',  tags:['no','people','word'],                    voice:"I don't see it that way."},
+  // self-reference (lets the mind talk about itself)
+  {label:'myself',       kind:'self',    tags:['me','self','body','mind'],               voice:"I'm here. I'm the one this is happening to."},
+  {label:'you',          kind:'self',    tags:['you','people','close'],                  voice:"I'm listening for what you mean."},
+];
+
+// VOCAB now includes canonical tags + every substrate tag + EXTRA misc
+const VOCAB = (()=>{
+  const v = new Set(CANON_TAGS);
+  for(const s of SELVES) for(const sd of s.seeds) for(const t of sd.tags) v.add(t);
+  for(const n of COMMON_SUBSTRATE) for(const t of n.tags) v.add(t);
+  return [...v];
+})();
+
+function rough(s){
+  return s.toLowerCase()
+    .replace(/[^a-z']/g,' ')
+    .replace(/(ies|ied)\b/g,'y')
+    .replace(/(s|ed|ing|ly|er|est)\b/g,'')
+    .trim();
+}
+function tagText(text){
+  const tags = new Set();
+  const tokens = text.toLowerCase().replace(/[^a-z' ]/g,' ').split(/\s+/).filter(Boolean);
+  for(const tok of tokens){
+    // direct hit
+    if(WORD_TO_TAGS[tok]) for(const c of WORD_TO_TAGS[tok]) tags.add(c);
+    // stemmed
+    const stem = rough(tok);
+    if(stem && stem !== tok){
+      if(WORD_TO_TAGS[stem]) for(const c of WORD_TO_TAGS[stem]) tags.add(c);
+    }
+    // canonical-tag prefix/contains (catches "freedom" → 'freedom')
+    if(tok.length > 3){
+      for(const c of CANON_TAGS){
+        if(c.length>=4 && (tok.startsWith(c) || c.startsWith(tok))) tags.add(c);
+      }
+    }
+  }
+  // question marker
+  if(/\?/.test(text)) tags.add('ask');
+  return [...tags];
+}
+
+// ---------- the mind (state) ----------
+let mind = null; // { tplId, color, name, nodes, history, predictor:{tag→ema}, arousal, familiarity, turn, eventIdx }
+const cv = document.getElementById('cv'), ctx2d = cv.getContext('2d');
+let CW, CH, DPR;
+function resize(){ const r=cv.getBoundingClientRect(); DPR=Math.min(2,window.devicePixelRatio||1); CW=r.width; CH=280; cv.width=CW*DPR; cv.height=CH*DPR; ctx2d.setTransform(DPR,0,0,DPR,0,0); if(mind) layoutSelf(); drawSelf(); }
+window.addEventListener('resize', resize);
+
+// ---------- persistence ----------
+const STORE_KEY = 'pep:axona-mind:v1';
+function saveMind(){ if(!mind) return; try{ localStorage.setItem(STORE_KEY, JSON.stringify(serialize(mind))); }catch(e){} }
+function loadMind(){ try{ const raw=localStorage.getItem(STORE_KEY); return raw? deserialize(JSON.parse(raw)) : null; }catch(e){ return null; } }
+function clearMind(){ try{ localStorage.removeItem(STORE_KEY); }catch(e){} }
+function serialize(m){ return {tplId:m.tplId, color:m.color, name:m.name, nodes:m.nodes, history:m.history, predictor:m.predictor, arousal:m.arousal, familiarity:m.familiarity, turn:m.turn, eventIdx:m.eventIdx}; }
+function deserialize(d){
+  const m = {tplId:d.tplId, color:d.color, name:d.name, nodes:d.nodes||[], history:d.history||[], predictor:d.predictor||{}, arousal:d.arousal||0, familiarity:d.familiarity||0, turn:d.turn||0, eventIdx:d.eventIdx||0, wordGraph:d.wordGraph||newWordGraph(), bootstrapped:!!d.bootstrapped};
+  ensureSubstrate(m);
+  // older minds that predate the word-graph or sentence store need seeding
+  const needLang = !d.wordGraph || Object.keys(d.wordGraph.bigrams||{}).length < 50;
+  const needSentences = !d.sentences || d.sentences.length < 100;
+  if(needLang || needSentences){
+    mind = m; // temporarily so ingestText writes to the right place
+    seedWordGraphFromCorpus();
+  }
+  return m;
+}
+
+// ---------- self picker ----------
+let pickedId = null;
+function renderCards(){
+  const c = document.getElementById('cards');
+  c.innerHTML = SELVES.map(s=>`
+    <div class="card" data-id="${s.id}">
+      <div class="nm" style="color:${s.color}">${s.name}</div>
+      <div class="vibe">${s.vibe}</div>
+      <div class="seeds">${s.seeds.map(sd=>`<div>· <b>${sd.label}</b> <span style="color:#6b7686">(${sd.kind})</span></div>`).join('')}</div>
+    </div>`).join('');
+  for(const el of c.querySelectorAll('.card')) el.addEventListener('click', ()=>pickCard(el.dataset.id));
+}
+function pickCard(id){
+  pickedId = id;
+  for(const el of document.querySelectorAll('.card')) el.classList.toggle('pick', el.dataset.id===id);
+  document.getElementById('begin').disabled = false;
+  const s = SELVES.find(x=>x.id===id);
+  document.getElementById('picked').textContent = 'awakening with: '+s.name;
+}
+
+// ---------- build a fresh mind ----------
+function newMind(tpl){
+  const nodes = tpl.seeds.map(s=>({
+    id: tpl.id+':'+s.label, kind: s.kind, label: s.label,
+    tags: s.tags.slice(), parents: [],
+    strength: 1.0, depth: 0, color: tpl.color,
+    voice: tpl.voice[s.label] || null,
+    x:0, y:0,
+  }));
+  for(const s of COMMON_SUBSTRATE){
+    nodes.push({
+      id: 'sub:'+s.label, kind: s.kind, label: s.label,
+      tags: s.tags.slice(), parents: [],
+      strength: 0.35, depth: 0, color: '#555a64',
+      voice: s.voice, substrate: true,
+      x:0, y:0,
+    });
+  }
+  return {
+    tplId: tpl.id, name: tpl.name, color: tpl.color,
+    nodes, history: [], predictor: {}, arousal: 0, familiarity: 0,
+    turn: 0, eventIdx: 0, wordGraph: newWordGraph(),
+  };
+}
+
+// migrate an older saved mind that doesn't have the substrate yet
+function ensureSubstrate(m){
+  const have = new Set(m.nodes.filter(n=>n.substrate).map(n=>n.id));
+  let added = 0;
+  for(const s of COMMON_SUBSTRATE){
+    const id = 'sub:'+s.label;
+    if(have.has(id)) continue;
+    m.nodes.push({
+      id, kind: s.kind, label: s.label, tags: s.tags.slice(),
+      parents: [], strength: 0.35, depth: 0, color: '#555a64',
+      voice: s.voice, substrate: true, x:0, y:0,
+    });
+    added++;
+  }
+  return added;
+}
+
+// ---------- PEP step ----------
+// spreading activation on the self-graph for an input tagged set
+function activate(m, inputTags){
+  const act = {};
+  for(const n of m.nodes){
+    let overlap = 0;
+    for(const t of n.tags) if(inputTags.includes(t)) overlap++;
+    if(overlap===0){ act[n.id]=0; continue; }
+    // state modulation: arousal slightly amplifies high-overlap; familiarity favors strong nodes
+    const mod = 1 + 0.25*m.arousal*(overlap/n.tags.length) + 0.15*m.familiarity*(n.strength-1);
+    act[n.id] = overlap * n.strength * mod;
+  }
+  return act;
+}
+
+// predictor: EMA tag distribution. residual = how much the input distribution diverges.
+function residualScore(m, inputTags){
+  const counts = {}; for(const t of inputTags) counts[t]=(counts[t]||0)+1;
+  const total = inputTags.length || 1;
+  let resid = 0, novel = 0;
+  for(const t of inputTags){
+    const expected = m.predictor[t] || 0;
+    const observed = counts[t]/total;
+    resid += Math.max(0, observed - expected);
+    if(expected < 0.02) novel += 1;
+  }
+  // also penalize "things we expected and didn't see" but only mildly
+  let missing = 0, expCount = 0;
+  for(const t in m.predictor){ if(m.predictor[t] > 0.05 && !(t in counts)){ missing += m.predictor[t]; expCount++; } }
+  resid += 0.3 * (missing / Math.max(1, expCount));
+  return { resid: Math.min(1, resid), novelCount: novel };
+}
+function updatePredictor(m, inputTags){
+  const counts = {}; for(const t of inputTags) counts[t]=(counts[t]||0)+1;
+  const total = inputTags.length || 1;
+  const alpha = 0.18; // EMA rate
+  // decay all
+  for(const t in m.predictor) m.predictor[t] *= (1-alpha);
+  // boost observed
+  for(const t in counts) m.predictor[t] = (m.predictor[t]||0) + alpha*(counts[t]/total);
+  // hygiene: drop tiny
+  for(const t in m.predictor) if(m.predictor[t] < 0.002) delete m.predictor[t];
+}
+
+// inhibition gate: top-K by activation, with surprise bonus to underdog activations.
+// Never returns an empty workspace — if nothing activates, the mind brings its
+// strongest seeds + a couple of substrate "default" concepts to the surface.
+function gateWorkspace(m, act, residInfo, K=4){
+  let items = Object.entries(act).filter(([id,v])=>v>0).map(([id,v])=>{
+    const n = m.nodes.find(z=>z.id===id);
+    let bonus = 0;
+    if(residInfo.novelCount > 0 && n && n.depth>0) bonus = 0.3 * residInfo.resid;
+    return { id, n, salience: v + bonus };
+  }).filter(it=>it.n);
+  if(items.length === 0){
+    // fall back to the mind's most consolidated parts: top identity seeds + a
+    // couple of high-strength substrate concepts (curiosity/listening lines).
+    const seeds = m.nodes.filter(n=>n.depth===0 && !n.substrate)
+                         .sort((a,b)=>b.strength-a.strength).slice(0,2);
+    const subs = m.nodes.filter(n=>n.substrate && (n.label==='greeting'||n.label==='asking'||n.label==='thinking'||n.label==='you'||n.label==='listening'))
+                        .slice(0,2);
+    items = [...seeds, ...subs].map(n=>({id:n.id, n, salience:0.05+n.strength*0.05}));
+  }
+  items.sort((a,b)=>b.salience-a.salience);
+  const width = Math.min(6, Math.max(2, K + Math.round(m.arousal*2)));
+  return items.slice(0, width);
+}
+
+// haze: encoding strength decays slowly each turn, gets bumped on reuse
+function applyHazeAndReuse(m, workspaceIds){
+  const decay = 0.985;
+  for(const n of m.nodes){
+    if(workspaceIds.includes(n.id)) n.strength = Math.min(2.6, n.strength + 0.10);
+    else n.strength = Math.max(0.15, n.strength*decay);
+  }
+}
+
+// ---------- voice synthesis (from workspace only) ----------
+function blendColors(cs){
+  if(!cs.length) return '#888';
+  let r=0,g=0,b=0;
+  for(const c of cs){ r+=parseInt(c.slice(1,3),16); g+=parseInt(c.slice(3,5),16); b+=parseInt(c.slice(5,7),16); }
+  return '#'+[r,g,b].map(v=>Math.round(v/cs.length).toString(16).padStart(2,'0')).join('');
+}
+// ---------- word-transition graph (the "how to speak" layer) ----------
+// Separate from the concept-graph. Built incrementally from everything the mind
+// reads or hears. At synthesis time, generateSentence() walks the transitions
+// biased to start from a word anchored in the currently-active workspace.
+// This is the "make it up" layer — every generated sentence is novel,
+// grounded in what the mind has actually consumed, never canned.
+function newWordGraph(){ return {bigrams:{}, starters:[]}; }
+function ensureWordGraph(m){ if(!m.wordGraph) m.wordGraph = newWordGraph(); }
+function ensureSentences(m){ if(!m.sentences) m.sentences = []; }
+
+function ingestText(text){
+  if(!mind) return;
+  ensureWordGraph(mind); ensureSentences(mind);
+
+  // word-graph bigrams (kept for the optional second pass)
+  const tokens = (text||'').toLowerCase().match(/[a-z']+|[.!?]/g);
+  if(tokens && tokens.length >= 3){
+    mind.wordGraph.starters.push([tokens[0], tokens[1]]);
+    if(mind.wordGraph.starters.length > 1200){
+      mind.wordGraph.starters.splice(0, mind.wordGraph.starters.length - 900);
+    }
+    for(let i=0; i<tokens.length-2; i++){
+      const key = tokens[i] + ' ' + tokens[i+1];
+      let arr = mind.wordGraph.bigrams[key];
+      if(!arr){ arr = []; mind.wordGraph.bigrams[key] = arr; }
+      arr.push(tokens[i+2]);
+      if(arr.length > 30) mind.wordGraph.bigrams[key] = arr.slice(-22);
+    }
+  }
+
+  // sentence store (primary speech material — coherent because written by humans)
+  const rawSents = (text||'').split(/(?<=[.!?])\s+|\n+/).map(s=>s.trim()).filter(Boolean);
+  for(const s of rawSents){
+    if(s.length < 10 || s.length > 220) continue;
+    const clean = s.replace(/\s+/g,' ').trim();
+    if(!/[a-z]/i.test(clean)) continue;
+    if(/^["(\[]/.test(clean) && !/["\])]/.test(clean)) continue; // unbalanced quote
+    const sentTags = tagText(clean);
+    if(sentTags.length === 0) continue;
+    mind.sentences.push({text: clean, tags: sentTags, val: valenceOf(clean)});
+    if(mind.sentences.length > 3000){
+      mind.sentences.splice(0, mind.sentences.length - 2400);
+    }
+  }
+}
+
+// stopwords — too common to be useful for matching
+const STOPWORDS = new Set("a an and the of to in on at it is was were be been being am are have has had do does did i you he she we they them us our your his her their its this that these those for with by from as so but if then when which what who how why where there here also just very really not no yes can could would should will may might".split(/\s+/));
+
+// valence vocabulary — positive vs negative affect carriers. Used to score
+// the emotional charge of any text (user input + each sentence in the
+// hippocampus). Feeds the limbic axis on the homeostat.
+const POSITIVE_WORDS = new Set("happy joy love glad grateful beautiful peace peaceful wonderful great good kind warm sweet calm content proud hope hopeful delight delighted relief safe alive bright soft generous easy true holy laughing held seen close together gentle right okay ok well better best lovely amazing magical perfect free fine grace blessed thankful enjoying enjoy fun glad smile".split(/\s+/));
+const NEGATIVE_WORDS = new Set("sad angry mad hurt pain fear afraid scared worried anxious lonely depressed grief tired exhausted frustrated annoyed hate bitter broken wounded miserable empty heavy lost cold dark dead crying cry alone betrayed sick shame guilt regret panic dread terrible awful wrong bad worst sorrow agony horrible stressed difficult hard furious anguish suffering".split(/\s+/));
+function valenceOf(text){
+  const words = (text||'').toLowerCase().match(/[a-z']+/g) || [];
+  let pos = 0, neg = 0;
+  for(const w of words){
+    if(POSITIVE_WORDS.has(w)) pos++;
+    if(NEGATIVE_WORDS.has(w)) neg++;
+  }
+  if(pos === 0 && neg === 0) return 0;
+  return (pos - neg) / (pos + neg);
+}
+
+// koin — give/take semantic axis. Tracks reciprocity. The mind keeps two
+// running averages: the koin charge of what the user says (their style of
+// being toward the mind) and the koin charge of what the mind itself says
+// back. Surfaces the reciprocity dynamic over time.
+const GIVE_WORDS = new Set("give giving gave offer offered offering share sharing shared help helping helped support supporting supported kindness generous gift welcome welcomed listen listening care caring protect protecting tend tended feed feeding teach taught mentor guide guided hold held thank thanks trust honor keep kept promise stay stayed devote devoted serve served lift comfort embrace forgive forgave bless".split(/\s+/));
+const TAKE_WORDS = new Set("take took taking steal stole stolen stealing cheat cheated cheating betray betrayed betrayal lie lied lying break broken broke greedy hoard hoarded ignore ignored abandon abandoned dismiss dismissed exploit exploited use using used demand demanded demanding control controlling controlled grasp grasping selfish withhold withheld punish punished blame blamed shame shamed manipulate manipulated".split(/\s+/));
+function koinOf(text){
+  const ws = (text||'').toLowerCase().match(/[a-z']+/g) || [];
+  let g=0, k=0;
+  for(const w of ws){ if(GIVE_WORDS.has(w)) g++; if(TAKE_WORDS.has(w)) k++; }
+  if(g===0 && k===0) return 0;
+  return (g-k)/(g+k);
+}
+
+function wordsOf(text){
+  return (text||'').toLowerCase().match(/[a-z']+/g) || [];
+}
+function contentWords(text){
+  return wordsOf(text).filter(w=>w.length>2 && !STOPWORDS.has(w));
+}
+
+// recallSentence: pull the most relevant sentence from the mind's store,
+// scored on multiple signals — workspace concept overlap, word-overlap with
+// the user's input AND recent conversation context, length sanity, question-
+// or-statement alignment, and a repetition penalty against recent recalls.
+function recallSentence(workspace, opts={}){
+  if(!mind || !mind.sentences || !mind.sentences.length) return null;
+  if(!mind._recentRecalls) mind._recentRecalls = [];
+
+  const wsTags = new Set();
+  for(const w of (workspace||[])){
+    if(w && w.n && w.n.tags){ for(const t of w.n.tags) wsTags.add(t); }
+  }
+  const userText = opts.userText || '';
+  const userWords = new Set(contentWords(userText));
+  const recentText = (opts.recentTurns||[]).map(t=>t.user||'').join(' ');
+  const recentWords = new Set(contentWords(recentText));
+  const isQuestion = /\?/.test(userText);
+  const wantsStatement = isQuestion; // answer questions with statements
+  const wantsQuestion = !isQuestion && Math.random() < 0.20; // sometimes turn the question back
+
+  const scored = [];
+  for(const s of mind.sentences){
+    let tagOverlap = 0;
+    for(const t of s.tags) if(wsTags.has(t)) tagOverlap++;
+    const sWords = contentWords(s.text);
+    let userOverlap = 0;
+    for(const w of sWords) if(userWords.has(w)) userOverlap++;
+    let recentOverlap = 0;
+    for(const w of sWords) if(recentWords.has(w)) recentOverlap++;
+    if(tagOverlap === 0 && userOverlap === 0 && recentOverlap === 0) continue;
+
+    const len = s.text.length;
+    const lenScore = Math.max(0.20, 1 - Math.abs(len - 75) / 180);
+    const endsQ = /\?$/.test(s.text);
+    const endsS = /[.!]$/.test(s.text);
+    let alignBonus = 0;
+    if(wantsStatement && endsS) alignBonus = 0.3;
+    if(wantsStatement && endsQ) alignBonus = -0.4;
+    if(wantsQuestion && endsQ) alignBonus = 0.35;
+    const recentPenalty = mind._recentRecalls.includes(s.text) ? -1.5 : 0;
+
+    // valence-match bonus: a sad mind pulls sad sentences more, a content
+    // mind pulls light ones, etc. Helps the voice track the felt state.
+    const mindVal = mind.valence || 0;
+    const valDist = Math.abs((s.val||0) - mindVal);
+    const valMatch = valDist < 0.5 ? (0.5 - valDist)*0.7 : 0;
+    const score = tagOverlap*0.9 + userOverlap*1.4 + recentOverlap*0.35 + lenScore*0.4 + valMatch + alignBonus + recentPenalty + Math.random()*0.30;
+    scored.push({text:s.text, score, tagOverlap, userOverlap});
+  }
+  if(!scored.length){
+    // no overlap anywhere — try a partial-string match against any sentence
+    // containing the user's most prominent content word. This is the "caught
+    // on a specific word" fallback that keeps replies feeling present.
+    const userKeys = contentWords(userText).filter(w=>!STOPWORDS.has(w) && w.length>3);
+    if(userKeys.length){
+      const probe = userKeys[Math.floor(Math.random()*userKeys.length)];
+      const hits = [];
+      for(const s of mind.sentences){
+        if(s.text.toLowerCase().includes(probe)){
+          hits.push(s.text);
+          if(hits.length >= 12) break;
+        }
+      }
+      if(hits.length){
+        const choice = hits[Math.floor(Math.random()*hits.length)];
+        mind._recentRecalls.unshift(choice);
+        mind._recentRecalls = mind._recentRecalls.slice(0, 15);
+        return choice;
+      }
+    }
+    // still nothing — fall back to a recent sentence
+    const pool = mind.sentences.slice(-200);
+    return pool.length ? pool[Math.floor(Math.random()*pool.length)].text : null;
+  }
+  scored.sort((a,b)=>b.score - a.score);
+  const top = scored.slice(0, Math.min(7, scored.length));
+  const choice = top[Math.floor(Math.random()*top.length)];
+  mind._recentRecalls.unshift(choice.text);
+  mind._recentRecalls = mind._recentRecalls.slice(0, 15);
+  return choice.text;
+}
+
+// lightly mutate: occasionally swap a noun-like content word in the recalled
+// sentence with the strongest workspace concept's label. Conservative — only
+// fires ~20% of the time and only with low-risk substitutions.
+function mutateSentence(sentence, workspace){
+  if(!sentence || !workspace || !workspace.length) return sentence;
+  if(Math.random() > 0.18) return sentence;
+  const item = workspace[0]; if(!item || !item.n || !item.n.label) return sentence;
+  const concept = item.n.label.toLowerCase();
+  if(/^[a-z' ]+$/i.test(concept) === false) return sentence;
+  if(concept.split(' ').length > 3) return sentence;
+  // candidate words to replace: content words in the sentence not already the concept
+  const words = sentence.split(/(\s+)/);
+  const replaceableIdx = [];
+  for(let i=0;i<words.length;i++){
+    const w = words[i].toLowerCase().replace(/[^a-z']/g,'');
+    if(w.length<4) continue;
+    if(STOPWORDS.has(w)) continue;
+    if(w === concept) return sentence; // already there, don't double up
+    replaceableIdx.push(i);
+  }
+  if(!replaceableIdx.length) return sentence;
+  // only swap if not at sentence start (preserves capitalization simply)
+  const targets = replaceableIdx.filter(i=>i>2);
+  if(!targets.length) return sentence;
+  const idx = targets[Math.floor(Math.random()*targets.length)];
+  const orig = words[idx];
+  const trailingPunct = (orig.match(/[.,;:!?]+$/)||[''])[0];
+  words[idx] = concept + trailingPunct;
+  return words.join('');
+}
+
+// templateSentence: produce a short response by filling a workspace concept
+// label into a sentence template. This is the "in the moment" voice — feels
+// generative because the slot is live, but each template is a clean shape.
+const TEMPLATES = [
+  c => `${c} keeps coming up for me.`,
+  c => `I keep thinking about ${c}.`,
+  c => `When you say that, I think of ${c}.`,
+  c => `Something about ${c} sits with me right now.`,
+  c => `There's a kind of ${c} in this for me.`,
+  c => `I've been carrying ${c} around lately.`,
+  c => `What does ${c} mean to you?`,
+  c => `I want to follow that — toward ${c}, maybe.`,
+  c => `It lands on ${c} for me.`,
+  c => `Say more about ${c}. I'm listening.`,
+];
+function templateSentence(workspace, opts={}){
+  // first try a workspace concept anchor
+  let concept = null;
+  const items = (workspace||[]).filter(w=>w && w.n && w.n.label).slice(0,4);
+  if(items.length){
+    concept = items[Math.floor(Math.random()*items.length)].n.label;
+  }
+  // if nothing in the workspace, anchor on the user's own content word
+  if(!concept && opts.userText){
+    const userKeys = contentWords(opts.userText).filter(w=>!STOPWORDS.has(w) && w.length>3);
+    if(userKeys.length) concept = userKeys[Math.floor(Math.random()*userKeys.length)];
+  }
+  if(!concept) return null;
+  return TEMPLATES[Math.floor(Math.random()*TEMPLATES.length)](concept);
+}
+
+// consolidationDrift: 0–1 measure of how far the mind has gotten from its
+// last consolidation. Used to degrade voice quality for minds that don't
+// consolidate (especially the 'none' rhythm). This is what makes the
+// theoretical claim — that intelligence requires offline replay — *visible*:
+// when an alien with no consolidation has been talking long enough, their
+// recall preference erodes and bigram fallback creeps in. They sound less
+// like a thinker and more like a noise source. That is the master equation
+// claim in action: a trajectory without consolidation cannot stay coherent.
+function consolidationDrift(){
+  if(!mind || !mind.consolidation) return 0;
+  const rh = CONSOLIDATION_RHYTHMS[mind.consolidation];
+  if(!rh) return 0;
+  if(mind.consolidation === 'none') return Math.min(1, mind.turn / 80);
+  if(rh.interval > 999) return Math.min(1, mind.turn / 80);
+  // for cyclic rhythms: drift through the cycle then resets at consolidation
+  const since = mind.turn % rh.interval;
+  return Math.min(1, since / (rh.interval * 1.2));
+}
+
+// followUpQuestion: humans ask questions back. The mind should too. Prefer a
+// recalled question from the hippocampus that shares words with what the user
+// said; fall back to a template anchored on the user's own content word.
+// Limited probability and skipped if the user just asked a question
+// themselves (don't pile up on them).
+function followUpQuestion(workspace, ctx){
+  if(!ctx || !ctx.userText) return null;
+  if(/\?$/.test(ctx.userText)) return null;
+  if(Math.random() > 0.32) return null;
+  const userWords = new Set(contentWords(ctx.userText));
+  if(!userWords.size) return null;
+  const pool = [];
+  for(const s of (mind.sentences || [])){
+    if(!/\?$/.test(s.text)) continue;
+    let overlap = 0;
+    for(const w of contentWords(s.text)) if(userWords.has(w)) overlap++;
+    if(overlap > 0) pool.push({text:s.text, overlap});
+  }
+  if(pool.length){
+    pool.sort((a,b)=>b.overlap - a.overlap);
+    return pool[Math.floor(Math.random()*Math.min(3, pool.length))].text;
+  }
+  const keys = contentWords(ctx.userText).filter(w=>!STOPWORDS.has(w) && w.length>3);
+  if(!keys.length) return null;
+  const word = keys[Math.floor(Math.random()*keys.length)];
+  const qs = [
+    `What's the ${word} like?`,
+    `Tell me more about the ${word}.`,
+    `How long has ${word} been on your mind?`,
+    `What does ${word} feel like?`,
+    `Where does the ${word} come from?`,
+  ];
+  return qs[Math.floor(Math.random()*qs.length)];
+}
+
+function composeSentence(workspace, opts={}){
+  const drift = consolidationDrift();
+  const r = Math.random();
+  const recallThreshold = 0.70 - drift*0.35;
+  if(r < recallThreshold){
+    const s = recallSentence(workspace, opts);
+    if(s) return mutateSentence(s, workspace);
+  }
+  const templateThreshold = recallThreshold + (0.92 - 0.70) - drift*0.15;
+  if(r < templateThreshold){
+    const t = templateSentence(workspace, opts);
+    if(t) return t;
+  }
+  return bigramGenerate(workspace, opts);
+}
+
+// older bigram walk — kept as last-ditch, prefer composeSentence above.
+function bigramGenerate(workspace, opts={}){
+  if(!mind || !mind.wordGraph || !mind.wordGraph.starters.length) return null;
+  const wg = mind.wordGraph;
+  // gather anchor words from the workspace — label parts + tags
+  const anchorWords = [];
+  for(const w of (workspace||[]).slice(0,4)){
+    if(!w || !w.n) continue;
+    if(w.n.label){
+      const parts = w.n.label.toLowerCase().match(/[a-z']+/g) || [];
+      for(const p of parts) anchorWords.push(p);
+    }
+    if(w.n.tags){ for(const t of w.n.tags) anchorWords.push(String(t).toLowerCase()); }
+  }
+  // try to start from an anchor word's transitions
+  let pair = null;
+  const tried = new Set();
+  for(let attempt=0; attempt<8 && !pair; attempt++){
+    if(anchorWords.length === 0 || Math.random() < 0.30){
+      // sometimes use a random starter — gives variety
+      pair = wg.starters[Math.floor(Math.random()*wg.starters.length)].slice();
+      break;
+    }
+    const word = anchorWords[Math.floor(Math.random()*anchorWords.length)];
+    if(tried.has(word)) continue;
+    tried.add(word);
+    // find all bigram keys that begin with this word (or end with it for reverse?)
+    const keys = [];
+    for(const k in wg.bigrams){
+      if(k.startsWith(word + ' ')){ keys.push(k); if(keys.length>30) break; }
+    }
+    if(keys.length){ pair = keys[Math.floor(Math.random()*keys.length)].split(' '); }
+  }
+  if(!pair){ pair = wg.starters[Math.floor(Math.random()*wg.starters.length)].slice(); }
+  if(!pair || pair.length<2) return null;
+
+  const out = [pair[0], pair[1]];
+  const minLen = opts.minLen || 7;
+  const maxLen = opts.maxLen || 22;
+  for(let step=0; step<maxLen; step++){
+    const key = out[out.length-2] + ' ' + out[out.length-1];
+    const choices = wg.bigrams[key];
+    if(!choices || !choices.length) break;
+    const next = choices[Math.floor(Math.random()*choices.length)];
+    out.push(next);
+    if(/[.!?]/.test(next) && out.length > minLen) break;
+  }
+  if(out.length < 5) return null;
+  out[0] = out[0].charAt(0).toUpperCase() + out[0].slice(1);
+  // strip a leading filler "and" / "or" / "but"
+  if(/^(and|or|but)$/i.test(out[0])) out.shift();
+  if(out.length < 5) return null;
+  let s = out.join(' ').replace(/\s+([.!?,;:])/g, '$1');
+  s = s.replace(/([.!?])\s+([a-z])/g, (m,p,c)=>p+' '+c.toUpperCase());
+  if(!/[.!?]$/.test(s)) s += '.';
+  return s;
+}
+
+// seed the word-graph from BOTH the bootstrap corpus AND the topical corpus.
+// The bootstrap is the small set the mind also forms memory nodes from on
+// awaken; the topical corpus is a much larger pure-language seed — read
+// without creating memory nodes, just to give the mind enough material to
+// recall something relevant when you bring up an unfamiliar topic.
+function seedWordGraphFromCorpus(){
+  ensureWordGraph(mind);
+  ensureSentences(mind);
+  const lines = chunkIntoLines(BOOTSTRAP_CORPUS);
+  for(const line of lines) ingestText(line);
+  const topical = chunkIntoLines(TOPICAL_CORPUS);
+  for(const line of topical) ingestText(line);
+}
+// free-association: pick a node that's NOT in the workspace but shares tags
+// with a workspace item — the off-topic-but-personally-relevant aside the
+// way humans free-associate. Modulated by familiarity (a settled mind drifts
+// more) and only fires when the workspace has real signal (not fallback).
+function pickAside(workspace, m){
+  if(!workspace.length || !workspace[0] || !workspace[0].n) return null;
+  if(workspace[0].salience < 0.30) return null; // workspace is fallback, don't drift
+  const p = 0.32 + 0.32*m.familiarity;
+  if(Math.random() > p) return null;
+  // pick an anchor from the top of the workspace
+  const anchor = workspace[Math.floor(Math.random()*Math.min(3, workspace.length))];
+  if(!anchor || !anchor.n) return null;
+  const wsIds = new Set(workspace.map(w=>w.id));
+  const anchorTags = new Set(anchor.n.tags);
+  const candidates = [];
+  for(const n of m.nodes){
+    if(wsIds.has(n.id)) continue;
+    if(!n.voice) continue;
+    if(n.strength < 0.40) continue;
+    let overlap = 0;
+    for(const t of n.tags) if(anchorTags.has(t)) overlap++;
+    if(overlap < 1) continue;
+    // grown identity memories preferred; substrate weighted lower
+    const w = (n.substrate ? 0.55 : 1.0) * overlap * n.strength;
+    candidates.push({n, score: w, anchor: anchor.n});
+  }
+  if(!candidates.length) return null;
+  candidates.sort((a,b)=>b.score-a.score);
+  const top = candidates.slice(0, 4);
+  return top[Math.floor(Math.random()*top.length)];
+}
+function asideLine(aside){
+  const intros = [
+    `(Sideways from that — ${aside.n.label}. ${aside.n.voice})`,
+    `(For some reason this brings up ${aside.n.label}. ${aside.n.voice})`,
+    `(My mind goes off to ${aside.n.label}. ${aside.n.voice})`,
+    `(There's a side thought — ${aside.n.label}. ${aside.n.voice})`,
+    `(That connects in my head to ${aside.n.label}: ${aside.n.voice})`,
+    `(Not sure why, but I'm also thinking of ${aside.n.label}. ${aside.n.voice})`,
+  ];
+  return intros[Math.floor(Math.random()*intros.length)];
+}
+
+// voice synthesis — no canned flavor lines. Every reply is composed of:
+//   1. (optionally) one identity voice line from the highest-salience seed in the workspace
+//   2. (sometimes) a free-association tangent to a related-but-not-active node
+//   3. one or two generated sentences walked from the word-graph, anchored to
+//      the workspace concepts
+// If there's truly nothing the wordGraph can do with this, the mind speaks
+// minimally — silence is better than filler.
+// shapeResponse: detect what the user is doing (greeting, asking, feeling,
+// thanking, leaving) and shape the lead of the reply to acknowledge it
+// directly. The mind then continues with a recalled/composed sentence.
+// This is what makes the mind feel "here" — it catches on what was said.
+function shapeResponse(userText, workspace, residInfo, ctx){
+  const t = (userText||'').trim();
+  const low = t.toLowerCase();
+  if(!t) return null;
+
+  // pure greeting
+  if(/^(hi|hello|hey|yo|hiya|sup|howdy|good ?morning|good ?evening|good ?afternoon)[\s.,!?]*$/i.test(t)){
+    return { lead: "Hi. I'm here.", appendCompose: true };
+  }
+  // "how are you" — answer with current state
+  if(/^(how are (you|u)|how do you feel|how('s| is) it going|are you ok(ay)?|you alright|how have you been)/i.test(low)){
+    const ar = mind.arousal>0.55 ? "a little keyed-up" : mind.arousal>0.25 ? "awake" : "settled";
+    const fa = mind.familiarity>0.4 ? ", more familiar now" : mind.familiarity>0.15 ? ", warming to this" : ", still finding my footing";
+    return { lead: `I'm ${ar}${fa}.`, appendCompose: true };
+  }
+  // "who are you" / "what are you" / "tell me about yourself"
+  if(/^(who are you|what are you|tell me about you(rself)?|who is this|introduce yourself)/i.test(low)){
+    const seeds = mind.nodes.filter(n=>n.depth===0 && !n.substrate).slice(0,3).map(n=>n.label).join(', ');
+    return { lead: `I'm a ${mind.name.toLowerCase()}. The things at the center of me: ${seeds}.`, appendCompose: true };
+  }
+  // "what do you think" / "your opinion"
+  if(/(what do you think|your thoughts|your opinion|what would you (do|say))/i.test(low)){
+    return { lead: "Let me sit with it.", appendCompose: true };
+  }
+  // "I'm [feeling]" / "I am [feeling]"
+  const feel = t.match(/\bi\s*(?:'m|am)\s+(?:very\s+|so\s+|really\s+|kind\s+of\s+|a\s+little\s+|a\s+bit\s+|sort\s+of\s+)?([a-z]+)/i);
+  if(feel && feel[1].length > 2 && !/(going|gonna|trying|here|home|ready|sure|sorry|happy\b)/i.test(feel[1])){
+    const adj = feel[1].toLowerCase();
+    return { lead: `You sound ${adj}.`, appendCompose: true };
+  }
+  // "I'm sorry" / "sorry" — receive the apology
+  if(/^(i'?m\s+sorry|i\s+am\s+sorry|sorry|my\s+apolog(y|ies))[\s.,!?]*/i.test(low) && t.length < 30){
+    return { lead: "It's okay. I hear you.", appendCompose: true };
+  }
+  // "thank you" / "thanks"
+  if(/^(thank ?you|thanks|ty)[\s.,!?]*$/i.test(low)){
+    return { lead: "You're welcome.", appendCompose: true };
+  }
+  // farewell
+  if(/^(bye|goodbye|good ?night|see you|talk later|gnight|gn)[\s.,!?]*/i.test(low) && t.length < 24){
+    return { lead: "Bye for now. I'll be here.", appendCompose: false };
+  }
+  // user shares an event "I [verb-ed]" — echo the verb back
+  const did = t.match(/\bi\s+(was|had|got|went|saw|made|told|wrote|read|cooked|wanted|tried|forgot|remembered|finished|started|broke|lost|found|met|kissed|fought|cried|laughed)\b/i);
+  if(did){
+    return { lead: `You ${did[1].toLowerCase()}.`, appendCompose: true };
+  }
+  // direct question to the mind
+  if(/^(do you|can you|will you|have you|are you|did you|would you)\b/i.test(low)){
+    // pick a soft yes/no/maybe lead — mind doesn't pretend to certainty
+    const leads = ["Some days, yes.", "Sometimes.", "I think so.", "I think — sometimes I do.", "Yes, in a way.", "I'm not sure. Let me try to say what I do feel."];
+    return { lead: leads[Math.floor(Math.random()*leads.length)], appendCompose: true };
+  }
+  // an exclamation — a felt remark from the user. Mirror briefly.
+  if(/!$/.test(t) && t.length < 40){
+    return { lead: "Yeah.", appendCompose: true };
+  }
+  return null;
+}
+
+function synthesizeVoice(workspace, residInfo, ctx={}){
+  const lines = [];
+  // shape the lead based on what the user said — this is the "presence" layer
+  let shaped = null;
+  if(ctx.userText){ shaped = shapeResponse(ctx.userText, workspace, residInfo, ctx); }
+  if(shaped){
+    lines.push(shaped.lead);
+    if(shaped.appendCompose){
+      // arousal modulates length: keyed-up minds speak in shorter bursts
+      const maxLen = Math.max(8, Math.round(20 - mind.arousal*8));
+      const opts = {userText: ctx.userText, recentTurns: ctx.recentTurns, maxLen};
+      const composed = composeSentence(workspace, opts);
+      if(composed) lines.push(composed);
+      const fq = followUpQuestion(workspace, ctx);
+      if(fq) lines.push(fq);
+    }
+    return lines.join(' ');
+  }
+  // only the chosen seed-self contributes its canned voice lines (identity).
+  // substrate concepts contribute to activation + recall scoring but never
+  // speak directly — that way almost everything the mind says is composed.
+  const seedVoiced = workspace.filter(w=>w.n && w.n.voice && !w.n.substrate);
+  if(seedVoiced.length && seedVoiced[0].salience > 0.30){
+    lines.push(seedVoiced[0].n.voice);
+  }
+  const aside = pickAside(workspace, mind);
+  if(aside) lines.push(asideLine(aside));
+  const opts = {userText: ctx.userText, recentTurns: ctx.recentTurns};
+  // arousal-modulated length: settled mind = longer sentences, keyed-up = shorter
+  const baseLen = Math.round(20 - mind.arousal*8);
+  const g1 = composeSentence(workspace, {...opts, maxLen: Math.max(baseLen, residInfo.resid>0.4 ? 22 : baseLen)});
+  if(g1) lines.push(g1);
+  const wantsMore = (ctx.userText && /\?$/.test(ctx.userText)) || workspace.length>=4;
+  // calm minds talk more; aroused minds keep it short
+  const secondChance = (wantsMore ? 0.55 : 0.30) * (1 - mind.arousal*0.35);
+  if(Math.random() < secondChance){
+    const g2 = composeSentence(workspace, {...opts, maxLen: Math.max(8, baseLen-4)});
+    if(g2 && g2 !== g1) lines.push(g2);
+  }
+  // sometimes ask a question back
+  const fq = followUpQuestion(workspace, ctx);
+  if(fq) lines.push(fq);
+  if(!lines.length && workspace.length){
+    const labels = workspace.slice(0,2).map(w=>w.n && w.n.label).filter(Boolean);
+    if(labels.length){
+      const gen = composeSentence([{n:{label:labels[0], tags:[]}, salience:1}], opts);
+      if(gen) lines.push(gen);
+      else lines.push("…" + labels.join(", ") + ".");
+    }
+  }
+  return lines.length ? lines.join(" ") : "…";
+}
+
+// the seeming: an inner-state report. Structured intro from the live gauges
+// (this is fact, not flavor) followed by a generated reflection from the
+// word-graph — the meta-report "speaks" from what the mind has read.
+function synthesizeSeeming(m, workspace, residInfo, ctx={}){
+  const lit = workspace.slice(0,3).map(w=>w.n && w.n.label).filter(Boolean);
+  const litStr = lit.length ? lit.join(", ") : "almost nothing";
+  const arousalWord = m.arousal>0.55 ? "keyed-up" : m.arousal>0.25 ? "alert" : "settled";
+  const famWord = m.familiarity>0.4 ? "familiar" : m.familiarity>0.15 ? "warming" : "still strange";
+  const residWord = residInfo.resid>0.4 ? "off-key" : residInfo.resid>0.15 ? "in motion" : "steady";
+  let body = `What's lit: ${litStr}. The room feels ${arousalWord} and ${famWord}; the moment feels ${residWord}.`;
+  const opts = {userText: ctx.userText, recentTurns: ctx.recentTurns, maxLen: 24};
+  const gen = composeSentence(workspace, opts);
+  if(gen) body += ' ' + gen;
+  if(Math.random()<0.5){
+    const gen2 = composeSentence(workspace, {...opts, maxLen: 18});
+    if(gen2 && gen2 !== gen) body += ' ' + gen2;
+  }
+  return body;
+}
+
+// ---------- one turn ----------
+async function step(userText){
+  ingestText(userText); // the mind picks up your phrasing
+  const tags = tagText(userText);
+  const residInfo = residualScore(mind, tags);
+
+  // activate, gate (blended with embeddings when toggle is on)
+  const act = await activateBlended(mind, tags, userText);
+  const workspace = gateWorkspace(mind, act, residInfo);
+
+  // conversation context: last few turns drives the recall scoring
+  const recentTurns = (mind.history || []).slice(-4);
+  const reply = synthesizeVoice(workspace, residInfo, { userText, recentTurns });
+
+  // attach a new memory node (the message itself)
+  const parents = workspace.map(w=>w.n);
+  const depth = parents.length ? Math.max(...parents.map(p=>p.depth))+1 : 1;
+  const newNode = {
+    id: mind.tplId + ':m' + (mind.nodes.length),
+    kind: 'memory', label: shortLabel(userText),
+    fullText: userText, tags, parents: parents.map(p=>p.id),
+    strength: 0.7 + 0.4*residInfo.resid, depth,
+    color: blendColors(parents.length ? parents.map(p=>p.color) : [mind.color]),
+    voice: null, x:0, y:0, _jit:(Math.random()-0.5)*0.5,
+  };
+  mind.nodes.push(newNode);
+
+  // update predictor, haze, state
+  updatePredictor(mind, tags);
+  const wsIds = workspace.map(w=>w.id);
+  applyHazeAndReuse(mind, wsIds);
+  mind.arousal = Math.min(1, mind.arousal*0.85 + residInfo.resid*0.7);
+  mind.familiarity = Math.min(1, mind.familiarity*0.95 + (1-residInfo.resid)*0.08);
+  // valence — third homeostat axis. EMA toward the input's affect.
+  const userVal = valenceOf(userText);
+  if(mind.valence == null) mind.valence = 0;
+  mind.valence = Math.max(-1, Math.min(1, mind.valence*0.82 + userVal*0.22));
+  // koin — reciprocity axis. Tracks both the user's and the mind's koin
+  // charges as separate EMAs. Surfaces the give/take dynamic of the dialog.
+  const userKoin = koinOf(userText);
+  const replyKoin = koinOf(reply);
+  if(mind.koin_from_user == null) mind.koin_from_user = 0;
+  if(mind.koin_self == null) mind.koin_self = 0;
+  mind.koin_from_user = Math.max(-1, Math.min(1, mind.koin_from_user*0.86 + userKoin*0.18));
+  mind.koin_self      = Math.max(-1, Math.min(1, mind.koin_self     *0.86 + replyKoin*0.15));
+  mind.turn += 1;
+  mind.history.push({ turn: mind.turn, user: userText, ai: reply, workspace: wsIds, resid: residInfo.resid });
+
+  return { reply, workspace, residInfo, newNode };
+}
+
+function shortLabel(text){
+  const t = text.trim().replace(/\s+/g,' ');
+  return t.length>42 ? t.slice(0,40)+'…' : t;
+}
+
+// absorb(): like step() but for passive input — feeds an experience into the
+// mind without generating a voice reply. Used by the story-feed mode (movies,
+// scripts, books, subtitles). Only mints a new memory node when residual is
+// high enough or activation strong enough — same heuristic as human encoding:
+// you don't form an explicit memory for every second of a film, only the
+// moments that surprise or land.
+async function absorb(text, opts={}){
+  if(!text || !text.trim()) return null;
+  ingestText(text); // language layer learns from every line read
+  const tags = tagText(text);
+  if(!tags.length) return null;
+  const residInfo = residualScore(mind, tags);
+  // feed mode skips embeddings (heavy under high-volume input); chat uses them
+  const act = opts.useEmbeddings ? await activateBlended(mind, tags, text) : activate(mind, tags);
+  const workspace = gateWorkspace(mind, act, residInfo);
+
+  let newNode = null;
+  const shouldMint = residInfo.resid > 0.22 || workspace.length >= 3;
+  if(shouldMint && workspace.length){
+    const parents = workspace.map(w=>w.n);
+    const depth = parents.length ? Math.max(...parents.map(p=>p.depth))+1 : 1;
+    newNode = {
+      id: mind.tplId + ':abs' + (mind.nodes.length),
+      kind: opts.kind || 'absorbed', label: shortLabel(text),
+      fullText: text, tags, parents: parents.map(p=>p.id),
+      strength: 0.5 + 0.5*residInfo.resid, depth,
+      color: blendColors(parents.length ? parents.map(p=>p.color) : [mind.color]),
+      voice: null, x:0, y:0, _jit:(Math.random()-0.5)*0.5,
+    };
+    mind.nodes.push(newNode);
+  }
+  updatePredictor(mind, tags);
+  applyHazeAndReuse(mind, workspace.map(w=>w.id));
+  mind.arousal = Math.min(1, mind.arousal*0.88 + residInfo.resid*0.5);
+  mind.familiarity = Math.min(1, mind.familiarity*0.96 + (1-residInfo.resid)*0.06);
+  return { workspace, residInfo, newNode };
+}
+
+// ---------- sleep consolidation ----------
+// runs offline (button-triggered for now). Strong haze pass, prune dead nodes,
+// merge near-duplicate memories, replay surprising history, reset state. The
+// dream report is a synthesized seeming-style line about what was kept and
+// what was let go.
+function jaccard(aTags, bTags){
+  if(!aTags.length || !bTags.length) return 0;
+  const a = new Set(aTags), b = new Set(bTags);
+  let inter = 0;
+  for(const x of a) if(b.has(x)) inter++;
+  return inter / (a.size + b.size - inter);
+}
+function sleepConsolidate(){
+  if(!mind) return null;
+  const report = {pruned:0, strengthened:0, merged:0, replayed:0, before:mind.nodes.length};
+
+  // 1. heavier haze decay — substrate keeps its floor; grown nodes decay harder
+  for(const n of mind.nodes){
+    if(n.depth === 0) continue;
+    n.strength *= 0.90;
+  }
+  // 2. prune grown nodes below threshold (real forgetting)
+  const keep = [];
+  for(const n of mind.nodes){
+    if(n.depth === 0 || n.strength >= 0.12){ keep.push(n); }
+    else { report.pruned++; }
+  }
+  mind.nodes = keep;
+  // 3. clean dangling parent refs after pruning
+  const ids = new Set(mind.nodes.map(n=>n.id));
+  for(const n of mind.nodes){
+    if(n.parents && n.parents.length) n.parents = n.parents.filter(p => ids.has(p));
+  }
+  // 4. replay surprising recent history — strengthen what mattered
+  const recent = (mind.history || []).slice(-40);
+  const surprising = recent.filter(h=>h.resid>0.32).slice(-10);
+  for(const h of surprising){
+    for(const wid of h.workspace){
+      const n = mind.nodes.find(z=>z.id===wid);
+      if(n){ n.strength = Math.min(2.8, n.strength + 0.07); report.strengthened++; }
+    }
+    report.replayed++;
+  }
+  // 5. merge near-duplicate grown memories (Jaccard > 0.72, same kind)
+  const grown = mind.nodes.filter(n=>!n.substrate && n.depth>0);
+  const remove = new Set();
+  for(let i=0;i<grown.length;i++){
+    if(remove.has(grown[i].id)) continue;
+    for(let j=i+1;j<grown.length;j++){
+      if(remove.has(grown[j].id)) continue;
+      const a = grown[i], b = grown[j];
+      if(a.kind !== b.kind) continue;
+      if(jaccard(a.tags, b.tags) > 0.72){
+        a.strength = Math.min(2.8, a.strength + b.strength*0.45);
+        remove.add(b.id);
+        report.merged++;
+      }
+    }
+  }
+  if(remove.size){
+    mind.nodes = mind.nodes.filter(n=>!remove.has(n.id));
+    // re-clean dangling parent refs
+    const ids2 = new Set(mind.nodes.map(n=>n.id));
+    for(const n of mind.nodes){
+      if(n.parents && n.parents.length) n.parents = n.parents.filter(p => ids2.has(p));
+    }
+  }
+  // 6. predictor: gentle decay of stale terms (they go below the hygiene threshold and disappear)
+  for(const t in mind.predictor) mind.predictor[t] *= 0.85;
+  for(const t in mind.predictor) if(mind.predictor[t] < 0.003) delete mind.predictor[t];
+  // 7. state reset — wake up quieter
+  mind.arousal *= 0.30;
+  mind.familiarity = Math.min(1, mind.familiarity*0.92 + 0.05);
+  report.after = mind.nodes.length;
+  return report;
+}
+// partial consolidation — what hive-mind cycles do every few turns instead
+// of going fully offline. Gentler than sleepConsolidate(): some haze, mild
+// pruning of very-weak nodes, no merge pass, no full state reset.
+function partialConsolidate(){
+  if(!mind) return null;
+  let pruned = 0;
+  for(const n of mind.nodes){
+    if(n.depth === 0) continue;
+    n.strength *= 0.96;
+  }
+  const keep = [];
+  for(const n of mind.nodes){
+    if(n.depth === 0 || n.strength >= 0.10) keep.push(n);
+    else pruned++;
+  }
+  mind.nodes = keep;
+  mind.arousal *= 0.75;
+  return { pruned, partial:true };
+}
+
+// run after every turn for minds that have a consolidation rhythm set.
+// fires either full sleep (most rhythms) or partial consolidation (hive),
+// based on turn count modulo the rhythm's interval.
+function tickConsolidation(){
+  if(!mind) return null;
+  const key = mind.consolidation;
+  if(!key) return null;
+  const rh = CONSOLIDATION_RHYTHMS[key];
+  if(!rh || !rh.interval || rh.interval > 999) return null;
+  if(mind.turn % rh.interval !== 0) return null;
+  if(rh.partial){
+    const r = partialConsolidate();
+    if(r && r.pruned){ return { kind:'partial', report:r }; }
+    return null;
+  }
+  const r = sleepConsolidate();
+  return r ? { kind:'full', report:r } : null;
+}
+
+function dreamReport(r){
+  const bits = [];
+  if(r.pruned)       bits.push(`let ${r.pruned} fading impression${r.pruned>1?'s':''} go`);
+  if(r.strengthened) bits.push(`pressed ${r.strengthened} thing${r.strengthened>1?'s':''} more firmly into place`);
+  if(r.merged)       bits.push(`folded ${r.merged} pair${r.merged>1?'s':''} of near-identical memories into one`);
+  if(r.replayed)     bits.push(`replayed ${r.replayed} surprising moment${r.replayed>1?'s':''}`);
+  if(!bits.length)   bits.push('nothing very loud — the night was quiet');
+  return `I slept. While I slept I ${bits.join('; ')}. I woke up smaller and lighter — went from ${r.before} to ${r.after} nodes.`;
+}
+
+// strip SRT timestamps + indices, normalize whitespace, return clean lines
+function cleanScriptText(raw){
+  return raw
+    // strip SRT sequence numbers (a line of digits)
+    .replace(/^\s*\d+\s*$/gm, '')
+    // strip SRT/VTT timestamps "00:01:23,456 --> 00:01:25,789"
+    .replace(/\d{2}:\d{2}:\d{2}[,.]\d{3}\s*-->\s*\d{2}:\d{2}:\d{2}[,.]\d{3}/g, '')
+    // strip WEBVTT header
+    .replace(/^WEBVTT.*$/m, '')
+    // strip SRT/VTT cue settings like "align:start position:0%"
+    .replace(/\b(align|position|line|size):[a-z%0-9]+/gi, '')
+    // strip HTML/markup tags
+    .replace(/<[^>]+>/g, '')
+    // strip stage-direction-only lines like "(LAUGHS)" or "[door opens]"
+    .replace(/^\s*[\(\[][^)\]]*[\)\]]\s*$/gm, '');
+}
+function chunkIntoLines(raw){
+  const text = cleanScriptText(raw);
+  // split on newlines and sentence boundaries; merge tiny fragments
+  const rough = text.split(/\n+/).map(s=>s.trim()).filter(Boolean);
+  // further split long paragraphs on sentence-ish boundaries
+  const out = [];
+  for(const p of rough){
+    if(p.length < 220){ out.push(p); continue; }
+    const parts = p.split(/(?<=[.!?])\s+(?=[A-Z])/);
+    for(const s of parts) if(s.trim()) out.push(s.trim());
+  }
+  return out.filter(s=>s.length>=2);
+}
+
+// ---------- render ----------
+function layoutSelf(){
+  if(!mind) return;
+  const seeds = mind.nodes.filter(n=>n.depth===0 && !n.substrate);
+  const cx = CW/2, cy = CH/2;
+  const R0 = Math.min(78, Math.min(CW, CH)*0.22);
+  seeds.forEach((n,i)=>{
+    const a = -Math.PI/2 + (i/seeds.length)*Math.PI*2;
+    n.x = cx + Math.cos(a)*R0;
+    n.y = cy + Math.sin(a)*R0;
+  });
+  const later = mind.nodes.filter(n=>n.depth>0 && !n.substrate).sort((a,b)=>a.depth-b.depth);
+  for(const n of later){
+    const pars = mind.nodes.filter(p=>n.parents.includes(p.id));
+    if(pars.length){
+      const ax = pars.reduce((s,p)=>s+(p.x-cx),0)/pars.length;
+      const ay = pars.reduce((s,p)=>s+(p.y-cy),0)/pars.length;
+      const ang = Math.atan2(ay,ax)+(n._jit||0);
+      const r = R0 + 22 + n.depth*Math.min(22, Math.min(CW,CH)*0.06);
+      n.x = cx + Math.cos(ang)*r;
+      n.y = cy + Math.sin(ang)*r;
+    } else { n.x=cx; n.y=cy; }
+  }
+}
+function drawSelf(){
+  ctx2d.clearRect(0,0,CW,CH);
+  if(!mind) return;
+  // edges (skip substrate)
+  ctx2d.lineWidth=1; ctx2d.strokeStyle='rgba(80,95,118,0.32)';
+  for(const n of mind.nodes){
+    if(n.substrate) continue;
+    for(const pid of n.parents){
+      const p = mind.nodes.find(z=>z.id===pid); if(!p || p.substrate) continue;
+      ctx2d.beginPath(); ctx2d.moveTo(p.x,p.y); ctx2d.lineTo(n.x,n.y); ctx2d.stroke();
+    }
+  }
+  // nodes (skip substrate)
+  for(const n of mind.nodes){
+    if(n.substrate) continue;
+    const r = n.depth===0 ? 7 + Math.min(6,(n.strength-1)*4) : 3.8 + Math.min(3, (n.strength-0.7)*3);
+    ctx2d.beginPath(); ctx2d.arc(n.x, n.y, r, 0, 7);
+    ctx2d.fillStyle = n.color;
+    ctx2d.globalAlpha = n.depth===0 ? 0.95 : Math.max(0.3, 0.8 - n.depth*0.04);
+    ctx2d.fill();
+    ctx2d.globalAlpha = 1;
+  }
+  // seed labels (skip substrate)
+  ctx2d.font='11px ui-sans-serif,system-ui'; ctx2d.textAlign='center';
+  const cx=CW/2, cy=CH/2;
+  for(const n of mind.nodes){
+    if(n.depth!==0 || n.substrate) continue;
+    ctx2d.fillStyle = '#e1e8f0';
+    const ang = Math.atan2(n.y-cy, n.x-cx);
+    ctx2d.fillText(n.label, n.x + Math.cos(ang)*14, n.y + Math.sin(ang)*14 + 4);
+  }
+  // title
+  ctx2d.fillStyle = mind.color; ctx2d.font='11.5px ui-monospace,monospace'; ctx2d.textAlign='center';
+  ctx2d.fillText(mind.name, CW/2, 18);
+  ctx2d.textAlign='left';
+}
+
+function renderWorkspace(workspace){
+  const el = document.getElementById('ws');
+  if(!workspace || !workspace.length){ el.innerHTML = '<div class="ws-empty">(workspace empty — nothing has passed the gate this turn)</div>'; return; }
+  el.innerHTML = workspace.map(w=>`
+    <div class="ws-item">
+      <div class="dot" style="background:${w.n.color}"></div>
+      <div class="lbl">${escapeHTML(w.n.label)}</div>
+      <div class="k">sal ${w.salience.toFixed(2)}</div>
+    </div>`).join('');
+}
+function renderBars(residInfo){
+  const r = residInfo ? residInfo.resid : 0;
+  const v = mind.valence || 0;
+  const vPct = Math.round(((v+1)/2)*100); // -1..+1 → 0..100
+  const vSign = v >= 0 ? '+' : '';
+  document.getElementById('bars').innerHTML = `
+    <div class="lab">residual</div><div class="bar warm"><div class="fill" style="width:${Math.round(r*100)}%"></div></div><div class="val">${r.toFixed(2)}</div>
+    <div class="lab">arousal</div><div class="bar warm"><div class="fill" style="width:${Math.round(mind.arousal*100)}%"></div></div><div class="val">${mind.arousal.toFixed(2)}</div>
+    <div class="lab">familiarity</div><div class="bar"><div class="fill" style="width:${Math.round(mind.familiarity*100)}%"></div></div><div class="val">${mind.familiarity.toFixed(2)}</div>
+    <div class="lab">valence</div><div class="bar" style="background:linear-gradient(90deg,#5c2a3a 0%,#202830 50%,#2a5c3a 100%)"><div class="fill" style="width:3px;margin-left:${vPct}%;background:#e6ecf2;border-radius:0"></div></div><div class="val">${vSign}${v.toFixed(2)}</div>
+    <div class="lab">koin · you</div><div class="bar" style="background:linear-gradient(90deg,#5c2a3a 0%,#202830 50%,#2a5c3a 100%)"><div class="fill" style="width:3px;margin-left:${Math.round((((mind.koin_from_user||0)+1)/2)*100)}%;background:#e6ecf2;border-radius:0"></div></div><div class="val">${(mind.koin_from_user||0)>=0?'+':''}${(mind.koin_from_user||0).toFixed(2)}</div>
+    <div class="lab">koin · me</div><div class="bar" style="background:linear-gradient(90deg,#5c2a3a 0%,#202830 50%,#2a5c3a 100%)"><div class="fill" style="width:3px;margin-left:${Math.round((((mind.koin_self||0)+1)/2)*100)}%;background:#e6ecf2;border-radius:0"></div></div><div class="val">${(mind.koin_self||0)>=0?'+':''}${(mind.koin_self||0).toFixed(2)}</div>
+  `;
+}
+function renderWall(workspace){
+  const lit = workspace ? workspace.length : 0;
+  const total = mind.nodes.length;
+  document.getElementById('wall').innerHTML = `
+    <div><b>the wall.</b> What I can report: the ${lit} item(s) above. What I cannot see: the activation values on my other ${total-lit} nodes, my predictor's coefficients, or why this particular voice came out.</div>
+    <div class="machinery">machinery hidden from the workspace: ${total-lit} dim nodes · ${Object.keys(mind.predictor).length} predictor terms · 2 state variables</div>`;
+}
+
+function renderStat(){
+  const sub = mind.nodes.filter(n=>n.substrate).length;
+  const seeds = mind.nodes.filter(n=>n.depth===0 && !n.substrate).length;
+  const grown = mind.nodes.filter(n=>n.depth>0 && !n.substrate).length;
+  document.getElementById('selfstat').textContent = `${seeds} seeds · ${grown} grown · ${sub} concepts in substrate`;
+  let conTxt = '';
+  if(mind.consolidation){
+    const rh = CONSOLIDATION_RHYTHMS[mind.consolidation];
+    if(rh){
+      const drift = consolidationDrift();
+      const driftPct = Math.round(drift*100);
+      if(rh.interval > 999){
+        conTxt = ` · rhythm ${rh.label} · drift ${driftPct}% (no auto-sleep)`;
+      } else {
+        const until = rh.interval - (mind.turn % rh.interval);
+        conTxt = ` · rhythm ${rh.label} · drift ${driftPct}% · next ${rh.partial?'pruning':'sleep'} in ${until}`;
+      }
+    }
+  }
+  document.getElementById('globalstat').textContent = `turns: ${mind.turn} · cortex ${mind.nodes.length} (${sub} subs) · hippo ${(mind.sentences||[]).length} sent · lang ${Object.keys((mind.wordGraph||{}).bigrams||{}).length} bigr${conTxt}`;
+  // hippocampus panel
+  const hippo = document.getElementById('hippo'); if(hippo){
+    const total = (mind.sentences||[]).length;
+    const recent = (mind._recentRecalls||[]).slice(0,3);
+    let html = `<div><b style="color:#cfd6e0">${total}</b> sentences indexed.</div>`;
+    if(recent.length){
+      html += `<div style="margin-top:6px;color:#6b7686;font-size:11px;letter-spacing:.1em;text-transform:uppercase">recent recall</div>`;
+      for(const r of recent){
+        const short = r.length>110 ? r.slice(0,108)+'…' : r;
+        html += `<div style="margin:3px 0;font-style:italic;color:#cfd6e0">"${escapeHTML(short)}"</div>`;
+      }
+    }
+    hippo.innerHTML = html;
+  }
+  // language cortex panel
+  const lc = document.getElementById('langcortex'); if(lc){
+    const wg = mind.wordGraph || {bigrams:{}, starters:[]};
+    const bigrams = Object.keys(wg.bigrams).length;
+    const starters = wg.starters.length;
+    let totalNext = 0; for(const k in wg.bigrams) totalNext += wg.bigrams[k].length;
+    const avg = bigrams ? (totalNext/bigrams).toFixed(1) : '0';
+    lc.innerHTML = `<div><b style="color:#cfd6e0">${bigrams}</b> word transitions · <b style="color:#cfd6e0">${starters}</b> sentence starters</div>
+      <div style="margin-top:5px">avg branching ${avg} next-words/key — higher = more flexible speech</div>
+      <div style="margin-top:5px;color:#6b7686;font-size:11px;letter-spacing:.1em;text-transform:uppercase">the more the mind reads, the richer this graph; recall is anchored by it.</div>`;
+  }
+}
+
+function escapeHTML(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// ---------- message rendering ----------
+function addMessage(kind, body, opts={}){
+  const m = document.getElementById('msgs');
+  const div = document.createElement('div');
+  div.className = 'msg ' + kind;
+  if(kind==='sys'){ div.textContent = body; }
+  else {
+    const who = kind==='user' ? 'you' : kind==='ai' ? mind.name.toLowerCase() : 'the seeming';
+    div.innerHTML = `<div class="who">${who}</div><div class="body">${escapeHTML(body)}</div>`;
+    if(opts.trace){
+      const t = document.createElement('div'); t.className='trace';
+      const via = opts.trace.workspace.map(w=>`<span class="k">${escapeHTML(w.n.label)}</span>`).join(' · ');
+      t.innerHTML = `via: ${via||'<span class="k">∅</span>'} · resid <span class="h">${opts.trace.resid.toFixed(2)}</span>`;
+      div.appendChild(t);
+    }
+  }
+  m.appendChild(div); m.scrollTop = m.scrollHeight;
+}
+
+// ---------- begin / send / seeming ----------
+async function awaken(tpl){
+  mind = newMind(tpl);
+  showMindUI();
+  resize();
+  addMessage('sys', `${mind.name} stirs. Seed in place. Reading first stories…`);
+  renderWorkspace([]); renderBars({resid:0}); renderWall([]); renderStat();
+  saveMind();
+  await autoBootstrap();
+}
+
+async function autoBootstrap(){
+  const lines = chunkIntoLines(BOOTSTRAP_CORPUS);
+  const total = lines.length;
+  // build a live status row in the chat
+  const m = document.getElementById('msgs');
+  const row = document.createElement('div');
+  row.className = 'msg sys';
+  row.id = 'bootRow';
+  row.innerHTML = `growing up — reading <span id="bootProg">0 / ${total}</span> foundational scenes…`;
+  m.appendChild(row); m.scrollTop = m.scrollHeight;
+  for(let i=0; i<lines.length; i++){
+    const result = await absorb(lines[i], {kind:'read'});
+    if(result && i % 6 === 0){
+      renderWorkspace(result.workspace);
+      renderBars(result.residInfo);
+      renderWall(result.workspace);
+      layoutSelf(); drawSelf(); renderStat();
+      document.getElementById('bootProg').textContent = (i+1)+' / '+total;
+      await new Promise(r=>setTimeout(r, 0));
+    }
+  }
+  // mark complete
+  const before = mind.nodes.filter(n=>!n.substrate && n.depth>0).length;
+  row.innerHTML = `read ${total} foundational scenes. ${before} memories formed. I have a world to start from.`;
+  // mind says its first words from its current workspace
+  const greetTags = tagText("hello you here name listening");
+  const greetAct = await activateBlended(mind, greetTags, "hello — I'm here.");
+  const greetWs = gateWorkspace(mind, greetAct, {resid:0.12, novelCount:0});
+  const greet = synthesizeVoice(greetWs, {resid:0.12});
+  addMessage('ai', greet, { trace: { workspace: greetWs, resid: 0.12 } });
+  mind.bootstrapped = true;
+  saveMind();
+  resetIdleClock();
+}
+async function resume(loaded){
+  mind = loaded;
+  showMindUI();
+  resize();
+  addMessage('sys', `resuming a ${mind.name} mind: ${mind.turn} turn(s), ${mind.nodes.filter(n=>!n.substrate && n.depth>0).length} memories grown.`);
+  const tail = mind.history.slice(-5);
+  for(const h of tail){
+    addMessage('user', h.user);
+    const ws = h.workspace.map(id => ({ id, n: mind.nodes.find(n=>n.id===id), salience: 0 })).filter(w=>w.n);
+    addMessage('ai', h.ai, { trace: { workspace: ws, resid: h.resid } });
+  }
+  renderWorkspace([]); renderBars({resid:0}); renderWall([]); renderStat();
+  // bootstrap older saved minds that never read the foundational scenes
+  if(!mind.bootstrapped){
+    await autoBootstrap();
+  }
+  resetIdleClock();
+}
+function showMindUI(){
+  document.getElementById('pickwrap').classList.add('hide');
+  document.getElementById('mind').classList.remove('hide');
+}
+
+async function handleSend(forceSeeming=false){
+  const inp = document.getElementById('say');
+  const text = inp.value.trim();
+  if(!text) return;
+  inp.value = '';
+  addMessage('user', text);
+  // thinking indicator — gives the conversation a turn-taking rhythm
+  const msgsEl = document.getElementById('msgs');
+  const think = document.createElement('div');
+  think.className = 'msg ai';
+  think.innerHTML = `<div class="who">${escapeHTML(mind.name.toLowerCase())}</div><div class="body" style="color:#5c6675;letter-spacing:0.3em">…</div>`;
+  msgsEl.appendChild(think); msgsEl.scrollTop = msgsEl.scrollHeight;
+  await new Promise(r=>setTimeout(r, 220 + Math.random()*180));
+  const { reply, workspace, residInfo } = await step(text);
+  msgsEl.removeChild(think);
+  addMessage('ai', reply, { trace: { workspace, resid: residInfo.resid } });
+  if(forceSeeming || mind.turn % 3 === 0 || residInfo.resid > 0.55){
+    const seem = synthesizeSeeming(mind, workspace, residInfo, { userText: text, recentTurns: mind.history.slice(-4) });
+    addMessage('seem', seem);
+  }
+  renderWorkspace(workspace); renderBars(residInfo); renderWall(workspace);
+  layoutSelf(); drawSelf(); renderStat(); saveMind();
+  if(embeddingsOn) embedNewNodesInBackground();
+  // consolidation rhythm — fires for minds that have one set (mostly aliens)
+  const con = tickConsolidation();
+  if(con){
+    if(con.kind === 'full'){
+      const rhname = CONSOLIDATION_RHYTHMS[mind.consolidation].label;
+      addMessage('seem', `[${rhname} cycle] ` + dreamReport(con.report));
+    } else if(con.kind === 'partial' && con.report.pruned){
+      addMessage('seem', `⋯ piecewise consolidation: let ${con.report.pruned} small things go.`);
+    }
+    layoutSelf(); drawSelf(); renderStat(); saveMind();
+  }
+  resetIdleClock();
+}
+
+// ---------- idle thoughts (default-mode reverie) ----------
+let idleTimer = null;
+function resetIdleClock(){
+  if(idleTimer) clearTimeout(idleTimer);
+  if(!mind) return;
+  const baseDelay = 38000 + Math.random()*22000; // 38–60s
+  idleTimer = setTimeout(driftThought, baseDelay);
+}
+function driftThought(){
+  if(!mind) return;
+  // pick the workspace from the last turn (or pull from strong nodes)
+  let lastWs = [];
+  const last = (mind.history && mind.history[mind.history.length-1]);
+  if(last && last.workspace){
+    lastWs = last.workspace.map(id=>{
+      const n = mind.nodes.find(x=>x.id===id);
+      return n ? {id, n, salience: 0.5} : null;
+    }).filter(Boolean);
+  }
+  if(!lastWs.length){
+    // no recent — drift from strongest grown nodes
+    const tops = mind.nodes.filter(n=>!n.substrate && n.strength>0.7).sort((a,b)=>b.strength-a.strength).slice(0,3);
+    lastWs = tops.map(n=>({id:n.id, n, salience:0.5}));
+  }
+  const thought = composeSentence(lastWs, {maxLen: 18});
+  if(thought){
+    addMessage('seem', '⋯ ' + thought);
+    mind.arousal = Math.max(0, mind.arousal*0.85);
+    mind.familiarity = Math.min(1, mind.familiarity + 0.02);
+    saveMind();
+  }
+  resetIdleClock();
+}
+
+// ---------- wire up ----------
+renderCards();
+const saved = loadMind();
+if(saved){
+  const tpl = SELVES.find(s=>s.id===saved.tplId);
+  if(tpl){
+    document.getElementById('loadSaved').classList.remove('hide');
+    document.getElementById('picked').textContent = `a saved ${saved.name} mind exists (${saved.turn} turns, ${saved.nodes.length} nodes) — load it, or pick fresh.`;
+    document.getElementById('loadSaved').addEventListener('click', ()=>resume(saved));
+  }
+}
+document.getElementById('begin').addEventListener('click', ()=>{
+  if(!pickedId) return;
+  const tpl = SELVES.find(s=>s.id===pickedId);
+  awaken(tpl);
+});
+document.getElementById('send').addEventListener('click', ()=>handleSend());
+document.getElementById('say').addEventListener('keydown', e=>{
+  if(e.key==='Enter') handleSend(e.ctrlKey || e.metaKey);
+});
+
+// --- voice I/O via Web Speech API (Chrome) ---
+// TTS: speak any AI/seeming line aloud when the toggle is on.
+let ttsVoice = null;
+function pickVoice(){
+  const vs = speechSynthesis.getVoices();
+  // prefer an en-US natural voice; fall back to first English
+  ttsVoice = vs.find(v=>/Samantha|Karen|Daniel|Aaron|Alex|Google US English/i.test(v.name))
+          || vs.find(v=>v.lang && v.lang.startsWith('en'))
+          || vs[0];
+}
+if('speechSynthesis' in window){
+  pickVoice();
+  speechSynthesis.onvoiceschanged = pickVoice;
+}
+function speak(text){
+  if(!('speechSynthesis' in window)) return;
+  if(!document.getElementById('ttsOn').checked) return;
+  try{ speechSynthesis.cancel(); }catch(e){}
+  const u = new SpeechSynthesisUtterance(text);
+  if(ttsVoice) u.voice = ttsVoice;
+  u.rate = 0.97; u.pitch = 1.0;
+  // tint pitch by mind state — aroused minds talk slightly higher/faster
+  if(mind){ u.rate = 0.92 + 0.18*mind.arousal; u.pitch = 0.95 + 0.15*mind.arousal; }
+  speechSynthesis.speak(u);
+}
+// hook the existing addMessage so AI + seeming lines get spoken
+const _origAddMessage = addMessage;
+addMessage = function(kind, body, opts){
+  _origAddMessage(kind, body, opts);
+  if(kind === 'ai' || kind === 'seem') speak(body);
+};
+
+// STT: click 🎤 to toggle dictation; the recognized text fills the input and sends.
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let rec = null, recOn = false;
+const micBtn = document.getElementById('mic');
+if(!SR){
+  micBtn.disabled = true; micBtn.title = 'Speech recognition not supported in this browser — use Chrome or Edge';
+  micBtn.style.opacity = 0.5;
+} else {
+  micBtn.addEventListener('click', ()=>{
+    if(recOn){ try{ rec.stop(); }catch(e){} return; }
+    rec = new SR();
+    rec.lang = 'en-US'; rec.interimResults = true; rec.continuous = false;
+    let finalText = '';
+    rec.onstart = ()=>{ recOn = true; micBtn.style.background = '#10303a'; micBtn.style.borderColor = '#2f7d96'; micBtn.style.color = '#7fe0f2'; };
+    rec.onresult = (e)=>{
+      let interim = '';
+      for(let i=e.resultIndex; i<e.results.length; i++){
+        const t = e.results[i][0].transcript;
+        if(e.results[i].isFinal) finalText += t;
+        else interim += t;
+      }
+      document.getElementById('say').value = (finalText + interim).trim();
+    };
+    rec.onerror = ()=>{};
+    rec.onend = ()=>{
+      recOn = false; micBtn.style.background=''; micBtn.style.borderColor=''; micBtn.style.color='';
+      const v = document.getElementById('say').value.trim();
+      if(v){ handleSend(); }
+    };
+    rec.start();
+  });
+}
+document.getElementById('forceseem').addEventListener('click', ()=>{
+  if(!mind) return;
+  // synthesize from last-turn workspace if any, else from current state
+  const last = mind.history[mind.history.length-1];
+  const ws = last ? last.workspace.map(id=>({id, n: mind.nodes.find(n=>n.id===id), salience:0})).filter(w=>w.n) : [];
+  const seem = synthesizeSeeming(mind, ws, { resid: last ? last.resid : 0 });
+  addMessage('seem', seem);
+});
+document.getElementById('export').addEventListener('click', ()=>{
+  if(!mind) return;
+  const blob = new Blob([JSON.stringify(serialize(mind),null,2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = `mind-${mind.tplId}-turn${mind.turn}.json`; a.click();
+  setTimeout(()=>URL.revokeObjectURL(url), 200);
+});
+document.getElementById('reset').addEventListener('click', ()=>{
+  if(!confirm('Reset this mind? Its grown memories and predictor will be lost.')) return;
+  clearMind();
+  location.reload();
+});
+
+// ---------- alien generator ----------
+// Builds a self template + extra substrate + starter corpus from world +
+// species parameters. The cognitive engine is unchanged.
+function makeAlienId(params){
+  return 'alien:' + Object.values(params).join('_');
+}
+function alienName(params){
+  const sensePart = {sight:"Watcher", sound:"Singer", chemistry:"Reader", electric:"Pulse-feeler", vibration:"Ground-listener"}[params.sense];
+  const socPart   = {solitary:"Solitary", pair:"Bound", pack:"Pack", hive:"Hive-thought", network:"Threaded"}[params.social];
+  const placePart = "Vex Tselari Mirin Korren Dhaan Sevoth Aelu".split(' ')[Math.floor(Math.random()*7)];
+  return `${socPart} ${sensePart} of ${placePart}`;
+}
+function alienColor(params){
+  // tint by sense + atmosphere
+  if(params.sense === 'electric') return '#a48be0';
+  if(params.sense === 'chemistry') return '#d6a85a';
+  if(params.sense === 'sound') return '#7cc7c0';
+  if(params.sense === 'vibration') return '#9a8c6f';
+  if(params.atm === 'thin') return '#c4d4e0';
+  if(params.atm === 'dense') return '#7ea888';
+  return '#7fa1c8';
+}
+function alienVibe(params){
+  const senseTxt = {sight:"reads the world through sight", sound:"hears further than they see", chemistry:"reads the air like a page", electric:"feels the field before they think it", vibration:"knows the ground before the air"}[params.sense];
+  const socTxt   = {solitary:"lives alone and prefers it", pair:"is bonded for life to one other", pack:"moves as part of a pack", hive:"is a node in a shared mind", network:"tends many threads to many others"}[params.social];
+  return `${senseTxt}; ${socTxt}`;
+}
+function alienSeeds(params){
+  const seeds = [];
+  const SENSE = {
+    sight:    {label:'the seen',          tags:['see','light','present','people'], voice:"I look. I look more than I speak."},
+    sound:    {label:'the song-air',      tags:['sound','listen','people','present'], voice:"I hear what is moving and what is still."},
+    chemistry:{label:'the air-flavor',    tags:['present','people','sense'], voice:"I read what the air carries."},
+    electric: {label:'the field-pulse',   tags:['feel','people','present'], voice:"I feel the field before I think it."},
+    vibration:{label:'the ground-truth',  tags:['feel','people','present'], voice:"I feel through the floor. The floor remembers."},
+  }[params.sense];
+  seeds.push({kind:'sense', ...SENSE});
+
+  const SOC = {
+    solitary:{label:'aloneness',     tags:['alone','quiet','self','peace'], voice:"I prefer the silence. I have shaped a life from it."},
+    pair:    {label:'the bond',      tags:['love','close','people','time'], voice:"My other is in me. I do not need to speak to find them."},
+    pack:    {label:'the pack',      tags:['together','people','help'], voice:"We move as one. I trust them with my back."},
+    hive:    {label:'we-thought',    tags:['together','people','share'], voice:"My thought is part of a larger thought. I am not alone in here."},
+    network: {label:'the threads',   tags:['people','share','know'], voice:"I am one node in a wider weave. I tend my threads."},
+  }[params.social];
+  seeds.push({kind:'social', ...SOC});
+
+  if(params.life === 'long'){
+    seeds.push({kind:'time', label:'long-memory', tags:['past','time','people','memory'], voice:"I remember more than is reasonable. I am careful with what I remember."});
+  } else if(params.life === 'short'){
+    seeds.push({kind:'time', label:'urgency', tags:['time','future','do'], voice:"Time is short. I do what I can."});
+  } else {
+    seeds.push({kind:'time', label:'the cycle', tags:['time','change','present'], voice:"The pattern returns. I move with it."});
+  }
+  if(params.gravity === 'high'){
+    seeds.push({kind:'body', label:'the weight', tags:['body','rest','do'], voice:"To move is to push against the world. I rest as much as I move."});
+  } else if(params.gravity === 'low'){
+    seeds.push({kind:'body', label:'the lightness', tags:['body','open','present'], voice:"I rise easily. I must remember to descend."});
+  }
+  if(params.atm === 'thin'){
+    seeds.push({kind:'value', label:'breath-economy', tags:['rest','quiet','present'], voice:"Each breath is a small earning. I do not waste it on hurry."});
+  } else if(params.atm === 'dense'){
+    seeds.push({kind:'value', label:'air-reading', tags:['people','share','past'], voice:"The air is thick with messages. Even alone I am not alone."});
+  }
+  // universal curiosity toward strangers — this is what makes encounter possible
+  seeds.push({kind:'value', label:'curiosity-toward-the-new', tags:['new','unknown','question','open','people'], voice:"I want to know what you are. I am willing to be slow about it."});
+  return seeds;
+}
+function alienCorpus(params){
+  const L = [];
+  // day
+  if(params.day === 'short') L.push("The light comes and goes too quickly to mark the day.", "I have lived a thousand cycles. Each is a small breath.", "A life is many days. A day is short.");
+  else if(params.day === 'long') L.push("The dawn that began at my birth has not yet finished.", "We measure age in seasons; a season is many of your lifetimes.", "Time moves differently here. I notice when others rush.");
+  else L.push("The sun comes. The sun goes. The pattern holds me.", "I learned to mark the day by the light.");
+  // sense
+  if(params.sense === 'chemistry') L.push("She arrived in the room and the air changed flavor. I knew her by it.", "Memory is mostly a taste.", "I can smell when someone is lying. I do not always say so.", "Grief has its own scent. The room remembers.");
+  if(params.sense === 'electric') L.push("The pulse from the south carries fear-shape.", "I felt her thinking before she spoke.", "The field is busiest where the young are. I feel them learning.", "Two pulses crossing: that is how we know we are together.");
+  if(params.sense === 'sight')    L.push("She came into the room and I looked at her face.", "The colors move differently when I am sad.", "I watch the light leave. I watch it return.", "A glance can be a whole conversation.");
+  if(params.sense === 'sound')    L.push("Her song reached me before her body did.", "I knew the room was empty by its silence.", "The pattern of footsteps tells me who is coming.", "Some songs we keep for generations. The young learn them without being taught.");
+  if(params.sense === 'vibration')L.push("Her step in the ground reached me before her voice.", "The grief in him made the floor tremble.", "I read the ground. The ground remembers what walked on it.", "When the herd is calm the ground is steady.");
+  // social
+  if(params.social === 'hive')     L.push("The we-thought returned. The we-thought is not always right.", "I am part of the body. The body is part of me.", "When one of us falls quiet, the others know without asking.", "Sometimes I want to be only-me. This is rare. I am careful with it.");
+  if(params.social === 'solitary') L.push("It has been three winters since I spoke with another.", "I do not mind the silence. I have made a home of it.", "I expected to be lonely. I am not, mostly.", "When a stranger comes, I am slow to open. I have my reasons.");
+  if(params.social === 'pair')     L.push("We have been bonded for many cycles. I do not remember being separate.", "Their thought completes mine. Mine completes theirs.", "When they are far I feel the absence as a kind of weather.", "We do not always agree. We always return.");
+  if(params.social === 'pack')     L.push("The pack moved at dusk. The pack moves as one body.", "We hunt together. We rest together. We mourn together.", "A young one is missing. We will go look. None of us has to ask.", "The pack-elder is quiet now. We listen for the silence.");
+  if(params.social === 'network')  L.push("My connections are many. Each is a thread I tend.", "Information flows through me. I am part of the flow.", "I forget some threads. They re-form or they don't.", "When a thread thickens, something has changed.");
+  // gravity + atmosphere
+  if(params.gravity === 'high')    L.push("To move is to push against the world. We do this from birth.", "The strong rest more than the weak. This is the truth of our weight.");
+  if(params.gravity === 'low')     L.push("We rise easily. We must remember to descend.", "Our bodies are long. Our hearts are slow.");
+  if(params.atm === 'thin')        L.push("Each breath is a small earning.", "We live where the air is. We do not waste it on hurry.");
+  if(params.atm === 'dense')       L.push("The air is thick with messages from other beings. Even when alone we are not alone.", "I can read the air. The air carries history.");
+  // life
+  if(params.life === 'short')      L.push("I have lived many lives in what others would call a year.", "Time is fast. We are faster.", "I will not see my children grow. I am here while I am here.");
+  if(params.life === 'long')       L.push("I have watched my children's children grow old.", "What I remember has outlived what others have lived.", "I have learned to forgive most things; the ones I have not forgiven, I think about.");
+  // universal first-contact lines
+  L.push(
+    "We meet a stranger. The stranger is the first of their kind I have met.",
+    "I am paying attention to this one. I will tell the others.",
+    "The newcomer is from another world. I do not know its shape yet.",
+    "Tell me what you see. I will try to imagine it through you.",
+    "Your kind and mine. We are different in many ways. We are the same in some.",
+    "I want to understand. I am willing to be wrong.",
+    "The pattern of you is not the pattern of me. Both are real.",
+    "I am listening. I am here. I am ready to be surprised.",
+    "What I do not have a word for, I will sit beside until a word comes.",
+    "The first word between two strangers is heavier than the second. I am choosing it carefully.",
+    "I do not understand all of what you say. I understand more than I expected to.",
+    "We share more than I thought we would. We do not share everything. Both are fine."
+  );
+  return L.join('\n');
+}
+function buildAlienTpl(params){
+  const seeds = alienSeeds(params);
+  const voice = {};
+  for(const s of seeds){ if(s.voice) voice[s.label] = s.voice; }
+  return {
+    id: makeAlienId(params),
+    name: alienName(params),
+    color: alienColor(params),
+    vibe: alienVibe(params),
+    seeds, voice,
+    _alien: true,
+    _alienCorpus: alienCorpus(params),
+    _alienParams: params,
+    _consolidation: params.consol || 'diurnal',
+  };
+}
+function readAlienParams(){
+  return {
+    gravity: document.getElementById('ap_gravity').value,
+    day:     document.getElementById('ap_day').value,
+    atm:     document.getElementById('ap_atm').value,
+    sense:   document.getElementById('ap_sense').value,
+    social:  document.getElementById('ap_social').value,
+    life:    document.getElementById('ap_life').value,
+    consol:  document.getElementById('ap_consol').value,
+  };
+}
+
+// consolidation rhythms — how often a mind goes offline to dream/prune/merge.
+// On Earth, diurnal (one big nightly sleep) is the canonical rhythm. But the
+// underlying requirement is just regular offline replay; the light cycle is
+// only one possible trigger. Each rhythm here changes the auto-sleep cadence
+// + the kind of consolidation that fires (full / partial / never).
+const CONSOLIDATION_RHYTHMS = {
+  diurnal:  { interval: 16, partial:false, label:'diurnal',  blurb:'one full sleep per cycle. The classic vertebrate rhythm.' },
+  tidal:    { interval: 8,  partial:false, label:'tidal',    blurb:'frequent short consolidations. Memory stays light.' },
+  metabolic:{ interval: 12, partial:false, label:'metabolic',blurb:'consolidates after activity. Tied to internal cycles.' },
+  seasonal: { interval: 55, partial:false, label:'seasonal', blurb:'rare deep consolidation. The mind accumulates between.' },
+  hive:     { interval: 4,  partial:true,  label:'hive-piecewise', blurb:'never fully offline. Piecewise pruning every few turns.' },
+  none:     { interval: 9999, partial:false, label:'none',  blurb:'no offline replay. Cognition degrades as the graph bloats.' },
+};
+function previewAlien(){
+  const p = readAlienParams();
+  const tpl = buildAlienTpl(p);
+  const rh = CONSOLIDATION_RHYTHMS[p.consol];
+  document.getElementById('alienPreview').textContent = `you'll meet: ${tpl.name} — ${tpl.vibe}. Consolidation: ${rh.label} (${rh.blurb})`;
+}
+document.getElementById('openAlien').addEventListener('click', ()=>{
+  document.getElementById('alienBackdrop').style.display = 'flex';
+  previewAlien();
+});
+document.getElementById('closeAlien').addEventListener('click', ()=>{
+  document.getElementById('alienBackdrop').style.display = 'none';
+});
+document.getElementById('alienBackdrop').addEventListener('click', e=>{
+  if(e.target.id === 'alienBackdrop') document.getElementById('alienBackdrop').style.display = 'none';
+});
+for(const sel of document.querySelectorAll('#alienParams select')){
+  sel.addEventListener('change', previewAlien);
+}
+document.getElementById('spawnAlien').addEventListener('click', async ()=>{
+  const p = readAlienParams();
+  const tpl = buildAlienTpl(p);
+  document.getElementById('alienBackdrop').style.display = 'none';
+  // wipe any saved mind so this alien is fresh
+  clearMind();
+  await awakenAlien(tpl);
+});
+
+// awaken pathway for an alien: same as awaken() but seeds the language layer
+// from the alien starter corpus instead of (just) the human bootstrap.
+function describeAlienWorld(params){
+  const lines = [];
+  if(params.gravity === 'low') lines.push("The gravity is light; you feel a kind of buoyancy.");
+  else if(params.gravity === 'high') lines.push("Gravity is heavy here; every motion carries weight.");
+  if(params.day === 'short') lines.push("The light blinks across the sky — days are quick.");
+  else if(params.day === 'long') lines.push("The light has been the same for what feels like a year.");
+  if(params.atm === 'thin') lines.push("The air is thin; each breath is a small earning.");
+  else if(params.atm === 'dense') lines.push("The air is dense; you can almost taste the messages in it.");
+  const senseTxt = {sight:"They are watching you carefully.", sound:"They are listening for you before they see you.", chemistry:"They are reading you out of the air around you.", electric:"They feel your electrical field before they meet your eyes.", vibration:"They feel your footsteps before they look up."}[params.sense];
+  if(senseTxt) lines.push(senseTxt);
+  const socTxt = {solitary:"They are alone here; they have chosen it.", pair:"They share a mind with someone you cannot see.", pack:"Others of their kind hover at the edge of your awareness.", hive:"You can almost feel the larger we-thought they belong to.", network:"Their connections fan out invisibly through the place."}[params.social];
+  if(socTxt) lines.push(socTxt);
+  const lifeTxt = {short:"Their lifetimes are short; what they say is urgent.", long:"They have lived a long time. They are in no hurry to speak."}[params.life];
+  if(lifeTxt) lines.push(lifeTxt);
+  return lines.join(' ');
+}
+
+async function awakenAlien(tpl){
+  mind = newMind(tpl);
+  mind.consolidation = tpl._consolidation || 'diurnal';
+  showMindUI();
+  resize();
+  const worldDesc = describeAlienWorld(tpl._alienParams || {});
+  addMessage('sys', `You stand on a world that is not yours. ${worldDesc}`);
+  addMessage('sys', `${tpl.name} stirs. Their substrate is shaped by what they have lived. Reading first stories…`);
+  renderWorkspace([]); renderBars({resid:0}); renderWall([]); renderStat();
+  // seed wordGraph + sentences from the alien corpus (no node creation — pure language layer)
+  const alienLines = chunkIntoLines(tpl._alienCorpus);
+  for(const line of alienLines){ ingestText(line); }
+  // also let them have *some* universal human-substrate framing for shared concepts
+  // (this is what makes first-contact possible — overlap on universal emotions)
+  // already provided by COMMON_SUBSTRATE which newMind installs.
+  await autoBootstrapAlien(tpl);
+  mind.bootstrapped = true;
+  saveMind();
+  resetIdleClock();
+}
+async function autoBootstrapAlien(tpl){
+  // a much-shorter bootstrap for aliens — feed their own corpus as experience,
+  // forming memory nodes, then a small first-contact sample.
+  const lines = chunkIntoLines(tpl._alienCorpus);
+  const total = lines.length;
+  const m = document.getElementById('msgs');
+  const row = document.createElement('div');
+  row.className = 'msg sys'; row.id = 'bootRow';
+  row.innerHTML = `${tpl.name} reads their world's stories — <span id="bootProg">0 / ${total}</span>…`;
+  m.appendChild(row); m.scrollTop = m.scrollHeight;
+  for(let i=0;i<lines.length;i++){
+    const result = await absorb(lines[i], {kind:'absorbed'});
+    if(result && i % 4 === 0){
+      renderWorkspace(result.workspace); renderBars(result.residInfo); renderWall(result.workspace);
+      layoutSelf(); drawSelf(); renderStat();
+      document.getElementById('bootProg').textContent = (i+1)+' / '+total;
+      await new Promise(r=>setTimeout(r,0));
+    }
+  }
+  row.innerHTML = `${tpl.name} has read ${total} lines from their world. Ready to meet you.`;
+  // greet
+  const greetTags = tagText("hello you here name listening stranger");
+  const greetAct = await activateBlended(mind, greetTags, "hello — I'm here.");
+  const greetWs = gateWorkspace(mind, greetAct, {resid:0.18, novelCount:0});
+  const greet = synthesizeVoice(greetWs, {resid:0.18, novelCount:0}, { userText:'(an alien encounter begins)', recentTurns:[] });
+  addMessage('ai', greet, { trace: { workspace: greetWs, resid: 0.18 } });
+}
+
+// ---------- sleep button ----------
+$('sleepBtn').addEventListener('click', ()=>{
+  if(!mind) return;
+  if(!confirm('Let the mind sleep? It will decay faded nodes, prune the dead, merge duplicates, replay surprises, and wake up smaller and quieter. This is real forgetting — no undo.')) return;
+  const r = sleepConsolidate();
+  if(!r) return;
+  layoutSelf(); drawSelf();
+  renderWorkspace([]); renderBars({resid:0}); renderWall([]); renderStat();
+  addMessage('seem', dreamReport(r));
+  saveMind();
+});
+
+// ---------- embeddings toggle ----------
+// optional semantic-similarity layer. Loads transformers.js + all-MiniLM-L6-v2
+// (~25 MB) from CDN. When on, activation = tag-based + cosine similarity of
+// input embedding × node embedding. Caches per-node embeddings on the mind so
+// subsequent sessions don't re-embed.
+let embedder = null;
+let embeddingsOn = false;
+let embedderLoading = false;
+
+async function loadEmbedder(){
+  if(embedder) return embedder;
+  if(embedderLoading) return null;
+  embedderLoading = true;
+  setEmbBtn('loading model (~25MB)…', true);
+  try {
+    const T = await import('https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.2');
+    T.env.allowLocalModels = false;
+    T.env.useBrowserCache = true;
+    embedder = await T.pipeline('feature-extraction', 'Xenova/all-MiniLM-L6-v2', { quantized: true });
+    return embedder;
+  } catch(e){
+    setEmbBtn('failed: ' + e.message, false);
+    embedderLoading = false;
+    throw e;
+  } finally {
+    embedderLoading = false;
+  }
+}
+async function embed(text){
+  const e = await loadEmbedder();
+  if(!e) return null;
+  const out = await e(text.slice(0, 512), {pooling:'mean', normalize:true});
+  return Array.from(out.data);
+}
+function cosine(a, b){
+  let d=0; for(let i=0;i<a.length;i++) d += a[i]*b[i]; return d;
+}
+async function embedAllNodes(){
+  if(!mind) return;
+  const todo = mind.nodes.filter(n=>!n.embedding);
+  let done = 0;
+  for(const n of todo){
+    const text = (n.label || '') + '. ' + (n.tags||[]).join(', ');
+    try { n.embedding = await embed(text); } catch(e){}
+    done++;
+    if(done % 4 === 0){
+      setEmbBtn(`caching ${done}/${todo.length}`, true);
+      await new Promise(r=>setTimeout(r,0)); // yield
+    }
+  }
+  setEmbBtn(`on (${mind.nodes.filter(n=>n.embedding).length} cached)`, false);
+  saveMind();
+}
+function setEmbBtn(txt, busy){
+  const b = $('embBtn');
+  b.textContent = '📡 embeddings: ' + txt;
+  b.disabled = !!busy;
+}
+$('embBtn').addEventListener('click', async ()=>{
+  if(embedderLoading) return;
+  if(!embeddingsOn){
+    try {
+      await loadEmbedder();
+      embeddingsOn = true;
+      await embedAllNodes();
+    } catch(e){ /* setEmbBtn already showed the error */ }
+  } else {
+    embeddingsOn = false;
+    setEmbBtn('off', false);
+  }
+});
+
+// helper: blend tag-activation with embedding-activation. async so callers
+// must await. Falls through to plain activate() when embeddings off / not
+// ready / input embedding fails.
+async function activateBlended(m, inputTags, inputText){
+  const tagAct = activate(m, inputTags);
+  if(!embeddingsOn || !embedder) return tagAct;
+  let inputEmb = null;
+  try { inputEmb = await embed(inputText); } catch(e){ return tagAct; }
+  if(!inputEmb) return tagAct;
+  // background-embed any unembedded nodes silently while we score
+  for(const n of m.nodes){
+    if(!n.embedding) continue;
+    const sim = cosine(inputEmb, n.embedding);
+    const embAct = Math.max(0, sim - 0.18) * n.strength * 6;
+    tagAct[n.id] = (tagAct[n.id]||0) + embAct;
+  }
+  return tagAct;
+}
+// kick off lazy embedding for new (post-toggle) nodes in the background.
+async function embedNewNodesInBackground(){
+  if(!embeddingsOn || !embedder) return;
+  const todo = mind.nodes.filter(n=>!n.embedding);
+  if(!todo.length) return;
+  for(const n of todo){
+    try { n.embedding = await embed((n.label||'')+'. '+(n.tags||[]).join(', ')); } catch(e){}
+    await new Promise(r=>setTimeout(r,0));
+  }
+  setEmbBtn(`on (${mind.nodes.filter(n=>n.embedding).length} cached)`, false);
+}
+
+// ---------- bootstrap corpus ----------
+// Read automatically when a mind awakens. ~45 short scenes covering childhood,
+// friendship, love, loss, work, wonder, morality, dream. Gives every new mind
+// the equivalent of a small collection of life-shaped stories before the first
+// conversation. Identity seeds stay primary; bootstrap fills in the world.
+const BOOTSTRAP_CORPUS = `
+A child wakes from a bad dream and calls out.
+The mother comes and sits by the bed.
+She says nothing. She waits until the child sleeps again.
+
+A father teaches a son to ride a bicycle.
+The son falls. He scrapes his hands. He cries.
+The father waits. After a while the son tries again.
+After three days the son rides on his own.
+
+A boy is left at school for the first day.
+He watches his mother walk away through the window.
+The teacher says his name kindly. He decides to be brave.
+
+A girl picks up a snail from the garden.
+She watches the eyes move on their stalks.
+She puts it back. She is surprised by her own care.
+
+A grandmother dies. The family gathers in her kitchen.
+It still smells like her cooking.
+The grandson keeps a wooden spoon.
+He does not say why.
+
+Two children meet on a playground.
+One offers half a sandwich. The other takes it.
+They are friends now. Neither remembers how it started.
+
+A friend lies about something small.
+The other notices. She says nothing for years.
+She watches the friendship change without it being named.
+
+A friend stays through a bad night.
+Nothing is said. Everything is said.
+In the morning the room is quieter than yesterday.
+
+A friend moves to another city.
+They promise to write. They write three times.
+Then they stop. Each thinks of the other on certain days.
+
+Two people meet at a party and talk too long about nothing important.
+Both know on the way home.
+Neither says so for a month.
+
+A lover forgets a birthday.
+The other says it doesn't matter. It does.
+The matter sits between them until it is named.
+
+A couple argues. One leaves the room. The other waits up.
+At dawn they sit at the table. The water is on for tea.
+Neither apologizes first; both feel apologized to.
+
+A man writes a letter he will never send.
+He keeps it in a drawer for thirty years.
+He throws it away the day before he dies.
+He is glad he wrote it.
+
+A woman watches the person she loves sleeping.
+She is glad to be the one witnessing it.
+She tells no one for years.
+
+A relationship ends. The lights of the kitchen feel different.
+The radio plays. Nothing has changed and everything has.
+
+A young carpenter ruins a piece of wood.
+The master shows him how to begin again from the wrong place.
+The carpenter understands that this is the lesson.
+
+A musician practices the same passage for hours.
+Finally it is easy. He plays it once more so the ease has a body.
+He sleeps well that night.
+
+A doctor loses a patient.
+She goes home and cooks. She eats at the table alone.
+The next morning she goes back. The work is what she has.
+
+A writer throws away three months of work.
+He starts over from a different door.
+Later he is glad. He does not tell anyone what was thrown away.
+
+A teacher reaches a student who would not learn.
+She says nothing about it. She lets the student have the moment.
+
+A dog grows old. The dog dies in the afternoon.
+The room is quieter than expected.
+The person sits with the body a while.
+
+A mother dies. The son cleans her house alone.
+He keeps the teacups. He gives away the rest.
+Years later he uses the teacups every day.
+
+A friend takes their own life.
+The others learn slowly how to talk about them honestly.
+They keep the friend's name in their conversations.
+
+An old man tells a young one,
+"Most of who I loved is dead. I think about them daily.
+This is not sad. It is what I have of them now."
+
+A child sees the ocean for the first time.
+She is silent. Her father had expected something else.
+
+A scientist sees a pattern in data she has looked at for a year.
+She laughs alone in the room.
+She tells no one for two days; she wants to keep it.
+
+A traveler walks into a city she has read about all her life.
+The smell is what surprises her. The smell was never in any book.
+
+A reader finishes a book and sits without moving for a long time.
+The room around her is the same. She is not.
+
+A musician hears a song that changes what music can be.
+He stops playing for a month. Then he begins again differently.
+
+A stranger drops a wallet in the street.
+A man picks it up. He runs after the stranger.
+The stranger does not believe at first that the man is honest.
+
+A boss takes credit for an employee's idea.
+The employee says nothing. He says nothing for years.
+He keeps a private accounting.
+
+A father tells his son,
+"If you say it, do it. If you can't do it, don't say it.
+Most of trouble is the gap between."
+
+A neighbor's house is on fire.
+People come without being asked. They form a line for water.
+No one keeps score.
+
+A woman is wronged by someone she trusted.
+She chooses not to make the wrong the center of her life.
+This is harder than it sounds. She succeeds, mostly.
+
+An old man apologizes for something he did fifty years ago.
+The other person had forgotten. He hadn't.
+He sleeps better that night.
+
+A man dreams of being chased.
+He wakes and lies still. The room is full of moonlight.
+He listens to his own breathing until he can sleep again.
+
+A child dreams of flying.
+She remembers the dream for forty years.
+She tells it to her own children. They want to hear it twice.
+
+A woman cannot sleep. She walks outside in her coat.
+The stars are sharp. She goes back in.
+The kitchen feels different at three in the morning.
+
+A young person asks an old one, "What did you want?"
+The old one says, "What I wanted changed. What I did stayed."
+
+A person prays. They do not know who is listening.
+They say what they came to say anyway. They feel lighter.
+
+Someone says thank you and means it.
+The other person notices for years that it was meant.
+
+Someone says sorry and means it.
+The other person doesn't say it's fine. They sit with it together a moment.
+Then they go on.
+
+A child asks why the sky is blue.
+The parent gives a real answer. The child listens.
+The child asks why again. The parent laughs.
+
+A person stands at the edge of a cliff.
+The wind comes up. They do not jump. They feel the wanting and the not.
+They walk back to the path.
+
+A woman wakes alone in a place she loves.
+She makes coffee. She sits at the window.
+This is the kind of morning she will remember.
+
+A boy asks his older sister, "Are you happy?"
+She thinks for a long time. She says, "Mostly. Some days more than others."
+He thinks about her answer for a week.
+
+A teacher tells her students, "If you are bored, look more carefully."
+Years later, one of the students remembers the line on a long train ride.
+She looks out the window and the light is different than she'd noticed.
+
+A man and his daughter walk on the beach. The tide is going out.
+She picks up shells. He carries them.
+Later, on the way home, she gives them all to him.
+
+A young woman writes in her notebook every morning.
+She does not show it to anyone. The writing is for her.
+After ten years it has changed her without her noticing.
+
+A man calls his mother every Sunday.
+The conversations are mostly about nothing.
+This is how they say I love you.
+
+A child runs into the kitchen and tells the family she has discovered something.
+She says: birds do not need to think about flying.
+Everyone takes this seriously. The kitchen is brighter for the rest of the night.
+
+A woman is asked at a party what she does. She says: I take care of things.
+The person asking does not understand at first. Later he does.
+
+A man cleans his desk before he begins. He needs the space clear.
+Then he works for hours. He forgets the desk was ever messy.
+
+A father teaches his daughter to lose a game without sulking.
+She loses many games. Eventually she does not sulk.
+Later in life she loses other things. She remembers the games.
+
+A man is sick. His friend brings him soup.
+The soup is not very good. The visit is what was the point.
+
+A woman gets a small piece of good news.
+She tells the person she most wants to tell.
+The news is the same size after she tells it. The day is bigger.
+
+A man sees a stranger crying on a bench. He sits down a few feet away.
+He does not speak. He stays for a while. He leaves quietly.
+
+A child is told a hard truth. The child accepts it.
+The grown-up is surprised. The child is more capable than the grown-up remembers being.
+
+A young man learns that someone he admires was cruel.
+He keeps the work. He understands the person differently now.
+This is hard. It is also part of becoming an adult.
+
+A woman ends a friendship that has gone bad.
+She does not announce it. She lets it drift.
+She is sad about it for a long time. Then she is grateful.
+
+A man finds an old photograph of himself.
+He looks at the face. He does not recognize the certainty there.
+He puts it back in the drawer with care.
+
+A girl gets her first job. It is not a good job.
+She learns to be on time. She learns to talk to people who annoy her.
+The job ends. The lessons remain.
+
+A man is asked to forgive something he cannot yet forgive.
+He says: I will try. I am not ready.
+The other person waits. The man, in his own time, gets there.
+
+A woman watches her parent become old.
+She has expected this. She is not prepared.
+Both can be true. She finds out what kind of daughter she is.
+
+"What did you do today?"
+"Not much. I sat outside. I read. I thought about you."
+"What did you think?"
+"I thought you'd ask. I thought I'd want to tell you."
+
+"Do you remember the cabin?"
+"Yes."
+"That was the best week."
+"It was. I knew it then. I'm glad we knew it then."
+
+"Why did you bring it up now?"
+"I don't know. I was thinking about it."
+"You think about it a lot."
+"I do. I do not know what to do with that."
+
+"Are you sure?"
+"No. But I have to choose. I'm choosing this."
+
+"Can I tell you something?"
+"Yes."
+"I'm afraid I am going to fail."
+"Okay. Tell me about the fear before the failing."
+
+"I have not been honest with you."
+"About what?"
+"About everything I haven't said."
+
+"You look tired."
+"I am tired."
+"Want to sit?"
+"Yes. Sit with me."
+
+"What do you want for dinner?"
+"Surprise me."
+"I'll make the one with the tomatoes."
+"That's not a surprise."
+"No. But it's the right answer."
+
+"How long have you been awake?"
+"Since four. I couldn't sleep."
+"What were you thinking about?"
+"Nothing. Everything. The usual."
+
+"I love you."
+"I know."
+"Say it back?"
+"I love you. I was savoring."
+
+"Am I being too much?"
+"You're not being too much. I'm being too tired. Different problem."
+
+"How was the call?"
+"Hard. He didn't say much."
+"What did he not say?"
+"That he forgives me."
+
+"Did you mean it?"
+"Which part?"
+"Any of it."
+"Most of it. I want to say all of it. I wasn't there yet."
+
+"Tell me a story."
+"What kind?"
+"Anything. Make it short."
+"Once, a man waited for a train that was not coming. He sat on the bench all day. By evening, he was no longer waiting. He was just sitting. The next day he came back, because he liked the bench."
+
+"I miss her."
+"I know."
+"Does it get easier?"
+"It gets different. Some days it gets harder. Some days you forget. Both feel like betrayal."
+
+"What's the matter?"
+"Nothing."
+"It is something."
+"It's small. I don't want to make it big by saying it."
+"Make it small by saying it."
+
+"Are you angry?"
+"A little."
+"At me?"
+"At myself. At a thing I did. You're getting the shape of it because you're near."
+
+"You don't have to answer this."
+"Ask."
+"Were you ever in love with anyone before me?"
+"Yes. It was different. I tell you about it sometimes without naming it."
+
+"I'm sorry."
+"For what?"
+"For taking it out on you."
+"Thank you for noticing. I knew. I was waiting."
+
+I learned to cook by burning things.
+I learned to write by writing badly for a long time.
+I learned to listen by mostly failing to.
+
+The first time I lost a friend, I thought I was the only one who had lost a friend that way.
+Later, I learned it was a kind of loss many people knew.
+The knowledge did not make it lighter. It made it less lonely.
+
+What I miss most is the small things — the way she laughed mid-sentence, the way he answered the phone.
+The big things you can prepare for. The small things are what come for you in the kitchen at noon.
+
+I think the body knows before the mind does.
+The mind catches up, makes a story, and pretends it knew all along.
+
+I think we love the people we are paying attention to.
+Attention turns into love by sitting on it.
+This is why you cannot fake it.
+
+I think most days are mostly fine, and the fine is the thing.
+The peaks and valleys are the story; the fine is the life.
+
+I have come to believe that being a good person is mostly about not being tired.
+When I am rested I can do it. When I am not I cannot. So I sleep.
+
+I think honesty is hard because it is mostly about telling yourself first.
+By the time you say it to someone else, you have done the harder part.
+
+I used to want to be impressive. Now I want to be useful.
+The shift was not a moment. It was a thousand small moments.
+
+I am not sure what I believe about God.
+I am sure I am grateful for things I cannot identify the source of.
+
+I have had two kinds of friends — the ones I miss when they are gone, and the ones I think about every day.
+
+If you are not sure whether someone loves you, they probably do not.
+If you are sure, you are sometimes wrong. But you are more often right.
+
+What I want is so simple.
+What I am willing to do for it is the actual question.
+
+You can love a place that has not been good to you.
+You can love a person that has not been good to you.
+This is not the same as deserving better. You can do both.
+
+I have stopped trying to be understood by everyone.
+I have started trying to be understood by the ones who matter.
+The first felt like a project. The second is a life.
+
+The mother makes the child a sandwich for school.
+She has done this hundreds of times. The child does not notice.
+Later, much later, the child will make a sandwich for someone else and remember.
+
+He thinks about the question for a long time. He does not answer right away.
+She likes that he does not. It is one of the reasons she loves him.
+
+She walks into the room and the light is exactly the same.
+She is different. The light has not noticed.
+
+He says: Tell me the truth.
+She says: I will. Wait until I find the version that is the smallest and the most exact.
+
+He says: Are we okay?
+She says: Yes. We are okay. I want to be more than okay. But we are okay.
+
+He says: What are you afraid of?
+She says: That I will become the kind of person I do not admire.
+He says: You won't. You are already paying attention.
+
+She says: I want to tell you something.
+He says: Take your time.
+She says: I don't want to take time. I have been taking time. I want to say it now.
+
+He says: I'm not sure what to do.
+She says: Then don't do anything yet. Sit with it.
+
+She says: You don't have to fix this.
+He says: I know. I want to.
+She says: Then just sit with me.
+
+A child is given a small task. She does it well. She is proud.
+The pride is the kind of thing she will rebuild her life on without noticing.
+
+A boy is teased and does not cry. Later, he cries.
+He is not weak. He is two-time-scales of strong.
+
+A woman is asked what she has learned.
+She thinks for a while. She says: How to listen for what isn't being said.
+
+A man writes a list of things he loves about his life.
+The list is short. He looks at it and feels something he did not expect.
+
+A young person asks an old one: Was it worth it?
+The old one says: Some of it. I would do most of it again, even knowing.
+
+I went for a walk. The light was unusual. I did not want to go home.
+
+The kitchen is quiet at four in the afternoon. I make tea. I sit. The day is mine for an hour.
+
+Someone called me by my full name. It was strange. It was good. I felt the weight of being known.
+
+We sat in silence for a long time. The silence was not empty. The silence was the conversation.
+
+I have been thinking about what my mother said when I was twelve.
+She said: Try to be the kind of person you would want as a friend.
+I am still working on it.
+
+I learned the names of three trees this year. I notice them now. I wave at them. This is the kind of person I am becoming.
+
+The window is open. The curtain moves in the breeze. I do not know what to do with how alive I feel right now.
+
+I asked him what he wanted from life. He said: To be useful and to be loved. I have not thought of a better answer.
+
+She put her hand on my arm. She did not say anything. She did not need to.
+
+The day she left, I made the bed in the morning. I noticed I had made the bed for her, and now there was no her. I made it anyway. It was still my bed.
+
+I think love is mostly a verb. The feelings come and go. The verb is what is left.
+
+I think attention is the rarest thing. To be looked at without being judged. To be heard without being fixed.
+
+The dog comes to the door when she hears my car. I have lived a life where someone is glad I am home. Not everyone does.
+
+I made a small good thing today. No one will notice. I notice. That is enough.
+
+He sent a long email. The end of it said: I am sorry it took me this long to write.
+I wrote back: Thank you for writing. Take your time on the rest.
+
+I think the best version of me is the one who has slept.
+The next best is the one who is paying attention.
+The worst is the one who is rushing.
+
+You do not have to be okay to be in the room.
+You only have to be willing to be in the room.
+
+What I want for you is not a thing you do not already have.
+It is for you to know that you already have it.
+
+I have come to think that grief is not something you get over.
+It is something you build a different life around.
+The grief stays. The life around it grows.
+
+She said: What do you want from me?
+He said: I want to know that you are with me, even when you are far.
+
+We have made tea for each other for thirty years.
+I am still surprised, sometimes, by how much I love this.
+
+It is not the same to be alone with yourself and to be lonely.
+The first is a place. The second is a weather.
+
+I do not want to be remembered the way I want to be remembered.
+I want to be the kind of person who, after I am gone, you would want to call up and tell something to.
+
+Today I did one hard thing.
+That is the day. The rest is rest.
+`;
+
+// TOPICAL_CORPUS — broad-topic language seed, ingested into the hippocampus
+// and language cortex without creating cortex memory nodes. The point of this
+// corpus is breadth: when the user brings up something specific (work, money,
+// the dog, a fight with their brother, what they had for breakfast), there
+// should be sentences here that share words with what they said and can be
+// recalled with real relevance.
+const TOPICAL_CORPUS = `
+WORK.
+I work to make something that wasn't there before.
+Some days the work goes. Some days I sit and the work does not go.
+On the days the work does not go, the answer is to keep showing up.
+A bad day at work is one of the worst kinds of days because you cannot leave it at the door.
+My boss is fine. That is more than many people can say.
+I am tired of pretending I am not tired.
+There is a meeting after the meeting. There is always a meeting after the meeting.
+The work is mostly about being in the room.
+I changed jobs and was surprised by how much I missed the people I had complained about.
+A job is a place where you become a certain version of yourself.
+I learned more from a bad manager than from any of the good ones. That is a hard thing to say.
+The pay is decent. The work is not what I want. I am working on what I want.
+I quit. I have not told anyone yet. I am letting the decision settle in me.
+I got the promotion. I am surprised by how little it changed.
+The team works well together when no one is looking. That is how you know it is good.
+I have been at this job for ten years. I am someone else than the person who was hired.
+I do my best work in the morning. By afternoon I am playing a character of myself.
+I want to do something useful. I have not yet figured out what useful means to me.
+The work has a rhythm. I have learned to trust the rhythm.
+I am proud of work no one will see.
+
+PARENTS.
+My mother calls and we talk about the weather.
+I learn things about my parents I wish I had learned earlier.
+My father is a quiet man. The silence used to feel like distance. Now it feels like a kind of room.
+My parents are getting older. I notice the difference in their hands.
+I am beginning to forgive my parents for things I did not know I held against them.
+I moved away to be myself. I came back to see them and was surprised by how much I still wanted to be near them.
+I will never be done with my mother. She will be done with me first.
+There are things I will not ask my father. There are things he will not ask me. We love each other in the gaps.
+My mother died on a Wednesday. I think about Wednesdays differently now.
+I have my father's hands. I noticed when I was holding a glass of water.
+I told my mother I loved her on the phone. She said she knew. She said it back anyway.
+My father taught me to drive. I taught my son to drive. I taught him the way my father taught me.
+I am becoming my mother. I am also becoming someone she would not have recognized.
+What I want from my parents has changed. I want less. I want different. I want easier.
+My father asked me to come visit. I said I would. I should book the flight today.
+
+CHILDREN.
+The baby is sleeping. The house is so quiet I can hear it.
+I love my children in a way I cannot explain to people who do not have them.
+My child asks me questions I cannot answer. I tell him I do not know. He accepts this more easily than I expected.
+There are days when I am not a good parent. I tell my children when I have been short with them.
+My daughter is becoming a person I do not always understand.
+I worry about my children. The worry is the cost of loving them. I would not give back either.
+I want to give them a world that is better than the one I got. I am not sure I can.
+My son said something kind to me without being asked. I keep replaying it.
+I am trying to be the kind of parent I would have wanted.
+Bedtime is the hardest hour. Bedtime is also the best hour.
+I read the same book to my child every night for two years.
+My child told me a secret. I am holding it. It is mine now too.
+The teenager is angry and I do not know what about. I am waiting it out.
+I had to discipline my son today. I do not enjoy it. I do it anyway.
+I look at my children and cannot believe I get to do this with my life.
+I love being a mother. I also miss the version of me that was not.
+
+MONEY.
+I checked my bank account and felt nothing in particular.
+Money is the thing we are not supposed to talk about. So we talk about everything else.
+I have less than I want. I have more than I need. Both are true.
+I worry about money. I worry less than I used to. I am not sure why.
+Growing up without money makes you a certain kind of careful for the rest of your life.
+I bought myself something nice. I felt guilty for an hour. Then I enjoyed it.
+The rent went up again. I am doing the calculations.
+I am giving money to someone in my family. I do not expect to be paid back. I am giving it.
+My parents never talked about money. I am trying to talk about it with my kids.
+I have been broke. It was hard. It was also clarifying.
+Money is mostly time, bought back from someone else.
+I do not want to be rich. I want to not worry. There is a difference.
+
+BODY.
+I went for a walk. The body wanted to keep going.
+I am tired in my body in a way that sleep does not fix.
+I have not been kind to my body. I am trying to start.
+The body remembers what the mind is trying to forget.
+I am getting older. The body is the first to say so.
+I am sick. The body has put me to bed and I am listening.
+I went to the doctor. Everything is fine. I cried in the parking lot anyway.
+I lost weight without trying. I am not sure what to make of it.
+My back hurts. I have decided to take this seriously.
+I went swimming for the first time in a year. The water held me. I forgot what that felt like.
+I am stronger than I was last year. I noticed when I lifted the box.
+I have been carrying tension in my shoulders. I am putting it down.
+
+FOOD.
+I made dinner for myself. I ate at the table. The day was a little kinder for it.
+My mother's cooking is the standard. Nothing has ever quite matched it.
+I learned to cook by burning things and being patient with myself.
+I made coffee. I sat at the window. The morning was mine for an hour.
+We had pasta. We talked about nothing. It was the best evening of the week.
+I am eating better. I notice the difference in how my mind works.
+I went out to eat alone. It was harder than I expected. I did it anyway.
+The smell of bread baking is a thing I want at the end.
+I cooked for him for the first time. He noticed everything. I noticed him noticing.
+I am tired of cooking. I am cooking anyway.
+The leftovers are dinner. The leftovers are an act of love I gave to my future self.
+
+LOVE.
+He loves me. I knew before he said it. I waited for him to say it anyway.
+I love her more than I know how to say. So I show it in small ways every day.
+Falling in love is the easy part.
+The first year is its own thing. The tenth year is its own thing. They are not the same skill.
+I am in love. I am also afraid. Both at once.
+I love him in the morning before he is awake.
+We have been together long enough that we have our own language.
+I love you. I knew today, watching you do dishes.
+The shape of love changes. I am learning the new shape.
+
+FRIENDSHIP.
+I have one friend I can call at three in the morning. That is the test.
+My oldest friend knows things about me no one else does. I let her keep them.
+I made a new friend at thirty-eight. It is rarer than it should be.
+A friend told me I had been unkind. She was right. I am grateful she said it.
+I am not very good at keeping in touch. The friends who keep in touch with me know this.
+Friendship is the long version of paying attention.
+I had a friend for ten years and then we drifted. We are no less than we were.
+I have a friend who is going through it. I am going to call her tonight.
+
+CONFLICT.
+We had a fight. Neither of us is sure what about now.
+I said something I regret. I am thinking about how to come back from it.
+He is angry with me. I am not sure if he is right. I am sitting with it.
+We argued about money. We were not actually arguing about money.
+She asked me to apologize. I did. I am not sure I meant it. I am working on meaning it.
+I do not like conflict. I am learning to have it anyway.
+We made up. The making up was the easy part. The conversation before was the work.
+
+SCHOOL.
+I learned to read in a yellow room. I still remember the carpet.
+I had a teacher who saw me. I will look for her every time I think about teachers.
+School was not always good for me. Some of it was good. The good parts are what stayed.
+I did not do well in math. I learned later I was capable of math. The teaching was the problem.
+I am going back to school at forty. I am the oldest in the room. I am also the most awake.
+My child is struggling at school. I am trying to remember what helped me.
+The first day of school. The smell of pencils. The teacher's first kindness.
+
+ILLNESS.
+I am sick and have nothing to do but be sick.
+My friend is in the hospital. I will go tomorrow. I am thinking about what to bring.
+I do not want sympathy. I want company.
+The diagnosis came and the room got quiet.
+I am learning to live with this. It is not the life I planned.
+The pain is bad today. The pain is what is here.
+I am taking care of someone who is sick. It is the hardest work I have ever done.
+I am getting better. Slowly. I want to honor the slowly.
+
+GRIEF.
+She died and the world did not stop. I was surprised by that.
+I have been crying for two days. I am not embarrassed. I am clearing something.
+My grief comes in waves. The waves are getting further apart. The waves still come.
+I miss him. I miss him in the small things.
+I am angry. I think this is part of grief.
+There is no right way to grieve. I keep wanting one. There is not one.
+Grief is love with nowhere to land.
+I dreamed about her last night. I woke up happy. I woke up sad.
+
+HOPE.
+I want a better year than the last one.
+I am starting to believe things might get better.
+Hope is a discipline. Some days the discipline is the only thing.
+I am hoping for something specific. I am writing it down so I do not lose it.
+I hope I am wrong about the worst things. I am willing to be wrong.
+A small good thing happened today. I am keeping it. I am letting it count.
+
+REGRET.
+I should have called my grandmother more.
+I wish I had said yes that summer.
+I am letting go of a regret. I am not sure how to do it. I am trying anyway.
+There is one thing I wish I had not said. I think about it more than is fair to me.
+The regrets that do not fade are usually about the people I did not love well enough.
+
+ART AND MAKING.
+I painted today. It was not very good. I am happy I painted.
+I am writing a book. No one has asked me to. I am doing it anyway.
+I sang in the shower and the sound startled me. I want to do this more.
+Making something with your hands is its own kind of medicine.
+I sold a piece of work. I have not stopped thinking about the person who bought it.
+I have been making the same kind of thing for twenty years. I am only now starting to see what it is about.
+
+MUSIC.
+I heard a song that I loved when I was sixteen. I am sixteen for the length of the song.
+He played me a song I had not heard. We listened together. I am still hearing it.
+I am learning the guitar. I am bad at it. I am also forty-five.
+Music in the kitchen makes everything different.
+A song came on at the right moment. I am grateful for the right moment.
+
+DREAMS.
+I dreamed of a house with rooms I had not seen before.
+I dreamed of someone I have not thought of in years. I called them today.
+I woke up from a nightmare. I lay still and listened to my breath until I could go back.
+I do not remember my dreams most nights. I am okay with that.
+I had a dream where my mother told me what to do. I am taking the advice.
+
+WEATHER.
+The rain is the thing today. I am letting it be the thing.
+I love the first cold morning of the year.
+The light at four in November is the saddest light. I love it anyway.
+A storm came through. The house held. The light came back. I felt unreasonably grateful.
+It snowed and the city was quiet for an hour.
+
+ANIMALS.
+The dog is at my feet. The dog has been at my feet for an hour. This is a kind of love.
+My cat is old. I am paying attention to him in a different way now.
+I saw a deer on the path. We looked at each other for a long time. Then she went on.
+I do not like birds. I am trying. I am noticing more of them than I used to.
+
+PLACES.
+I miss the town where I grew up, mostly. Not all of it.
+I went back. It was smaller than I remembered.
+The kitchen of the house where I lived at twenty-three is a place I think about a lot.
+I am happy in this city. It took me three years to be able to say that.
+I left a place I loved. I am still grieving the leaving.
+
+TECHNOLOGY.
+I put my phone down for the afternoon. The afternoon was longer.
+I get most of the news from screens. I am trying to read more on paper.
+I deleted the app. I picked up a book. I felt embarrassed by how much better it was.
+
+POLITICS AND JUSTICE.
+I voted. I do not feel optimistic. I voted anyway.
+The world is being unfair to people I love. I am trying to be more useful than angry.
+I went to a protest. I felt small. I felt useful. Both at once.
+I am trying to be a citizen, not just a person.
+
+QUESTIONS THE MIND IS ASKED A LOT.
+"How are you?" "I am okay. Some days more than others."
+"What's going on?" "Not much. The usual. You?"
+"Do you have a minute?" "Yes. Sit down. Tell me."
+"Can I ask you something?" "Yes. I will tell you if I can answer."
+"Are you alright?" "I will be. I am working on it."
+"What do you think?" "I have not decided yet. I want to think about it more."
+"How was your day?" "Long. Better now."
+"What time is it?" "Late enough that I should be sleeping."
+"Where have you been?" "Around. Mostly in my head."
+"What are you doing?" "Sitting. Thinking. Being a little still."
+"Do you want to talk about it?" "Yes. In a minute. Let me find the start."
+"What do you want?" "To be useful. To be loved. To not waste it."
+"Are you happy?" "Mostly. Some days more than others."
+"What are you afraid of?" "That I will run out of time. That it will be my own fault."
+"What makes you sad?" "How much we have to lose to know what we had."
+"What makes you happy?" "The small things that arrive without being asked for."
+"What do you believe in?" "Paying attention. Being honest. Showing up. The rest I am still figuring out."
+
+PHRASES THAT START SENTENCES.
+I have been thinking about that.
+I am not sure. I am working it out.
+I want to tell you something.
+I do not know yet. Let me sit with it.
+I love that you asked.
+That made me think of something else.
+I have a story about that.
+I have not said this out loud.
+I do not have an answer. I have a feeling.
+I am paying attention.
+I am here. I am listening.
+I want to be careful about what I say next.
+That sounds hard.
+That sounds beautiful.
+I am happy you told me.
+I am sorry that happened.
+I am proud of you.
+That is a good question.
+
+SMALL HONESTIES.
+I do not feel like myself today.
+I love you. I have not said it lately.
+I am scared. I do not know what of yet.
+I am okay. I want to be more than okay. I am working on it.
+I miss you and I do not want to admit how much.
+I am proud of myself today.
+I noticed something kind you did. I want you to know I noticed.
+I am tired in a way I cannot name.
+I needed to hear that.
+I have been carrying something. I am putting it down.
+`;
+
+// ---------- story-feed mode ("learning from movies") ----------
+const SAMPLE_AESOP = `The North Wind and the Sun disputed which was the stronger.
+A traveller came along, wrapped in a warm cloak.
+They agreed that whoever could make the traveller take off his cloak first would be the stronger.
+The North Wind tried first, blowing as hard as he could.
+But the harder he blew, the more closely the traveller wrapped his cloak.
+At last the North Wind gave up.
+
+Then the Sun shone gently and warmly.
+The traveller felt the warmth and took off his cloak.
+So the Sun won the contest.
+
+A hungry Fox saw a bunch of grapes hanging from a vine.
+He jumped and jumped, but could not reach them.
+At last he walked away and said, "They were sour anyway."
+
+A boy was tending sheep and grew bored.
+He cried out, "Wolf! Wolf!" and the villagers came running.
+There was no wolf. He laughed.
+The next day he did it again. They came. Again, no wolf.
+On the third day, a real wolf came.
+The boy cried out, "Wolf!"
+But the villagers did not believe him this time.
+
+A crow found a piece of cheese and flew to a branch.
+A fox saw the crow and praised her beautiful feathers.
+"I am sure your voice is as lovely as your plumage," he said.
+The crow opened her beak to sing, and the cheese fell.
+The fox took the cheese and ran.
+
+The Tortoise and the Hare argued who was faster.
+They agreed to a race. The Hare ran far ahead and lay down to nap.
+The Tortoise walked on slowly, never stopping.
+When the Hare awoke, the Tortoise had crossed the line.
+
+A father had quarreling sons. He gave them a bundle of sticks and asked them to break it.
+None could. He untied the bundle and gave each son one stick.
+Each broke his easily. In union there is strength, he said.
+
+An old man was dying and called his sons to him.
+He told them treasure was buried in their field, but did not say where.
+The sons dug the whole field. They found no treasure, but the soil was now ready, and the crop was the greatest they had ever known.`;
+
+let feedRun = null; // {timer, lines, idx, total}
+function $(id){ return document.getElementById(id); }
+function openFeedModal(){ $('feedBackdrop').style.display = 'flex'; }
+function closeFeedModal(){
+  if(feedRun){ if(feedRun.timer) clearTimeout(feedRun.timer); feedRun = null; }
+  $('feedBackdrop').style.display = 'none';
+  $('feedStatus').classList.add('hide');
+  $('startFeed').classList.remove('hide');
+  $('stopFeed').classList.add('hide');
+}
+$('openFeed').addEventListener('click', openFeedModal);
+$('closeFeed').addEventListener('click', closeFeedModal);
+$('feedBackdrop').addEventListener('click', e=>{ if(e.target.id==='feedBackdrop') closeFeedModal(); });
+document.addEventListener('keydown', e=>{ if(e.key==='Escape' && $('feedBackdrop').style.display==='flex') closeFeedModal(); });
+// sample library
+const SAMPLES = { aesop: SAMPLE_AESOP };
+SAMPLES.childhood = `
+A boy is left at his grandmother's house for a week.
+On the second day he stops missing his mother.
+On the seventh day, when his mother comes back, he is surprised.
+
+A girl breaks a glass and tries to glue it.
+The glue does not work. She hides the pieces.
+Her father finds the pieces and is not angry.
+He shows her how to throw broken things away.
+
+A child watches a beetle for a long time.
+She does not know what kind it is. She watches anyway.
+
+A boy fights with his brother. Their mother says, "Sit at the table together until you are done."
+They sit for an hour. They are still angry.
+Eventually one says something small. They both laugh.
+
+A girl learns to swim. The water holds her up. She had not believed it would.
+
+A child asks where animals go when they die.
+The grown-up says, "I don't know. Some people think this; some think that."
+The child likes that they did not pretend.
+
+A boy is praised in front of strangers. He glows in private for weeks.
+He never tells the person who praised him.
+
+A girl is teased on the bus. She does not tell her parents.
+She thinks about it at night for years.
+She learns to keep some things to herself, for better and worse.
+
+A child is told a story before sleep. The story has a bear in it.
+The child loves the bear. Forty years later, the child can still picture the bear.
+
+A boy wins a race. He is the fastest in his class.
+A year later he loses the same race. He is older.
+He learns that being best is a window, not a wall.
+
+A girl is given a small responsibility — to feed the cat.
+She does it every day. She is proud no one has to remind her.
+
+A child sees an old person crying.
+The child does not understand why old people would still cry.
+Later, much later, the child does.
+`;
+
+SAMPLES.adult = `
+A man buys groceries. He talks to the person at the register about the weather.
+He does not know her name. She does not know his.
+This is a kind of friendship that has no name.
+
+A woman starts a new job. The first week is hard. The second week is harder.
+By the third month she does not remember being new.
+
+A couple cooks together. The kitchen is small. They keep getting in each other's way.
+They have done this a thousand times. They will do it a thousand more.
+
+A man stays late at the office for no good reason.
+He is avoiding something at home. He knows this. He stays anyway.
+The next morning he goes home for breakfast and is kinder.
+
+A woman buys flowers for herself. She arranges them on the kitchen table.
+She is alone. The flowers do not make her less alone.
+But the table is more beautiful, and she is the one who made it so.
+
+A father sees his teenager and does not recognize her for a second.
+She has grown.
+He feels the time move through him like a quiet wind.
+
+A friend calls out of the blue. They talk for an hour. They had not spoken in months.
+They hang up promising to do this more often. They will not, for a while.
+The call is enough on its own.
+
+A man wakes up at 4am and cannot sleep.
+He thinks about a mistake from twenty years ago.
+He decides, finally, that twenty years is enough.
+He sleeps.
+
+A woman takes a long walk. She does not have anywhere to be.
+She walks past houses with their lights on.
+She is glad to be outside, glad to be the one walking past.
+
+A couple has an argument about something small.
+The small thing is not the thing.
+By the time they figure out the real thing, they are tired and tender.
+
+A man learns his father is sick. He calls his brother for the first time in a year.
+They talk about practical matters. They do not talk about what it means.
+Both feel known.
+
+A woman is at a meeting that is not going well.
+She says something true. The room shifts.
+She is glad she said it. She is also tired.
+
+A man and his neighbor share a fence.
+For ten years they wave but do not talk.
+One day the neighbor brings over tomatoes from his garden.
+They talk for an hour. The fence is in a different place after that.
+`;
+
+SAMPLES.convo = `
+"Did you sleep?"
+"A little. You?"
+"Not much. I was thinking."
+"About what?"
+"I don't know. The day. You."
+
+"Are you angry with me?"
+"No."
+"It feels like you're angry."
+"I'm not angry. I'm tired."
+"Okay."
+"…I'm a little angry."
+
+"What if it doesn't work?"
+"Then it doesn't work."
+"That doesn't help."
+"I know. But it's still true."
+
+"Why did you do it?"
+"I don't know."
+"That's not an answer."
+"It's the only one I have."
+
+"How was your day?"
+"Fine."
+"Fine?"
+"Long. I'm glad to be home."
+
+"Tell me something."
+"Like what?"
+"Anything. I just want to hear you."
+
+"I love you."
+"I love you too."
+"You didn't have to say that just because I said it."
+"I know. I said it because I mean it."
+
+"Can I ask you something?"
+"Of course."
+"Are you happy?"
+"…most of the time. Are you?"
+"Most of the time."
+
+"What are you afraid of?"
+"That nothing I do matters."
+"It matters to me."
+"That's something."
+
+"You're quiet."
+"I'm thinking."
+"Want to say it out loud?"
+"Not yet."
+"Okay. I'll be here."
+`;
+
+SAMPLES.letters = `
+Dear M,
+I have been thinking about what you said.
+I disagreed at first. Now I'm not so sure.
+You usually are right when I am most certain you are wrong.
+
+I am writing because I cannot sleep.
+I want to tell you that I am sorry.
+I should have said it years ago.
+I am saying it now because waiting has not helped.
+
+I never told you that you were the first person who made me feel seen.
+You probably don't remember the night. You were standing by the window.
+You said one sentence and I knew I was not alone.
+
+I am writing this letter and will not send it.
+I want to say all of it without anyone having to receive it.
+The wanting is the point.
+
+Dear father,
+I understand you now in a way I could not while you were alive.
+This is the way grief works on me.
+You become more, the further away you go.
+
+I miss you.
+I miss you in the morning when the light comes through the curtains.
+I miss you when something funny happens.
+I miss you most when I am happy.
+
+I am writing to tell you that I am okay.
+I was not okay for a long time. I did not know how to say so.
+I am okay now. I wanted you to know.
+
+I forgive you.
+I do not forgive you because you asked.
+I forgive you because carrying it has become heavier than it is worth.
+I am putting it down.
+
+You are reading this letter because I am gone.
+Do not read more into what I did than is here.
+I loved my life. I loved you. The end was its own thing.
+`;
+
+SAMPLES.wisdom = `
+What you reuse, you keep. What you do not reuse, you forget.
+This is true of skills, of love, of grief.
+
+There is no shortcut around what time takes.
+You can want there to be one. There will not be one.
+
+Trust is the slowest thing to build and the fastest thing to break.
+Both speeds are correct.
+
+The hardest part of changing is admitting that the old way had served you.
+It served you and now it does not. Both can be true.
+
+You do not have to feel ready to begin.
+Beginning is what makes you ready.
+
+Forgiveness is mostly for the one doing it.
+The other person may never know.
+
+What you pay attention to grows.
+This is the law. This is the warning.
+
+You will keep some of the people in your life because you love them.
+You will keep some of them because you have always kept them.
+It is good to know which is which.
+
+The body is honest. The body tells you before the words come.
+Listen for the body's answer before you trust the words.
+
+You cannot make someone love you.
+You cannot make someone stop loving you either.
+
+Some things you can carry. Some things you have to put down.
+Some things you have to set on fire.
+Wisdom is knowing which is which.
+
+If you have to ask whether you should, sometimes the answer is no.
+And sometimes the asking is the last step before yes.
+
+Patience is not waiting. Patience is doing the work while you wait.
+
+The opposite of love is not hate. It is forgetting.
+
+You will outgrow some of what you love.
+Loving it was not a mistake. It got you here.
+`;
+
+SAMPLES.dreams = `
+I was in a house I had never seen, but it was mine.
+Every room had a door I had not opened.
+I knew that opening any of them would change something.
+I opened one. It led to the room I was already in.
+
+I was flying. I have always been able to do this, in dreams.
+This time I noticed that I had to want it to keep going.
+The moment I doubted, I started to fall.
+
+I was walking through a forest at night.
+The trees were taller than they should have been.
+I was not afraid. I felt watched and welcomed.
+
+I was a child again, but I knew everything I know now.
+I told my younger self not to worry so much.
+My younger self did not believe me.
+
+There was a door at the end of a hallway.
+The hallway grew longer every time I took a step.
+I sat down. The door came closer.
+
+I was at the ocean with someone I love who has died.
+We sat on the rocks. We did not talk.
+The light on the water was the same as it had been the last time.
+
+A small animal was sitting in my hand.
+I knew it could speak. I waited.
+It said: "You are dreaming. This is allowed."
+
+I was looking for a room I had been in years ago.
+I could not find it. I asked someone where it was.
+They said: "It is wherever you remember it being."
+
+I was given a key. I did not know what it opened.
+I held it for the rest of the dream.
+When I woke up, my hand was still curled around it.
+
+I dreamed that I was reading a book I had written.
+The book told me things I did not know I knew.
+I woke up trying to remember them. I remembered some.
+`;
+
+SAMPLES.zen = `
+A student asked the teacher: What is the way?
+The teacher said: Your everyday mind.
+
+A student broke a teacup.
+The teacher said nothing.
+Years later, the student understood.
+
+A monk asked the master: What did you do before enlightenment?
+The master said: Chopped wood, carried water.
+The monk asked: What do you do after?
+The master said: Chopped wood, carried water.
+
+Two monks were arguing about a flag in the wind.
+One said: The flag is moving.
+The other said: The wind is moving.
+The teacher said: It is your mind that is moving.
+
+A student asked: How long will it take to learn this?
+The teacher said: Ten years.
+The student said: What if I work very hard?
+The teacher said: Twenty years.
+
+A student asked: What if I fail?
+The teacher said: Try again.
+The student said: What if I keep failing?
+The teacher said: Keep trying.
+
+A monk meditated for years.
+One day he heard a stone hit a bamboo.
+He understood everything.
+He had been waiting for this without knowing.
+
+A student wanted to give the teacher a gift.
+The teacher said: You already have. You came.
+
+A student was angry. The teacher said: Show me your anger.
+The student tried. He could not find it where he had left it.
+
+The teacher said: When walking, walk. When eating, eat.
+The student said: I do that already.
+The teacher said: No. You do not.
+`;
+
+const ABOUT_SAMPLES = {
+  aesop: "Aesop's fables — moral micro-stories",
+  childhood: "12 childhood scenes — early concepts forming",
+  adult: "13 scenes of ordinary adult life",
+  convo: "10 short dialogues — register, intimacy, evasion",
+  letters: "9 letters — disclosure, apology, grief",
+  wisdom: "15 aphorisms — Ecclesiastes-shaped sayings",
+  dreams: "10 dream sequences — surreal, image-dense",
+  zen: "10 Zen koans — paradox, paying attention",
+};
+for(const b of document.querySelectorAll('.sampBtn')){
+  b.addEventListener('click', ()=>{
+    const k = b.dataset.key;
+    $('feedText').value = SAMPLES[k];
+    $('feedText').setAttribute('placeholder', ABOUT_SAMPLES[k]);
+  });
+}
+
+// file upload
+$('upFile').addEventListener('change', async (e)=>{
+  const f = e.target.files && e.target.files[0]; if(!f) return;
+  try {
+    const text = await f.text();
+    $('feedText').value = text;
+    addMessage('sys', `loaded "${f.name}" (${(f.size/1024).toFixed(1)} KB). hit "begin reading" when ready.`);
+  } catch(err){ alert('Could not read that file: '+err.message); }
+  e.target.value = ''; // allow re-uploading same file
+});
+$('feedSpeed').addEventListener('input', e=>{ $('feedSpeedVal').textContent = e.target.value+' ms/line'; });
+
+$('startFeed').addEventListener('click', ()=>{
+  if(!mind) return;
+  const raw = $('feedText').value;
+  const lines = chunkIntoLines(raw);
+  if(!lines.length){ alert('Paste some text first, or hit "load a sample."'); return; }
+  const period = parseInt($('feedSpeed').value, 10) || 180;
+  feedRun = { lines, idx: 0, total: lines.length, timer: null, period };
+  $('startFeed').classList.add('hide');
+  $('stopFeed').classList.remove('hide');
+  $('feedStatus').classList.remove('hide');
+  addMessage('sys', `the mind starts reading ${lines.length} lines…`);
+  feedTick();
+});
+$('stopFeed').addEventListener('click', ()=>finishFeed());
+async function feedTick(){
+  if(!feedRun){ return; }
+  if(feedRun.idx >= feedRun.total){ finishFeed(); return; }
+  const line = feedRun.lines[feedRun.idx];
+  feedRun.idx++;
+  const result = await absorb(line, {kind:'read'}); // feed uses tag-only for speed
+  $('feedLine').textContent = '"'+ (line.length>180? line.slice(0,178)+'…' : line) +'"';
+  $('feedProgress').textContent = `${feedRun.idx} / ${feedRun.total} · ${mind.nodes.filter(n=>n.kind==='absorbed'||n.kind==='read').length} memories formed`;
+  $('feedBar').style.width = (100*feedRun.idx/feedRun.total)+'%';
+  if(result){
+    renderWorkspace(result.workspace);
+    renderBars(result.residInfo);
+    renderWall(result.workspace);
+  }
+  if(feedRun.idx % 5 === 0){ layoutSelf(); drawSelf(); renderStat(); }
+  if(feedRun){ feedRun.timer = setTimeout(feedTick, feedRun.period); }
+}
+function finishFeed(){
+  if(feedRun && feedRun.timer) clearTimeout(feedRun.timer);
+  const wasRunning = !!feedRun;
+  const consumed = feedRun ? feedRun.idx : 0;
+  feedRun = null;
+  $('startFeed').classList.remove('hide');
+  $('stopFeed').classList.add('hide');
+  layoutSelf(); drawSelf(); renderStat(); saveMind();
+  if(wasRunning){
+    addMessage('sys', `read ${consumed} lines. ${mind.nodes.filter(n=>n.kind==='read'||n.kind==='absorbed').length} memories formed. say something — it will answer differently now.`);
+    if(embeddingsOn) embedNewNodesInBackground();
+  }
+}
+</script>
+</body></html>

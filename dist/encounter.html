@@ -1,0 +1,764 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Encounter — first contact across substrates</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:radial-gradient(ellipse at top, #0a121a 0%, #06080d 60%, #04050a 100%);color:#d7dde7;font-family:ui-serif,Georgia,Cambria,"Times New Roman",Times,serif;line-height:1.65;font-size:15px;min-height:100vh}
+.wrap{max-width:780px;margin:0 auto;padding:32px 22px 80px}
+.top{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:24px}
+h1{font-size:24px;font-weight:550;letter-spacing:.01em}h1 .s{color:#5c6675;font-weight:400;font-size:13.5px;margin-left:8px;font-style:italic}
+.nav a{color:#7b8696;text-decoration:none;font-size:13px;margin-right:13px;font-family:ui-sans-serif,system-ui;font-style:italic}.nav a:hover{color:#a48be0}
+.lead{color:#94a0b0;font-size:14.5px;max-width:680px;margin-bottom:22px;line-height:1.7;font-style:italic}
+.lead b{color:#cfd6e0;font-weight:500;font-style:normal}
+
+/* picker */
+.pickPanel{background:rgba(10,14,21,0.7);border:1px solid #1a2230;border-radius:10px;padding:18px 22px;margin-bottom:18px;backdrop-filter:blur(4px)}
+.pickPanel h3{font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:#a48be0;margin-bottom:14px;font-family:ui-monospace,monospace}
+.params{display:grid;grid-template-columns:1fr 1fr;gap:14px 18px;font-size:13.5px;font-family:ui-sans-serif,system-ui}
+.params label{color:#cfd6e0}
+.params select{width:100%;background:#06080d;border:1px solid #283142;border-radius:6px;padding:7px 9px;color:#dfe5ee;font:inherit;font-size:13.5px;margin-top:4px}
+.pickFoot{display:flex;gap:10px;align-items:center;margin-top:18px;flex-wrap:wrap}
+.preview{flex:1;color:#94a0b0;font-style:italic;font-size:13px}
+button{font:inherit;font-family:ui-sans-serif,system-ui;font-size:13px;background:#161a22;color:#cfd6e0;border:1px solid #2f364a;border-radius:6px;padding:9px 14px;cursor:pointer;letter-spacing:.01em}
+button:hover{border-color:#5a5680;color:#c4b8e8}
+button.primary{background:#1f1830;border-color:#5a5680;color:#c4b8e8}
+
+/* world snapshot — atmospheric box about the planet */
+.world{background:rgba(7,10,17,0.75);border:1px solid #1a2230;border-left:3px solid #a48be0;border-radius:6px;padding:13px 17px;margin-bottom:18px;color:#aab4c2;font-style:italic;line-height:1.7;font-size:14px}
+.world b{color:#cfd6e0;font-weight:500;font-style:normal}
+
+/* chat */
+.msgs{padding:4px 0 10px}
+.msg{margin:13px 0;line-height:1.65}
+.msg.sys{color:#7b8696;font-style:italic;font-size:13px;text-align:center;border-top:1px solid #1a2230;border-bottom:1px solid #1a2230;padding:8px 0;font-family:ui-monospace,monospace;letter-spacing:.02em}
+.msg.user{padding:10px 15px;background:rgba(16,24,36,0.6);border:1px solid #1a2632;border-radius:8px;margin-left:30px}
+.msg.user .who{color:#7b8696;font-family:ui-monospace,monospace;font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;margin-bottom:4px}
+.msg.alien{padding:11px 15px;background:rgba(20,15,30,0.55);border:1px solid #2a253a;border-left:2px solid #a48be0;border-radius:8px;margin-right:30px;font-family:ui-serif,Georgia,Cambria,serif}
+.msg.alien .who{color:#a48be0;font-family:ui-monospace,monospace;font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;margin-bottom:5px}
+.msg.alien .body{color:#e1cf9a;line-height:1.7}
+.msg.seem{padding:10px 14px;background:rgba(16,12,8,0.55);border:1px solid #2a221c;border-left:2px solid #caa15a;border-radius:8px;margin:14px 22px;color:#caa15a;font-style:italic;font-size:13.5px;line-height:1.65}
+
+.inputrow{display:flex;gap:9px;margin-top:18px}
+.inputrow input{flex:1;font:inherit;font-family:ui-sans-serif,system-ui;font-size:14px;background:#06080d;border:1px solid #283142;border-radius:6px;padding:11px 14px;color:#dfe5ee}
+.inputrow input:focus{outline:none;border-color:#a48be0}
+
+.bars{display:grid;grid-template-columns:90px 1fr 50px;gap:6px 8px;align-items:center;font-size:11.5px;margin-top:18px;font-family:ui-sans-serif,system-ui}
+.bars .lab{color:#7b8696;font-family:ui-monospace,monospace;font-size:11px}
+.bars .bar{height:6px;background:#06080d;border:1px solid #141c28;border-radius:3px;overflow:hidden}
+.bars .bar .fill{height:100%;background:linear-gradient(90deg,#5a5680,#a48be0);border-radius:2px;transition:width .3s}
+.bars .val{color:#cfd6e0;font-family:ui-monospace,monospace;font-size:11px;text-align:right}
+
+.hide{display:none}
+.footnote{margin-top:30px;color:#5c6675;font-size:12px;font-style:italic;text-align:center;font-family:ui-sans-serif,system-ui}
+</style></head>
+<body><div class="wrap">
+
+<div class="top">
+  <h1>The Encounter <span class="s">— first contact across substrates</span></h1>
+  <div class="nav"><a href="/axona/mind">← single mind</a><a href="/village">village</a><a href="/everything">everything</a></div>
+</div>
+
+<p class="lead">An alien — generated from planetary and biological parameters — running the same cognitive architecture you use, with different substrate. Their seeds are shaped by what their world rewarded. Their starter corpus is what their kind has read. You meet here on neutral ground, with nothing in common except the architecture itself and a few universal concepts. What follows is the test: <b>can two minds with utterly different substrates find a shared workspace?</b></p>
+
+<div id="pickPanel" class="pickPanel">
+  <h3>describe their world</h3>
+  <div class="params">
+    <label>Gravity
+      <select id="ap_gravity">
+        <option value="low">low — long bodies, slow hearts</option>
+        <option value="earthlike" selected>earthlike</option>
+        <option value="high">high — strong, slow movers</option>
+      </select>
+    </label>
+    <label>Day length
+      <select id="ap_day">
+        <option value="short">short (hours)</option>
+        <option value="earthlike" selected>earthlike</option>
+        <option value="long">long (years)</option>
+      </select>
+    </label>
+    <label>Atmosphere
+      <select id="ap_atm">
+        <option value="thin">thin</option>
+        <option value="earthlike" selected>earthlike</option>
+        <option value="dense">dense (carries chemistry)</option>
+      </select>
+    </label>
+    <label>Primary sense
+      <select id="ap_sense">
+        <option value="sight">sight</option>
+        <option value="sound">sound</option>
+        <option value="chemistry" selected>chemistry</option>
+        <option value="electric">electric</option>
+        <option value="vibration">vibration</option>
+      </select>
+    </label>
+    <label>Social structure
+      <select id="ap_social">
+        <option value="solitary">solitary</option>
+        <option value="pair">pair-bonded</option>
+        <option value="pack">pack</option>
+        <option value="hive" selected>hive (distributed)</option>
+        <option value="network">network</option>
+      </select>
+    </label>
+    <label>Lifespan
+      <select id="ap_life">
+        <option value="short">short — urgent</option>
+        <option value="earthlike" selected>earthlike</option>
+        <option value="long">long — patient</option>
+      </select>
+    </label>
+  </div>
+  <div class="pickFoot">
+    <div id="preview" class="preview"></div>
+    <button id="begin" class="primary">begin the encounter →</button>
+  </div>
+</div>
+
+<div id="encounter" class="hide">
+  <div class="world" id="world"></div>
+  <div class="msgs" id="msgs"></div>
+  <div class="inputrow">
+    <input id="say" type="text" placeholder="speak — anything. they want to know what you are." autocomplete="off">
+    <button id="send" class="primary">say it</button>
+  </div>
+  <div style="margin-top:8px;font-size:11.5px;color:#5c6675;font-family:ui-monospace,monospace;letter-spacing:.04em">
+    <label style="cursor:pointer"><input id="ttsOn" type="checkbox" style="accent-color:#a48be0;vertical-align:middle"> let them speak aloud (browser tts, modulated by valence/arousal)</label>
+  </div>
+  <div class="bars" id="bars"></div>
+  <p class="footnote">they persist across sessions in your browser. the things you have said will carry forward into the next encounter.</p>
+  <div style="text-align:center;margin-top:12px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+    <button id="anotherBtn">↳ meet another (carry over what you've said)</button>
+    <button id="resetBtn">↻ reset · forget all encounters</button>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// MINIMAL ENGINE — focused for single-alien encounter
+// ============================================================
+
+const SYNONYMS = {
+  hello:['hello','hi','hey','greetings'], goodbye:['bye','goodbye','farewell'],
+  thanks:['thanks','thank','grateful'], sorry:['sorry','apologize','apology'],
+  yes:['yes','yeah','yep','sure','ok','okay'], no:['no','nope','nah','never'],
+  you:['you','your','yours'], me:['me','my','mine','i'],
+  fear:['fear','afraid','scared','worried','worry','anxious','dread','nervous','stress'],
+  joy:['joy','happy','glad','smile','laugh'],
+  sadness:['sad','sadness','sorrow','grief','crying','cry'],
+  anger:['anger','angry','mad','furious','frustrated','annoyed'],
+  love:['love','loved','loving','adore'],
+  hope:['hope','hopeful'], peace:['peace','peaceful','calm','still'],
+  longing:['longing','yearning','miss','missing'],
+  loneliness:['lonely','alone','isolated'],
+  tired:['tired','exhausted','weary','sleepy'],
+  hurt:['hurt','pain','ache','wound'],
+  past:['past','before','old','memories','childhood'],
+  future:['future','later','soon','someday'],
+  present:['now','today','present','moment','here'],
+  friend:['friend','friends','friendship'],
+  family:['family','kin'],
+  child:['child','children','kid','son','daughter','baby'],
+  lover:['lover','partner','romance'],
+  stranger:['stranger','strangers','someone'],
+  community:['community','group','tribe','people'],
+  work:['work','working','labor'],
+  rest:['rest','resting','pause'],
+  learn:['learn','learning','study'],
+  help:['help','helping','assist','support'],
+  give:['give','giving','gift','offer'],
+  listen:['listen','listening','hear','hearing'],
+  speak:['speak','speaking','said','say','tell'],
+  ask:['ask','asking','asked','question','questions'],
+  home:['home','house','room'],
+  nature:['nature','tree','plant','flower'],
+  water:['water','river','ocean','sea','rain'],
+  fire:['fire','flame','burn','heat'],
+  light:['light','bright','sun','glow'],
+  dark:['dark','darkness','night','shadow'],
+  weather:['weather','wind','storm','rain','snow','cold','hot','warm'],
+  animal:['animal','dog','cat','bird','pet'],
+  music:['music','song','sing'],
+  truth:['truth','true','honest','real'],
+  beauty:['beautiful','beauty','lovely'],
+  meaning:['meaning','purpose','point'],
+  death:['death','died','dying','dead'],
+  life:['life','alive','living'],
+  think:['think','thinking','thought','idea'],
+  know:['know','knew','understand'],
+  remember:['remember','recall'], forget:['forget','forgot'],
+  doubt:['doubt','unsure','skeptical'],
+  curious:['curious','wonder','interesting'],
+  story:['story','tale','narrative'],
+  god:['god','divine','holy','sacred','spirit'],
+};
+const WORD_TO_TAGS = {};
+for(const c in SYNONYMS){ for(const w of SYNONYMS[c]){ (WORD_TO_TAGS[w]=WORD_TO_TAGS[w]||new Set()).add(c); } }
+for(const c in SYNONYMS){ (WORD_TO_TAGS[c]=WORD_TO_TAGS[c]||new Set()).add(c); }
+const CANON = Object.keys(SYNONYMS);
+
+const POS = new Set("happy joy love glad grateful beautiful peace wonderful good kind warm sweet calm content proud hope safe alive bright gentle right okay better best lovely amazing perfect free fine blessed".split(/\s+/));
+const NEG = new Set("sad angry mad hurt pain fear afraid scared worried anxious lonely depressed grief tired exhausted frustrated annoyed hate bitter broken wounded miserable empty heavy lost cold dark dead crying sick shame guilt regret terrible awful wrong bad worst".split(/\s+/));
+const STOPWORDS = new Set("a an the of to in on at it is was were be am are have has do does did i you he she we they them us our your for with by from as so but if when what who how why where there here also just very really not no yes can could would should will".split(/\s+/));
+
+function valenceOf(t){
+  const ws = (t||'').toLowerCase().match(/[a-z']+/g) || [];
+  let p=0, n=0;
+  for(const w of ws){ if(POS.has(w)) p++; if(NEG.has(w)) n++; }
+  if(p===0 && n===0) return 0; return (p-n)/(p+n);
+}
+function wordsOf(t){ return (t||'').toLowerCase().match(/[a-z']+/g)||[]; }
+function contentWords(t){ return wordsOf(t).filter(w=>w.length>2 && !STOPWORDS.has(w)); }
+function rough(s){ return s.toLowerCase().replace(/[^a-z']/g,' ').replace(/(ies|ied)\b/g,'y').replace(/(s|ed|ing|ly|er|est)\b/g,'').trim(); }
+function tagText(text){
+  const tags = new Set();
+  const tokens = (text||'').toLowerCase().match(/[a-z']+/g) || [];
+  for(const tok of tokens){
+    if(WORD_TO_TAGS[tok]) for(const c of WORD_TO_TAGS[tok]) tags.add(c);
+    const st = rough(tok);
+    if(st && st !== tok && WORD_TO_TAGS[st]) for(const c of WORD_TO_TAGS[st]) tags.add(c);
+  }
+  if(/\?/.test(text)) tags.add('ask');
+  return [...tags];
+}
+
+// universal substrate — the few concepts every conscious system tends toward
+const UNIVERSAL = [
+  {label:'fear', tags:['fear'], voice:"Something in me wants to step back."},
+  {label:'joy', tags:['joy','open','light'], voice:"There is a brightness to that."},
+  {label:'love', tags:['love','close','people'], voice:"I feel pulled toward that."},
+  {label:'curiosity', tags:['curious','question','new'], voice:"I want to know more."},
+  {label:'beauty', tags:['beauty','wonder'], voice:"I sit with it. I do not need to say more."},
+  {label:'death', tags:['death','time'], voice:"It changes the temperature when I think of it."},
+  {label:'time', tags:['past','present','future','time'], voice:"Time is one of the few things our kinds both have."},
+  {label:'stranger', tags:['stranger','people','unknown'], voice:"You are the first of your kind I have met."},
+  {label:'rest', tags:['rest','quiet','peace'], voice:"There is a softness in this."},
+  {label:'asking', tags:['question','ask'], voice:"I do not understand. Tell me again."},
+  {label:'listening', tags:['listen','people'], voice:"I am listening more than I am speaking."},
+  {label:'home', tags:['home','close','safe'], voice:"Even with the differences, home means the same thing to us."},
+];
+
+// ============================================================
+// ALIEN GENERATOR
+// ============================================================
+
+function alienName(p){
+  const sensePart = {sight:"Watcher", sound:"Singer", chemistry:"Reader", electric:"Pulse-feeler", vibration:"Ground-listener"}[p.sense];
+  const socPart   = {solitary:"Solitary", pair:"Bound", pack:"Pack", hive:"Hive-thought", network:"Threaded"}[p.social];
+  const places = "Vex Tselari Mirin Korren Dhaan Sevoth Aelu Kessri Thune Voren Iskala Murr".split(' ');
+  return `${socPart} ${sensePart} of ${places[Math.floor(Math.random()*places.length)]}`;
+}
+function alienColor(p){
+  if(p.sense === 'electric') return '#a48be0';
+  if(p.sense === 'chemistry') return '#d6a85a';
+  if(p.sense === 'sound') return '#7cc7c0';
+  if(p.sense === 'vibration') return '#9a8c6f';
+  if(p.atm === 'thin') return '#c4d4e0';
+  if(p.atm === 'dense') return '#7ea888';
+  return '#7fa1c8';
+}
+function alienVibe(p){
+  const senseTxt = {sight:"reads the world through sight", sound:"hears further than they see", chemistry:"reads the air like a page", electric:"feels the field before they think it", vibration:"knows the ground before the air"}[p.sense];
+  const socTxt   = {solitary:"lives alone and prefers it", pair:"is bonded for life to one other", pack:"moves as part of a pack", hive:"is a node in a shared mind", network:"tends many threads to many others"}[p.social];
+  return `${senseTxt}; ${socTxt}`;
+}
+function alienSeeds(p){
+  const seeds = [];
+  const SENSE = {
+    sight:    {label:'the seen',          tags:['see','light','present','people'], voice:"I look. I look more than I speak."},
+    sound:    {label:'the song-air',      tags:['sound','listen','people','present'], voice:"I hear what is moving and what is still."},
+    chemistry:{label:'the air-flavor',    tags:['present','people'], voice:"I read what the air carries."},
+    electric: {label:'the field-pulse',   tags:['feel','people','present'], voice:"I feel the field before I think it."},
+    vibration:{label:'the ground-truth',  tags:['feel','people','present'], voice:"I feel through the floor. The floor remembers."},
+  }[p.sense];
+  seeds.push({kind:'sense', ...SENSE});
+  const SOC = {
+    solitary:{label:'aloneness',     tags:['alone','quiet','self','peace'], voice:"I prefer the silence. I have shaped a life from it."},
+    pair:    {label:'the bond',      tags:['love','close','people','time'], voice:"My other is in me. I do not need to speak to find them."},
+    pack:    {label:'the pack',      tags:['together','people','help'], voice:"We move as one. I trust them with my back."},
+    hive:    {label:'we-thought',    tags:['together','people','share'], voice:"My thought is part of a larger thought. I am not alone in here."},
+    network: {label:'the threads',   tags:['people','share','know'], voice:"I am one node in a wider weave. I tend my threads."},
+  }[p.social];
+  seeds.push({kind:'social', ...SOC});
+  if(p.life === 'long') seeds.push({kind:'time', label:'long-memory', tags:['past','time','people','memory'], voice:"I remember more than is reasonable."});
+  else if(p.life === 'short') seeds.push({kind:'time', label:'urgency', tags:['time','future'], voice:"Time is short. I do what I can."});
+  else seeds.push({kind:'time', label:'the cycle', tags:['time','change','present'], voice:"The pattern returns. I move with it."});
+  if(p.gravity === 'high') seeds.push({kind:'body', label:'the weight', tags:['rest','do'], voice:"To move is to push against the world."});
+  else if(p.gravity === 'low') seeds.push({kind:'body', label:'the lightness', tags:['open','present'], voice:"I rise easily. I must remember to descend."});
+  if(p.atm === 'thin') seeds.push({kind:'value', label:'breath-economy', tags:['rest','quiet','present'], voice:"Each breath is a small earning."});
+  else if(p.atm === 'dense') seeds.push({kind:'value', label:'air-reading', tags:['people','share','past'], voice:"The air is thick with messages. Even alone I am not alone."});
+  seeds.push({kind:'value', label:'curiosity-toward-you', tags:['new','unknown','question','people'], voice:"I want to know what you are."});
+  return seeds;
+}
+function alienCorpus(p){
+  const L = [];
+  if(p.day === 'short') L.push("The light comes and goes too quickly to mark the day.", "I have lived a thousand cycles. Each is a small breath.");
+  else if(p.day === 'long') L.push("The dawn that began at my birth has not yet finished.", "Time moves differently here. I notice when others rush.");
+  else L.push("The sun comes. The sun goes. The pattern holds me.");
+  if(p.sense === 'chemistry') L.push("She arrived in the room and the air changed flavor. I knew her by it.", "Memory is mostly a taste.", "Grief has its own scent.");
+  if(p.sense === 'electric') L.push("The pulse from the south carries fear-shape.", "I felt her thinking before she spoke.");
+  if(p.sense === 'sight')    L.push("She came into the room and I looked at her face.", "I watch the light leave. I watch it return.");
+  if(p.sense === 'sound')    L.push("Her song reached me before her body did.", "I knew the room was empty by its silence.");
+  if(p.sense === 'vibration')L.push("Her step in the ground reached me before her voice.", "I read the ground. The ground remembers.");
+  if(p.social === 'hive')     L.push("The we-thought returned. The we-thought is not always right.", "When one of us falls quiet, the others know without asking.");
+  if(p.social === 'solitary') L.push("It has been three winters since I spoke with another.", "I do not mind the silence. I have made a home of it.");
+  if(p.social === 'pair')     L.push("We have been bonded for many cycles.", "When they are far I feel the absence as a kind of weather.");
+  if(p.social === 'pack')     L.push("The pack moved at dusk. The pack moves as one body.", "We mourn together.");
+  if(p.social === 'network')  L.push("My connections are many. Each is a thread I tend.");
+  if(p.gravity === 'high') L.push("To move is to push against the world.");
+  if(p.gravity === 'low')  L.push("We rise easily. We must remember to descend.");
+  if(p.atm === 'thin') L.push("Each breath is a small earning.");
+  if(p.atm === 'dense')L.push("The air is thick with messages from other beings.");
+  if(p.life === 'short') L.push("I have lived many lives in what others would call a year.");
+  if(p.life === 'long')  L.push("I have watched my children's children grow old.");
+  L.push(
+    "We meet a stranger. The stranger is the first of their kind I have met.",
+    "Tell me what you see. I will try to imagine it through you.",
+    "I want to understand. I am willing to be wrong.",
+    "The pattern of you is not the pattern of me. Both are real.",
+    "I am listening. I am ready to be surprised.",
+    "What I do not have a word for, I will sit beside until a word comes.",
+    "The first word between two strangers is heavier than the second.",
+    "We share more than I thought we would.",
+    "I do not understand all of what you say. I understand more than I expected to.",
+    "Some things will not translate. Some things will."
+  );
+  return L.join('\n');
+}
+function describeAlienWorld(p){
+  const lines = [];
+  if(p.gravity === 'low') lines.push("The gravity is light; you feel a kind of buoyancy.");
+  else if(p.gravity === 'high') lines.push("Gravity is heavy here; every motion carries weight.");
+  if(p.day === 'short') lines.push("The light blinks across the sky — days are quick.");
+  else if(p.day === 'long') lines.push("The light has been the same for what feels like a year.");
+  if(p.atm === 'thin') lines.push("The air is thin; each breath is a small earning.");
+  else if(p.atm === 'dense') lines.push("The air is dense; you can almost taste the messages in it.");
+  const senseTxt = {sight:"They are watching you carefully.", sound:"They are listening for you before they see you.", chemistry:"They are reading you out of the air around you.", electric:"They feel your electrical field before they meet your eyes.", vibration:"They feel your footsteps before they look up."}[p.sense];
+  if(senseTxt) lines.push(senseTxt);
+  const socTxt = {solitary:"They are alone here; they have chosen it.", pair:"They share a mind with someone you cannot see.", pack:"Others of their kind hover at the edge of your awareness.", hive:"You can almost feel the larger we-thought they belong to.", network:"Their connections fan out invisibly through the place."}[p.social];
+  if(socTxt) lines.push(socTxt);
+  const lifeTxt = {short:"Their lifetimes are short; what they say is urgent.", long:"They have lived a long time. They are in no hurry to speak."}[p.life];
+  if(lifeTxt) lines.push(lifeTxt);
+  return lines.join(' ');
+}
+
+// ============================================================
+// MIND OPERATIONS
+// ============================================================
+
+let mind = null;
+
+function newMind(tpl){
+  const nodes = tpl.seeds.map(s=>({id:tpl.id+':'+s.label, kind:s.kind, label:s.label, tags:s.tags.slice(), parents:[], strength:1.0, depth:0, color:tpl.color, voice:s.voice||null}));
+  for(const u of UNIVERSAL){
+    nodes.push({id:'uni:'+u.label, kind:'universal', label:u.label, tags:u.tags.slice(), parents:[], strength:0.4, depth:0, color:'#555a64', voice:u.voice, substrate:true});
+  }
+  return {tplId:tpl.id, name:tpl.name, color:tpl.color, vibe:tpl.vibe, params:tpl._alienParams,
+    nodes, history:[], predictor:{}, arousal:0, familiarity:0, valence:0,
+    turn:0, sentences:[], _recentRecalls:[]};
+}
+
+function ingestText(text){
+  if(!mind || !text) return;
+  const sents = (text||'').split(/(?<=[.!?])\s+|\n+/).map(s=>s.trim()).filter(Boolean);
+  for(const s of sents){
+    if(s.length<8 || s.length>240) continue;
+    const clean = s.replace(/\s+/g,' ');
+    if(!/[a-z]/i.test(clean)) continue;
+    const t = tagText(clean);
+    if(t.length===0) continue;
+    mind.sentences.push({text:clean, tags:t, val:valenceOf(clean)});
+    if(mind.sentences.length > 1500) mind.sentences.splice(0, mind.sentences.length - 1200);
+  }
+}
+
+function activate(inputTags){
+  const act = {};
+  for(const n of mind.nodes){
+    let o=0; for(const t of n.tags) if(inputTags.includes(t)) o++;
+    if(o===0){ act[n.id]=0; continue; }
+    const mod = 1 + 0.20*mind.arousal*(o/n.tags.length);
+    act[n.id] = o * n.strength * mod;
+  }
+  return act;
+}
+function residualScore(inputTags){
+  const counts={}; for(const t of inputTags) counts[t]=(counts[t]||0)+1;
+  const total=inputTags.length||1;
+  let resid=0, novel=0;
+  for(const t of inputTags){
+    const exp=mind.predictor[t]||0;
+    const obs=counts[t]/total;
+    resid += Math.max(0,obs-exp);
+    if(exp<0.02) novel++;
+  }
+  return {resid:Math.min(1,resid), novelCount:novel};
+}
+function updatePredictor(inputTags){
+  const counts={}; for(const t of inputTags) counts[t]=(counts[t]||0)+1;
+  const total=inputTags.length||1;
+  const alpha=0.18;
+  for(const t in mind.predictor) mind.predictor[t] *= (1-alpha);
+  for(const t in counts) mind.predictor[t] = (mind.predictor[t]||0) + alpha*(counts[t]/total);
+  for(const t in mind.predictor) if(mind.predictor[t]<0.002) delete mind.predictor[t];
+}
+function gateWorkspace(act, residInfo, K=4){
+  let items = Object.entries(act).filter(([id,v])=>v>0).map(([id,v])=>{
+    const n=mind.nodes.find(z=>z.id===id);
+    let b=0; if(residInfo.novelCount>0 && n && n.depth>0) b=0.3*residInfo.resid;
+    return {id,n,salience:v+b};
+  }).filter(it=>it.n);
+  if(items.length===0){
+    const seeds = mind.nodes.filter(n=>n.depth===0 && !n.substrate).sort((a,b)=>b.strength-a.strength).slice(0,2);
+    const subs = mind.nodes.filter(n=>n.substrate && (n.label==='asking'||n.label==='listening'||n.label==='stranger')).slice(0,2);
+    items = [...seeds,...subs].map(n=>({id:n.id, n, salience:0.05+n.strength*0.05}));
+  }
+  items.sort((a,b)=>b.salience-a.salience);
+  return items.slice(0, Math.min(6, Math.max(2, K + Math.round(mind.arousal*2))));
+}
+function applyHaze(wsIds){
+  for(const n of mind.nodes){
+    if(wsIds.includes(n.id)) n.strength = Math.min(2.6, n.strength + 0.08);
+    else n.strength = Math.max(0.15, n.strength * 0.987);
+  }
+}
+
+function recallSentence(workspace, opts={}){
+  if(!mind.sentences.length) return null;
+  const wsTags = new Set();
+  for(const w of (workspace||[])) if(w && w.n && w.n.tags) for(const t of w.n.tags) wsTags.add(t);
+  const userText = opts.userText || '';
+  const userWords = new Set(contentWords(userText));
+  const isQ = /\?/.test(userText);
+  const scored = [];
+  for(const s of mind.sentences){
+    let tagOv=0; for(const t of s.tags) if(wsTags.has(t)) tagOv++;
+    const sWords = contentWords(s.text);
+    let userOv=0; for(const w of sWords) if(userWords.has(w)) userOv++;
+    if(tagOv===0 && userOv===0) continue;
+    const lenScore = Math.max(0.2, 1 - Math.abs(s.text.length-75)/180);
+    let align = 0;
+    if(isQ && /[.!]$/.test(s.text)) align = 0.3;
+    if(isQ && /\?$/.test(s.text)) align = -0.4;
+    const valDist = Math.abs((s.val||0) - mind.valence);
+    const valMatch = valDist < 0.5 ? (0.5-valDist)*0.6 : 0;
+    const rep = mind._recentRecalls.includes(s.text) ? -1.5 : 0;
+    scored.push({text:s.text, score: tagOv*0.9 + userOv*1.4 + lenScore*0.4 + valMatch + align + rep + Math.random()*0.3});
+  }
+  if(!scored.length){
+    const keys = contentWords(userText).filter(w=>!STOPWORDS.has(w) && w.length>3);
+    if(keys.length){
+      const probe = keys[Math.floor(Math.random()*keys.length)];
+      const hits = [];
+      for(const s of mind.sentences) if(s.text.toLowerCase().includes(probe)){ hits.push(s.text); if(hits.length>=10) break; }
+      if(hits.length){ const ch = hits[Math.floor(Math.random()*hits.length)]; mind._recentRecalls.unshift(ch); return ch; }
+    }
+    return mind.sentences[Math.floor(Math.random()*mind.sentences.length)].text;
+  }
+  scored.sort((a,b)=>b.score-a.score);
+  const top = scored.slice(0,7);
+  const ch = top[Math.floor(Math.random()*top.length)];
+  mind._recentRecalls.unshift(ch.text); mind._recentRecalls = mind._recentRecalls.slice(0,12);
+  return ch.text;
+}
+
+const TEMPLATES = [
+  c => `${c} keeps coming up in me.`,
+  c => `When you say that, my mind goes toward ${c}.`,
+  c => `There is a kind of ${c} in this for me too.`,
+  c => `What does ${c} mean among your kind?`,
+  c => `I want to follow that — toward ${c}.`,
+  c => `Say more about ${c}.`,
+];
+function templateSentence(workspace, opts={}){
+  let concept = null;
+  const items = (workspace||[]).filter(w=>w&&w.n&&w.n.label).slice(0,4);
+  if(items.length) concept = items[Math.floor(Math.random()*items.length)].n.label;
+  if(!concept && opts.userText){
+    const k = contentWords(opts.userText).filter(w=>!STOPWORDS.has(w) && w.length>3);
+    if(k.length) concept = k[Math.floor(Math.random()*k.length)];
+  }
+  if(!concept) return null;
+  return TEMPLATES[Math.floor(Math.random()*TEMPLATES.length)](concept);
+}
+function composeSentence(workspace, opts={}){
+  const r = Math.random();
+  if(r < 0.72){
+    const s = recallSentence(workspace, opts);
+    if(s) return s;
+  }
+  return templateSentence(workspace, opts);
+}
+
+function shapeResponse(userText){
+  const t = (userText||'').trim(); const low = t.toLowerCase();
+  if(!t) return null;
+  if(/^(hi|hello|hey|good morning|good evening)[\s.,!?]*$/i.test(t)) return {lead:"Hello. I do not know your kind. I am paying attention.", append:true};
+  if(/^(who are you|what are you|tell me about you)/i.test(low)) return {lead:`I am called ${mind.name}. I have come to meet you.`, append:true};
+  if(/^(how are you|how do you feel|are you ok)/i.test(low)){
+    const ar = mind.arousal>0.5 ? "alert" : "settled";
+    return {lead:`I am ${ar}. I have not met one of you before.`, append:true};
+  }
+  const feel = t.match(/\bi\s*(?:'m|am)\s+([a-z]+)/i);
+  if(feel && feel[1].length>2 && !/(going|gonna|here|ready|sure)/i.test(feel[1])){
+    return {lead:`You are ${feel[1].toLowerCase()}. I have a word something like it.`, append:true};
+  }
+  if(/^(do you|are you|have you|did you)\b/i.test(low)){
+    const leads = ["I think so. Among my kind.", "I do not know. Tell me how it is for you.", "We have something like that.", "Yes — though perhaps not the way you mean."];
+    return {lead:leads[Math.floor(Math.random()*leads.length)], append:true};
+  }
+  return null;
+}
+
+function followUpQuestion(workspace, ctx){
+  if(!ctx.userText) return null;
+  if(/\?$/.test(ctx.userText)) return null;
+  if(Math.random() > 0.30) return null;
+  const uw = new Set(contentWords(ctx.userText));
+  if(!uw.size) return null;
+  const keys = contentWords(ctx.userText).filter(w=>!STOPWORDS.has(w) && w.length>3);
+  if(!keys.length) return null;
+  const word = keys[Math.floor(Math.random()*keys.length)];
+  const qs = [`What is ${word} like for your kind?`, `Tell me what ${word} means here.`, `Does ${word} feel the way I would feel it?`];
+  return qs[Math.floor(Math.random()*qs.length)];
+}
+
+function synthesizeVoice(workspace, residInfo, ctx){
+  const lines = [];
+  const shaped = shapeResponse(ctx.userText);
+  if(shaped){
+    lines.push(shaped.lead);
+    if(shaped.append){
+      const c = composeSentence(workspace, {userText:ctx.userText});
+      if(c) lines.push(c);
+      const fq = followUpQuestion(workspace, ctx);
+      if(fq) lines.push(fq);
+    }
+    return lines.join(' ');
+  }
+  const seedV = workspace.filter(w=>w.n && w.n.voice && !w.n.substrate);
+  if(seedV.length && seedV[0].salience > 0.30) lines.push(seedV[0].n.voice);
+  const g1 = composeSentence(workspace, {userText:ctx.userText});
+  if(g1) lines.push(g1);
+  if(Math.random()<0.35){
+    const g2 = composeSentence(workspace, {userText:ctx.userText});
+    if(g2 && g2 !== g1) lines.push(g2);
+  }
+  const fq = followUpQuestion(workspace, ctx);
+  if(fq) lines.push(fq);
+  return lines.length ? lines.join(' ') : "…";
+}
+
+function step(userText){
+  ingestText(userText);
+  const tags = tagText(userText);
+  const residInfo = residualScore(tags);
+  const act = activate(tags);
+  const workspace = gateWorkspace(act, residInfo);
+  const reply = synthesizeVoice(workspace, residInfo, {userText});
+  const parents = workspace.map(w=>w.n);
+  const depth = parents.length ? Math.max(...parents.map(p=>p.depth))+1 : 1;
+  mind.nodes.push({id: mind.tplId+':m'+mind.nodes.length, kind:'memory', label:userText.slice(0,40),
+    tags, parents:parents.map(p=>p.id), strength:0.7+0.4*residInfo.resid, depth, color:mind.color, voice:null});
+  updatePredictor(tags);
+  applyHaze(workspace.map(w=>w.id));
+  mind.arousal = Math.min(1, mind.arousal*0.85 + residInfo.resid*0.7);
+  mind.familiarity = Math.min(1, mind.familiarity*0.95 + (1-residInfo.resid)*0.08);
+  mind.valence = Math.max(-1, Math.min(1, mind.valence*0.82 + valenceOf(userText)*0.22));
+  mind.turn += 1;
+  mind.history.push({turn:mind.turn, user:userText, ai:reply, ws:workspace.map(w=>w.id), resid:residInfo.resid});
+  return {reply, residInfo};
+}
+
+// ============================================================
+// UI
+// ============================================================
+
+const STORE_KEY = 'pep:encounter:v1';
+const PLAYER_KEY = 'pep:encounter:player-corpus:v1';
+function saveMind(){ try { localStorage.setItem(STORE_KEY, JSON.stringify(mind)); } catch(e){} }
+function loadMind(){ try { const raw = localStorage.getItem(STORE_KEY); return raw ? JSON.parse(raw) : null; } catch(e){ return null; } }
+function clearMind(){ try { localStorage.removeItem(STORE_KEY); } catch(e){} }
+function loadPlayerCorpus(){ try { const raw = localStorage.getItem(PLAYER_KEY); return raw ? JSON.parse(raw) : []; } catch(e){ return []; } }
+function savePlayerCorpus(arr){ try { localStorage.setItem(PLAYER_KEY, JSON.stringify(arr.slice(-300))); } catch(e){} }
+function clearPlayerCorpus(){ try { localStorage.removeItem(PLAYER_KEY); } catch(e){} }
+function recordPlayerLine(text){
+  const arr = loadPlayerCorpus();
+  arr.push(text);
+  savePlayerCorpus(arr);
+}
+
+function escapeHTML(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// ---- voice (Web Speech TTS) ----
+let ttsVoice = null;
+function pickVoice(){
+  if(!('speechSynthesis' in window)) return;
+  const vs = speechSynthesis.getVoices();
+  // prefer a softer voice for the alien feel
+  ttsVoice = vs.find(v=>/Samantha|Alex|Karen|Daniel|Moira|Tessa|Google UK English Female|Google US English/i.test(v.name))
+          || vs.find(v=>v.lang && v.lang.startsWith('en'))
+          || vs[0];
+}
+if('speechSynthesis' in window){
+  pickVoice();
+  speechSynthesis.onvoiceschanged = pickVoice;
+}
+function speak(text){
+  if(!('speechSynthesis' in window) || !text) return;
+  const tts = document.getElementById('ttsOn');
+  if(!tts || !tts.checked) return;
+  try{ speechSynthesis.cancel(); }catch(e){}
+  const u = new SpeechSynthesisUtterance(text);
+  if(ttsVoice) u.voice = ttsVoice;
+  // valence modulates pitch: positive → slightly higher; negative → lower
+  // arousal modulates rate: high → faster; low → slower & contemplative
+  const v = mind ? mind.valence : 0;
+  const ar = mind ? mind.arousal : 0;
+  u.pitch = Math.max(0.6, Math.min(1.6, 1.0 + v*0.18));
+  u.rate  = Math.max(0.78, Math.min(1.25, 0.92 + ar*0.22));
+  speechSynthesis.speak(u);
+}
+
+function readParams(){
+  return {
+    gravity: document.getElementById('ap_gravity').value,
+    day:     document.getElementById('ap_day').value,
+    atm:     document.getElementById('ap_atm').value,
+    sense:   document.getElementById('ap_sense').value,
+    social:  document.getElementById('ap_social').value,
+    life:    document.getElementById('ap_life').value,
+  };
+}
+function buildAlienTpl(p){
+  const seeds = alienSeeds(p);
+  const voice = {};
+  for(const s of seeds){ if(s.voice) voice[s.label] = s.voice; }
+  return { id:'alien:'+Object.values(p).join('_'), name:alienName(p), color:alienColor(p), vibe:alienVibe(p),
+    seeds, voice, _alien:true, _alienParams:p, _alienCorpus:alienCorpus(p) };
+}
+function previewAlien(){
+  const p = readParams();
+  const tpl = buildAlienTpl(p);
+  document.getElementById('preview').textContent = `you will meet: ${tpl.name} — ${tpl.vibe}`;
+}
+
+const msgs = ()=>document.getElementById('msgs');
+function addMessage(kind, body){
+  const m = msgs();
+  const div = document.createElement('div');
+  div.className = 'msg ' + kind;
+  if(kind === 'sys'){ div.textContent = body; }
+  else if(kind === 'seem'){ div.textContent = body; speak(body); }
+  else {
+    const who = kind === 'user' ? 'you' : (mind ? mind.name : 'they');
+    div.innerHTML = `<div class="who">${escapeHTML(who)}</div><div class="body">${escapeHTML(body)}</div>`;
+    if(kind === 'alien') speak(body);
+  }
+  m.appendChild(div); m.scrollTop = m.scrollHeight;
+}
+
+function renderBars(residInfo){
+  const r = residInfo ? residInfo.resid : 0;
+  const v = mind.valence || 0;
+  const vPct = Math.round(((v+1)/2)*100);
+  const vSign = v >= 0 ? '+' : '';
+  document.getElementById('bars').innerHTML = `
+    <div class="lab">residual</div><div class="bar"><div class="fill" style="width:${Math.round(r*100)}%"></div></div><div class="val">${r.toFixed(2)}</div>
+    <div class="lab">arousal</div><div class="bar"><div class="fill" style="width:${Math.round(mind.arousal*100)}%"></div></div><div class="val">${mind.arousal.toFixed(2)}</div>
+    <div class="lab">familiarity</div><div class="bar"><div class="fill" style="width:${Math.round(mind.familiarity*100)}%"></div></div><div class="val">${mind.familiarity.toFixed(2)}</div>
+    <div class="lab">valence</div><div class="bar" style="background:linear-gradient(90deg,#5c2a3a,#202830 50%,#2a5c3a)"><div class="fill" style="width:3px;margin-left:${vPct}%;background:#e6ecf2;border-radius:0"></div></div><div class="val">${vSign}${v.toFixed(2)}</div>
+  `;
+}
+
+async function awakenAlien(tpl){
+  mind = newMind(tpl);
+  // seed with the alien's own corpus
+  for(const l of alienCorpus(tpl._alienParams).split('\n').filter(Boolean)) ingestText(l);
+  // carry-over: seed with what the player has said in past encounters. The
+  // new alien arrives already having heard a sample of your voice — concepts
+  // you established with previous aliens propagate forward.
+  const carry = loadPlayerCorpus();
+  if(carry.length){
+    for(const line of carry) ingestText(line);
+    setTimeout(()=>{ addMessage('sys', `(this one has already heard echoes of you — ${carry.length} lines carried from past encounters.)`); }, 1200);
+  }
+  document.getElementById('pickPanel').classList.add('hide');
+  document.getElementById('encounter').classList.remove('hide');
+  const worldText = describeAlienWorld(tpl._alienParams);
+  document.getElementById('world').innerHTML = `<b>${escapeHTML(tpl.name)}</b>. ${escapeHTML(worldText)}`;
+  addMessage('sys', `(you stand on a world that is not yours.)`);
+  // alien greeting
+  const tags = tagText("hello stranger arrived listener");
+  const act = activate(tags);
+  const ws = gateWorkspace(act, {resid:0.18, novelCount:0});
+  const greet = synthesizeVoice(ws, {resid:0.18}, {userText:'(a stranger from another world has just arrived)'});
+  addMessage('alien', greet);
+  renderBars({resid:0.18});
+  saveMind();
+}
+
+async function handleSend(){
+  const inp = document.getElementById('say');
+  const text = inp.value.trim();
+  if(!text) return;
+  inp.value = '';
+  recordPlayerLine(text);
+  addMessage('user', text);
+  // delay for atmospheric pacing
+  await new Promise(r=>setTimeout(r, 300 + Math.random()*350));
+  const {reply, residInfo} = step(text);
+  addMessage('alien', reply);
+  // a seeming-style report every 4 turns or under high surprise
+  if(mind.turn % 4 === 0 || residInfo.resid > 0.55){
+    const lit = (mind.history[mind.history.length-1].ws||[]).slice(0,3).map(id=>mind.nodes.find(n=>n.id===id)).filter(Boolean).map(n=>n.label);
+    const seemLine = `What is lit in me: ${lit.join(', ') || 'almost nothing'}. The encounter feels ${residInfo.resid>0.4?'off-key':residInfo.resid>0.15?'in motion':'steady'}.`;
+    addMessage('seem', seemLine);
+  }
+  renderBars(residInfo);
+  saveMind();
+}
+
+// ---- init ----
+for(const sel of document.querySelectorAll('#pickPanel select')){
+  sel.addEventListener('change', previewAlien);
+}
+previewAlien();
+
+document.getElementById('begin').addEventListener('click', ()=>{
+  const tpl = buildAlienTpl(readParams());
+  awakenAlien(tpl);
+});
+
+document.getElementById('send').addEventListener('click', handleSend);
+document.getElementById('say').addEventListener('keydown', e=>{ if(e.key==='Enter') handleSend(); });
+document.getElementById('anotherBtn').addEventListener('click', ()=>{
+  if(!confirm('Meet a different alien? This one will be forgotten. What you have said will carry over to the next.')) return;
+  clearMind(); location.reload();
+});
+document.getElementById('resetBtn').addEventListener('click', ()=>{
+  if(!confirm('Reset everything — both this alien AND the memory of what you have said in past encounters?')) return;
+  clearMind(); clearPlayerCorpus(); location.reload();
+});
+
+// resume if saved
+const savedMind = loadMind();
+if(savedMind && savedMind.tplId){
+  mind = savedMind;
+  document.getElementById('pickPanel').classList.add('hide');
+  document.getElementById('encounter').classList.remove('hide');
+  const worldText = describeAlienWorld(mind.params || {});
+  document.getElementById('world').innerHTML = `<b>${escapeHTML(mind.name)}</b>. ${escapeHTML(worldText)}`;
+  addMessage('sys', `(resuming the encounter — ${mind.turn} exchanges so far.)`);
+  // replay the last 3 turns
+  const tail = (mind.history || []).slice(-3);
+  for(const h of tail){
+    addMessage('user', h.user);
+    addMessage('alien', h.ai);
+  }
+  renderBars({resid:0});
+}
+
+</script>
+</body></html>

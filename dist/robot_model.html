@@ -1,0 +1,746 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Robot Model — what the blueprint actually looks like</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow:hidden}
+body{background:#06080d;color:#d7dde7;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;line-height:1.45;font-size:13.5px}
+.app{position:relative;width:100vw;height:100vh;overflow:hidden}
+canvas#cv{position:absolute;inset:0;width:100%;height:100%;display:block}
+
+/* top bar */
+.bar{position:absolute;top:0;left:0;right:0;z-index:10;display:flex;align-items:center;gap:14px;padding:10px 14px;background:linear-gradient(180deg,rgba(6,8,13,0.92),rgba(6,8,13,0));pointer-events:none}
+.bar > *{pointer-events:auto}
+.bar h1{font-size:17px;font-weight:650}
+.bar h1 .s{color:#5c6675;font-weight:400;font-size:12.5px;margin-left:6px}
+.nav{display:flex;gap:11px}
+.nav a{color:#7b8696;text-decoration:none;font-size:12.5px}
+.nav a:hover{color:#5bb6c8}
+.grow{flex:1}
+
+.tier{display:flex;gap:4px;background:#0a0e15;border:1px solid #1a2230;border-radius:7px;padding:3px}
+.tier button{font:inherit;font-size:12px;background:transparent;color:#94a0b0;border:none;border-radius:5px;padding:5px 11px;cursor:pointer;letter-spacing:.03em}
+.tier button:hover{color:#cfd6e0}
+.tier button.on{background:#10303a;color:#7fe0f2}
+
+.tgl{display:flex;gap:7px;align-items:center;font-size:12px;color:#94a0b0;background:#0a0e15;border:1px solid #1a2230;border-radius:7px;padding:5px 10px;cursor:pointer}
+.tgl input{accent-color:#5bb6c8}
+
+/* tier hint */
+.hint{position:absolute;top:54px;left:14px;z-index:9;background:#0a0e15;border:1px solid #1a2230;border-radius:7px;padding:8px 12px;font-size:12px;color:#94a0b0;max-width:380px;line-height:1.55}
+.hint b{color:#cfd6e0}
+.hint .price{color:#caa15a;font-family:ui-monospace,monospace}
+
+/* labels overlay */
+.labels{position:absolute;inset:0;pointer-events:none;z-index:5}
+.lbl{position:absolute;transform:translate(-50%,-50%);pointer-events:auto;cursor:pointer;background:rgba(10,14,21,0.92);border:1px solid #1a2230;border-radius:6px;padding:4px 8px;font-size:11.5px;color:#cfd6e0;font-family:ui-monospace,monospace;white-space:nowrap;letter-spacing:.02em;transition:border-color .12s,color .12s,background .12s}
+.lbl:hover,.lbl.sel{border-color:#5bb6c8;color:#7fe0f2;background:rgba(16,48,58,0.92)}
+.lbl .dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:6px;vertical-align:middle}
+.lbl .pr{color:#caa15a;margin-left:6px;font-size:10.5px}
+
+/* info panel */
+.info{position:absolute;right:14px;bottom:14px;width:330px;max-height:54vh;overflow-y:auto;background:#0a0e15;border:1px solid #1a2230;border-radius:10px;padding:14px 16px;z-index:8;font-size:13px}
+.info h3{font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:#5bb6c8;margin-bottom:8px;font-family:ui-monospace,monospace}
+.info h4{font-size:14.5px;color:#e6ecf2;font-weight:650;margin-bottom:4px}
+.info .px{color:#caa15a;font-family:ui-monospace,monospace;font-size:12.5px;margin-bottom:9px}
+.info p{color:#cfd6e0;margin-bottom:8px;font-size:12.5px;line-height:1.55}
+.info .role{color:#94a0b0;font-family:ui-monospace,monospace;font-size:11px;letter-spacing:.05em;text-transform:uppercase;margin-top:6px;padding-top:8px;border-top:1px solid #16202b}
+.info.empty{color:#7b8696;font-style:italic;font-size:12px}
+
+/* total readout */
+.total{position:absolute;left:14px;bottom:14px;background:#0a0e15;border:1px solid #1a2230;border-radius:8px;padding:9px 14px;z-index:8;font-family:ui-monospace,monospace;font-size:12px;color:#94a0b0;letter-spacing:.04em}
+.total b{color:#caa15a;font-size:14px}
+.total .n{color:#cfd6e0}
+
+/* legend */
+.legend{position:absolute;left:14px;top:54px;z-index:9;display:none}
+
+@media(max-width:680px){
+  .info{position:absolute;right:8px;left:8px;width:auto;bottom:8px;max-height:38vh}
+  .total{display:none}
+  .hint{max-width:none;right:14px}
+}
+</style>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+  }
+}
+</script>
+</head>
+<body><div class="app">
+
+<div class="bar">
+  <h1>Robot Model <span class="s">— what the build looks like</span></h1>
+  <div class="nav"><a href="/robot">← blueprint</a><a href="/axona/mind">mind</a><a href="/axona">axona</a><a href="/everything">everything</a></div>
+  <div class="grow"></div>
+  <div class="tier" id="tier">
+    <button data-tier="lite">Lite</button>
+    <button data-tier="mid" class="on">Mid</button>
+    <button data-tier="pro">Pro</button>
+  </div>
+  <label class="tgl"><input type="checkbox" id="lblToggle" checked> labels</label>
+</div>
+
+<div class="hint" id="hint"></div>
+
+<canvas id="cv"></canvas>
+<div class="labels" id="labels"></div>
+
+<div class="info empty" id="info">click a labeled part to see what it is and what it costs.</div>
+<div class="total" id="total"></div>
+
+</div>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+// --------------- parts catalog ---------------
+// every component: id, tier-of-introduction, name, price, role, color.
+// "tier" is the lowest tier it appears in (Lite < Mid < Pro)
+const PARTS = {
+  base:     {tier:'lite', name:'iRobot Create 3 (drive base)',          price:299, color:0x222428, role:'mobility — programmable ROS 2 base, the legs'},
+  wheel:    {tier:'lite', name:'Drive wheels (Create 3 internal)',      price:0,   color:0x111317, role:'mobility — diff-drive wheels'},
+  caster:   {tier:'lite', name:'Caster (Create 3 internal)',            price:0,   color:0x111317, role:'mobility — stabilizer'},
+  jetson:   {tier:'lite', name:'NVIDIA Jetson Orin Nano Super (8GB)',   price:249, color:0x1f6f86, role:'brain — runs PEP + Whisper + YOLO + Piper'},
+  ssd:      {tier:'lite', name:'256 GB NVMe SSD',                       price:30,  color:0x3a4250, role:'memory storage — self-graph SQLite lives here'},
+  cooler:   {tier:'lite', name:'Jetson active cooling fan',             price:25,  color:0x222428, role:'brain — keeps Jetson under thermal limit'},
+  realsense:{tier:'lite', name:'Intel RealSense D435i',                 price:300, color:0x111317, role:'eyes — RGBD + IMU; depth+color in one sensor'},
+  micArray: {tier:'lite', name:'ReSpeaker 4-mic Array v2.0',            price:80,  color:0x161a22, role:'ears — far-field, DoA, AEC'},
+  speaker:  {tier:'lite', name:'USB speaker',                           price:25,  color:0x161a22, role:'voice — Piper TTS output'},
+  imu:      {tier:'lite', name:'BNO085 IMU breakout',                   price:25,  color:0x2a3140, role:'vestibular — orientation, gravity, motion'},
+  tof_n:    {tier:'lite', name:'VL53L1X ToF — front',                   price:15,  color:0x3a8888, role:'range — short obstacle distance'},
+  tof_e:    {tier:'lite', name:'VL53L1X ToF — right',                   price:15,  color:0x3a8888, role:'range — short obstacle distance'},
+  tof_s:    {tier:'lite', name:'VL53L1X ToF — back',                    price:15,  color:0x3a8888, role:'range — short obstacle distance'},
+  tof_w:    {tier:'lite', name:'VL53L1X ToF — left',                    price:15,  color:0x3a8888, role:'range — short obstacle distance'},
+  faceBar:  {tier:'lite', name:'Waveshare 7.84" HDMI bar screen',       price:80,  color:0x0a1018, role:'face — expressive strip (eyes+mouth on Lite)'},
+  hub:      {tier:'lite', name:'Powered USB hub',                       price:20,  color:0x222428, role:'wiring — connects mic, camera, speaker'},
+  mount:    {tier:'lite', name:'3D-printed mount plates',               price:20,  color:0x3a3a3a, role:'chassis — mounting hardware'},
+
+  battery:  {tier:'mid',  name:'12V 10Ah LiFePO4 battery + BMS',        price:120, color:0x3a3a3a, role:'power — off-tether operation'},
+  dcdc:     {tier:'mid',  name:'DC-DC converters (12V→5V, 12V→3.3V)',   price:30,  color:0x222428, role:'power — voltage rails for Jetson + sensors'},
+  pdb:      {tier:'mid',  name:'Power distribution board + fuses',      price:20,  color:0x4a2828, role:'power — fused rail distribution'},
+  arm_base: {tier:'mid',  name:'LeRobot SO-101 — base joint',           price:0,   color:0xc89a7e, role:'hand — 6-DoF imitation-learnable arm'},
+  arm_link1:{tier:'mid',  name:'LeRobot SO-101 — shoulder',             price:0,   color:0xc89a7e, role:'hand — shoulder pitch'},
+  arm_link2:{tier:'mid',  name:'LeRobot SO-101 — upper arm',            price:0,   color:0xc89a7e, role:'hand — upper arm link'},
+  arm_link3:{tier:'mid',  name:'LeRobot SO-101 — elbow',                price:0,   color:0xc89a7e, role:'hand — elbow joint'},
+  arm_link4:{tier:'mid',  name:'LeRobot SO-101 — forearm',              price:0,   color:0xc89a7e, role:'hand — forearm'},
+  arm_link5:{tier:'mid',  name:'LeRobot SO-101 — wrist',                price:0,   color:0xc89a7e, role:'hand — wrist'},
+  arm_full: {tier:'mid',  name:'LeRobot SO-101 — full arm kit (6-DoF)', price:250, color:0xc89a7e, role:'hand — full arm parts kit (one price for whole chain)'},
+  gripper:  {tier:'mid',  name:'Adaptive 2-finger gripper + FSR force', price:80,  color:0x222428, role:'hand — pressure-aware grasp'},
+  eyeL:     {tier:'mid',  name:'Waveshare 1.28" round LCD — left eye',  price:25,  color:0x0a1018, role:'face — gaze direction (legibility)'},
+  eyeR:     {tier:'mid',  name:'Waveshare 1.28" round LCD — right eye', price:25,  color:0x0a1018, role:'face — gaze direction (legibility)'},
+  ampSpk:   {tier:'mid',  name:'I2S amp + 2× 4Ω speakers',              price:25,  color:0x161a22, role:'voice — replaces USB box, cleaner output'},
+  camSide:  {tier:'mid',  name:'ELP USB peripheral camera',             price:35,  color:0x222428, role:'eyes — side view / peripheral'},
+
+  lidar:    {tier:'pro',  name:'Slamtec RPLIDAR A2',                    price:300, color:0x4a3a28, role:'sense — 360° SLAM-grade mapping'},
+  thermal:  {tier:'pro',  name:'FLIR Lepton 3.5 thermal',               price:200, color:0x6a2a2a, role:'sense — "is there a person there?"'},
+  arm2_full:{tier:'pro',  name:'Second SO-101 — bilateral arm',         price:250, color:0xc89a7e, role:'hand — bimanual manipulation'},
+  arm2_base:{tier:'pro',  name:'LeRobot SO-101 #2 — base joint',        price:0,   color:0xc89a7e, role:'hand — second arm'},
+  arm2_link1:{tier:'pro', name:'LeRobot SO-101 #2 — shoulder',          price:0,   color:0xc89a7e, role:'hand — second arm'},
+  arm2_link2:{tier:'pro', name:'LeRobot SO-101 #2 — upper arm',         price:0,   color:0xc89a7e, role:'hand — second arm'},
+  arm2_link3:{tier:'pro', name:'LeRobot SO-101 #2 — elbow',             price:0,   color:0xc89a7e, role:'hand — second arm'},
+  arm2_link4:{tier:'pro', name:'LeRobot SO-101 #2 — forearm',           price:0,   color:0xc89a7e, role:'hand — second arm'},
+  arm2_link5:{tier:'pro', name:'LeRobot SO-101 #2 — wrist',             price:0,   color:0xc89a7e, role:'hand — second arm'},
+  gripper2: {tier:'pro',  name:'Second adaptive gripper',               price:80,  color:0x222428, role:'hand — second arm gripper'},
+  agx:      {tier:'pro',  name:'Jetson AGX Orin 64GB (brain upgrade)',  price:2000,color:0x1f6f86, role:'brain — much bigger models on-board'},
+  batteryPro:{tier:'pro', name:'24V 30Ah LiFePO4 + smart BMS',          price:400, color:0x3a3a3a, role:'power — full-day untethered'},
+  dock:     {tier:'pro',  name:'Charging dock (build) + AprilTag',      price:80,  color:0x222428, role:'sleep — auto-dock for nightly consolidation'},
+};
+
+const TIER_ORDER = {lite:1, mid:2, pro:3};
+function visibleInTier(partTier, currentTier){
+  return TIER_ORDER[partTier] <= TIER_ORDER[currentTier];
+}
+
+// --------------- three.js scene ---------------
+const canvas = document.getElementById('cv');
+const renderer = new THREE.WebGLRenderer({canvas, antialias:true, alpha:false});
+renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x06080d);
+scene.fog = new THREE.Fog(0x06080d, 1.6, 4.5);
+
+const camera = new THREE.PerspectiveCamera(38, 1, 0.05, 50);
+camera.position.set(1.0, 0.85, 1.4);
+
+const controls = new OrbitControls(camera, canvas);
+controls.target.set(0, 0.4, 0);
+controls.minDistance = 0.7;
+controls.maxDistance = 3.2;
+controls.maxPolarAngle = Math.PI*0.55;
+controls.enableDamping = true; controls.dampingFactor = 0.08;
+
+// lights
+const amb = new THREE.AmbientLight(0xaab8c8, 0.32); scene.add(amb);
+const key = new THREE.DirectionalLight(0xfff0d8, 0.85);
+key.position.set(1.6, 2.4, 1.2); key.castShadow = true;
+key.shadow.mapSize.set(1024,1024);
+key.shadow.camera.left=-1.2; key.shadow.camera.right=1.2;
+key.shadow.camera.top=1.2; key.shadow.camera.bottom=-1.2;
+key.shadow.bias=-0.0007;
+scene.add(key);
+const fill = new THREE.DirectionalLight(0x5bb6c8, 0.34);
+fill.position.set(-1.5, 1.0, -0.6); scene.add(fill);
+const rim = new THREE.PointLight(0xcaa15a, 0.5, 3); rim.position.set(0, 0.9, -1); scene.add(rim);
+
+// ground
+const groundGeo = new THREE.CircleGeometry(2.5, 64);
+const groundMat = new THREE.MeshStandardMaterial({color:0x0a0d13, metalness:0.0, roughness:1.0});
+const ground = new THREE.Mesh(groundGeo, groundMat); ground.rotation.x = -Math.PI/2; ground.receiveShadow = true; scene.add(ground);
+// subtle grid
+const grid = new THREE.GridHelper(4, 32, 0x1a2230, 0x10141c); grid.position.y = 0.001; scene.add(grid);
+
+// --------------- robot construction ---------------
+// units: meters. y is up. forward is +z.
+const root = new THREE.Group(); scene.add(root);
+const partMeshes = {}; // partId -> mesh or group
+
+function mat(color, opts={}){
+  return new THREE.MeshStandardMaterial({color, metalness:opts.metal||0.25, roughness:opts.rough||0.55, emissive:opts.emit||0x000000, emissiveIntensity:opts.ei||0});
+}
+function register(id, obj){
+  obj.userData.partId = id;
+  partMeshes[id] = obj;
+  // mark every child mesh too
+  obj.traverse(c=>{ if(c.isMesh){ c.userData.partId = id; c.castShadow=true; c.receiveShadow=true; }});
+  return obj;
+}
+
+// 1. Create 3 base (cylinder)
+{
+  const g = new THREE.Group();
+  const body = new THREE.Mesh(new THREE.CylinderGeometry(0.168, 0.168, 0.094, 48), mat(PARTS.base.color, {metal:0.4, rough:0.5}));
+  body.position.y = 0.094/2;
+  g.add(body);
+  // top rim
+  const rim2 = new THREE.Mesh(new THREE.TorusGeometry(0.166, 0.004, 8, 48), mat(0x5bb6c8, {emit:0x103040, ei:0.5}));
+  rim2.rotation.x = Math.PI/2; rim2.position.y = 0.094;
+  g.add(rim2);
+  // top dome (Create 3 has a curved top)
+  const dome = new THREE.Mesh(new THREE.SphereGeometry(0.168, 36, 18, 0, Math.PI*2, 0, Math.PI/2), mat(0x18191c, {metal:0.4, rough:0.55}));
+  dome.scale.y = 0.16; dome.position.y = 0.094;
+  g.add(dome);
+  root.add(register('base', g));
+}
+// wheels (visual)
+{
+  const wgroup = new THREE.Group();
+  for(const x of [-0.135, 0.135]){
+    const w = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, 0.026, 24), mat(PARTS.wheel.color, {metal:0.0, rough:0.95}));
+    w.rotation.z = Math.PI/2; w.position.set(x, 0.045, 0);
+    wgroup.add(w);
+  }
+  root.add(register('wheel', wgroup));
+}
+{
+  const c = new THREE.Mesh(new THREE.SphereGeometry(0.018, 16, 12), mat(PARTS.caster.color, {metal:0.6, rough:0.4}));
+  c.position.set(0, 0.018, -0.13); root.add(register('caster', c));
+}
+
+// 2. ToF sensors around the perimeter
+function tofAt(angleDeg, id){
+  const a = THREE.MathUtils.degToRad(angleDeg);
+  const r = 0.166;
+  const m = new THREE.Mesh(new THREE.BoxGeometry(0.016, 0.014, 0.008), mat(PARTS.tof_n.color, {emit:0x103030, ei:0.4}));
+  m.position.set(Math.sin(a)*r, 0.06, Math.cos(a)*r);
+  m.lookAt(0, 0.06, 0); m.rotateY(Math.PI);
+  root.add(register(id, m));
+}
+tofAt(0, 'tof_n');
+tofAt(90, 'tof_e');
+tofAt(180, 'tof_s');
+tofAt(270, 'tof_w');
+
+// 3. Power stack (Mid+) above the base
+{
+  const g = new THREE.Group();
+  const box = new THREE.Mesh(new THREE.BoxGeometry(0.20, 0.085, 0.16), mat(PARTS.battery.color, {metal:0.3, rough:0.7}));
+  box.position.y = 0.094 + 0.085/2;
+  g.add(box);
+  // label stripe
+  const lab = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.018, 0.001), mat(0xcaa15a, {emit:0x4a3a18, ei:0.7}));
+  lab.position.set(0, 0.094+0.06, 0.081);
+  g.add(lab);
+  root.add(register('battery', g));
+}
+{
+  const m = new THREE.Mesh(new THREE.BoxGeometry(0.10, 0.026, 0.05), mat(PARTS.dcdc.color, {metal:0.6, rough:0.45}));
+  m.position.set(0.05, 0.094 + 0.085 + 0.013, 0.07);
+  root.add(register('dcdc', m));
+}
+{
+  const m = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.022, 0.07), mat(PARTS.pdb.color, {metal:0.3, rough:0.6}));
+  m.position.set(-0.04, 0.094 + 0.085 + 0.011, -0.05);
+  root.add(register('pdb', m));
+}
+
+// 4. Compute deck — Jetson, SSD, cooler, hub
+const deckY = 0.094 + 0.085 + 0.026 + 0.005; // sits on top of battery+dcdc
+{
+  // deck plate
+  const plate = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.006, 0.18), mat(PARTS.mount.color, {rough:0.85}));
+  plate.position.y = deckY;
+  root.add(register('mount', plate));
+}
+{
+  const g = new THREE.Group();
+  const body = new THREE.Mesh(new THREE.BoxGeometry(0.103, 0.024, 0.090), mat(PARTS.jetson.color, {emit:0x07303a, ei:0.5}));
+  body.position.y = deckY + 0.012 + 0.003;
+  g.add(body);
+  // tiny LEDs on the front
+  for(let i=0;i<3;i++){
+    const l = new THREE.Mesh(new THREE.BoxGeometry(0.004,0.004,0.001), mat(0x7fe0f2, {emit:0x4fb0c8, ei:1.4}));
+    l.position.set(-0.03 + i*0.012, deckY+0.012+0.003, 0.046);
+    g.add(l);
+  }
+  root.add(register('jetson', g));
+}
+{
+  const m = new THREE.Mesh(new THREE.BoxGeometry(0.024, 0.005, 0.080), mat(PARTS.ssd.color, {metal:0.6, rough:0.4}));
+  m.position.set(0.045, deckY + 0.012 + 0.027, 0.0);
+  root.add(register('ssd', m));
+}
+{
+  // small fan on top of Jetson
+  const g = new THREE.Group();
+  const housing = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.012, 0.04), mat(PARTS.cooler.color, {rough:0.65}));
+  housing.position.set(-0.025, deckY + 0.012 + 0.024 + 0.006, 0);
+  g.add(housing);
+  const blade = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.014, 0.005, 5), mat(0x444a55, {metal:0.7, rough:0.3}));
+  blade.position.set(-0.025, deckY + 0.012 + 0.024 + 0.013, 0);
+  g.add(blade);
+  root.add(register('cooler', g));
+}
+{
+  const m = new THREE.Mesh(new THREE.BoxGeometry(0.072, 0.020, 0.040), mat(PARTS.hub.color, {rough:0.7}));
+  m.position.set(0.08, deckY + 0.010, -0.06);
+  root.add(register('hub', m));
+}
+{
+  const m = new THREE.Mesh(new THREE.BoxGeometry(0.024, 0.008, 0.020), mat(PARTS.imu.color, {emit:0x103040, ei:0.4}));
+  m.position.set(-0.09, deckY + 0.004, -0.06);
+  root.add(register('imu', m));
+}
+
+// 5. Tower from deck up to head
+{
+  const t = new THREE.Mesh(new THREE.BoxGeometry(0.040, 0.30, 0.040), mat(0x222428, {metal:0.4, rough:0.6}));
+  t.position.y = deckY + 0.15; t.position.z = -0.05;
+  root.add(t); // unlabeled structural
+}
+
+// 6. Head — face plate + eyes + camera + mic
+const headY = deckY + 0.30;
+{
+  // a soft head shell
+  const shell = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.16, 0.10), mat(0x18191c, {metal:0.3, rough:0.65}));
+  shell.position.set(0, headY + 0.005, -0.02);
+  root.add(shell);
+}
+{
+  // face bar screen
+  const g = new THREE.Group();
+  const screen = new THREE.Mesh(new THREE.BoxGeometry(0.20, 0.084, 0.006), mat(PARTS.faceBar.color, {emit:0x143038, ei:0.7}));
+  screen.position.set(0, headY, 0.034);
+  g.add(screen);
+  // glow rim
+  const glow = new THREE.Mesh(new THREE.BoxGeometry(0.21, 0.094, 0.001), mat(0x5bb6c8, {emit:0x1a4a58, ei:1.0}));
+  glow.position.set(0, headY, 0.031);
+  g.add(glow);
+  // mouth-line glow
+  const mouth = new THREE.Mesh(new THREE.BoxGeometry(0.10, 0.005, 0.002), mat(0xcaa15a, {emit:0x6a4818, ei:1.1}));
+  mouth.position.set(0, headY - 0.020, 0.038);
+  g.add(mouth);
+  root.add(register('faceBar', g));
+}
+{
+  // round eye LCDs (Mid+) — overlay the bar
+  for(const [id, x] of [['eyeL', -0.045],['eyeR', 0.045]]){
+    const g = new THREE.Group();
+    const lcd = new THREE.Mesh(new THREE.CylinderGeometry(0.022, 0.022, 0.006, 32), mat(PARTS[id].color, {emit:0x0a3038, ei:0.7}));
+    lcd.rotation.x = Math.PI/2; lcd.position.set(x, headY+0.008, 0.040);
+    g.add(lcd);
+    // iris
+    const iris = new THREE.Mesh(new THREE.CylinderGeometry(0.010, 0.010, 0.001, 24), mat(0x5bb6c8, {emit:0x3aa0b8, ei:1.6}));
+    iris.rotation.x = Math.PI/2; iris.position.set(x, headY+0.008, 0.043);
+    g.add(iris);
+    // pupil
+    const pupil = new THREE.Mesh(new THREE.CylinderGeometry(0.0035, 0.0035, 0.001, 16), mat(0x000000, {emit:0x000000, ei:0}));
+    pupil.rotation.x = Math.PI/2; pupil.position.set(x, headY+0.008, 0.044);
+    g.add(pupil);
+    root.add(register(id, g));
+  }
+}
+{
+  // RealSense — small horizontal box above the face
+  const g = new THREE.Group();
+  const body = new THREE.Mesh(new THREE.BoxGeometry(0.090, 0.025, 0.025), mat(PARTS.realsense.color, {metal:0.5, rough:0.4}));
+  body.position.set(0, headY + 0.060, 0.030);
+  g.add(body);
+  // lens dots
+  for(const x of [-0.028, -0.010, 0.010, 0.028]){
+    const l = new THREE.Mesh(new THREE.CylinderGeometry(0.006, 0.006, 0.001, 16), mat(0x111317, {metal:0.6, rough:0.3, emit:0x2a3a48, ei:0.5}));
+    l.rotation.x = Math.PI/2; l.position.set(x, headY + 0.060, 0.043);
+    g.add(l);
+  }
+  root.add(register('realsense', g));
+}
+{
+  // ReSpeaker mic array — round puck on top of head
+  const g = new THREE.Group();
+  const puck = new THREE.Mesh(new THREE.CylinderGeometry(0.0355, 0.0355, 0.012, 32), mat(PARTS.micArray.color, {rough:0.7}));
+  puck.position.set(0, headY + 0.090, 0);
+  g.add(puck);
+  // 4 mic LEDs on top
+  for(let i=0;i<4;i++){
+    const a = i/4 * Math.PI*2;
+    const dot = new THREE.Mesh(new THREE.CylinderGeometry(0.004, 0.004, 0.001, 12), mat(0x7fe0f2, {emit:0x5bb6c8, ei:1.5}));
+    dot.rotation.x = Math.PI/2; dot.position.set(Math.cos(a)*0.020, headY + 0.0965, Math.sin(a)*0.020);
+    g.add(dot);
+  }
+  root.add(register('micArray', g));
+}
+{
+  // USB speaker — small cube near deck
+  const g = new THREE.Group();
+  const s = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.04, 0.04), mat(PARTS.speaker.color, {rough:0.75}));
+  s.position.set(0.10, deckY + 0.022, 0.06);
+  g.add(s);
+  root.add(register('speaker', g));
+}
+{
+  // Mid amp + 2 speakers on each side of head
+  const g = new THREE.Group();
+  for(const x of [-0.095, 0.095]){
+    const sp = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.018, 0.008, 24), mat(PARTS.ampSpk.color, {rough:0.7, emit:0x222428, ei:0.2}));
+    sp.rotation.z = Math.PI/2; sp.position.set(x, headY, -0.04);
+    g.add(sp);
+  }
+  // amp box
+  const amp = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.012, 0.024), mat(0x161a22, {rough:0.7}));
+  amp.position.set(0, headY - 0.06, -0.04);
+  g.add(amp);
+  root.add(register('ampSpk', g));
+}
+{
+  // side camera
+  const g = new THREE.Group();
+  const b = new THREE.Mesh(new THREE.BoxGeometry(0.032, 0.022, 0.022), mat(PARTS.camSide.color, {rough:0.6}));
+  b.position.set(0.105, headY, 0);
+  g.add(b);
+  const lens = new THREE.Mesh(new THREE.CylinderGeometry(0.007, 0.007, 0.004, 16), mat(0x111317, {metal:0.6, rough:0.3}));
+  lens.rotation.z = Math.PI/2; lens.position.set(0.120, headY, 0);
+  g.add(lens);
+  root.add(register('camSide', g));
+}
+
+// 7. The arm (SO-101) — 6-DoF chain, mounted on right side of deck
+function buildArm(side=1, prefix='arm'){
+  const g = new THREE.Group();
+  const x0 = side*0.10;
+  const baseY = deckY + 0.006;
+  // base joint
+  const base = new THREE.Mesh(new THREE.CylinderGeometry(0.030, 0.030, 0.040, 24), mat(PARTS[prefix+'_base'].color, {metal:0.3, rough:0.5}));
+  base.position.set(x0, baseY + 0.020, 0.0);
+  g.add(register(prefix+'_base', base));
+
+  // shoulder
+  const shoulder = new THREE.Mesh(new THREE.CylinderGeometry(0.024, 0.024, 0.034, 24), mat(PARTS[prefix+'_link1'].color, {metal:0.3, rough:0.5}));
+  shoulder.rotation.z = Math.PI/2;
+  shoulder.position.set(x0, baseY + 0.055, 0.0);
+  g.add(register(prefix+'_link1', shoulder));
+
+  // upper arm (link)
+  const upper = new THREE.Mesh(new THREE.BoxGeometry(0.024, 0.10, 0.030), mat(PARTS[prefix+'_link2'].color, {metal:0.3, rough:0.5}));
+  upper.position.set(x0 + side*0.020, baseY + 0.10, 0.03);
+  upper.rotation.x = -0.5;
+  g.add(register(prefix+'_link2', upper));
+
+  // elbow joint
+  const elbow = new THREE.Mesh(new THREE.CylinderGeometry(0.020, 0.020, 0.030, 24), mat(PARTS[prefix+'_link3'].color, {metal:0.3, rough:0.5}));
+  elbow.rotation.z = Math.PI/2;
+  elbow.position.set(x0 + side*0.035, baseY + 0.140, 0.082);
+  g.add(register(prefix+'_link3', elbow));
+
+  // forearm
+  const fore = new THREE.Mesh(new THREE.BoxGeometry(0.020, 0.090, 0.026), mat(PARTS[prefix+'_link4'].color, {metal:0.3, rough:0.5}));
+  fore.position.set(x0 + side*0.060, baseY + 0.135, 0.140);
+  fore.rotation.x = 1.2;
+  g.add(register(prefix+'_link4', fore));
+
+  // wrist
+  const wrist = new THREE.Mesh(new THREE.CylinderGeometry(0.016, 0.016, 0.024, 20), mat(PARTS[prefix+'_link5'].color, {metal:0.3, rough:0.5}));
+  wrist.rotation.x = Math.PI/2;
+  wrist.position.set(x0 + side*0.085, baseY + 0.115, 0.18);
+  g.add(register(prefix+'_link5', wrist));
+
+  // gripper
+  const gripperId = side === 1 ? 'gripper' : 'gripper2';
+  const gg = new THREE.Group();
+  const palm = new THREE.Mesh(new THREE.BoxGeometry(0.034, 0.024, 0.026), mat(PARTS[gripperId].color, {metal:0.2, rough:0.6}));
+  palm.position.set(x0 + side*0.105, baseY + 0.110, 0.21);
+  gg.add(palm);
+  for(const dx of [-0.011, 0.011]){
+    const finger = new THREE.Mesh(new THREE.BoxGeometry(0.005, 0.022, 0.005), mat(0x4a4a4a, {rough:0.8}));
+    finger.position.set(x0 + side*0.105 + dx, baseY + 0.110, 0.235);
+    gg.add(finger);
+  }
+  g.add(register(gripperId, gg));
+
+  return g;
+}
+// register a "wrapper" id for the whole arm price-line so the tally is right
+{
+  const arm1 = buildArm(1, 'arm');
+  root.add(arm1);
+  // we mark the full-arm-price label on the base joint mesh — store separately
+  partMeshes['arm_full'] = partMeshes['arm_base'];
+  const arm2 = buildArm(-1, 'arm2');
+  root.add(arm2);
+  partMeshes['arm2_full'] = partMeshes['arm2_base'];
+}
+
+// 8. Pro additions — Lidar, thermal, AGX, dock, Pro battery
+{
+  // Lidar puck above the head
+  const g = new THREE.Group();
+  const puck = new THREE.Mesh(new THREE.CylinderGeometry(0.038, 0.038, 0.032, 32), mat(PARTS.lidar.color, {metal:0.3, rough:0.5, emit:0x3a2818, ei:0.4}));
+  puck.position.set(0, headY + 0.135, 0);
+  g.add(puck);
+  const spin = new THREE.Mesh(new THREE.CylinderGeometry(0.030, 0.030, 0.014, 32), mat(0x18191c, {metal:0.6, rough:0.4}));
+  spin.position.set(0, headY + 0.150, 0);
+  g.add(spin);
+  root.add(register('lidar', g));
+}
+{
+  // thermal — small box on forehead
+  const g = new THREE.Group();
+  const m = new THREE.Mesh(new THREE.BoxGeometry(0.024, 0.018, 0.018), mat(PARTS.thermal.color, {emit:0x4a1010, ei:0.7}));
+  m.position.set(-0.025, headY + 0.045, 0.040);
+  g.add(m);
+  root.add(register('thermal', g));
+}
+{
+  // AGX — large box replacing Jetson position (drawn alongside)
+  const g = new THREE.Group();
+  const body = new THREE.Mesh(new THREE.BoxGeometry(0.115, 0.060, 0.110), mat(PARTS.agx.color, {emit:0x07303a, ei:0.4}));
+  body.position.set(0, deckY + 0.030, -0.025);
+  g.add(body);
+  root.add(register('agx', g));
+}
+{
+  // larger battery (replaces battery position visually — drawn behind)
+  const g = new THREE.Group();
+  const box = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.095, 0.10), mat(PARTS.batteryPro.color, {metal:0.4, rough:0.7}));
+  box.position.set(0, 0.094 + 0.0475, -0.10);
+  g.add(box);
+  root.add(register('batteryPro', g));
+}
+{
+  // charging dock — flat plate behind the robot
+  const g = new THREE.Group();
+  const plate = new THREE.Mesh(new THREE.BoxGeometry(0.30, 0.020, 0.12), mat(PARTS.dock.color, {rough:0.8}));
+  plate.position.set(0, 0.010, -0.40);
+  g.add(plate);
+  const tag = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.005, 0.05), mat(0xe8eef6, {emit:0x444a55, ei:0.4}));
+  tag.position.set(0, 0.024, -0.40);
+  g.add(tag);
+  const pads = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.005, 0.02), mat(0xcaa15a, {emit:0x6a4818, ei:0.7}));
+  pads.position.set(0, 0.022, -0.34);
+  g.add(pads);
+  root.add(register('dock', g));
+}
+
+// --------------- tier visibility ---------------
+let currentTier = 'mid';
+function applyTier(){
+  for(const id in partMeshes){
+    const part = PARTS[id]; if(!part) continue;
+    let vis = visibleInTier(part.tier, currentTier);
+    // in Pro: hide the small jetson + small battery in favor of the AGX + Pro battery
+    if(currentTier === 'pro'){
+      if(id === 'jetson') vis = false;
+      if(id === 'battery') vis = false;
+      if(id === 'speaker') vis = false; // amp+speakers replace it (set when Mid+)
+    } else {
+      if(id === 'agx' || id === 'batteryPro' || id === 'dock' || id === 'thermal' || id === 'lidar') vis = false;
+    }
+    // in Mid+: the USB speaker is replaced by amp+speakers
+    if(currentTier !== 'lite' && id === 'speaker') vis = false;
+    partMeshes[id].visible = vis;
+  }
+  updateHint();
+  updateTotal();
+  // remove sel from hidden labels
+  for(const lab of document.querySelectorAll('.lbl')) lab.style.display = '';
+}
+function updateHint(){
+  const TXT = {
+    lite: `<b>Lite</b> — a stationary "head" you can place on a desk: sees, hears, talks, remembers, drives. No arm. <span class="price">~$1,285</span>`,
+    mid:  `<b>Mid</b> — recommended. Adds a learnable 6-DoF arm and a real face. Can pick up things you demonstrate. <span class="price">~$2,025–2,500</span>`,
+    pro:  `<b>Pro</b> — bilateral arms, Lidar, thermal, AGX brain, charging dock for nightly sleep consolidation. <span class="price">~$9,000–15,000</span>`,
+  };
+  document.getElementById('hint').innerHTML = TXT[currentTier];
+}
+function updateTotal(){
+  let sum = 0, count = 0;
+  for(const id in partMeshes){
+    const part = PARTS[id]; if(!part) continue;
+    if(!partMeshes[id].visible) continue;
+    if(part.price > 0){ sum += part.price; count++; }
+  }
+  document.getElementById('total').innerHTML = `<span class="n">${count} parts</span> · <b>$${sum.toLocaleString()}</b>`;
+}
+
+// --------------- floating labels ---------------
+// these are positioned each frame from the mesh's world position
+const labelDefs = [
+  // [partId, label-text, offset-y-pixels-ish]
+  ['base', 'Create 3'],
+  ['jetson', 'Jetson Orin Nano'],
+  ['agx', 'Jetson AGX Orin'],
+  ['ssd', 'NVMe SSD'],
+  ['realsense', 'RealSense D435i'],
+  ['micArray', 'ReSpeaker mic array'],
+  ['speaker', 'USB speaker'],
+  ['ampSpk', 'I2S amp + speakers'],
+  ['camSide', 'side camera'],
+  ['battery', 'LiFePO4 battery'],
+  ['batteryPro', 'Pro battery'],
+  ['dcdc', 'DC-DC'],
+  ['pdb', 'power distro'],
+  ['imu', 'IMU'],
+  ['tof_n', 'ToF (front)'],
+  ['tof_e', 'ToF (right)'],
+  ['tof_s', 'ToF (back)'],
+  ['tof_w', 'ToF (left)'],
+  ['faceBar', 'face screen'],
+  ['eyeL', 'eye (L)'],
+  ['eyeR', 'eye (R)'],
+  ['arm_full', 'SO-101 arm'],
+  ['gripper', 'gripper'],
+  ['arm2_full', 'SO-101 arm #2'],
+  ['gripper2', 'gripper #2'],
+  ['lidar', 'Lidar'],
+  ['thermal', 'thermal'],
+  ['dock', 'charging dock'],
+  ['hub', 'USB hub'],
+  ['cooler', 'Jetson fan'],
+];
+const labelEls = {};
+const labelContainer = document.getElementById('labels');
+let labelsOn = true;
+for(const [id, txt] of labelDefs){
+  const el = document.createElement('div');
+  el.className = 'lbl';
+  el.innerHTML = `<span class="dot" style="background:#${PARTS[id].color.toString(16).padStart(6,'0')}"></span>${txt}${PARTS[id].price ? `<span class="pr">$${PARTS[id].price.toLocaleString()}</span>`:''}`;
+  el.addEventListener('click', ()=>selectPart(id));
+  labelContainer.appendChild(el);
+  labelEls[id] = el;
+}
+
+let selectedId = null;
+function selectPart(id){
+  selectedId = id;
+  for(const k in labelEls) labelEls[k].classList.toggle('sel', k===id);
+  const p = PARTS[id];
+  const info = document.getElementById('info');
+  info.classList.remove('empty');
+  info.innerHTML = `
+    <h3>component</h3>
+    <h4>${p.name}</h4>
+    ${p.price>0 ? `<div class="px">$${p.price.toLocaleString()}</div>` : `<div class="px" style="color:#5c6675">(no separate price)</div>`}
+    <p>${p.role}</p>
+    <div class="role">tier · ${p.tier}</div>`;
+}
+
+// project a 3D world point to screen %
+const tmpV = new THREE.Vector3();
+function project(mesh){
+  // find a reasonable label anchor — center of bounding sphere
+  mesh.updateWorldMatrix(true, false);
+  const box = new THREE.Box3().setFromObject(mesh);
+  const center = box.getCenter(new THREE.Vector3());
+  tmpV.copy(center);
+  tmpV.project(camera);
+  const r = canvas.getBoundingClientRect();
+  return { x: (tmpV.x*0.5+0.5)*r.width, y: (-tmpV.y*0.5+0.5)*r.height, z: tmpV.z };
+}
+function refreshLabels(){
+  for(const [id, _] of labelDefs){
+    const el = labelEls[id];
+    const mesh = partMeshes[id];
+    if(!mesh){ el.style.display='none'; continue; }
+    if(!mesh.visible || !labelsOn){ el.style.display='none'; continue; }
+    const p = project(mesh);
+    if(p.z >= 1){ el.style.display='none'; continue; } // behind camera
+    el.style.display='block';
+    el.style.left = p.x+'px';
+    el.style.top = p.y+'px';
+  }
+}
+
+// --------------- input ---------------
+for(const b of document.querySelectorAll('#tier button')){
+  b.addEventListener('click', ()=>{
+    currentTier = b.dataset.tier;
+    for(const x of document.querySelectorAll('#tier button')) x.classList.toggle('on', x===b);
+    applyTier();
+  });
+}
+document.getElementById('lblToggle').addEventListener('change', e=>{
+  labelsOn = e.target.checked;
+  refreshLabels();
+});
+
+// click on the canvas to select via raycast
+const raycaster = new THREE.Raycaster();
+const mouse = new THREE.Vector2();
+canvas.addEventListener('click', e=>{
+  const r = canvas.getBoundingClientRect();
+  mouse.x = ((e.clientX - r.left) / r.width)*2 - 1;
+  mouse.y = -((e.clientY - r.top) / r.height)*2 + 1;
+  raycaster.setFromCamera(mouse, camera);
+  const hits = raycaster.intersectObject(root, true);
+  for(const h of hits){
+    const id = h.object.userData.partId;
+    if(id && partMeshes[id] && partMeshes[id].visible){ selectPart(id); return; }
+  }
+});
+
+// --------------- resize ---------------
+function resize(){
+  const w = window.innerWidth;
+  const h = window.innerHeight;
+  renderer.setSize(w, h, true);
+  camera.aspect = w/h; camera.updateProjectionMatrix();
+}
+window.addEventListener('resize', resize); resize();
+
+// --------------- animation ---------------
+let t0 = performance.now();
+function frame(){
+  const t = (performance.now() - t0)/1000;
+  // subtle: pupils track the cursor when mouse is over the canvas
+  // (cheap effect — translate pupil meshes within the eye)
+  // micArray dots pulse with t
+  controls.update();
+  // gentle Lidar rotation in Pro tier
+  const lid = partMeshes['lidar'];
+  if(lid && lid.visible) lid.rotation.y = t*1.6;
+  renderer.render(scene, camera);
+  refreshLabels();
+  requestAnimationFrame(frame);
+}
+
+applyTier();
+frame();
+</script>
+</body></html>

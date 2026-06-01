@@ -1,0 +1,32 @@
+# Run tests on PRs and non-main pushes.
+name: Test
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches-ignore: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install uv
+        run: pip install uv
+      - name: Sync deps
+        run: uv sync
+      - name: Import smoke-test
+        run: uv run python -c "from pep.main import app; print('ok — routes:', len(app.routes))"
+      - name: Lemma SEO endpoints respond
+        run: |
+          uv run python -m uvicorn pep.main:app --port 8765 &
+          sleep 3
+          for path in /lemma/teachers /lemma/signup /lemma/login /sitemap.xml /robots.txt /lemma/og-card.svg; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" "http://localhost:8765${path}")
+            echo "${code}  ${path}"
+            test "$code" = "200" || (echo "FAIL: $path returned $code"; exit 1)
+          done
