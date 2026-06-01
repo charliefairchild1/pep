@@ -97,9 +97,18 @@ _PAGE = r"""<!doctype html><html><head>
 <button class="print-btn" onclick="window.print()">⎙ Print / PDF</button>
 <div class="wrap">
 
-<div class="eyebrow">Koin · the manifesto · v0.3</div>
+<div class="eyebrow">Koin · the manifesto · v0.5</div>
 <h1>Money is the wrong instrument.<br><em>We finally have the right one.</em></h1>
 <p class="sub">A draft of the case that the economy is, before anything else, a verdict on what each person contributed — that money has always rendered that verdict badly — and that the technology to render it honestly just arrived.</p>
+
+<div class="histbox" style="margin-bottom:48px">
+<h4>The argument in one page</h4>
+<div class="when">If you read nothing else</div>
+<p>An economy is a verdict on who contributed what. Money has rendered this verdict for five thousand years using one signal: <i>who held the contract at the moment of exchange</i>. That signal is a poor stand-in for actual contribution. Teachers, caregivers, friends, mentors, the dead, the originators of recipes, the writers of forgotten papers — none are seen by money. The bookkeeper is not a judge.</p>
+<p>Three technologies just arrived simultaneously: models that can read influence, graphs that can hold provenance at scale, and settlement rails that can move pennies globally in seconds. Together they make the verdict computable. We can now trace, with reasonable fidelity, what work moved which mind, and route a fraction of any downstream benefit back to the source.</p>
+<p><b>Koin</b> is the proposal that we do this — that we render the verdict honestly, automatically, and continuously, in a way that is open, jointly held, non-extractive, and refusable. Not a token. Not a blockchain. A graph of bonds, queried by spreading activation, settled by any payment rail. Nobody pays into Koin; the world simply notes, in the ledger, where value originated and routes it home.</p>
+<p>The system pays. It does not gate. The unmeasured is preserved. The window to build it openly, before someone closes it, is now.</p>
+</div>
 
 <div class="toc">
 <h3>Contents</h3>
@@ -374,6 +383,24 @@ _PAGE = r"""<!doctype html><html><head>
 
 <div class="formula"><span class="lbl">Total balance</span>Balance(i)  =  ∬  κ(i → j, t)  dj  dt</div>
 
+<p><b>A worked example.</b> A reader pays $20 for a book. The book's influence graph (a few hundred edges, computed at write-time and updated when the author cites additional sources after publication) traces back through the author's named acknowledgements, the books cited in the bibliography, the editor who shaped the manuscript, the writing teacher whose framework the author absorbed two decades ago, and — by softer trace — three friends whose late-night conversations during the book's drafting moved it materially. The verdict, computed in milliseconds when the purchase clears:</p>
+
+<div class="formula"><span class="lbl">Worked split of a $20 purchase</span>
+$8.40  →  the author (direct authorship)<br>
+$3.10  →  the bibliographic chain (105 cited works, Shapley-weighted by recency and depth)<br>
+$2.60  →  the editor (developmental + line + copy)<br>
+$1.40  →  the writing teacher from twenty years ago (decay-discounted but foundational)<br>
+$0.95  →  three friends who shaped the draft in conversation (consent-confirmed, soft-traced)<br>
+$1.20  →  the typesetter, the cover designer, the proofreader (production chain)<br>
+$0.85  →  the publisher (distribution and editorial selection contribution)<br>
+$1.10  →  the bookstore or platform (last-mile distribution)<br>
+$0.40  →  the lineage fund (unallocated residuum routed to commons)
+</div>
+
+<p>Three things to notice. First, the publisher and the bookstore are no longer leveraged into capturing the majority of the sale; they are paid for their actual marginal contribution. Second, the deep upstream contributors — the writing teacher, the friends, the dead authors of the bibliography — are visibly present in the verdict. Third, the residuum (forty cents) routes to the commons for the contributions no specific person can claim: the language itself, the conventions of the book form, the readers whose anonymous reviews shaped the marketing copy. No money is lost; every penny is allocated.</p>
+
+<p>This is not a thought experiment. It is what the spreading-activation + Shapley + decay computation outputs, given an influence graph populated by the kind of evidence already available to existing systems (citations, edit histories, acknowledgements, channel-confirmed conversations). The infrastructure is here. The deployment is the question.</p>
+
 <p>You do not need to understand any of this to participate in Koin. You need to know only one thing: when your work moves a mind, the system finds you and pays you, in proportion to how much you moved that mind, weighted by how alive that movement still is.</p>
 
 <blockquote>The math is in the floor. The point is what you can build on top of it.</blockquote>
@@ -386,7 +413,57 @@ _PAGE = r"""<!doctype html><html><head>
 
 <p>Now imagine the recipe is submitted to a system. An AI-driven kitchen reads it and executes it: a worker preps measured ingredients into labeled bowls; the machine combines, heats, times, finishes, packages. The chef does not have to be present. The recipe runs <em>anywhere a kitchen runs it</em>. And every unit sold pays a royalty — small, automatic, continuous — back to the chef. Her income is no longer bounded by her stove or her time; it is bounded by <em>how many people her idea fed</em>. The judgment is accurate because the trace is unambiguous: this recipe produced this plate produced this transaction. The economy gets the verdict right, mechanically, every meal.</p>
 
-<p>This is the entire Koin thesis at small scale. Make the trace visible; the verdict follows. Generalize the pattern: the lesson plan that produced the student's grade. The diagnostic protocol that produced the patient's recovery. The proof technique that produced the engineer's design. The argument that produced the voter's choice. The melody that produced the album that paid for the singer's house — and the unnamed nursery rhyme inside the melody that paid for nothing. <em>Every artifact in the world is a recipe being run. Koin is the apparatus that lets the verdict find the cook.</em></p>
+<p>This is the entire Koin thesis at small scale. Make the trace visible; the verdict follows. The recipe is one domain. The same pattern operates wherever a contribution propagates and a beneficiary acts on it. A partial catalog:</p>
+
+<div class="histbox">
+<h4>Education</h4>
+<div class="when">Domain · ~75 million teachers worldwide</div>
+<p>The lesson plan is the recipe; the student's later work is the meal. A teacher writes a sequence of problems that teaches a student to factor polynomials. Two decades later the student designs a bridge. The proof techniques that designed the bridge trace back through the engineering coursework, through the high-school algebra, through the original lesson plan. The teacher's flow is the integral over every engineering decision her former students make using the cognitive tools she gave them. Lemma — the classroom warmup system — is the smallest concrete deployment: every warmup logged, every grade produced, every later citation back to a topic credit-flowed to the teacher who introduced it.</p>
+</div>
+
+<div class="histbox">
+<h4>Healthcare</h4>
+<div class="when">Domain · ~60 million health workers worldwide</div>
+<p>The diagnostic protocol is the recipe; the patient's recovery is the meal. A nurse develops a noticing — the precise combination of skin tone, breathing pattern, and posture that flags incipient sepsis ninety minutes before the lab values move. She teaches it to the residents during night shift. Years later they apply it in trauma bays in three different countries. Every patient who survives because of that noticing pays a tiny stream back through the chain: hospital → trained physician → original nurse. The nurse who never published, never spoke at a conference, never wrote a paper is paid for the lives she saved at one remove. The surgeon who follows the recovery protocol pays the surgeon who refined it. The trainer of the surgeon is paid by every patient her trainees treat for the rest of their careers.</p>
+</div>
+
+<div class="histbox">
+<h4>Science</h4>
+<div class="when">Domain · ~9 million researchers worldwide</div>
+<p>The cited paper is the recipe; the downstream paper is the meal. The infrastructure already exists (citations, h-index). The settlement is missing. Add a payment rail to the citation network and the academy converts overnight from a status economy to a Koin economy. The graduate student whose paper is read but rarely cited at first sees nothing for years; one day, a small but durable stream begins, as her formalism enters a textbook chapter and from there into the working vocabulary of every graduate student in her sub-field. The dead Russian formalist whose 1972 paper was forgotten until a postdoc in Helsinki rediscovered it in 2031 begins, posthumously, to outpay most of his living colleagues.</p>
+</div>
+
+<div class="histbox">
+<h4>Music</h4>
+<div class="when">Domain · ASCAP/BMI baseline · ~$15B/year already moves</div>
+<p>The composition is the recipe; the performance is the meal. The infrastructure is the most mature of any domain — performance royalties have been computable for a century. Koin's contribution is not building the system but completing it. The nursery rhyme inside the pop song. The traditional melody inside the film score. The unnamed studio musician whose riff became iconic. The Senegalese percussion teacher whose student became the drummer who played the take that defined the album. Each of these is currently invisible to ASCAP. Each is visible to Koin.</p>
+</div>
+
+<div class="histbox">
+<h4>Open-source software</h4>
+<div class="when">Domain · ~100 million developers, ~$8.8 trillion in downstream value (Harvard study, 2024)</div>
+<p>The function is the recipe; every invocation is the meal. A library is installed; the library calls dependencies; the dependencies call deeper dependencies. The tree is the graph. Every commercial use of the deepest library — a date-parsing utility written for free in 2009 by a developer in São Paulo — generates a flow that climbs back up the tree, settles into the dependency authors' accounts in proportion to their contribution to the call site. The maintainer of the small utility that everyone uses but no one knows the name of becomes, quietly, well-compensated.</p>
+</div>
+
+<div class="histbox">
+<h4>Writing and journalism</h4>
+<div class="when">Domain · all originated text</div>
+<p>The sentence is the recipe; the absorption is the meal. Editors are credited. Sources are credited. The friend who heard the manuscript at chapter three and changed the protagonist's name is credited. The investigative reporter whose underlying scoop fed the cable-news cycle for a week is credited by every advertising dollar that flowed during that week. The freelance who broke the story but did not write the bestselling book about the story is paid for the bestselling book.</p>
+</div>
+
+<div class="histbox">
+<h4>Therapy and counseling</h4>
+<div class="when">Domain · ~1 million therapists in the US alone</div>
+<p>The intervention is the recipe; the client's later choices are the meals. A therapist helps a client unlearn a particular cognitive pattern. The client's marriage survives because of it; her children grow up in a household that did not break; one of those children becomes, twenty years later, a teacher whose own students do not break for the same reasons. The chain of effect is real. Koin makes it traceable, even if the therapist herself has long since retired or died. <em>The cost of mental health care collapses, because the therapist is no longer paid by the hour but by the cumulative reach of the intervention.</em></p>
+</div>
+
+<div class="histbox">
+<h4>Conversation and advice</h4>
+<div class="when">Domain · the hardest case · the most important case</div>
+<p>The sentence said at the right moment is the recipe; the changed decision is the meal. This is the most invisible domain — and the largest. Most of what shaped most of us came from people we cannot name, in conversations we cannot retrieve, said by people who never thought of themselves as having contributed anything. Koin will be imperfect here. The trace is harder; the consent more delicate; the unmeasured carve-out wider. But even a partial Koin in this domain shifts the texture of life. The aunt who told you, at fourteen, the thing your parents would never say is paid by the version of you that she made possible. She does not have to know it is happening. The trace knows.</p>
+</div>
+
+<p>Every artifact in the world is a recipe being run. Koin is the apparatus that lets the verdict find the cook. <em>The eight domains above are illustrative, not exhaustive. The pattern operates wherever one mind absorbs the work of another and acts.</em></p>
 
 <!-- ===================== PART IV ===================== -->
 <div class="part">
@@ -592,7 +669,7 @@ _PAGE = r"""<!doctype html><html><head>
 
 <blockquote>An economy is a verdict. The verdict can now be honest. Build it before someone closes it.</blockquote>
 
-<p class="signature">— Koin Labs<br>Draft v0.4 · This document is itself entered into Koin.</p>
+<p class="signature">— Koin Labs<br>Draft v0.5 · This document is itself entered into Koin.</p>
 
 <!-- ===================== APPENDIX ===================== -->
 <div class="part">
