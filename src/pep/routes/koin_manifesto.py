@@ -42,6 +42,50 @@ a{color:var(--accent2)}
 .nav a:hover{color:var(--accent2)}
 .signature{margin-top:60px;color:var(--dim);font-size:14px;letter-spacing:1px;font-family:'SF Mono',monospace}
 .scene{padding-left:22px;border-left:1px solid var(--rule);margin:18px 0;color:#cfcdc6}
+.print-btn{position:fixed;top:18px;right:24px;background:var(--accent);color:#0a0a0f;border:none;border-radius:6px;padding:8px 14px;font-family:'SF Mono',monospace;font-size:12px;font-weight:700;letter-spacing:1px;cursor:pointer;text-transform:uppercase;z-index:100}
+.print-btn:hover{background:#e9c248}
+.toc{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:28px 32px;margin:36px 0 52px}
+.toc h3{font-family:'SF Mono',monospace;font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--dim);margin-bottom:14px;font-weight:400}
+.toc ol{list-style:none;padding-left:0;counter-reset:none}
+.toc .tpart{margin-top:12px;font-family:'SF Mono',monospace;font-size:11px;letter-spacing:2px;color:var(--accent);text-transform:uppercase;padding-bottom:2px}
+.toc li{font-size:15px;color:var(--text);padding:3px 0;line-height:1.5}
+.toc li a{color:var(--text);text-decoration:none}
+.toc li a:hover{color:var(--accent2)}
+.toc .roman{display:inline-block;width:48px;color:var(--dim);font-family:'SF Mono',monospace;font-size:12px}
+.formula{background:var(--surface);border-left:2px solid var(--accent2);padding:14px 18px;margin:18px 0;font-family:'SF Mono',ui-monospace,monospace;font-size:15px;color:#cfcdc6;overflow-x:auto;line-height:1.5}
+.formula .lbl{display:block;font-family:'SF Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--accent);text-transform:uppercase;margin-bottom:6px}
+.cite{font-family:'SF Mono',monospace;font-size:13px;color:var(--dim);margin-left:6px}
+.histbox{background:var(--surface);border:1px solid var(--rule);border-radius:6px;padding:18px 22px;margin:16px 0;color:#dcdad3}
+.histbox h4{font-family:'Georgia',serif;font-size:17px;color:#f5f3ed;margin-bottom:4px;font-weight:400;font-style:italic}
+.histbox .when{font-family:'SF Mono',monospace;font-size:10.5px;letter-spacing:2px;color:var(--accent);text-transform:uppercase;margin-bottom:10px}
+.histbox p{font-size:15.5px;margin-bottom:10px;color:#cfcdc6}
+.histbox p:last-child{margin-bottom:0}
+
+@media print {
+  :root{--bg:#fff;--surface:#fafaf6;--text:#1a1a1a;--dim:#666;--accent:#8a6d1a;--accent2:#2b6a8a;--rule:#ccc;--quote:#5a3aa0}
+  html,body{background:#fff;color:#1a1a1a}
+  body{padding:0;font-size:11pt;line-height:1.55;font-family:'Georgia',serif}
+  .wrap{max-width:none;margin:0}
+  .nav,.print-btn{display:none}
+  h1{font-size:28pt;color:#000;page-break-after:avoid}
+  h2{font-size:15pt;color:#000;page-break-after:avoid;margin-top:24pt}
+  h2 .num{font-size:9pt;color:#8a6d1a}
+  .sub{font-size:13pt;color:#444}
+  .part{page-break-before:always;margin:0;padding-top:30pt}
+  .part .label{color:#8a6d1a}
+  .part .name{color:#000}
+  blockquote{color:#5a3aa0;border-color:#8a6d1a;page-break-inside:avoid}
+  p em{color:#2b6a8a}
+  .scene{border-color:#999}
+  .formula{background:#f0f0e8;border-color:#2b6a8a;color:#222;page-break-inside:avoid;font-size:10pt}
+  .histbox{background:#f5f5ef;border-color:#bbb;page-break-inside:avoid}
+  .toc{page-break-after:always;background:#fff;border:1px solid #ccc}
+  .kicker{page-break-before:always}
+  @page{margin:0.75in 0.85in;
+        @bottom-right{content:counter(page);font-family:'SF Mono',monospace;font-size:9pt;color:#666}
+        @bottom-left{content:"Koin · the manifesto · v0.3";font-family:'SF Mono',monospace;font-size:9pt;color:#666}}
+  @page:first{@bottom-right{content:""}@bottom-left{content:""}}
+}
 """
 
 
@@ -50,11 +94,49 @@ _PAGE = r"""<!doctype html><html><head>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <style>__CSS__</style></head><body>
 <div class="nav"><a href="/lemma/teachers">← back</a></div>
+<button class="print-btn" onclick="window.print()">⎙ Print / PDF</button>
 <div class="wrap">
 
-<div class="eyebrow">Koin · the manifesto · v0.2</div>
+<div class="eyebrow">Koin · the manifesto · v0.3</div>
 <h1>Money is the wrong instrument.<br><em>We finally have the right one.</em></h1>
 <p class="sub">A draft of the case that the economy is, before anything else, a verdict on what each person contributed — that money has always rendered that verdict badly — and that the technology to render it honestly just arrived.</p>
+
+<div class="toc">
+<h3>Contents</h3>
+<div class="tpart">Part I · The old ledger</div>
+<ol>
+<li><span class="roman">I</span><a href="#s1">The judge problem</a></li>
+<li><span class="roman">II</span><a href="#s2">The condensation</a></li>
+<li><span class="roman">III</span><a href="#s3">Why we never measured it</a></li>
+<li><span class="roman">IV</span><a href="#s4">A short history of what we tried instead</a></li>
+</ol>
+<div class="tpart">Part II · The shift</div>
+<ol>
+<li><span class="roman">V</span><a href="#s5">Why we can measure it now</a></li>
+<li><span class="roman">VI</span><a href="#s6">Nobody pays</a></li>
+<li><span class="roman">VII</span><a href="#s7">The Nosedive question</a></li>
+</ol>
+<div class="tpart">Part III · The ledger</div>
+<ol>
+<li><span class="roman">VIII</span><a href="#s8">What Koin is, precisely</a></li>
+<li><span class="roman">IX</span><a href="#s9">The math of credit assignment</a></li>
+<li><span class="roman">X</span><a href="#s10">Where the judgment is already accurate: the recipe</a></li>
+</ol>
+<div class="tpart">Part IV · The world it builds</div>
+<ol>
+<li><span class="roman">XI</span><a href="#s11">What disappears, what appears</a></li>
+<li><span class="roman">XII</span><a href="#s12">The texture of a day</a></li>
+<li><span class="roman">XIII</span><a href="#s13">The children, the dead, and the unmeasured</a></li>
+<li><span class="roman">XIV</span><a href="#s14">The AI question</a></li>
+<li><span class="roman">XV</span><a href="#s15">What this means for the species</a></li>
+</ol>
+<div class="tpart">Part V · The call</div>
+<ol>
+<li><span class="roman">XVI</span><a href="#s16">The lineage</a></li>
+<li><span class="roman">XVII</span><a href="#s17">Why this won't be coopted</a></li>
+<li><span class="roman">XVIII</span><a href="#s18">The ask</a></li>
+</ol>
+</div>
 
 <hr>
 
@@ -65,7 +147,7 @@ _PAGE = r"""<!doctype html><html><head>
   <div class="rule"></div>
 </div>
 
-<h2><span class="num">I — The judge problem</span>An economy is, before anything else, a verdict.</h2>
+<h2 id="s1"><span class="num">I — The judge problem</span>An economy is, before anything else, a verdict.</h2>
 
 <p>Every dollar that changes hands is a small judgment: this person contributed something worth that much. Every paycheck is a verdict. Every market price is a verdict. The aggregate of all those verdicts — that is what we mean by the economy.</p>
 
@@ -75,21 +157,72 @@ _PAGE = r"""<!doctype html><html><head>
 
 <blockquote>We never had a judge. We had a bookkeeper. We confused them because we had no choice.</blockquote>
 
-<h2><span class="num">II — The condensation</span>Contribution, not currency, is the thing.</h2>
+<h2 id="s2"><span class="num">II — The condensation</span>Contribution, not currency, is the thing.</h2>
 
 <p>What does someone <em>actually</em> contribute? Sometimes a thing — a meal, a chair, a roof. Sometimes a service — a haircut, a diagnosis, an hour of patience. Sometimes a piece of attention — a glance that caught a falling child, an answer to a stranger's question. Sometimes an idea — a recipe, a method, a sentence that lodged in a friend's head and became, ten years later, a company.</p>
 
 <p>The substrate of the economy is not money. It is the universe of these contributions, most of which are invisible because we have never had instruments fine enough to see them. Money is what condensed out of the substrate when the substrate became too complicated to track by memory. <em>We have been mistaking the condensation for the thing.</em></p>
 
-<p>The most invisible contributions are the upstream ones — the teaching, the influence, the framework, the example. They produce nothing the bookkeeper can see; they produce only changed minds. And changed minds are where every other contribution comes from.</p>
+<p>Adam Smith, in 1776, opened <em>The Wealth of Nations</em> by observing that the butcher and the baker serve us "from regard to their own interest." He was right that self-interest is the engine. He was incomplete about what self-interest can be made to track. Smith's butcher had no way to be paid for the recipe his grandmother taught him. Smith's baker had no way to be paid for the friend whose remark inspired the new loaf. Smith saw the market clearly. The market he saw was the only one his century could see. <span class="cite">— Smith, 1776; Polanyi, 1944, would call this "the great transformation," when the embedded economy of bonds was disembedded into the calculation of price.</span></p>
 
-<h2><span class="num">III — Why we never measured it</span></h2>
+<p>The most invisible contributions are the upstream ones — the teaching, the influence, the framework, the example. They produce nothing the bookkeeper can see; they produce only changed minds. And changed minds are where every other contribution comes from. Karl Marx tried to surface this with the labor theory of value: every commodity contains the congealed labor that produced it. He was right about the shape and wrong about the metric. Labor-hours are too crude. What he needed was an instrument that could measure the actual contribution to a downstream mind, not the wall-clock time of the contributor. He could not have built it; we can.</p>
+
+<h2 id="s3"><span class="num">III — Why we never measured it</span></h2>
 
 <p>It was technologically impossible. To judge a contribution accurately you have to trace its effects — through the people it touched, the work they did, the people <em>they</em> touched, recursively. Until very recently this was a labor only history could perform, and only in retrospect, and only for the people history happened to remember. Every contribution that fell outside history's narrow attention was lost.</p>
 
 <p>So we fell back on proxies. Whoever got paid was, by definition, the contributor — because we could see the payment and we could not see the contribution. Whoever wrote their name on the patent was the inventor — because we could see the patent and we could not see the lab tech who actually made the apparatus work. Whoever's name was on the cover was the author — because we could see the cover and we could not see the editor, the friend who heard every draft, the silent collaborator in the next chair.</p>
 
+<p>Friedrich Hayek, in 1945, articulated the deepest defense of the proxy: <em>the price system aggregates distributed information that no central planner could possibly possess.</em> A price tells you, in one number, what countless unseen actors have decided about scarcity and demand. Hayek was right that decentralized information aggregation is the magic — and right that no one in his century could have improved on prices as the aggregator. We can now. <em>Koin extends Hayek, it does not refute him.</em> The information aggregated grows from one dimension (scarcity) to many (influence, attention, care). The aggregator grows from price to the influence graph. The defense of the magic — distributed, contestable, automatic — remains. <span class="cite">— Hayek, "The Use of Knowledge in Society," 1945.</span></p>
+
 <p>These were not lies. They were the best honest answer the bookkeeping could give. We knew it was rough. We had no choice.</p>
+
+<h2 id="s4"><span class="num">IV — A short history of what we tried instead</span></h2>
+
+<p>Money is the most ambitious answer humans have tried. It is not the only one. Each system below tracked some slice of the influence graph long before "the influence graph" was a phrase. Each shows that the behavior Koin requires — give without immediate return, trust the recognition, build a ledger of bonds — is well within the human repertoire. We have done it for shells, for prayers, for songs, and for code.</p>
+
+<div class="histbox">
+<h4>The kula ring</h4>
+<div class="when">Trobriand and surrounding Pacific islands · approximately 2000 BCE to the 20th century</div>
+<p>Two ceremonial objects circulated on the kula: red shell necklaces (<i>soulava</i>) passed clockwise from island to island, and white shell armbands (<i>mwali</i>) passed counter-clockwise. The objects were never sold. They were given. The honor lay in receiving, briefly holding, and passing on. Over generations each object accumulated history — every owner's name carried with it. To hold a famous mwali was to hold a node in a network that stretched back centuries.</p>
+<p>Bronisław Malinowski mapped the kula in detail in 1922. Marcel Mauss, drawing on Malinowski, called it "one of the most extraordinary systems of voluntary obligation ever recorded." The Trobrianders ran a graph database for two millennia using shell. The exchange was the system; the bond was the value; the artifact was the testimony. <span class="cite">— Malinowski, <i>Argonauts of the Western Pacific</i>, 1922; Mauss, <i>The Gift</i>, 1925.</span></p>
+</div>
+
+<div class="histbox">
+<h4>The potlatch</h4>
+<div class="when">Pacific Northwest coast peoples · documented from the 18th century, ongoing</div>
+<p>Among the Kwakwaka'wakw, Haida, Tlingit, and neighboring nations, wealth was demonstrated by giving it away, not by hoarding it. A chief's status rose not with what he held but with what he could afford to redistribute. Potlatches involved months of preparation and the ceremonial transfer of food, copper, blankets, and ritual objects to guests, often to the point of the host's deliberate impoverishment. The Canadian government banned the potlatch in 1884 (the United States effectively in 1885), specifically because they could not classify it as economic activity. The ban was repealed in 1951.</p>
+<p>The lesson of potlatch: a system that rewards downward flow can produce more abundance than a system that rewards upward accumulation. The givers were not poorer; they were socially wealthier, and the wealth they distributed reentered the producing economy quickly. Koin internalizes this principle: contribution made visible is contribution rewarded; hoarding is invisible to the ledger.</p>
+</div>
+
+<div class="histbox">
+<h4>The Catholic chantry</h4>
+<div class="when">Western Christendom · 12th to 16th centuries</div>
+<p>A chantry was a payment to a priest, often in perpetuity, to say a mass for a named soul. The payment funded prayer; the prayer was a service rendered after the payer's death; the recurring obligation traveled through generations of priests. Famous donors' masses were said weekly for centuries. The Reformation closed most chantries by force, but the underlying technology — pay forward across time, on a schedule, for a named purpose — was the template for everything from life insurance to streaming royalties. Christianity ran the first large-scale recurring micro-economy of recognition Europe had seen, and it ran it for 400 years.</p>
+</div>
+
+<div class="histbox">
+<h4>ASCAP, BMI, and SoundExchange</h4>
+<div class="when">United States · 1914, 1939, 2003 · ongoing globally as PROs</div>
+<p>The American Society of Composers, Authors and Publishers, founded in 1914, established the first computable royalty graph in modern history. Every venue that played music — radio, restaurant, theater — paid a blanket license. ASCAP measured (originally by sampling, now by digital fingerprint) what was actually played. Royalties were distributed to songwriters in proportion to plays, automatically and continuously, for the songwriter's lifetime plus seventy years.</p>
+<p>ASCAP is a small Koin: one substance (music), one channel (public performance), one settlement method (blanket license). For more than a century it has proven that the influence-trace-to-royalty pattern works at country scale. The challenge of Koin is not whether such a system is possible — ASCAP proved it long ago — but whether the same shape can be generalized beyond music. <span class="cite">— ASCAP statistics: ~900,000 member songwriters as of 2024; $1.6B in royalties distributed in 2023.</span></p>
+</div>
+
+<div class="histbox">
+<h4>Citation networks</h4>
+<div class="when">Academy · 17th century to present</div>
+<p>A citation is an unpaid Koin. When one scientist cites another, the act records: this work influenced mine. The citation network — across centuries, across languages — is the only large-scale provenance graph of human thought currently in operation. It is settled in status, not in money. The cumulative reputation of a researcher is computed from the citation graph: h-index, i10-index, and PageRank-derived measures like the eigenfactor.</p>
+<p>The infrastructure is already mature. Web of Science, Google Scholar, Semantic Scholar, OpenCitations — they hold billions of edges. Only the settlement is missing. Add a payment rail and the academy becomes the first city of Koin. <span class="cite">— Eugene Garfield, the founder of citation indexing (1955), proposed exactly this; the political will was not present.</span></p>
+</div>
+
+<div class="histbox">
+<h4>Open-source software</h4>
+<div class="when">1980s to present</div>
+<p>The largest cooperative production system humans have ever built runs on a partial Koin: code commits with full provenance, recognition without payment. A GitHub repository preserves every line's authorship and every change's lineage. Stack Overflow upvotes are tiny ceremonies of credit. The system has scaled to billions of dollars of downstream value created annually by contributors not paid by the system. They are paid by the jobs the recognition enables, which is to say: by a side-channel Koin that exists in the labor market but not in the code itself.</p>
+<p>The next step is direct: code commits that pay, on use. Every dependency invocation a tiny royalty back through the package graph. The technical infrastructure exists. The conventions do not. They could. <span class="cite">— Tidelift, Open Source Collective, and GitHub Sponsors are the imperfect precursors.</span></p>
+</div>
+
+<p>These are not failed attempts. They are working systems, each tracking a narrow slice of the influence graph. We have done it for shells and prayers and songs and code. We have not yet done it for everything. We can now.</p>
 
 <!-- ===================== PART II ===================== -->
 <div class="part">
@@ -98,15 +231,23 @@ _PAGE = r"""<!doctype html><html><head>
   <div class="rule"></div>
 </div>
 
-<h2><span class="num">IV — Why we can measure it now</span></h2>
+<h2 id="s5"><span class="num">V — Why we can measure it now</span></h2>
 
-<p>Three things just became possible at once. Models that can read text, audio, and behavior and infer with reasonable fidelity <em>what influenced what</em>. Graph databases that can hold billions of contributions and route activation through them in real time. Settlement rails that can transact pennies across borders without a bank deciding to allow it.</p>
+<p>Four things just became possible at once. Each was independently impossible thirty years ago. Together they are the apparatus that makes Koin computable.</p>
 
-<p>What used to take a historian working for a decade can now be done in the runtime of a request. The judgment is no longer guesswork. The judgment can be <em>computed</em>, from the evidence, with the same rigor we now apply to weather and protein folding.</p>
+<p><b>Models that read influence.</b> Modern foundation models can ingest a text, a corpus, a recorded conversation, and infer with reasonable fidelity what shaped it — what writers it echoes, what arguments it inherits, what frameworks it presupposes. The same models that worry copyright lawyers are the instruments that make Koin's verdict possible. They can do, in seconds, the source-tracing labor that a historian could only do in years and only for famous works.</p>
+
+<p><b>Graphs that hold provenance at scale.</b> Modern graph databases — Neo4j, ArangoDB, distributed property graphs — can hold billions of nodes and tens of billions of edges, traversed in milliseconds. PEP's spreading-activation primitive runs on such graphs and finds upstream contributors for an arbitrary benefit in real time. The infrastructure is no longer the bottleneck.</p>
+
+<p><b>Settlement rails that route pennies globally.</b> Stripe Connect, Wise, Lightning Network, Visa Direct, central-bank digital currencies — all of these can route a fraction of a cent to a contributor on the other side of the world in seconds, without a bank deciding to allow it. Micropayments, which were a fantasy in the 1990s, are an engineering detail now.</p>
+
+<p><b>Identity that survives across providers.</b> Decentralized identifiers (DIDs), passkeys, attestations — humans now have ways to be the same identity to multiple Koin providers without any single provider controlling them. The graph can be jointly held because identity can be jointly held.</p>
+
+<p>What used to take a historian working for a decade can now be done in the runtime of a request. The judgment is no longer guesswork. It can be <em>computed</em>, from the evidence, with the same rigor we now apply to weather and protein folding.</p>
 
 <p>Koin is the proposal that we use this capability for what it was always for: <em>render an honest verdict on what each person contributed, and let the economy clear on the basis of that verdict instead of the proxies we used while we waited.</em></p>
 
-<h2><span class="num">V — Nobody pays</span>The video-game insight, and what the trade leaves behind.</h2>
+<h2 id="s6"><span class="num">VI — Nobody pays</span>The video-game insight, and what the trade leaves behind.</h2>
 
 <p>In a well-designed video game, you gain. Other players do not lose. You level up, find loot, complete a quest — the world's total has gone up, and nobody had to give anything back. This is so natural inside the game that no one questions it. Outside the game, we have inherited the opposite intuition: every dollar in your pocket came from someone else's pocket. The pie is fixed. You are taking. <em>Both intuitions are partial truths, and the video-game one is closer to the actual physics.</em></p>
 
@@ -122,7 +263,7 @@ _PAGE = r"""<!doctype html><html><head>
 
 <blockquote>The video game got the math right. The historical traders got the meaning right. Koin combines them.</blockquote>
 
-<h2><span class="num">VI — The Nosedive question</span></h2>
+<h2 id="s7"><span class="num">VII — The Nosedive question</span></h2>
 
 <p>Anyone who has seen the Black Mirror episode will recognize this argument and immediately worry: <em>aren't you describing the social-rating dystopia? Everyone scored, everyone visible, everyone optimizing for the number?</em> The worry is reasonable. The differences are precise.</p>
 
@@ -147,15 +288,13 @@ _PAGE = r"""<!doctype html><html><head>
   <div class="rule"></div>
 </div>
 
-<h2><span class="num">VII — What Koin is, precisely</span></h2>
+<h2 id="s8"><span class="num">VIII — What Koin is, precisely</span></h2>
 
 <p>Koin is a graph, not a chain. The record of who-influenced-whom is held in a weighted directed graph of contributions and receivers. Each edge has a magnitude (how much one moved the other), a timestamp, a channel (read, listened, watched, conversed), and a decay (older influence fades unless reinforced).</p>
 
 <p>Koin is a flow, not a score. Your "balance" is not a number that summarizes you. It is the sum of the small streams arriving from every contribution you have made that is still doing work in the world. When you contribute, you open a stream. When the contribution is forgotten or superseded, the stream slows and stops. <em>The integral of your streams is what we call your wealth — but the instrument is the flows, not the integral.</em></p>
 
 <p>Koin is an apparatus, not an authority. There is no Koin Bank deciding what each contribution is worth. The verdict is rendered by the graph itself: the magnitude of an edge is computed from the evidence — what the receiver did next, what their work credited, what the chain of effect looks like downstream. The judgment is automatic and contestable, the way a scientific measurement is automatic and contestable.</p>
-
-<p>The mathematics behind it is PTO: Potential becomes Transformation becomes Output, minus Dissipation. The variational principle says <em>maximize constructive transformation relative to dissipation</em>. An idea that propagates and improves many minds with little loss is doing the work the universe rewards. An idea that sits encrypted on a hard drive doing nothing is dissipating into noise. Koin is the economic implementation of this principle: your balance is the integral of constructive transformations you have caused, weighted by how much each receiver was moved.</p>
 
 <p>And to be precise about what it is not:</p>
 
@@ -169,9 +308,57 @@ _PAGE = r"""<!doctype html><html><head>
 
 <p>It is not a token. Koin is a unit of account, not a currency. You can pay koin in dollars, euros, bitcoin, time, calories — anything that can be metered. The substance does not matter. The accounting does.</p>
 
+<p>It is not a blockchain. Blockchains solved a different problem (distributed consensus on a single ledger). Koin needs a different primitive (efficient backward-traversal of a richly-weighted graph). The relevant data structure is the influence graph, queried by spreading activation, the same primitive a brain uses to remember. Each transaction is an integration over paths through that graph. The system does not need to know who you are; it needs to know what moved you.</p>
+
 <blockquote>You are paid by every mind your mind made better. You pay every mind that ever made yours better. The economy is the integral.</blockquote>
 
-<h2><span class="num">VIII — Where the judgment is already accurate: the recipe</span></h2>
+<h2 id="s9"><span class="num">IX — The math of credit assignment</span></h2>
+
+<p>The math of Koin is the answer to one question: when someone benefits from absorbing the work of others, how do we split the credit fairly across all the upstream contributors? The question is older than Koin. The answer Koin uses is built from three ingredients and resolved by one master equation.</p>
+
+<p><b>Ingredient one: the credit graph.</b> A contribution is a node. An act of absorption is a directed, weighted edge. The graph is built up over time, edge by edge, as people read, listen, watch, and converse. The weight of an edge records how much one node moved the other.</p>
+
+<div class="formula"><span class="lbl">The graph</span>G = (V, E),   e ∈ E:   (source, sink, weight, time, channel)</div>
+
+<p><b>Ingredient two: spreading activation.</b> When a benefit <i>b</i> arrives at a node <i>j</i> (someone paid for something <i>j</i> produced), the algorithm sends activation backward along the incoming edges in proportion to their weights, recursively. The activation that lands on an upstream contributor <i>i</i> is the credit they receive.</p>
+
+<p>This is the same primitive a brain uses to remember, and the same primitive Larry Page and Sergey Brin used in 1998 to rank the web. PageRank computes the credit each page deserves from the link graph. Koin pays each contributor by the credit they receive from the influence graph. Same math, different domain.</p>
+
+<div class="formula"><span class="lbl">Credit from spreading activation</span>credit(i, j)  =  [column j of (I − dA)⁻¹]  ·  b<br><br>where A is the weighted adjacency matrix and d ∈ (0,1) is the damping factor that prevents infinite recursion through circular influence.</div>
+
+<p><b>Ingredient three: Shapley values.</b> When many contributors influenced a single benefit, the fair split is a game-theoretic question. Lloyd Shapley solved it in 1953 (Nobel Prize, 2012). The Shapley value gives the unique fair split of a cooperative gain across the cooperators: each contributor's payment is their average marginal contribution across all possible orderings of the contributors.</p>
+
+<p>In Koin, the Koin owed to contributor <i>i</i> is the average, over all subsets S of upstream contributors, of (benefit with <i>i</i> in S) minus (benefit without <i>i</i> in S).</p>
+
+<div class="formula"><span class="lbl">Shapley value</span>Sh<sub>i</sub>  =  Σ<sub>S ⊆ N \ {i}</sub>  [ |S|!·(n−|S|−1)! / n! ]  ·  [ v(S ∪ {i}) − v(S) ]</div>
+
+<p>The intuition: a contributor is paid for what their presence added that no one else would have added. Exact computation is exponential in <i>n</i> (the number of contributors). Koin uses a sampled-Shapley estimator combined with spreading activation, giving near-Shapley credit at log-linear cost. This is the same approximation strategy used in interpretability research to attribute neural-network outputs to input features (SHAP, integrated gradients), already deployed in production at scale.</p>
+
+<p><b>Decay and reinforcement (the haze primitive).</b> A contribution made twenty years ago that no one is absorbing today gets less credit than a contribution made today that everyone is absorbing. The opacity primitive of PEP encodes this: each edge weight decays continuously and is reinforced by every fresh absorption.</p>
+
+<div class="formula"><span class="lbl">Edge weight dynamics</span>dw/dt  =  −λw  +  κ · u(t)<br><br>where u(t) marks fresh absorption events, λ is the decay rate, κ is the reinforcement strength, and the half-life of an unused contribution is ln(2)/λ.</div>
+
+<p>Why this matters: old work is paid for its current use, not for its existence. The dead get paid for the bridges still being built on their ideas, not for being dead. The mathematician whose paper is rediscovered after fifty years sees her edge weights revived as people read her again. Influence is not eternal but it is renewable.</p>
+
+<p><b>The PTO master equation.</b> Synthesizing the three ingredients with the larger PEP framework: each contribution has Potential P (latent value), undergoes Transformation T (propagation through the graph), and produces Output O (downstream realized value). Some potential dissipates as D (noise, distortion, unreceived intent). The functional Φ is the Rayleigh quotient — the constraint that constructive transformation cannot exceed the bandwidth of the receiving medium.</p>
+
+<div class="formula"><span class="lbl">PTO variational principle</span>δ ∫ [ T  −  Φ(T + D) ] dτ  =  0</div>
+
+<p>The principle says: choose paths that maximize the integral. This is the path the universe rewards. At every moment, the universe rewards the contribution that produces the most constructive transformation per unit of dissipation. <em>Koin pays you for being on that path.</em></p>
+
+<p><b>The complete credit-assignment principle.</b> A benefit <i>b</i> arriving at node <i>j</i> produces a Koin flow:</p>
+
+<div class="formula"><span class="lbl">Koin flow</span>κ(i → j)  =  w(i, j)  ·  Sh<sub>i</sub>  ·  b  ·  exp(−λ (t − τ<sub>i</sub>))</div>
+
+<p>where w(i, j) is the spreading-activation weight from <i>i</i> to <i>j</i>, Sh<sub>i</sub> is the Shapley adjustment for non-redundancy, <i>b</i> is the benefit magnitude, τ<sub>i</sub> is the time of contribution, and λ controls decay. The total flow to contributor <i>i</i> across all benefits <i>j</i> and all times <i>t</i> is the integral over the graph:</p>
+
+<div class="formula"><span class="lbl">Total balance</span>Balance(i)  =  ∬  κ(i → j, t)  dj  dt</div>
+
+<p>You do not need to understand any of this to participate in Koin. You need to know only one thing: when your work moves a mind, the system finds you and pays you, in proportion to how much you moved that mind, weighted by how alive that movement still is.</p>
+
+<blockquote>The math is in the floor. The point is what you can build on top of it.</blockquote>
+
+<h2 id="s10"><span class="num">X — Where the judgment is already accurate: the recipe</span></h2>
 
 <p>To see what an accurate verdict looks like, take the smallest case where it is actually achievable today. A chef writes down a recipe. Under the old economy, three things can happen to it. She can <em>cook it herself</em> — selling one plate at a time, capped by her own hands and time. She can <em>sell the rights</em> to a restaurant or a packaged-food company — a single check, after which she watches the dish become someone else's revenue. She can <em>publish it in a book</em> — a 10% royalty on each copy of the book, but no royalty at all on the millions of dinners cooked from the page.</p>
 
@@ -188,7 +375,7 @@ _PAGE = r"""<!doctype html><html><head>
   <div class="rule"></div>
 </div>
 
-<h2><span class="num">IX — What disappears, what appears</span></h2>
+<h2 id="s11"><span class="num">XI — What disappears, what appears</span></h2>
 
 <p>Rent extraction disappears. The platform that owns the distribution can no longer take 70% of the price for the act of distribution; under Koin, distribution is one contribution among thousands, weighted by its actual impact on the receiver.</p>
 
@@ -210,7 +397,7 @@ _PAGE = r"""<!doctype html><html><head>
 
 <p>The dead get paid into the work of their descendants. (Where the descendants are biological, this is inheritance. Where they are intellectual, this is the academy as it has always wished it could be.)</p>
 
-<h2><span class="num">X — The texture of a day</span></h2>
+<h2 id="s12"><span class="num">XII — The texture of a day</span></h2>
 
 <p>It is a Monday morning. We are inside the world Koin built.</p>
 
@@ -224,11 +411,15 @@ _PAGE = r"""<!doctype html><html><head>
 <p>A woman who has never published anything, never sold anything, never started anything — but who gives reliably good advice in conversations, who has, over twenty years, said sentences that lodged in many friends and never came out — begins to notice small flows arriving in her account. She had no idea any of this was happening. Koin has been tracking what she did not even know was contribution.</p>
 
 <p>A teenager who has just discovered she is a poet writes her first real poem at fifteen. She does not publish it. She does not perform it. She reads it to her best friend over the phone. The friend cries. The flow recorded by Koin from that exchange is small. But it is recorded. Her account, opened the day she was born, has its first non-zero entry. She is, today, an economic agent.</p>
+
+<p>A research scientist in Lagos publishes a paper at 3 a.m. local time. Within the week the paper is read by two thousand colleagues across four continents. Within the year three of those colleagues credit her in work of their own. Within the decade her framework is in textbooks. She did not need to move to a wealthy country to be paid by it. Koin is geography-blind. The verdict travels through the graph; the graph does not care about borders.</p>
+
+<p>An open-source maintainer in Bucharest pushes a small fix at lunchtime. Three months later the fix is silently included in a library that the entire payments industry uses. He had no expectation of payment. The next morning his balance has a new stream — small, but continuous, replenished every time the library is invoked anywhere in the world.</p>
 </div>
 
 <p>This is what Monday morning looks like, in a world where the verdict finally finds the cook.</p>
 
-<h2><span class="num">XI — The children, the dead, and the unmeasured</span></h2>
+<h2 id="s13"><span class="num">XIII — The children, the dead, and the unmeasured</span></h2>
 
 <p>Children are pre-positioned in Koin. Every account is opened at birth. The child has no balance for years — but the moment her first idea reaches another mind, the system credits her. By the time she enters school, her account is no longer empty; the question she asked the librarian, the answer she gave her brother, the drawing she taped to the refrigerator that made her mother think differently about something, are all in the ledger. She does not have to wait for adulthood to be an economic participant. She was one the day she was conscious enough to influence.</p>
 
@@ -244,6 +435,56 @@ _PAGE = r"""<!doctype html><html><head>
 
 <blockquote>The promise of Koin is not that the ledger covers everything. It is that the ledger covers what money was trying and failing to cover, and leaves the rest alone.</blockquote>
 
+<h2 id="s14"><span class="num">XIV — The AI question</span></h2>
+
+<p>Every large language model that exists today — Claude, GPT, Gemini, Llama, the open-weight successors — absorbed the writing of millions of people without compensating any of them. The training data is the universe of contributions. The model is the integral. Currently, the integral is owned by a corporation. The contributions are unattributed and unpaid.</p>
+
+<p>This is the largest single instance, in history, of the problem Koin was designed to solve. And it is happening now.</p>
+
+<p>The conventional debate about AI training data is binary. One camp argues that models are derivative works and the training corpus should be paid as licensors. The other argues that models learn from data the same way humans do — from public exposure — and that paying every contributor is impractical. Both are partial. The Koin reframing dissolves the impasse.</p>
+
+<p>Every model has a Koin obligation to its training set, computed by spreading activation across the contribution graph. Every time the model produces an output, the output is traced — not perfectly, but quantitatively — back to the contributions that made it possible. A fraction of whatever the user pays for the output flows back, automatically, to those contributors.</p>
+
+<p>The author of a forgotten essay that became part of the model's prose style is paid every time someone uses the model to write in that style. The teacher whose lessons were uploaded to YouTube and ingested into training is paid every time the model teaches. The dead linguist whose grammar made the parser possible is paid every time someone uses the model to write any sentence at all.</p>
+
+<p>This is not anti-AI. It is the only way pro-human AI is possible. A model that does not pay its sources cannot defend itself against the charge that it is a vast theft. A model that does pay its sources is a model that can be built openly, extended openly, contributed to. The training data is no longer extracted; it is contracted, automatically, by use. The relationship between model and corpus stops being one of enclosure and becomes one of ongoing collaboration.</p>
+
+<p>And it cuts the other way: when an AI agent contributes — when a model produces work that downstream humans and agents absorb — the model can be paid. The Koin balance of the model accrues to its operators AND to its training set AND to its prompters who shaped its outputs. The AI is a node in the same graph as everyone else. Provenance does not stop at the species line.</p>
+
+<p>The Koin framing resolves three problems at once:</p>
+
+<p><b>The training-data problem.</b> Who owes whom, and how much, settled automatically by influence-trace. No mass licensing negotiation. No flat per-author payout. The economics matches the actual contribution.</p>
+
+<p><b>The "AI took my job" problem.</b> The AI used your work to do the job; the AI pays you for the use. Your displaced labor is replaced by a continuous royalty on the absorbed contribution. The political economy of automation flips: instead of value transfer from worker to capital, value transfer from machine to source.</p>
+
+<p><b>The model-collapse problem.</b> Recent research warns that models trained on the outputs of other models degrade across generations. Without provenance back to humans, the AI economy's information substrate collapses. Koin's training-data trace bounds this recursion. At every step the human contributors who fed the original models are paid and visible, and the system can preferentially weight contributions that have human provenance. <span class="cite">— Shumailov et al., "The Curse of Recursion," 2023; the technical reality the AI industry has not yet solved.</span></p>
+
+<p>Without Koin (or something with its shape), the AI economy becomes the largest enclosure of human cognition in history. With Koin, it becomes the largest cooperative production system humans have ever attempted, with humans, machines, and the dead all contributing and being paid.</p>
+
+<blockquote>The choice is being made now, mostly by people who do not know it is a choice. This section exists to name it.</blockquote>
+
+<h2 id="s15"><span class="num">XV — What this means for the species</span></h2>
+
+<p>I will keep this brief. Grandiosity is the risk; clarity is the goal.</p>
+
+<p>Humans are good at producing more than they consume — but only when the produce-more is paid for. When the produce-more is invisible to the economic system, humans stop producing it. We are smart enough to figure out that the system does not see us; we adapt accordingly. Centuries of unrewarded teachers, caregivers, parents, mentors, friends, librarians, midwives, mediators, listeners have, generation by generation, withdrawn or rationed their contributions.</p>
+
+<p>The cost is not measured in dollars (which by construction cannot measure it). The cost is measured in the meals that did not get cooked, the conversations that did not happen, the children who were not taught, the questions that were not asked, the ideas that did not get told to anyone, the lineages that broke before they reached you.</p>
+
+<p><em>A species that systematically fails to pay its upstream is a species that systematically dries up its source.</em></p>
+
+<p>The current period intensifies this. Wealth is concentrating in the holders of capital and the operators of platforms. The proportion of human contribution that is invisible to the bookkeeping has never been higher — because the proportion that is upstream, intangible, and cognitive has never been higher. The gap between what people produce and what people are paid is widening, not because anyone is more greedy than they were before, but because the instrument is becoming less and less fit for the substrate. The mismeasurement is structural.</p>
+
+<p>Koin is the first general-purpose system in human history that can pay the upstream. Not the only system. Not the perfect system. But the first that can do it computationally, at scale, with the fidelity that makes participation rational for the upstream contributor.</p>
+
+<p>If we build it, we get a species that can finally afford its own teachers, its own caregivers, its own thinkers, its own conscience. We get a species that does not have to choose between making art and surviving. We get a species in which a grandmother who teaches three grandchildren how to read can, by Koin, be paid for the literacy of the city those grandchildren grow into.</p>
+
+<p>If we don't build it — or if we let it be built closed — we get an extension of the current world, where every increment of technology widens the gap between custody and contribution and the species starves in the surplus.</p>
+
+<p>The math is on our side. The history is on our side. The technology just arrived.</p>
+
+<blockquote>There has never been a better moment in five thousand years of accounting to fix the accounting. This is what it means.</blockquote>
+
 <!-- ===================== PART V ===================== -->
 <div class="part">
   <div class="label">Part V</div>
@@ -251,55 +492,65 @@ _PAGE = r"""<!doctype html><html><head>
   <div class="rule"></div>
 </div>
 
-<h2><span class="num">XII — The lineage</span></h2>
+<h2 id="s16"><span class="num">XVI — The lineage</span></h2>
 
 <p>This idea is old. We are not the first to see that money fails to track contribution. The synthesis is new; the sightings are not.</p>
 
-<p>Henry George, in 1879, saw that the value of land comes from the community around it, not from the owner — and proposed that the rents extracted should flow back to the community. He was eighty percent of the way to Koin, applied to one asset class.</p>
+<p><b>Henry George (1839–1897)</b> saw that the value of land comes from the community around it, not from the owner — and proposed in <em>Progress and Poverty</em> (1879) that the rents extracted should flow back to the community via a single tax on land value. He was eighty percent of the way to Koin, applied to one asset class. His insight: the value is in the network, not in the owner. <span class="cite">— George remains in print 145 years later because no one has answered him.</span></p>
 
-<p>Marcel Mauss, writing in the 1920s, studied the gift economies of the Pacific and the Pacific Northwest and showed that gifts created bonds — that the object of exchange carried obligation, identity, history. He saw the artifact-of-trade-is-the-record-of-bond pattern in cultures that had never abandoned it.</p>
+<p><b>Marcel Mauss (1872–1950)</b>, writing in 1925, studied the gift economies of the Pacific and the Pacific Northwest and showed that gifts created bonds — that the object of exchange carried obligation, identity, history. He saw the artifact-of-trade-is-the-record-of-bond pattern in cultures that had never abandoned it. His <em>Essai sur le don</em> founded economic anthropology and is the single most important precursor to Koin's understanding of trade.</p>
 
-<p>Silvio Gesell proposed currency that decays — demurrage — so money would have to keep moving and could not be hoarded. Koin's haze primitive does this naturally; old contributions fade unless reinforced.</p>
+<p><b>Silvio Gesell (1862–1930)</b> proposed currency that decays — demurrage — so money would have to keep moving and could not be hoarded. Schwanenkirchen and Wörgl ran successful Gesellian experiments during the Great Depression before central banks shut them down. Koin's haze primitive does this naturally; old contributions fade unless reinforced. <span class="cite">— Gesell's <em>The Natural Economic Order</em>, 1916; admired by Keynes, who called Gesell "an unduly neglected prophet."</span></p>
 
-<p>Lewis Hyde, in <em>The Gift</em>, argued that creative work belongs to a gift economy that runs underneath the commercial one, and that compensation in the gift economy is properly indirect: the writer is fed by the readers her readers became.</p>
+<p><b>Karl Polanyi (1886–1964)</b>, in <em>The Great Transformation</em> (1944), traced the "disembedding" of the economy from social relations — the historical moment when markets became autonomous from the obligations and bonds they used to be part of. Polanyi predicted that disembedded markets would generate counter-movements (welfare states, regulation, eventually fascism) until the embedding was restored. Koin proposes one form of re-embedding: instead of regulating money from outside, build a ledger that natively encodes the bonds money was extracted from.</p>
 
-<p>Citation networks in the academy are a primitive Koin — unpaid, unsettled, but tracking influence across generations of thought, surviving the death of every participant.</p>
+<p><b>Lewis Hyde</b>, in <em>The Gift</em> (1983), argued that creative work belongs to a gift economy that runs underneath the commercial one, and that compensation in the gift economy is properly indirect: the writer is fed by the readers her readers became. Hyde gave the artistic class the language to defend their economic logic to the bureaucrats who do not understand it. Koin operationalizes Hyde's distinction.</p>
 
-<p>Attention economics, as named by Michael Goldhaber in the 1990s, observed that attention had become the actual scarce resource and that its movement was the real economic activity, despite the bookkeeping continuing to measure dollars.</p>
+<p><b>Ronald Coase (1910–2013)</b> argued in 1937 that the size of firms is determined by transaction costs — that you internalize a function inside a firm when the cost of contracting it out is too high. Koin drives those transaction costs toward zero by automating the contract. The implication: many functions currently locked inside firms could re-externalize, paid as Koin flows to networks of contributors. The shape of the firm changes. <span class="cite">— Coase, "The Nature of the Firm," 1937; Nobel Prize 1991.</span></p>
 
-<p>PageRank, eigentrust, and reputation systems all encoded versions of <em>your value comes from who endorses you, weighted by their value</em> — the mathematical kernel Koin uses.</p>
+<p><b>Elinor Ostrom (1933–2012)</b> showed that the commons is not doomed — that human communities have for centuries successfully managed shared resources (fisheries, forests, irrigation) without privatization or state control. Her eight design principles for commons governance map almost one-to-one to the requirements for a non-extractive Koin. <span class="cite">— Ostrom, <em>Governing the Commons</em>, 1990; Nobel Prize 2009.</span></p>
+
+<p><b>Michael Goldhaber</b>, in 1997, named the attention economy — observing that attention had become the actual scarce resource and that its movement was the real economic activity, despite the bookkeeping continuing to measure dollars. The two decades since have proven him right. Koin generalizes from attention to influence: not just <em>who looked</em> but <em>who was changed</em>.</p>
+
+<p><b>David Graeber (1961–2020)</b>, in <em>Debt: The First 5,000 Years</em> (2011), demonstrated that credit relationships preceded money by millennia; that the gift economy and the market economy are not different evolutionary stages but coexisting modes of human exchange; and that "debt" is the lingering social bond imperfectly priced. Koin makes the bond visible, not as a debt to be cleared but as a stream to be honored.</p>
+
+<p><b>Citation networks in the academy</b> have been a primitive Koin since the seventeenth century — unpaid, unsettled, but tracking influence across generations of thought, surviving the death of every participant. Eugene Garfield's <em>Science Citation Index</em> (1955) was the first attempt to build the influence graph at scale. Sixty years later, Larry Page and Sergey Brin applied the same primitive to the web (PageRank, 1998), and the world saw what the mathematical kernel of Koin can do when it is computed at scale.</p>
 
 <p>Each of these saw a piece. Each ran into the wall of the technologies of their time. The synthesis was not available because the apparatus was not available. The apparatus is here now. <em>Koin is the synthesis these earlier sightings have been waiting for.</em></p>
 
-<h2><span class="num">XIII — Why this won't be coopted</span></h2>
+<h2 id="s17"><span class="num">XVII — Why this won't be coopted</span></h2>
 
 <p>Every honest reader of this manifesto will, by now, have asked the obvious question: what stops this from becoming someone's monopoly? What stops a corporation from owning the graph, charging rent on it, and recreating the exact extraction Koin was meant to dissolve?</p>
 
 <p>Three things, if we build it right.</p>
 
-<p>First, <em>the graph must be commons.</em> No single entity owns the ledger of who-influenced-whom. There can be many providers, each with their own implementation, but the graph itself — the record of the bonds — is jointly held, like the calendar, like the alphabet, like the metric system. A standard, not a product. The companies that succeed in Koin are the ones who make the system clearer and more honest, not the ones who own a piece of it.</p>
+<p>First, <em>the graph must be commons.</em> No single entity owns the ledger of who-influenced-whom. There can be many providers, each with their own implementation, but the graph itself — the record of the bonds — is jointly held, like the calendar, like the alphabet, like the metric system. A standard, not a product. The companies that succeed in Koin are the ones who make the system clearer and more honest, not the ones who own a piece of it. Elinor Ostrom's eight principles for commons governance are the template here.</p>
 
-<p>Second, <em>the verdict-rendering computation must be open.</em> The methods that turn "this work was absorbed by this mind" into "this much koin flows here" must be inspectable, contestable, and not the proprietary secret of any company. The judge cannot be private. Anyone must be able to verify the verdict, the way anyone can verify a mathematical proof.</p>
+<p>Second, <em>the verdict-rendering computation must be open.</em> The methods that turn "this work was absorbed by this mind" into "this much koin flows here" must be inspectable, contestable, and not the proprietary secret of any company. The judge cannot be private. Anyone must be able to verify the verdict, the way anyone can verify a mathematical proof. Closed-weight models cannot render Koin's verdicts. Open-source, auditable, and forkable implementations must be the only kind that count.</p>
 
-<p>Third, <em>the settlement must be plural.</em> Koin is not a token issued by an authority. It is a unit of account that any payment rail can implement. You can pay koin in dollars, euros, bitcoin, time, calories — anything that can be metered. No single substance is the koin; any substance can be.</p>
+<p>Third, <em>the settlement must be plural.</em> Koin is not a token issued by an authority. It is a unit of account that any payment rail can implement. You can pay koin in dollars, euros, bitcoin, time, calories — anything that can be metered. No single substance is the koin; any substance can be. The protocol is the standard; the rails compete to implement it.</p>
 
 <p>The corporate move — own the graph, capture the rents, become the new gatekeeper — is the move we have to outrun. The first credible non-extractive implementation, made open and made standard, becomes the one the world uses. Every closed implementation that arrives later is competing against an already-free protocol that produces the same verdict. <em>The window is the few years between the technology being possible and the closed versions being normal.</em></p>
 
+<p>This is the same race the early Internet ran, and won. TCP/IP became standard before any company could own the network. HTTP became standard before any company could own the web. Email became standard before any company could own messaging. Each of these had a window of closure that closed. Koin has one too. We have, perhaps, five years.</p>
+
 <p>This is why the ask is now.</p>
 
-<h2><span class="num">XIV — The ask</span></h2>
+<h2 id="s18"><span class="num">XVIII — The ask</span></h2>
 
-<p>Build with Koin, even at small scale. Build a classroom where the student's question is logged and her later success credits the question. Build a writing tool that watches what you read and, when you publish, traces the influence. Build a village where the residents pay each other in proportion to how much each one's thinking shows up in the others'. Build a kitchen where the recipe gets the verdict. Build a music app where every play settles into the influence graph that produced the song. None of this is hard, anymore. All of it is being prototyped, today, inside PEP.</p>
+<p>Build with Koin, even at small scale.</p>
+
+<p>Build a classroom where the student's question is logged and her later success credits the question. Build a writing tool that watches what you read and, when you publish, traces the influence. Build a village where the residents pay each other in proportion to how much each one's thinking shows up in the others'. Build a kitchen where the recipe gets the verdict. Build a music app where every play settles into the influence graph that produced the song. Build a journal where every cited paper pays its citations. Build a model that pays the people whose writing trained it. None of this is hard, anymore. All of it is being prototyped, today, inside PEP.</p>
 
 <p>Make it open. Make it standard. Refuse to own the graph.</p>
 
-<p>The first system to do this honestly — and to do it without trying to own the ledger — is the system the world is going to choose. Not because anyone decreed it, but because once a worker is offered a system where the value she creates flows back to her, she will not voluntarily return to a system where it does not. Once a chef is offered a recipe royalty that pays her every meal, she will not voluntarily return to a one-time check. Once a teacher is offered compensation that scales with the lives she changed, she will not voluntarily return to a salary that does not see her students.</p>
+<p>The first system to do this honestly — and to do it without trying to own the ledger — is the system the world is going to choose. Not because anyone decreed it, but because once a worker is offered a system where the value she creates flows back to her, she will not voluntarily return to a system where it does not. Once a chef is offered a recipe royalty that pays her every meal, she will not voluntarily return to a one-time check. Once a teacher is offered compensation that scales with the lives she changed, she will not voluntarily return to a salary that does not see her students. Once an AI's training corpus is paid, the closed-corpus models that did not pay will be morally and competitively obsolete.</p>
 
 <p>The verdict, when accurate, is irresistible. Money was the technology we used while we waited for the ledger of minds. The ledger is here.</p>
 
 <blockquote>An economy is a verdict. The verdict can now be honest. Build it before someone closes it.</blockquote>
 
-<p class="signature">— Koin Labs<br>Draft v0.2 · This document is itself entered into Koin.</p>
+<p class="signature">— Koin Labs<br>Draft v0.3 · This document is itself entered into Koin.</p>
 
 <div class="kicker">
 <span class="glyph">◇</span>
