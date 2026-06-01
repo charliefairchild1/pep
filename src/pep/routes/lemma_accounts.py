@@ -265,9 +265,13 @@ async def account_me(req: Request) -> JSONResponse:
     me = get_current_teacher(req)
     if not me:
         return JSONResponse({"authenticated": False})
+    # If no SMTP is configured, email verification is meaningless — treat
+    # everyone as verified so the dashboard nag doesn't appear. The verify
+    # endpoints still work when SMTP gets wired up later.
+    email_configured = bool(os.environ.get("LEMMA_SMTP_HOST", "").strip())
     with _conn() as c:
         verified_row = c.execute("SELECT email_verified FROM teachers WHERE id = ?", (me["id"],)).fetchone()
-        me["email_verified"] = bool(verified_row and verified_row["email_verified"])
+        me["email_verified"] = True if not email_configured else bool(verified_row and verified_row["email_verified"])
         classes = c.execute(
             """SELECT code, class_name, course_id, created_at,
                       (SELECT COUNT(*) FROM students WHERE class_code = classes.code) AS roster,
