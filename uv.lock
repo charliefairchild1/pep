@@ -1449,6 +1449,7 @@ dependencies = [
     { name = "httpx" },
     { name = "pydantic" },
     { name = "streamlit" },
+    { name = "stripe" },
     { name = "uvicorn", extra = ["standard"] },
     { name = "voyageai" },
 ]
@@ -1474,6 +1475,7 @@ requires-dist = [
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.0" },
     { name = "pytest-asyncio", marker = "extra == 'dev'", specifier = ">=0.24" },
     { name = "streamlit", specifier = ">=1.56.0" },
+    { name = "stripe", specifier = ">=10" },
     { name = "uvicorn", extras = ["standard"], specifier = ">=0.32" },
     { name = "voyageai", specifier = ">=0.3" },
 ]
@@ -2234,6 +2236,19 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/03/85/7c669b3a1336d34ef39fa9760fbd343185f3b15db2ad0838fd78423d1c7f/streamlit-1.56.0.tar.gz", hash = "sha256:1176acfa89ae1318b79078e8efe689a9d02e8d58e325c00fc0e55fa2f3fe8d6a", size = 8559239, upload-time = "2026-03-31T22:29:38.59Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/e4/91/cb6f13a89e376ef179309d74f37a70ea0041d5e4b5ba5c4836dbf6e020ad/streamlit-1.56.0-py3-none-any.whl", hash = "sha256:8677a335734a30a51bc57ad0ec910e365d95f7c456fc02c60032927cd0729dc5", size = 9052089, upload-time = "2026-03-31T22:29:36.342Z" },
+]
+
+[[package]]
+name = "stripe"
+version = "15.2.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "requests" },
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/d0/28/c3550f39d9e258c21bcba81a89ef3ca7af352ad2cb14fe16b80248841644/stripe-15.2.0.tar.gz", hash = "sha256:f795d8a8ff27433e9ab03099afc0f5c4e992a8a6f92b9f839dc0048bb12f76f6", size = 1520207, upload-time = "2026-05-27T20:34:44.256Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/d8/2b/697003ba6349058b65a5cb6b0bd8a8b0e909ed35911f7beebfc24b0563ee/stripe-15.2.0-py3-none-any.whl", hash = "sha256:e74d45bb07bb912fdc4ce81ffbdf184bcb92ce6e210cb7939966e537021c1842", size = 2168459, upload-time = "2026-05-27T20:34:42.312Z" },
 ]
 
 [[package]]

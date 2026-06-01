@@ -131,6 +131,18 @@ async def create_class(req: Request) -> JSONResponse:
             teacher_id = me["id"]
             if not teacher_name:
                 teacher_name = me["display_name"]
+            # tier-limit check: free is 1 class, etc.
+            try:
+                from pep.routes.lemma_billing import can_create_class
+                ok, reason = can_create_class(teacher_id)
+                if not ok:
+                    raise HTTPException(402, reason or "Upgrade required to create another class.")
+            except HTTPException:
+                raise
+            except Exception:  # noqa: BLE001
+                pass
+    except HTTPException:
+        raise
     except Exception:  # noqa: BLE001
         pass
     if not teacher_name or not class_name or not course_id:

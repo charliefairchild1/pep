@@ -800,6 +800,7 @@ def _navbar(authenticated: bool, display_name: str | None) -> str:
                 <a href="/lemma/start">+ New class</a>
                 <a href="/lemma/canvas/setup">Canvas</a>
                 <a href="/lemma/team">Invite</a>
+                <a href="/lemma/pricing">Pricing</a>
                 <a href="/lemma/account">Account</a>
                 <span class="muted">·</span>
                 <span class="muted">{display_name}</span>
@@ -810,6 +811,7 @@ def _navbar(authenticated: bool, display_name: str | None) -> str:
         <div class="brand"><a href="/lemma/teachers">📓 Lemma</a></div>
         <div class="links">
             <a href="/lemma/teachers">For teachers</a>
+            <a href="/lemma/pricing">Pricing</a>
             <a href="/lemma/login">Log in</a>
             <a class="cta" href="/lemma/signup">Sign up</a>
         </div>
@@ -918,9 +920,9 @@ async def lemma_teachers_landing(req: Request) -> HTMLResponse:
   <p class="lead">Lemma is a free classroom app for math teachers. Students do paper warmups; the AI grades the photos at the end of period; your dashboard tells you who is struggling and what topic to reteach. Connects to <strong>Canvas LMS</strong> — grades push back automatically.</p>
   <div class="ctas">
     <a class="btn" href="/lemma/signup" aria-label="Sign up free for Lemma">Sign up free →</a>
-    <a class="btn ghost" href="/lemma/login" aria-label="Log in to Lemma">Log in</a>
+    <a class="btn ghost" href="/lemma/pricing" aria-label="See Lemma pricing">See pricing</a>
   </div>
-  <p class="muted" style="margin-top:14px">No credit card. No setup. ~30 seconds to your first class.</p>
+  <p class="muted" style="margin-top:14px">Free to start · Pro from $15/mo for AI grading · No credit card to sign up</p>
 </header>
 
 <main>
@@ -1494,6 +1496,17 @@ async def lemma_my_classes(req: Request) -> HTMLResponse:
   <a href="#" onclick="resendVerification(); return false;" style="color:#92400e;font-weight:600;margin-left:6px">resend</a>
 </div>
 
+<div id="planCard" class="card" style="display:none;border-left:3px solid #0ea5e9">
+  <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+    <div style="flex:1">
+      <h2 style="margin-bottom:6px"><span id="planName">—</span> <span class="muted" id="planPrice" style="font-size:13.5px;font-weight:400"></span></h2>
+      <p class="muted" style="font-size:13.5px;margin-bottom:8px" id="planUsageText">—</p>
+      <div id="planExtra" style="font-size:12.5px;color:#94a3b8"></div>
+    </div>
+    <div id="planActions" style="display:flex;gap:8px;flex-wrap:wrap"></div>
+  </div>
+</div>
+
 <div class="card">
   <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:12px">
     <h2 style="margin-bottom:0">Your classes</h2>
@@ -1527,7 +1540,41 @@ async function resendVerification(){{
   const r = await fetch('/lemma/api/account/resend-verification', {{method:'POST'}});
   if(r.ok) alert('verification email re-sent (check console / inbox)');
 }}
+async function loadPlan(){{
+  try {{
+    const r = await fetch('/lemma/api/billing/me');
+    if(!r.ok) return;
+    const d = await r.json();
+    document.getElementById('planCard').style.display = '';
+    document.getElementById('planName').textContent = d.plan_name;
+    if(d.plan === 'free') document.getElementById('planPrice').textContent = '· free';
+    else document.getElementById('planPrice').textContent = '· $' + d.tier.price_monthly_usd + '/mo';
+    const u = d.usage, l = d.limits;
+    document.getElementById('planUsageText').innerHTML =
+      'Using <b>' + u.classes + '/' + l.max_classes + '</b> classes and <b>' + u.students + '/' + l.max_students + '</b> students.' +
+      (d.tier.ai_grading ? '' : ' AI grading not included.');
+    const actions = document.getElementById('planActions');
+    let h = '';
+    if(d.plan === 'free') {{
+      h = '<a class="btn" href="/lemma/pricing">Upgrade →</a>';
+    }} else {{
+      if(d.stripe_configured) h += '<button class="btn ghost" onclick="openPortal()">Manage billing</button>';
+      h += '<a class="btn ghost" href="/lemma/pricing">Change plan</a>';
+    }}
+    actions.innerHTML = h;
+    if(d.cancel_at_period_end && d.current_period_end) {{
+      const ts = parseInt(d.current_period_end, 10);
+      if(ts) document.getElementById('planExtra').innerHTML = '⚠ Cancels on ' + new Date(ts*1000).toLocaleDateString();
+    }}
+  }} catch(e) {{}}
+}}
+async function openPortal(){{
+  const r = await fetch('/lemma/api/billing/portal', {{method:'POST'}});
+  const d = await r.json();
+  if(d.url) location.href = d.url; else alert(d.detail || 'Could not open portal.');
+}}
 async function load(){{
+  loadPlan();
   const r = await fetch('/lemma/api/account/me');
   const d = await r.json();
   if(!d.authenticated){{ location.href = '/lemma/login'; return; }}
