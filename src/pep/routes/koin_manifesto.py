@@ -87,7 +87,23 @@ _PAGE = r"""<!doctype html><html><head>
 
 <p>Koin is the proposal that we use this capability for what it was always for: <em>render an honest verdict on what each person contributed, and let the economy clear on the basis of that verdict instead of the proxies we used while we waited.</em></p>
 
-<h2><span class="num">V — What this is not</span></h2>
+<h2><span class="num">V — The Nosedive question</span></h2>
+
+<p>Anyone who has seen the Black Mirror episode will recognize this argument and immediately worry: <em>aren't you describing the social-rating dystopia? Everyone scored, everyone visible, everyone optimizing for the number?</em> The worry is reasonable. The differences are precise.</p>
+
+<p>Nosedive measures <em>impression</em>: did the encounter please me. Koin measures <em>effect</em>: did the work actually move what came after. The smiling stranger and the abrasive friend who saved your life get the same star rating in Nosedive. In Koin they have different signatures because one of them changed what you did next, and one of them did not.</p>
+
+<p>Nosedive compresses a person into one number. Koin does not compress. There is a Koin flow per contribution, per receiver, decayed by time and channel. No single number is you. The instrument is a graph, not a scoreboard.</p>
+
+<p>Nosedive <em>gates access</em> — a low rating means you cannot rent a car, board a plane, enter a building. Koin only <em>pays</em>. A small Koin flow means your ideas are not reaching people; it does not mean someone is permitted to refuse to serve you. The system distributes value; it never grants or denies permission.</p>
+
+<p>Nosedive is symmetric: anyone can rate anyone. Koin is causal: only people who actually absorbed your work, and whose subsequent work shows the absorption, can pay you. The rude stranger on the bus has no standing to lower your balance, because he did not run on you.</p>
+
+<p>Nosedive is mandatory. Koin must remain refusable. You can decline to participate. You can decline to be measured. You will, in that case, simply not be paid by the system — and the people you influenced will not have to pay you. This is the most important guarantee, and the manifesto names it before anything else: <em>some hours, some relationships, some thoughts are not for the ledger.</em> The friend you sit with in the dark. The line in a journal no one reads. The hour given to a child without account. These do not enter Koin. The system that cannot leave room for them is the system that has become the dystopia.</p>
+
+<blockquote>The point is not to measure everything. It is to stop pretending we are measuring nothing.</blockquote>
+
+<h2><span class="num">VI — What this is not</span></h2>
 
 <p>It is not Patreon. Patreon pays the producer of a stream. Koin pays everyone whose work is now part of the producer's mind.</p>
 
@@ -97,7 +113,7 @@ _PAGE = r"""<!doctype html><html><head>
 
 <p>It is not a tax. A tax is an extraction by the state. Koin is a return of value to the source, transacted directly between minds.</p>
 
-<h2><span class="num">VI — The PTO formalism</span></h2>
+<h2><span class="num">VII — The PTO formalism</span></h2>
 
 <p>The mathematics is already done. Potential becomes Transformation becomes Output, minus Dissipation. The variational principle says: <em>maximize constructive transformation relative to dissipation.</em> An idea that propagates and improves many minds with little loss is doing the work the universe rewards. An idea that sits encrypted on a hard drive doing nothing is dissipating into noise.</p>
 
@@ -105,7 +121,7 @@ _PAGE = r"""<!doctype html><html><head>
 
 <blockquote>You are paid by every mind your mind made better. You pay every mind that ever made yours better. The economy is the integral.</blockquote>
 
-<h2><span class="num">VII — What disappears</span></h2>
+<h2><span class="num">VIII — What disappears</span></h2>
 
 <p>Rent extraction. The platform that owns the distribution can no longer take 70% of the price for the act of distribution; under Koin, distribution is one contribution among thousands, weighted by its actual impact on the receiver.</p>
 
@@ -113,7 +129,7 @@ _PAGE = r"""<!doctype html><html><head>
 
 <p>Pseudonymous parasitism. The aggregator that scrapes a thousand minds and repackages their thinking under its own banner can no longer be compensated as the originator. The compensation flows past it, to the minds whose thinking it aggregated.</p>
 
-<h2><span class="num">VIII — What appears</span></h2>
+<h2><span class="num">IX — What appears</span></h2>
 
 <p>The teacher gets paid for the rest of her life, by the world her students went on to build.</p>
 
@@ -125,7 +141,7 @@ _PAGE = r"""<!doctype html><html><head>
 
 <p>The dead get paid into the work of their descendants. (Where the descendants are biological, this is inheritance. Where they are intellectual, this is the academy as it has always wished it could be.)</p>
 
-<h2><span class="num">IX — Where the judgment is already accurate: the recipe</span></h2>
+<h2><span class="num">X — Where the judgment is already accurate: the recipe</span></h2>
 
 <p>To see what an accurate verdict looks like, take the smallest case where it is actually achievable today. A chef writes down a recipe. Under the old economy, three things can happen to it. She can <em>cook it herself</em> — selling one plate at a time, capped by her own hands and time. She can <em>sell the rights</em> to a restaurant or a packaged-food company — a single check, after which she watches the dish become someone else's revenue. She can <em>publish it in a book</em> — a 10% royalty on each copy of the book, but no royalty at all on the millions of dinners cooked from the page.</p>
 
@@ -135,13 +151,13 @@ _PAGE = r"""<!doctype html><html><head>
 
 <p>This is the entire Koin thesis at small scale. Make the trace visible; the verdict follows. Generalize the pattern: the lesson plan that produced the student's grade. The diagnostic protocol that produced the patient's recovery. The proof technique that produced the engineer's design. The argument that produced the voter's choice. The melody that produced the album that paid for the singer's house — and the unnamed nursery rhyme inside the melody that paid for nothing. <em>Every artifact in the world is a recipe being run. Koin is the apparatus that lets the verdict find the cook.</em></p>
 
-<h2><span class="num">X — The implementation</span></h2>
+<h2><span class="num">XI — The implementation</span></h2>
 
 <p>Koin runs on PEP. PEP gives Koin the substrate: a weighted graph of minds and ideas; spreading activation that finds upstream contributors when a benefit is paid; opacity / haze that lets old contributions decay if the world stops finding them useful; state modulation that lets the same contribution be worth different amounts in different contexts.</p>
 
 <p>The chain of provenance is not a blockchain — it is a graph, queried by activation, the same primitive a brain uses to remember. Each transaction is an integration over paths through that graph. The system does not need to know who you are; it needs to know what moved you.</p>
 
-<h2><span class="num">XI — The world it builds</span></h2>
+<h2><span class="num">XII — The world it builds</span></h2>
 
 <p>Every human becomes an economic agent the moment they have an idea worth absorbing, regardless of whether they sold anything, started anything, owned anything. The barrier between thinking and being-compensated-for-thinking — the barrier that destroys most thinkers — comes down. The economy stops being a downstream pipeline of consumption and becomes a graph of influence, transacted continuously.</p>
 
@@ -151,7 +167,7 @@ _PAGE = r"""<!doctype html><html><head>
 
 <hr>
 
-<h2><span class="num">XII — The ask</span></h2>
+<h2><span class="num">XIII — The ask</span></h2>
 
 <p>Build with Koin, even at small scale. Build a classroom where the student's question is logged and her later success credits the question. Build a writing tool that watches what you read and, when you publish, traces the influence. Build a village where the residents pay each other in proportion to how much each one's thinking shows up in the others'. None of this is hard, anymore. All of it is being prototyped, today, inside PEP.</p>
 
