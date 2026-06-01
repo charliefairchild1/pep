@@ -120,12 +120,9 @@ def _include_chat_and_debug(app: FastAPI) -> None:
         print(f"[main] chat/debug not loaded: {e}")
 
 
-_include_all_routers(app)
-_include_chat_and_debug(app)
-
-
 # ---------------------------------------------------------------------------
-# Root + health
+# Root + health — registered FIRST so they win over any landing route in
+# pep.routes/ that also claims "/"
 # ---------------------------------------------------------------------------
 
 @app.get("/")
@@ -137,3 +134,7 @@ async def root() -> RedirectResponse:
 @app.get("/healthz")
 async def health() -> dict:
     return {"ok": True, "version": __version__, "pep_core": _PEP_CORE_AVAILABLE}
+
+
+_include_all_routers(app)
+_include_chat_and_debug(app)
