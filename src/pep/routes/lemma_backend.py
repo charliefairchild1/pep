@@ -319,11 +319,11 @@ _START_PAGE = r"""<!DOCTYPE html><html lang="en"><head>
 <style>__CSS__</style></head><body>
 
 <nav>
-  <a href="/lemma" style="color:var(--dim)">← Lemma</a>
+  <a href="/lemma/teachers" style="color:var(--dim)">← Lemma</a>
   <span class="brand">/lemma</span>
   <span style="color:var(--accent2);font-weight:600">/start</span>
   <span class="nav-links">
-    <a href="/lemma/sell">For educators</a>
+    <a href="/lemma/teachers">For educators</a>
   </span>
 </nav>
 

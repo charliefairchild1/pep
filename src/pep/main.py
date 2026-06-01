@@ -131,6 +131,11 @@ async def root() -> RedirectResponse:
     return RedirectResponse("/lemma/teachers", status_code=302)
 
 
+@app.get("/lemma")
+async def lemma_root() -> RedirectResponse:
+    return RedirectResponse("/lemma/teachers", status_code=302)
+
+
 @app.get("/healthz")
 async def health() -> dict:
     return {"ok": True, "version": __version__, "pep_core": _PEP_CORE_AVAILABLE}
