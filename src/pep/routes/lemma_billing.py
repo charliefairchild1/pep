@@ -163,17 +163,13 @@ def get_subscription(teacher_id: int) -> dict[str, Any]:
         ).fetchone()
         if row:
             return dict(row)
-        # NEW SIGNUP: give them a Pro Solo trial. They get AI grading for
-        # TRIAL_DAYS, then auto-downgrade to free. No credit card required.
-        trial_end = (datetime.now(timezone.utc) + timedelta(days=TRIAL_DAYS)).isoformat(timespec="seconds")
         c.execute(
-            "INSERT INTO subscriptions (teacher_id, plan, status, current_period_end, updated_at) "
-            "VALUES (?, 'solo', 'trialing', ?, ?)",
-            (teacher_id, trial_end, _now()),
+            "INSERT INTO subscriptions (teacher_id, plan, status, updated_at) VALUES (?, 'free', 'active', ?)",
+            (teacher_id, _now()),
         )
-        return {"teacher_id": teacher_id, "plan": "solo", "status": "trialing",
+        return {"teacher_id": teacher_id, "plan": "free", "status": "active",
                 "stripe_customer_id": None, "stripe_subscription_id": None,
-                "current_period_start": None, "current_period_end": trial_end,
+                "current_period_start": None, "current_period_end": None,
                 "cancel_at_period_end": 0, "updated_at": _now()}
 
 
