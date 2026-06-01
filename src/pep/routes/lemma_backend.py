@@ -795,6 +795,45 @@ async def lemma_teacher_dashboard(code: str) -> HTMLResponse:
     return HTMLResponse(page)
 
 
+@router.get("/lemma/join", response_class=HTMLResponse)
+async def lemma_join_page() -> HTMLResponse:
+    page = """<!doctype html><html><head>
+<meta charset="utf-8"><title>Join your class — Lemma</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>__CSS__
+body{display:flex;align-items:center;justify-content:center;min-height:100vh}
+.join-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:32px 28px;max-width:380px;width:100%;text-align:center}
+.join-card h1{font-size:22px;margin:0 0 8px}
+.join-card p{color:var(--muted);margin:0 0 22px;font-size:14px}
+.join-card input{width:100%;padding:14px 16px;font-size:24px;text-align:center;letter-spacing:6px;text-transform:uppercase;background:var(--surface2);border:2px solid var(--border);border-radius:8px;color:var(--text);font-family:'SF Mono',monospace;font-weight:700;box-sizing:border-box}
+.join-card input:focus{outline:none;border-color:var(--accent2)}
+.join-card button{width:100%;margin-top:14px;padding:13px;background:var(--accent2);color:#0a0d14;border:none;border-radius:8px;font-weight:700;font-size:15px;cursor:pointer}
+.join-card .err{color:#ff7676;font-size:13px;margin-top:10px;min-height:18px}
+.join-card .foot{color:var(--muted);font-size:12px;margin-top:18px}
+.join-card .foot a{color:var(--accent2)}
+</style></head><body>
+<div class="join-card">
+<h1>Join your class</h1>
+<p>Enter the code your teacher gave you.</p>
+<form onsubmit="go(event)">
+<input id="code" maxlength="8" autocomplete="off" autocapitalize="characters" placeholder="ABC123" autofocus>
+<button type="submit">Go →</button>
+<div class="err" id="err"></div>
+</form>
+<div class="foot">Teacher? <a href="/lemma/teachers">Sign in here</a></div>
+</div>
+<script>
+function go(e){
+  e.preventDefault();
+  const code = document.getElementById('code').value.trim().toUpperCase();
+  if(code.length < 4){ document.getElementById('err').textContent = 'Codes are at least 4 characters.'; return; }
+  location.href = '/lemma/c/' + encodeURIComponent(code);
+}
+</script>
+</body></html>"""
+    return HTMLResponse(page.replace("__CSS__", _shared_css()))
+
+
 @router.get("/lemma/c/{code}", response_class=HTMLResponse)
 async def lemma_class_entry(code: str) -> HTMLResponse:
     code = code.upper()

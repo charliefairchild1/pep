@@ -812,6 +812,7 @@ def _navbar(authenticated: bool, display_name: str | None) -> str:
         <div class="brand"><a href="/lemma/teachers">📓 Lemma</a></div>
         <div class="links">
             <a href="/lemma/teachers">For teachers</a>
+            <a href="/lemma/join">Student? Join a class</a>
             <a href="/lemma/pricing">Pricing</a>
             <a href="/lemma/login">Log in</a>
             <a class="cta" href="/lemma/signup">Sign up</a>
