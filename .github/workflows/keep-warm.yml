@@ -1,0 +1,54 @@
+# Keep the Render free instance warm so students don't hit a 30s+ cold start.
+#
+# THE PROBLEM this solves:
+#   Render's free tier spins the service DOWN after ~15 min with no traffic.
+#   The next visitor then waits through a full cold boot — measured at ~32s on
+#   lemma-2b0h.onrender.com. A student staring at Render's loading screen for
+#   30+ seconds assumes the app is broken. (Warm, /healthz answers in 0.14s.)
+#
+# WHAT THIS DOES:
+#   Pings /healthz every 10 minutes. As long as a ping lands inside each 15-min
+#   idle window, the instance never sleeps, so visitors always hit a warm app.
+#
+# IMPORTANT CAVEAT — GitHub Actions cron is best-effort:
+#   Scheduled runs are frequently DELAYED (10-20 min late under load) and can be
+#   skipped entirely. A 10-min schedule usually keeps it warm, but occasional
+#   gaps can still let it sleep. For something teachers depend on during class,
+#   a dedicated uptime pinger (cron-job.org at 1-min, or UptimeRobot at 5-min —
+#   both free) is MORE reliable, and Render's $7/mo Starter plan removes
+#   spin-down entirely. See the notes printed by the job below.
+#
+# CONFIG:
+#   Override the target by setting a repo Variable LEMMA_PUBLIC_URL
+#   (Settings → Secrets and variables → Actions → Variables). Otherwise the
+#   known production URL below is used.
+
+name: Keep warm
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"    # every 5 minutes (UTC; best-effort, GitHub's min interval)
+  workflow_dispatch: {}
+
+# Don't pile up overlapping pings if a run is delayed.
+concurrency:
+  group: keep-warm
+  cancel-in-progress: true
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping /healthz
+        env:
+          URL: ${{ vars.LEMMA_PUBLIC_URL || 'https://lemma-2b0h.onrender.com' }}
+        run: |
+          echo "Pinging $URL/healthz ..."
+          code=$(curl -sS --max-time 90 -o /tmp/body -w "%{http_code}" "$URL/healthz" || echo "000")
+          ttfb=$(curl -sS --max-time 90 -o /dev/null -w "%{time_starttransfer}" "$URL/healthz" || echo "n/a")
+          echo "HTTP $code  (second ping TTFB: ${ttfb}s)"
+          head -c 300 /tmp/body || true
+          echo
+          if [ "$code" != "200" ]; then
+            echo "::warning::Keep-warm ping did not return 200 (got $code). The instance may be down or mid-cold-start."
+          fi

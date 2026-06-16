@@ -61,7 +61,9 @@ def _init_db() -> None:
             teacher_name TEXT NOT NULL,
             class_name   TEXT NOT NULL,
             course_id    TEXT NOT NULL,
-            created_at   TEXT NOT NULL
+            created_at   TEXT NOT NULL,
+            teacher_id   INTEGER,
+            announcement TEXT
         );
         CREATE TABLE IF NOT EXISTS students (
             id           INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -84,6 +86,14 @@ def _init_db() -> None:
         CREATE INDEX IF NOT EXISTS submissions_class_idx ON submissions(class_code);
         CREATE INDEX IF NOT EXISTS submissions_student_idx ON submissions(class_code, student_name);
         """)
+        # Migrations for databases created before a column existed. Each guarded
+        # so re-running is a no-op. (The canonical CREATE above already has them
+        # for fresh DBs; these cover upgrades-in-place.)
+        cols = {r[1] for r in c.execute("PRAGMA table_info(classes)").fetchall()}
+        if "teacher_id" not in cols:
+            c.execute("ALTER TABLE classes ADD COLUMN teacher_id INTEGER")
+        if "announcement" not in cols:
+            c.execute("ALTER TABLE classes ADD COLUMN announcement TEXT")
 
 
 _init_db()
@@ -169,11 +179,29 @@ async def class_info(code: str) -> JSONResponse:
             raise HTTPException(404, "class not found")
         roster_count = c.execute("SELECT COUNT(*) FROM students WHERE class_code = ?", (code,)).fetchone()[0]
         sub_count = c.execute("SELECT COUNT(*) FROM submissions WHERE class_code = ?", (code,)).fetchone()[0]
+    keys = row.keys()
     return JSONResponse({
         "code": row["code"], "teacher_name": row["teacher_name"], "class_name": row["class_name"],
         "course_id": row["course_id"], "created_at": row["created_at"],
         "roster_count": roster_count, "submission_count": sub_count,
+        "announcement": (row["announcement"] if "announcement" in keys else None) or "",
     })
+
+
+@router.post("/lemma/api/class/{code}/announcement")
+async def set_announcement(code: str, req: Request) -> JSONResponse:
+    """Teacher sets a short note shown above students' warmups. Backend-backed
+    so it actually reaches students on their own devices (the old localStorage-
+    only version never crossed devices)."""
+    code = code.upper()
+    body = await req.json()
+    text = (body.get("text") or "").strip()[:280]
+    with _conn() as c:
+        cls = c.execute("SELECT 1 FROM classes WHERE code = ?", (code,)).fetchone()
+        if not cls:
+            raise HTTPException(404, "class not found")
+        c.execute("UPDATE classes SET announcement = ? WHERE code = ?", (text, code))
+    return JSONResponse({"ok": True, "announcement": text})
 
 
 @router.post("/lemma/api/class/{code}/roster")
@@ -380,12 +408,13 @@ _START_PAGE = r"""<!DOCTYPE html><html lang="en"><head>
 <div class="panel" id="result" style="display:none;border-left:3px solid var(--accent)">
   <h2>✓ Class created</h2>
   <div class="code-display" id="code-display"></div>
-  <p class="lede" style="margin:8px 0">Share this link with your students:</p>
+  <p class="lede" style="margin:8px 0 6px 0;font-weight:700;color:var(--text)">▶ This is the student part — send students HERE (or read them the code above):</p>
   <div class="share-box">
     <span class="url" id="student-url"></span>
     <button onclick="copyText(document.getElementById('student-url').textContent)">📋 copy</button>
   </div>
-  <p class="lede" style="margin:14px 0 8px 0">Bookmark your dashboard:</p>
+  <a class="btn" id="preview-student" href="#" target="_blank" style="margin-top:10px;background:var(--accent2,#5cc8ff);color:#0a0d14">👁 Preview what students see ↗</a>
+  <p class="lede" style="margin:18px 0 8px 0">Bookmark your own dashboard (where grades land):</p>
   <div class="share-box">
     <span class="url" id="teacher-url"></span>
     <button onclick="copyText(document.getElementById('teacher-url').textContent)">📋 copy</button>
@@ -415,18 +444,40 @@ async function createClass() {
   const className = document.getElementById('class-name').value.trim();
   const courseId = document.getElementById('course-id').value;
   if (!teacher || !className || !courseId) return;
-  const r = await fetch('/lemma/api/class/create', {
-    method: 'POST', headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({teacher_name: teacher, class_name: className, course_id: courseId})
-  });
-  if (!r.ok) { alert('Failed: ' + (await r.text())); return; }
-  const data = await r.json();
-  document.getElementById('code-display').textContent = data.code;
-  document.getElementById('student-url').textContent = baseUrl + '/lemma/c/' + data.code;
-  document.getElementById('teacher-url').textContent = baseUrl + '/lemma/teacher/' + data.code;
-  document.getElementById('open-dash').href = '/lemma/teacher/' + data.code;
-  document.getElementById('result').style.display = '';
-  document.getElementById('result').scrollIntoView({behavior: 'smooth'});
+  const btn = document.querySelector('form .btn');
+  const orig = btn ? btn.textContent : '';
+  if (btn) { btn.disabled = true; btn.textContent = 'Creating your class…'; }
+  // the free server can take ~30s to wake from sleep — tell the teacher so a
+  // slow first response doesn't look broken.
+  const slow = setTimeout(() => { if (btn) btn.textContent = 'Waking the server (~30s)…'; }, 2500);
+  try {
+    const r = await fetch('/lemma/api/class/create', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({teacher_name: teacher, class_name: className, course_id: courseId})
+    });
+    clearTimeout(slow);
+    if (!r.ok) {
+      let msg = 'Something went wrong creating the class.';
+      try { msg = (await r.json()).detail || msg; } catch (e) {}
+      if (r.status === 402) msg += "\n\nYou already have your class — open your dashboard from the link you saved, or sign in at /lemma/teachers to find it.";
+      alert(msg);
+      return;
+    }
+    const data = await r.json();
+    document.getElementById('code-display').textContent = data.code;
+    document.getElementById('student-url').textContent = baseUrl + '/lemma/c/' + data.code;
+    document.getElementById('teacher-url').textContent = baseUrl + '/lemma/teacher/' + data.code;
+    document.getElementById('open-dash').href = '/lemma/teacher/' + data.code;
+    const prev = document.getElementById('preview-student');
+    if (prev) prev.href = '/lemma/c/' + data.code;
+    document.getElementById('result').style.display = '';
+    document.getElementById('result').scrollIntoView({behavior: 'smooth'});
+  } catch (e) {
+    clearTimeout(slow);
+    alert("Couldn't reach the server — it may still be waking up. Wait a few seconds and press Create again.");
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = orig; }
+  }
 }
 
 function copyText(t) {
@@ -488,17 +539,18 @@ _TEACHER_PAGE = r"""<!DOCTYPE html><html lang="en"><head>
     <div class="stat-card"><div class="num" id="s-accuracy">—</div><div class="lbl">class accuracy</div></div>
     <div class="stat-card"><div class="num" id="s-today">—</div><div class="lbl">submitted today</div></div>
   </div>
+  <div id="trend-wrap" style="margin-top:18px"></div>
 </div>
 
 <div class="panel">
   <h2>👥 Roster</h2>
-  <p class="lede" style="font-size:12.5px">Students who have joined this class. Each row shows their warmup count and class-accuracy.</p>
+  <p class="lede" style="font-size:12.5px">Students who have joined this class. <b>Click any student</b> to see their full history, trend, and weak topics.</p>
   <table id="roster-table"><thead><tr><th>Student</th><th>Joined</th><th>Warmups</th><th>Accuracy</th></tr></thead><tbody id="roster-body"></tbody></table>
 </div>
 
 <div class="panel">
-  <h2>📝 Recent submissions</h2>
-  <p class="lede" style="font-size:12.5px">Most recent 20 graded warmups across the class.</p>
+  <h2>📝 Recent submissions <button onclick="exportCSV()" style="float:right;font-size:12px;font-weight:600;font-family:inherit;cursor:pointer;background:var(--surface2);color:var(--text);border:1px solid var(--dim);border-radius:6px;padding:5px 11px">⬇ Export CSV</button></h2>
+  <p class="lede" style="font-size:12.5px">Most recent 20 graded warmups across the class. Click a row to open that student. Export pulls the full gradebook.</p>
   <table id="subs-table"><thead><tr><th>Student</th><th>Topic</th><th>Score</th><th>When</th></tr></thead><tbody id="subs-body"></tbody></table>
 </div>
 
@@ -527,8 +579,19 @@ _TEACHER_PAGE = r"""<!DOCTYPE html><html lang="en"><head>
 
 <div class="toast" id="toast" style="display:none"></div>
 
+<div id="student-modal" style="display:none;position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:50;align-items:flex-start;justify-content:center;padding:40px 16px;overflow-y:auto" onclick="if(event.target===this)closeStudent()">
+  <div style="background:var(--surface,#fff);max-width:560px;width:100%;border-radius:12px;padding:24px 26px;box-shadow:0 20px 60px rgba(0,0,0,.3)">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
+      <h2 id="sm-name" style="margin:0">Student</h2>
+      <button onclick="closeStudent()" style="background:none;border:none;font-size:26px;line-height:1;color:var(--dim);cursor:pointer">×</button>
+    </div>
+    <div id="sm-body"></div>
+  </div>
+</div>
+
 <script>
 const CODE = '__CODE__';
+let LAST_RESULTS = {submissions:[], aggregates:[]};
 document.getElementById('share-url').textContent = window.location.origin + '/lemma/c/' + CODE;
 
 async function loadCanvasStatus() {
@@ -607,6 +670,7 @@ async function loadAll() {
 
   const rosterData = await (await fetch('/lemma/api/class/' + CODE + '/roster')).json();
   const resultsData = await (await fetch('/lemma/api/class/' + CODE + '/results')).json();
+  LAST_RESULTS = resultsData;
   const aggBy = {};
   resultsData.aggregates.forEach(a => aggBy[a.name] = a);
 
@@ -624,7 +688,7 @@ async function loadAll() {
   } else {
     rosterBody.innerHTML = rosterData.students.map(s => {
       const a = aggBy[s.name];
-      return `<tr><td><b>${s.name}</b></td><td style="color:var(--dim);font-family:'SF Mono',monospace;font-size:11.5px">${new Date(s.joined_at).toLocaleDateString()}</td><td>${a ? a.warmups : 0}</td><td>${a ? a.accuracy + '%' : '—'}</td></tr>`;
+      return `<tr data-student="${escAttr(s.name)}" style="cursor:pointer" title="Open ${escAttr(s.name)}'s detail"><td><b>${s.name}</b></td><td style="color:var(--dim);font-family:'SF Mono',monospace;font-size:11.5px">${new Date(s.joined_at).toLocaleDateString()}</td><td>${a ? a.warmups : 0}</td><td>${a ? a.accuracy + '%' : '—'}</td></tr>`;
     }).join('');
   }
 
@@ -635,7 +699,7 @@ async function loadAll() {
     subsBody.innerHTML = resultsData.submissions.slice(0, 20).map(s => {
       const acc = Math.round(100 * s.correct / s.total);
       const color = acc >= 75 ? 'var(--green)' : acc >= 50 ? 'var(--accent)' : 'var(--pink)';
-      return `<tr><td><b>${s.student_name}</b></td><td style="color:var(--dim);font-size:12.5px">${s.topic || '—'}</td><td style="color:${color};font-family:'SF Mono',monospace;font-weight:700">${s.correct}/${s.total} · ${acc}%</td><td style="color:var(--dim);font-family:'SF Mono',monospace;font-size:11.5px">${new Date(s.submitted_at).toLocaleString()}</td></tr>`;
+      return `<tr data-student="${escAttr(s.student_name)}" style="cursor:pointer"><td><b>${s.student_name}</b></td><td style="color:var(--dim);font-size:12.5px">${s.topic || '—'}</td><td style="color:${color};font-family:'SF Mono',monospace;font-weight:700">${s.correct}/${s.total} · ${acc}%</td><td style="color:var(--dim);font-family:'SF Mono',monospace;font-size:11.5px">${new Date(s.submitted_at).toLocaleString()}</td></tr>`;
     }).join('');
   }
   renderExtras(resultsData);
@@ -646,7 +710,7 @@ function renderExtras(resultsData) {
   const att = resultsData.aggregates.filter(a => a.total >= 4 && a.accuracy < 55).sort((a, b) => a.accuracy - b.accuracy);
   const ab = document.getElementById('attention-body');
   if (ab) ab.innerHTML = att.length
-    ? att.map(a => `<tr><td><b>${a.name}</b></td><td>${a.warmups}</td><td style="color:var(--pink);font-family:'SF Mono',monospace;font-weight:700">${a.accuracy}%</td></tr>`).join('')
+    ? att.map(a => `<tr data-student="${escAttr(a.name)}" style="cursor:pointer"><td><b>${a.name}</b></td><td>${a.warmups}</td><td style="color:var(--pink);font-family:'SF Mono',monospace;font-weight:700">${a.accuracy}%</td></tr>`).join('')
     : '<tr><td colspan="3" style="color:var(--green);text-align:center;padding:14px">No one below 55% — the class is keeping up. 🎉</td></tr>';
   // Hardest topics — accuracy by topic, weakest first
   const byTopic = {};
@@ -656,6 +720,96 @@ function renderExtras(resultsData) {
   if (tb) tb.innerHTML = topics.length
     ? topics.map(o => { const col = o.acc >= 75 ? 'var(--green)' : o.acc >= 55 ? 'var(--accent)' : 'var(--pink)'; return `<div style="display:flex;align-items:center;gap:10px;margin:6px 0"><div style="width:170px;font-size:13px;color:var(--text)">${o.t}</div><div style="flex:1;background:var(--surface2);border-radius:4px;overflow:hidden;height:14px"><div style="width:${o.acc}%;height:100%;background:${col}"></div></div><div style="width:42px;text-align:right;font-family:'SF Mono',monospace;font-size:12px;color:${col}">${o.acc}%</div></div>`; }).join('')
     : '<p class="lede" style="font-size:12.5px">No data yet.</p>';
+  renderTrend(resultsData);
+}
+
+// ---- escaping + class accuracy-over-time sparkline ----
+function escAttr(s){ return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function renderTrend(resultsData) {
+  const wrap = document.getElementById('trend-wrap');
+  if (!wrap) return;
+  // class accuracy per warmup_date
+  const byDate = {};
+  resultsData.submissions.forEach(s => { const d = s.warmup_date || (s.submitted_at||'').slice(0,10); if(!d) return; (byDate[d]=byDate[d]||{c:0,n:0}); byDate[d].c+=s.correct; byDate[d].n+=s.total; });
+  const days = Object.keys(byDate).sort();
+  if (days.length < 2) { wrap.innerHTML=''; return; }
+  const pts = days.map(d => ({d, acc: byDate[d].n ? Math.round(100*byDate[d].c/byDate[d].n) : 0}));
+  const W=520, H=90, P=24;
+  const x = i => P + i*(W-2*P)/(pts.length-1);
+  const y = a => (H-P) - (a/100)*(H-2*P);
+  const line = pts.map((p,i)=>`${i?'L':'M'}${x(i).toFixed(1)},${y(p.acc).toFixed(1)}`).join(' ');
+  const dots = pts.map((p,i)=>`<circle cx="${x(i).toFixed(1)}" cy="${y(p.acc).toFixed(1)}" r="3" fill="var(--accent)"><title>${p.d}: ${p.acc}%</title></circle>`).join('');
+  const first=pts[0].acc, last=pts[pts.length-1].acc, delta=last-first;
+  const dcol = delta>=0?'var(--green)':'var(--pink)';
+  wrap.innerHTML = `<div style="font-size:12.5px;color:var(--dim);margin-bottom:6px">📈 Class accuracy over time <span style="color:${dcol};font-weight:700">${delta>=0?'+':''}${delta} pts</span> since ${pts[0].d}</div>
+    <svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;overflow:visible">
+      <line x1="${P}" y1="${y(50)}" x2="${W-P}" y2="${y(50)}" stroke="var(--surface2)" stroke-dasharray="3 3"/>
+      <path d="${line}" fill="none" stroke="var(--accent)" stroke-width="2"/>
+      ${dots}
+      <text x="${P-4}" y="${y(100)+4}" text-anchor="end" font-size="9" fill="var(--dim)">100</text>
+      <text x="${P-4}" y="${y(0)+4}" text-anchor="end" font-size="9" fill="var(--dim)">0</text>
+    </svg>`;
+}
+
+// ---- per-student detail modal ----
+function studentDetail(name) {
+  const subs = LAST_RESULTS.submissions.filter(s => s.student_name === name)
+    .sort((a,b)=> (a.warmup_date||a.submitted_at||'').localeCompare(b.warmup_date||b.submitted_at||''));
+  const total = subs.reduce((a,s)=>a+s.total,0), correct = subs.reduce((a,s)=>a+s.correct,0);
+  const acc = total ? Math.round(100*correct/total) : 0;
+  // per-topic
+  const byTopic = {};
+  subs.forEach(s => { const t=s.topic||'—'; (byTopic[t]=byTopic[t]||{c:0,n:0}); byTopic[t].c+=s.correct; byTopic[t].n+=s.total; });
+  const topics = Object.entries(byTopic).map(([t,v])=>({t,acc:v.n?Math.round(100*v.c/v.n):0,n:v.n})).sort((a,b)=>a.acc-b.acc);
+  return {subs, total, correct, acc, topics};
+}
+
+function openStudent(name) {
+  const d = studentDetail(name);
+  document.getElementById('sm-name').textContent = name;
+  const accCol = d.acc>=75?'var(--green)':d.acc>=55?'var(--accent)':'var(--pink)';
+  const rows = d.subs.slice().reverse().slice(0,30).map(s => {
+    const a = s.total?Math.round(100*s.correct/s.total):0;
+    const col = a>=75?'var(--green)':a>=50?'var(--accent)':'var(--pink)';
+    const when = s.warmup_date || (s.submitted_at||'').slice(0,10);
+    return `<tr><td style="color:var(--dim);font-family:'SF Mono',monospace;font-size:11.5px">${when}</td><td style="font-size:12.5px">${s.topic||'—'}</td><td style="color:${col};font-family:'SF Mono',monospace;font-weight:700">${s.correct}/${s.total} · ${a}%</td></tr>`;
+  }).join('') || '<tr><td colspan="3" style="color:var(--dim);text-align:center;padding:14px">no graded warmups yet</td></tr>';
+  const topicRows = d.topics.map(o => { const col=o.acc>=75?'var(--green)':o.acc>=55?'var(--accent)':'var(--pink)'; return `<div style="display:flex;align-items:center;gap:8px;margin:5px 0"><div style="width:150px;font-size:12.5px;color:var(--text)">${o.t}</div><div style="flex:1;background:var(--surface2);border-radius:4px;overflow:hidden;height:12px"><div style="width:${o.acc}%;height:100%;background:${col}"></div></div><div style="width:36px;text-align:right;font-family:'SF Mono',monospace;font-size:11.5px;color:${col}">${o.acc}%</div></div>`; }).join('') || '<p class="lede" style="font-size:12px">No topic data yet.</p>';
+  document.getElementById('sm-body').innerHTML = `
+    <div class="stat-grid" style="margin:10px 0 16px">
+      <div class="stat-card"><div class="num">${d.subs.length}</div><div class="lbl">warmups</div></div>
+      <div class="stat-card"><div class="num" style="color:${accCol}">${d.acc}%</div><div class="lbl">accuracy</div></div>
+      <div class="stat-card"><div class="num">${d.correct}/${d.total}</div><div class="lbl">problems</div></div>
+    </div>
+    <h3 style="margin:14px 0 4px;font-size:14px">Weakest topics</h3>
+    ${topicRows}
+    <h3 style="margin:16px 0 4px;font-size:14px">Warmup history</h3>
+    <table style="width:100%"><thead><tr><th>Date</th><th>Topic</th><th>Score</th></tr></thead><tbody>${rows}</tbody></table>`;
+  document.getElementById('student-modal').style.display = 'flex';
+}
+function closeStudent(){ document.getElementById('student-modal').style.display = 'none'; }
+document.addEventListener('keydown', e => { if(e.key==='Escape') closeStudent(); });
+document.addEventListener('click', e => { const tr = e.target.closest && e.target.closest('tr[data-student]'); if(tr) openStudent(tr.getAttribute('data-student')); });
+
+// ---- CSV export of the full gradebook ----
+function exportCSV() {
+  const subs = LAST_RESULTS.submissions || [];
+  if (!subs.length) { toast('No submissions to export yet.'); return; }
+  const esc = v => { const s = String(v==null?'':v); return /[",\n]/.test(s) ? '"'+s.replace(/"/g,'""')+'"' : s; };
+  const header = ['student','date','topic','correct','total','accuracy_pct','submitted_at'];
+  const lines = [header.join(',')];
+  subs.slice().sort((a,b)=> (a.student_name).localeCompare(b.student_name) || (a.warmup_date||'').localeCompare(b.warmup_date||'')).forEach(s => {
+    const acc = s.total ? Math.round(100*s.correct/s.total) : 0;
+    lines.push([s.student_name, s.warmup_date||(s.submitted_at||'').slice(0,10), s.topic||'', s.correct, s.total, acc, s.submitted_at||''].map(esc).join(','));
+  });
+  const blob = new Blob([lines.join('\n')], {type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'lemma-' + CODE + '-gradebook.csv';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url), 1000);
+  toast('Exported ' + subs.length + ' rows to CSV');
 }
 
 function copyText(t) {
