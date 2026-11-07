@@ -63,7 +63,7 @@ async def pep_state(request: Request) -> dict[str, Any]:
             out["runs_recent"] = len(runs)
             if runs: out["latest_run"] = {"id": str(runs[0].get("id", ""))[:16], "user_input": str(runs[0].get("user_input", ""))[:80]}
     except Exception: pass
-    for name, mod in [("axona", "axona_bridge"), ("lingora", "lingora_bridge"), ("atria", "atria_bridge")]:
+    for name, mod in [("axona", "axona.axona_bridge"), ("lingora", "lingora.lingora_bridge"), ("atria", "atria.atria_bridge")]:
         try:
             from importlib import import_module
             m = import_module(f"pep.routes.{mod}")
@@ -83,14 +83,14 @@ def _cross_read(mod: str, limit: int) -> dict[str, Any]:
 
 @router.get("/vectora/axona-events")
 async def axona_events(limit: int = 40) -> dict[str, Any]:
-    return _cross_read("axona_bridge", limit)
+    return _cross_read("axona.axona_bridge", limit)
 
 
 @router.get("/vectora/lingora-events")
 async def lingora_events(limit: int = 40) -> dict[str, Any]:
-    return _cross_read("lingora_bridge", limit)
+    return _cross_read("lingora.lingora_bridge", limit)
 
 
 @router.get("/vectora/atria-events")
 async def atria_events(limit: int = 40) -> dict[str, Any]:
-    return _cross_read("atria_bridge", limit)
+    return _cross_read("atria.atria_bridge", limit)

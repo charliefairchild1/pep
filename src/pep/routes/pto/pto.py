@@ -550,7 +550,7 @@ _PAGE = """\
     hazed below threshold, and no external anchor pins the memory, D_rec has
     silently become D_irr. Drift tracking is the honesty layer that catches
     this. Open problem: the formal criterion for the transition is
-    unfinished — see <code>docs/pto_math.md</code> §9.
+    unfinished — see <code>docs/pto/pto_math.md</code> §9.
   </p>
 </div></div>
 
@@ -656,8 +656,8 @@ _PAGE = """\
   </table>
 
   <div class="info">
-    For the full formal spine see <code>docs/pto_math.md</code>. For the prose
-    statement see <code>docs/pto.md</code>. This page is the bridge between
+    For the full formal spine see <code>docs/pto/pto_math.md</code>. For the prose
+    statement see <code>docs/pto/pto.md</code>. This page is the bridge between
     them.
   </div>
 </div></div>

@@ -1,13 +1,13 @@
 # PTO — the math spine
 
-Companion to `docs/pto.md`. Prose there; precision here.
+Companion to `docs/pto/pto.md`. Prose there; precision here.
 
 PTO stands for **Potential → Transformation → Output**. It is a process-shape claim about what kinds of systems persist, not an acronym for a slogan. "PTO is mainly math" is false. PTO is a systems principle with four layers:
 
-1. **Ontological claim** — what kinds of systems persist and spread. Stated in prose (`docs/pto.md`).
+1. **Ontological claim** — what kinds of systems persist and spread. Stated in prose (`docs/pto/pto.md`).
 2. **Axiomatic framing** — primitive terms and a priori structure. §2 below.
 3. **Mathematical optimality** — the trajectory functional. §8.
-4. **Engineering design rules** — measurable goals and gating questions. `docs/pto.md` + every LAVAS sibling.
+4. **Engineering design rules** — measurable goals and gating questions. `docs/pto/pto.md` + every LAVAS sibling.
 
 This document formalizes layers 2–3. It is a spine, not a proof: the axioms are *stipulated* (they characterize the class of systems PTO applies to); the claim that PTO-optimal systems dominate their environments is an empirical claim supported by the lineage in §10, not derived here.
 
@@ -149,7 +149,7 @@ Either satisfies A4. PEP's haze + memory-store maps most cleanly onto (b); Vecto
 
 ## 7. Constructive transformation, decomposed
 
-Per A5, `T` has an operational form. The constructive-vs-dissipative dimensions from `docs/pto.md` become a weighted decomposition:
+Per A5, `T` has an operational form. The constructive-vs-dissipative dimensions from `docs/pto/pto.md` become a weighted decomposition:
 
 ```
 T(t) = α·O(t) + β·(dC/dt) + Σ_k w_k · Δq_k(t)
@@ -317,4 +317,4 @@ Every PEP module is doing one of: (i) measuring `T`, (ii) preserving `C`, (iii) 
 
 > **PTO.** A system with state `x`, control `u`, capacity `C`, and irreversible dissipation `D_irr` tends to evolve toward policies maximizing `E[ ∫_t^{t+H} ( T − λ·D_irr ) dτ ]` where `T = α·O + β·dC/dt + Σ w_k Δq_k`, for horizon `H` beyond the immediate output window, with recoverable loss `D_rec` held neutral and `C` defined non-circularly.
 
-That is the spine. `docs/pto.md` is the prose. Everything in PEP is one of the terms above, made computable.
+That is the spine. `docs/pto/pto.md` is the prose. Everything in PEP is one of the terms above, made computable.

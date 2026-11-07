@@ -27,7 +27,7 @@ import httpx
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 
-from pep.routes.lemma_backend import _DB_PATH, _conn, _now
+from pep.routes.lemma.lemma_backend import _DB_PATH, _conn, _now
 
 
 router = APIRouter()

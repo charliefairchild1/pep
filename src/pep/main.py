@@ -2,13 +2,13 @@
 
 Works in two modes:
 - Local dev: imports the heavy PEP-core infra (Embedder, MemoryStore, LLM
-  client) and includes ALL route modules in pep.routes/
+  client) and includes ALL route modules in pep.routes/<project>/
 - Deploy: same code, but missing modules and missing infra are silently
   skipped. The Lemma app only needs lemma_backend + lemma_canvas +
   lemma_accounts; everything else is optional.
 
 The route discovery happens via pkgutil.iter_modules(), so no master list
-to maintain — drop a new file in pep/routes/ with `router = APIRouter()` and
+to maintain — drop a new file in pep/routes/<project>/ with `router = APIRouter()` and
 it gets picked up automatically.
 """
 from __future__ import annotations
@@ -84,9 +84,16 @@ def _include_all_routers(app: FastAPI) -> None:
     from pep import routes as routes_pkg
     included: list[str] = []
     skipped: list[tuple[str, str]] = []
-    for _finder, name, _ispkg in pkgutil.iter_modules(routes_pkg.__path__):
+    # Routes are grouped into one sub-package per project (pep.routes.lemma,
+    # pep.routes.vectora, ...). walk_packages recurses into each of them.
+    for _finder, name, ispkg in pkgutil.walk_packages(
+        routes_pkg.__path__, prefix="pep.routes.",
+        onerror=lambda n: skipped.append((n, "package import failed")),
+    ):
+        if ispkg:
+            continue
         try:
-            mod = importlib.import_module(f"pep.routes.{name}")
+            mod = importlib.import_module(name)
         except Exception as e:  # noqa: BLE001
             skipped.append((name, type(e).__name__ + ": " + str(e)[:80]))
             continue
@@ -113,7 +120,7 @@ def _include_chat_and_debug(app: FastAPI) -> None:
     if not _PEP_CORE_AVAILABLE:
         return
     try:
-        from pep.routes import chat as _chat, debug as _debug
+        from pep.routes.core import chat as _chat, debug as _debug
         app.include_router(_chat.router)
         app.include_router(_debug.router)
     except Exception as e:  # noqa: BLE001

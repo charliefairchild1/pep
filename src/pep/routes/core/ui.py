@@ -604,7 +604,7 @@ modelo: una representación estructurada que captura regularidades en algún dom
         Analysis — research findings against the live store
       </h2>
       <p style="font-size:12px;color:var(--dim);line-height:1.6;margin-bottom:14px">
-        Closes open questions from the research note (<code>docs/research_note.md</code> §8).
+        Closes open questions from the research note (<code>docs/pep/research_note.md</code> §8).
         These analyses run against your actual memory store, so they update as you use PEP.
       </p>
 

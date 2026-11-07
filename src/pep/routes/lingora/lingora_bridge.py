@@ -1,17 +1,14 @@
-"""Bridge between PEP, Atria, Axona, and Lingora.
+"""Bidirectional bridge between PEP and Lingora.
 
-Atria posts matchmaking-related events (pool built, match chosen, behavior
-flag toggled, residual observed, etc.) into PEP here, and reads PEP's live
-introspection state plus recent Axona and Lingora events back out. Full mesh
-across all three LAVAS front-ends: any surface can see what any other is
-doing in real time.
+Mirrors axona_bridge — Lingora canvases post cognitive/linguistic events up to
+PEP, and read PEP's live introspection state back down. The point is to make
+Lingora part of the same living system as PEP and Axona rather than a
+stand-alone demo.
 
 Routes:
-  POST /atria/event           — log an event from an Atria canvas
-  GET  /atria/events          — recent Atria events (ring buffer)
-  GET  /atria/pep-state       — PEP's live introspection + Axona/Lingora cross-reads
-  GET  /atria/axona-events    — Axona's recent events, mirrored for Atria's UI
-  GET  /atria/lingora-events  — Lingora's recent events, mirrored for Atria's UI
+  POST /lingora/event      — log a linguistic event from a Lingora canvas
+  GET  /lingora/events     — recent events (ring buffer)
+  GET  /lingora/pep-state  — PEP's live introspection snapshot for Lingora
 """
 
 from __future__ import annotations
@@ -28,14 +25,14 @@ router = APIRouter()
 _EVENTS: deque[dict[str, Any]] = deque(maxlen=200)
 
 
-class AtriaEvent(BaseModel):
+class LingoraEvent(BaseModel):
     type: str
-    source: str = "atria"
+    source: str = "lingora"
     payload: dict[str, Any] = {}
 
 
-@router.post("/atria/event")
-async def post_event(event: AtriaEvent) -> dict[str, Any]:
+@router.post("/lingora/event")
+async def post_event(event: LingoraEvent) -> dict[str, Any]:
     record = {
         "t": time.time(),
         "type": event.type,
@@ -46,15 +43,15 @@ async def post_event(event: AtriaEvent) -> dict[str, Any]:
     return {"ok": True, "stored": record, "count": len(_EVENTS)}
 
 
-@router.get("/atria/events")
+@router.get("/lingora/events")
 async def get_events(limit: int = 40) -> dict[str, Any]:
     items = list(_EVENTS)[-limit:]
     return {"count": len(_EVENTS), "items": items}
 
 
-@router.get("/atria/pep-state")
+@router.get("/lingora/pep-state")
 async def pep_state(request: Request) -> dict[str, Any]:
-    """PEP live introspection plus cross-reads of Axona and Lingora buffers."""
+    """PEP live introspection plus cross-read of Axona's event buffer."""
     out: dict[str, Any] = {
         "t": time.time(),
         "connected": True,
@@ -62,11 +59,11 @@ async def pep_state(request: Request) -> dict[str, Any]:
         "embeddings": None,
         "runs_recent": 0,
         "latest_run": None,
-        "atria_events": len(_EVENTS),
+        "lingora_events": len(_EVENTS),
         "axona_events": 0,
         "axona_latest": None,
-        "lingora_events": 0,
-        "lingora_latest": None,
+        "atria_events": 0,
+        "atria_latest": None,
     }
     try:
         llm = getattr(request.app.state, "llm", None)
@@ -96,7 +93,7 @@ async def pep_state(request: Request) -> dict[str, Any]:
     except Exception as exc:
         out["store_error"] = str(exc)[:200]
     try:
-        from pep.routes.axona_bridge import _EVENTS as _AXONA_EVENTS
+        from pep.routes.axona.axona_bridge import _EVENTS as _AXONA_EVENTS
         out["axona_events"] = len(_AXONA_EVENTS)
         if _AXONA_EVENTS:
             last = list(_AXONA_EVENTS)[-1]
@@ -104,33 +101,33 @@ async def pep_state(request: Request) -> dict[str, Any]:
     except Exception:
         pass
     try:
-        from pep.routes.lingora_bridge import _EVENTS as _LINGORA_EVENTS
-        out["lingora_events"] = len(_LINGORA_EVENTS)
-        if _LINGORA_EVENTS:
-            last = list(_LINGORA_EVENTS)[-1]
-            out["lingora_latest"] = {"type": last.get("type"), "t": last.get("t")}
+        from pep.routes.atria.atria_bridge import _EVENTS as _ATRIA_EVENTS
+        out["atria_events"] = len(_ATRIA_EVENTS)
+        if _ATRIA_EVENTS:
+            last = list(_ATRIA_EVENTS)[-1]
+            out["atria_latest"] = {"type": last.get("type"), "t": last.get("t")}
     except Exception:
         pass
     return out
 
 
-@router.get("/atria/axona-events")
+@router.get("/lingora/axona-events")
 async def axona_events(limit: int = 40) -> dict[str, Any]:
-    """Mirror Axona's event buffer so Atria's bridge panel can display it."""
+    """Mirror Axona's event buffer so Lingora's bridge panel can display it."""
     try:
-        from pep.routes.axona_bridge import _EVENTS as _AXONA_EVENTS
+        from pep.routes.axona.axona_bridge import _EVENTS as _AXONA_EVENTS
         items = list(_AXONA_EVENTS)[-limit:]
         return {"count": len(_AXONA_EVENTS), "items": items}
     except Exception as exc:
         return {"count": 0, "items": [], "error": str(exc)[:200]}
 
 
-@router.get("/atria/lingora-events")
-async def lingora_events(limit: int = 40) -> dict[str, Any]:
-    """Mirror Lingora's event buffer so Atria's bridge panel can display it."""
+@router.get("/lingora/atria-events")
+async def atria_events(limit: int = 40) -> dict[str, Any]:
+    """Mirror Atria's event buffer so Lingora's bridge panel can display it."""
     try:
-        from pep.routes.lingora_bridge import _EVENTS as _LINGORA_EVENTS
-        items = list(_LINGORA_EVENTS)[-limit:]
-        return {"count": len(_LINGORA_EVENTS), "items": items}
+        from pep.routes.atria.atria_bridge import _EVENTS as _ATRIA_EVENTS
+        items = list(_ATRIA_EVENTS)[-limit:]
+        return {"count": len(_ATRIA_EVENTS), "items": items}
     except Exception as exc:
         return {"count": 0, "items": [], "error": str(exc)[:200]}

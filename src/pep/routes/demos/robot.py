@@ -10,8 +10,8 @@ from fastapi import APIRouter
 from fastapi.responses import HTMLResponse, PlainTextResponse
 
 router = APIRouter()
-_DIST = os.path.join(os.path.dirname(__file__), "..", "..", "..", "dist")
-_BLUEPRINT = os.path.join(os.path.dirname(__file__), "..", "..", "..", "ROBOT_BLUEPRINT.md")
+_DIST = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "dist")
+_BLUEPRINT = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "ROBOT_BLUEPRINT.md")
 
 
 def _read_blueprint() -> str:

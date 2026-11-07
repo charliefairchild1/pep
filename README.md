@@ -14,8 +14,8 @@
 | **Web UI** | 8 tabs at `http://127.0.0.1:8000` |
 | **CLI commands** | `serve`, `ask`, `ingest`, `replay`, `consolidate`, `bench`, `coherence`, `dialogue`, `trajectory-validate` |
 | **HTTP** | Native PEP endpoints + **OpenAI-compatible `/v1/chat/completions`** |
-| **Backbone document** | `docs/research_note.md` (459 lines) |
-| **Theory document** | `docs/pto.md` |
+| **Backbone document** | `docs/pep/research_note.md` (459 lines) |
+| **Theory document** | `docs/pto/pto.md` |
 
 ## The three primitives PEP is built on
 
@@ -132,7 +132,7 @@ PEP-specific extension: pass `pep_session: "<name>"` in the request body to rout
 
 ## Architecture in one paragraph
 
-Every turn flows through 7 modules: **Interpreter** parses the input, **State Modulator** updates a 6-variable state vector (urgency, uncertainty, novelty, conflict, exploration, stability_need), **Predictor** guesses what context will matter, **Reactivator** runs spreading activation across the memory graph and detects coherent constellations of co-activated memories, **Residual Scorer** decides what's surprising enough to store, **Packager** assembles the structured envelope, base AI generates the response, **Memory Updater** distills the exchange into a compressed memory with multi-face encoding (semantic / episodic / value / action / predictive / user), and the per-turn decay cycle reinforces what was used and fades what wasn't. See `docs/research_note.md` §3 for the full story.
+Every turn flows through 7 modules: **Interpreter** parses the input, **State Modulator** updates a 6-variable state vector (urgency, uncertainty, novelty, conflict, exploration, stability_need), **Predictor** guesses what context will matter, **Reactivator** runs spreading activation across the memory graph and detects coherent constellations of co-activated memories, **Residual Scorer** decides what's surprising enough to store, **Packager** assembles the structured envelope, base AI generates the response, **Memory Updater** distills the exchange into a compressed memory with multi-face encoding (semantic / episodic / value / action / predictive / user), and the per-turn decay cycle reinforces what was used and fades what wasn't. See `docs/pep/research_note.md` §3 for the full story.
 
 ---
 
@@ -202,8 +202,8 @@ With this on, every PEP turn does ~6 LLM calls (~30s/turn on llama3.2:3b). Use o
 
 ## Documentation
 
-- **`docs/research_note.md`** — the backbone document. PTO theory, PEP architecture, all 4 benchmarks with real numbers, the §8.1 trajectory finding, multi-scale coherence experiment, limitations, open questions. Read this first if you're returning to the project after a break.
-- **`docs/pto.md`** — the user's PTO theory in their own words. The "why" behind every design decision in PEP.
+- **`docs/pep/research_note.md`** — the backbone document. PTO theory, PEP architecture, all 4 benchmarks with real numbers, the §8.1 trajectory finding, multi-scale coherence experiment, limitations, open questions. Read this first if you're returning to the project after a break.
+- **`docs/pto/pto.md`** — the user's PTO theory in their own words. The "why" behind every design decision in PEP.
 - **The plan file** at `~/.claude/plans/lovely-hatching-stream.md` — historical roadmap
 
 ## Project layout
@@ -226,7 +226,7 @@ src/pep/
 ├── models/                # LLM client adapters (Stub, Anthropic, Ollama)
 ├── schemas/               # Pydantic models
 ├── policies/              # raw_ai, recent_window, semantic_topk, pep_full
-├── routes/                # FastAPI: chat, debug, openai_compat, ui
+├── routes/                # FastAPI, one folder per project — see PROJECTS.md
 ├── analysis/              # multi-scale coherence + trajectory validation experiments
 ├── dialogue.py            # multi-agent dialogue (2-5 PEP-equipped agents)
 ├── runner.py              # benchmark runner
@@ -236,12 +236,12 @@ src/pep/
 └── main.py                # FastAPI app entrypoint
 
 benchmarks/                # 4 benchmark JSON files
-docs/                      # research_note.md, pto.md
+docs/                      # per-project docs: pep/, pto/, lemma/
 tests/                     # 134 tests
 ```
 
 ## Status
 
-**v1 done.** All Phase 1, 2, and 3 features shipped. PEP is now a real, usable overlay — not just a demo. Open questions and next experiments are documented in `docs/research_note.md` §8.
+**v1 done.** All Phase 1, 2, and 3 features shipped. PEP is now a real, usable overlay — not just a demo. Open questions and next experiments are documented in `docs/pep/research_note.md` §8.
 
 **Last verified:** 134 tests passing, real Ollama under the hood, OpenAI-compatible endpoint live.

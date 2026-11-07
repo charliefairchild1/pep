@@ -34,7 +34,7 @@ PEP attempts a richer overlay: same idea (a layer between user and base AI) but 
 
 ## 2. PTO — the theory PEP is built on
 
-PTO is the user's own framework; PEP is one engineering implementation of it. The full text lives at [`docs/pto.md`](pto.md). Compressed:
+PTO is the user's own framework; PEP is one engineering implementation of it. The full text lives at [`docs/pto/pto.md`](../pto/pto.md). Compressed:
 
 > **Systems are favored when they maximize constructive transformation relative to total dissipation.**
 >

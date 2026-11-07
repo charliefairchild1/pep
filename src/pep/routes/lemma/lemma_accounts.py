@@ -31,7 +31,7 @@ from typing import Any
 from fastapi import APIRouter, HTTPException, Request, Response
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 
-from pep.routes.lemma_backend import _conn, _now
+from pep.routes.lemma.lemma_backend import _conn, _now
 
 
 router = APIRouter()

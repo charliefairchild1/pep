@@ -24,9 +24,9 @@ import anthropic
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 
-from pep.routes.lemma_accounts import get_current_teacher, _BASE_STYLE, _navbar, _seo_head, _LOGOUT_SCRIPT
-from pep.routes.lemma_billing import can_use_ai_grading, log_usage
-from pep.routes.lemma_backend import _conn, _now
+from pep.routes.lemma.lemma_accounts import get_current_teacher, _BASE_STYLE, _navbar, _seo_head, _LOGOUT_SCRIPT
+from pep.routes.lemma.lemma_billing import can_use_ai_grading, log_usage
+from pep.routes.lemma.lemma_backend import _conn, _now
 
 
 router = APIRouter()
@@ -251,7 +251,7 @@ async def grade_warmup(req: Request) -> JSONResponse:
 
     # Optional auto-push to Canvas
     try:
-        from pep.routes.lemma_canvas import maybe_auto_push_grade
+        from pep.routes.lemma.lemma_canvas import maybe_auto_push_grade
         await maybe_auto_push_grade(class_code, student_name)
     except Exception:  # noqa: BLE001
         pass

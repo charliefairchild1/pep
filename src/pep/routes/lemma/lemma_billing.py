@@ -28,8 +28,8 @@ import stripe
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 
-from pep.routes.lemma_backend import _conn, _now
-from pep.routes.lemma_accounts import get_current_teacher, _navbar, _seo_head, _BASE_STYLE, _LOGOUT_SCRIPT, _public_base
+from pep.routes.lemma.lemma_backend import _conn, _now
+from pep.routes.lemma.lemma_accounts import get_current_teacher, _navbar, _seo_head, _BASE_STYLE, _LOGOUT_SCRIPT, _public_base
 
 
 router = APIRouter()

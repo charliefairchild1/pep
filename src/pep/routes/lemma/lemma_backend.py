@@ -43,7 +43,7 @@ router = APIRouter()
 # DB setup
 # ---------------------------------------------------------------------------
 
-_DB_PATH = Path(__file__).resolve().parent.parent.parent.parent / "data" / "lemma.db"
+_DB_PATH = Path(__file__).resolve().parents[4] / "data" / "lemma.db"
 _DB_PATH.parent.mkdir(parents=True, exist_ok=True)
 
 
@@ -135,7 +135,7 @@ async def create_class(req: Request) -> JSONResponse:
     # If logged in, prefer the account's display name and link the class to the account.
     teacher_id: int | None = None
     try:
-        from pep.routes.lemma_accounts import get_current_teacher  # local import to avoid cycle
+        from pep.routes.lemma.lemma_accounts import get_current_teacher  # local import to avoid cycle
         me = get_current_teacher(req)
         if me:
             teacher_id = me["id"]
@@ -143,7 +143,7 @@ async def create_class(req: Request) -> JSONResponse:
                 teacher_name = me["display_name"]
             # tier-limit check: free is 1 class, etc.
             try:
-                from pep.routes.lemma_billing import can_create_class
+                from pep.routes.lemma.lemma_billing import can_create_class
                 ok, reason = can_create_class(teacher_id)
                 if not ok:
                     raise HTTPException(402, reason or "Upgrade required to create another class.")
@@ -258,7 +258,7 @@ async def submit_warmup(code: str, req: Request) -> JSONResponse:
     # auto-push the cumulative grade to Canvas if this class is linked
     canvas_result = None
     try:
-        from pep.routes.lemma_canvas import maybe_auto_push_grade
+        from pep.routes.lemma.lemma_canvas import maybe_auto_push_grade
         canvas_result = await maybe_auto_push_grade(code, student_name)
     except Exception:  # noqa: BLE001 — never let a Canvas error break submit
         canvas_result = {"ok": False, "error": "auto_push_exception"}

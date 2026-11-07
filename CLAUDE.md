@@ -69,6 +69,12 @@ with POST/GET endpoints. The `/pep` mesh dashboard polls all five siblings.
 Vectora Retrieval is dogfooded across all four sibling apps — they call the
 real engine over HTTP for spreading-activation queries.
 
+## Repo layout
+See `PROJECTS.md`. Routes are grouped per project under
+`src/pep/routes/<project>/` (core, lemma, vectora, lingora, atria, axona,
+strata, pto, math, demos) and auto-discovered recursively by `pep.main`.
+Docs are grouped the same way under `docs/<project>/`.
+
 ## Development
 - Server: `cd ~/projects/pep && uv run pep serve --reload`
 - Tests: `uv run pytest tests/` — 370+ tests

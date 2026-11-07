@@ -13,7 +13,7 @@ from fastapi import APIRouter
 from fastapi.responses import HTMLResponse
 
 router = APIRouter()
-_DIST = os.path.join(os.path.dirname(__file__), "..", "..", "..", "dist")
+_DIST = os.path.join(os.path.dirname(__file__), "..", "..", "..", "..", "dist")
 
 
 @router.get("/village", response_class=HTMLResponse)

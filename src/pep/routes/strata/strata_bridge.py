@@ -53,7 +53,7 @@ async def pep_state(request: Request) -> dict[str, Any]:
             out["runs_recent"] = len(runs)
             if runs: out["latest_run"] = {"id": str(runs[0].get("id", ""))[:16]}
     except Exception: pass
-    for name, mod in [("axona", "axona_bridge"), ("lingora", "lingora_bridge"), ("atria", "atria_bridge"), ("vectora", "vectora_bridge")]:
+    for name, mod in [("axona", "axona.axona_bridge"), ("lingora", "lingora.lingora_bridge"), ("atria", "atria.atria_bridge"), ("vectora", "vectora.vectora_bridge")]:
         try:
             from importlib import import_module
             m = import_module(f"pep.routes.{mod}")

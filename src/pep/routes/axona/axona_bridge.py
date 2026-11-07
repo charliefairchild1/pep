@@ -102,7 +102,7 @@ async def pep_state(request: Request) -> dict[str, Any]:
         out["store_error"] = str(exc)[:200]
     # Cross-read Lingora's event buffer (import here to avoid circular import)
     try:
-        from pep.routes.lingora_bridge import _EVENTS as _LINGORA_EVENTS
+        from pep.routes.lingora.lingora_bridge import _EVENTS as _LINGORA_EVENTS
         out["lingora_events"] = len(_LINGORA_EVENTS)
         if _LINGORA_EVENTS:
             last = list(_LINGORA_EVENTS)[-1]
@@ -114,7 +114,7 @@ async def pep_state(request: Request) -> dict[str, Any]:
         pass
     # Cross-read Atria's event buffer
     try:
-        from pep.routes.atria_bridge import _EVENTS as _ATRIA_EVENTS
+        from pep.routes.atria.atria_bridge import _EVENTS as _ATRIA_EVENTS
         out["atria_events"] = len(_ATRIA_EVENTS)
         if _ATRIA_EVENTS:
             last = list(_ATRIA_EVENTS)[-1]
@@ -131,7 +131,7 @@ async def pep_state(request: Request) -> dict[str, Any]:
 async def lingora_events(limit: int = 40) -> dict[str, Any]:
     """Mirror Lingora's event buffer so Axona's bridge panel can display it."""
     try:
-        from pep.routes.lingora_bridge import _EVENTS as _LINGORA_EVENTS
+        from pep.routes.lingora.lingora_bridge import _EVENTS as _LINGORA_EVENTS
         items = list(_LINGORA_EVENTS)[-limit:]
         return {"count": len(_LINGORA_EVENTS), "items": items}
     except Exception as exc:
@@ -142,7 +142,7 @@ async def lingora_events(limit: int = 40) -> dict[str, Any]:
 async def atria_events(limit: int = 40) -> dict[str, Any]:
     """Mirror Atria's event buffer so Axona's bridge panel can display it."""
     try:
-        from pep.routes.atria_bridge import _EVENTS as _ATRIA_EVENTS
+        from pep.routes.atria.atria_bridge import _EVENTS as _ATRIA_EVENTS
         items = list(_ATRIA_EVENTS)[-limit:]
         return {"count": len(_ATRIA_EVENTS), "items": items}
     except Exception as exc:
