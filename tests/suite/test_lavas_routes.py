@@ -25,10 +25,10 @@ def client() -> TestClient:
 SIBLINGS = ["axona", "lingora", "atria", "vectora", "strata"]
 
 
-def test_root_redirects_to_pep(client: TestClient) -> None:
+def test_root_redirects_to_lemma(client: TestClient) -> None:
     resp = client.get("/", follow_redirects=False)
     assert resp.status_code in (307, 302, 303)
-    assert resp.headers["location"] == "/pep"
+    assert resp.headers["location"] == "/lemma/teachers"  # root lands on Lemma since 03d63a6
 
 
 def test_pep_teaching_page(client: TestClient) -> None:
@@ -110,7 +110,7 @@ def test_vectora_grouped_tabs(client: TestClient) -> None:
     body = resp.text
     # Grouped tabs use data-panels (plural)
     assert 'data-panels="keyword-tab embed-tab rerank-tab multihop-tab context-tab"' in body
-    assert 'data-panels="kg-tab anomaly-tab"' in body
+    assert 'data-panels="kg-tab anomaly-tab orgopacity-tab contradict-tab"' in body
     assert 'data-panels="pitch-tab bench-tab"' in body
 
 
