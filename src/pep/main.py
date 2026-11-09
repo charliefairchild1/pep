@@ -64,10 +64,10 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="Lemma + PEP",
+    title="PEP Labs — LAVAS suite",
     description=(
-        "Lemma — daily warmup grading app for math teachers. Built on the PEP "
-        "predictive memory-overlay architecture. Connects to Canvas LMS."
+        "PEP engine and the LAVAS apps (Lingora, Atria, Vectora, Axona, "
+        "Strata), plus Lemma, PTO, the math playground and demos."
     ),
     version=__version__,
     lifespan=lifespan,
@@ -128,14 +128,11 @@ def _include_chat_and_debug(app: FastAPI) -> None:
 
 
 # ---------------------------------------------------------------------------
-# Root + health — registered FIRST so they win over any landing route in
-# pep.routes/ that also claims "/"
+# Lemma redirect + health — registered before auto-discovery
 # ---------------------------------------------------------------------------
 
-@app.get("/")
-async def root() -> RedirectResponse:
-    """Land on Lemma marketing; teachers + students enter here."""
-    return RedirectResponse("/lemma/teachers", status_code=302)
+# "/" is served by the LAVAS landing page (pep.routes.core.landing), the
+# showcase for the whole suite. Lemma lives under /lemma.
 
 
 @app.get("/lemma")

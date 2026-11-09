@@ -25,10 +25,16 @@ def client() -> TestClient:
 SIBLINGS = ["axona", "lingora", "atria", "vectora", "strata"]
 
 
-def test_root_redirects_to_lemma(client: TestClient) -> None:
+def test_root_serves_lavas_landing(client: TestClient) -> None:
     resp = client.get("/", follow_redirects=False)
+    assert resp.status_code == 200
+    assert "Five Products, One Engine" in resp.text
+
+
+def test_lemma_root_redirects_to_teachers(client: TestClient) -> None:
+    resp = client.get("/lemma", follow_redirects=False)
     assert resp.status_code in (307, 302, 303)
-    assert resp.headers["location"] == "/lemma/teachers"  # root lands on Lemma since 03d63a6
+    assert resp.headers["location"] == "/lemma/teachers"
 
 
 def test_pep_teaching_page(client: TestClient) -> None:

@@ -9,7 +9,8 @@ Lemma for math teachers.
 Everything is served by one FastAPI server, and the code is organized **one
 folder per project**, the same way in `src/pep/routes/`, `tests/` and `docs/`.
 
-Live deployment (Lemma): https://lemma-2b0h.onrender.com
+Live site: https://lemma-2b0h.onrender.com (the home page is the LAVAS suite;
+Lemma is at `/lemma`)
 
 ## Projects
 
@@ -62,8 +63,7 @@ To add a page: drop a file with `router = APIRouter()` into the right
 
 ## Deployment
 
-Lemma (and every page that runs on the slim dependency set) deploys to Render
-on every push to `main`. See [`docs/lemma/DEPLOY.md`](docs/lemma/DEPLOY.md);
+The whole server deploys to Render on every push to `main`. See [`docs/lemma/DEPLOY.md`](docs/lemma/DEPLOY.md);
 Stripe, AI grading and domain setup are in the same folder.
 
 ## Kept outside this repo
