@@ -312,12 +312,15 @@ def _clinic_html() -> str:
   .alert.info {{ background: rgba(129,199,132,0.1); border-left: 3px solid #81c784; }}
   .alert.warning {{ background: rgba(255,183,77,0.1); border-left: 3px solid #ffb74d; }}
   .alert.critical {{ background: rgba(240,98,146,0.1); border-left: 3px solid #f06292; }}
+  .crisis {{ background: rgba(240,98,146,0.12); border: 1px solid #f06292; border-left: 4px solid #f06292; border-radius: 6px; padding: 16px; margin-top: 14px; font-size: 12px; }}
+  .crisis .notice {{ color: #ffd6e4; font-weight: bold; line-height: 1.6; }}
+  .crisis .why {{ color: #aaa; font-size: 10px; margin-top: 8px; }}
 </style></head><body>
 <nav><span class="brand">Axona Clinic</span><span class="badge">LIVE ENGINE</span>
 <div class="links"><a href="/axona/clinic">Product</a><a href="/axona">Axona</a><a href="/pep">PEP</a></div></nav>
 <div class="container">
 <h2>Session transcript → cognitive state mapping</h2>
-<p style="font-size:11px;color:#6b8088;margin-bottom:12px">Paste a session note or click a sample. The engine detects keywords that signal novelty, coherence, bandwidth, and valence.</p>
+<p style="font-size:11px;color:#6b8088;margin-bottom:12px">Paste a session note or click a sample. The engine detects keywords that signal novelty, coherence, bandwidth, and valence. A note with crisis language (suicide, self-harm, harm to others) gets a crisis notice instead of a state: this demo cannot assess risk.</p>
 <div class="samples">{samples}</div>
 <textarea id="input" placeholder="Paste a session note..."></textarea>
 <button class="run" onclick="runClinic()">Analyze session</button>
@@ -326,10 +329,17 @@ def _clinic_html() -> str:
 <script>
 const NOTES = {__import__('json').dumps(dict(clinic.SAMPLE_NOTES))};
 function loadNote(k) {{ document.getElementById('input').value = NOTES[k] || ''; runClinic(); }}
+function esc(v) {{ return String(v).replace(/[&<>"']/g, c => ({{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}})[c]); }}
 async function runClinic() {{
   const text = document.getElementById('input').value.trim(); if (!text) return;
   const r = await fetch('/axona/clinic-api/analyze', {{ method:'POST', headers:{{'Content-Type':'application/json'}}, body:JSON.stringify({{text}}) }});
   const data = await r.json();
+  if (data.crisis) {{
+    // Crisis language: show the notice only. The keyword state is withheld so nothing reads as reassurance.
+    const matched = (data.crisis.matches || []).map(m => '"' + esc(m) + '"').join(', ');
+    document.getElementById('results').innerHTML = `<div class="crisis" role="alert"><div class="notice">${{esc(data.crisis.message)}}</div><div class="why">Matched: ${{matched}}. This is a fixed phrase list, matched as words. It flags negated and quoted phrases too, and it can miss crisis language that is not on the list. No state is shown for this note.</div></div>`;
+    return;
+  }}
   const s = data.state;
   const axes = [['novelty',s.novelty,'#ba68c8'],['coherence',s.coherence,'#67e8f9'],['bandwidth',s.bandwidth,'#ffb74d'],['valence',(s.valence+1)/2,s.valence>=0?'#81c784':'#f06292']];
   const bars = axes.map(([n,v,c]) => `<div class="axis"><span class="name">${{n}}</span><span class="bar"><span style="width:${{Math.round(v*100)}}%;background:${{c}}"></span></span><span class="val">${{n==='valence'?((v*2-1).toFixed(2)):v.toFixed(2)}}</span></div>`).join('');
