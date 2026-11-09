@@ -42,7 +42,7 @@ jobs:
         run: |
           if [ -z "$HOOK_URL" ]; then
             echo "RENDER_DEPLOY_HOOK_URL not set — skipping Render deploy."
-            echo "Set it in GitHub Secrets to enable. See LEMMA_DEPLOY.md."
+            echo "Set it in GitHub Secrets to enable. See docs/lemma/DEPLOY.md."
             exit 0
           fi
           curl -sS -X POST "$HOOK_URL" -o /dev/null -w "Render deploy hook fired: HTTP %{http_code}\n"
